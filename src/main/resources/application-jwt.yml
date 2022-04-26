@@ -1,0 +1,4 @@
+jwt:
+  header: Authorization
+  secret : '시크릿값'
+  token-validity-in-seconds : 3600

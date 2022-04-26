@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    username: root
+    password: 비밀번호
+    url: jdbc:mysql://localhost:13306/testdb?allowPublicKeyRetrieval=true&useSSL=false
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+    defer-datasource-initialization: true
+  sql:
+    init:
+      schema-locations:
+      data-locations: classpath:sql/data.sql
+      mode: ALWAYS

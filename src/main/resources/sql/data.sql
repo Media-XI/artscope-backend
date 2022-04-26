@@ -1,0 +1,9 @@
+INSERT INTO member (MEMBER_ID, USERNAME, PASSWORD, NAME) VALUES (1, 'admin', '$2a$08$lDnHPz7eUkSi6ao14Twuau08mzhWrL4kyZGGU5xfiGALO/Vxd5DOi', 'admin');
+INSERT INTO member (MEMBER_ID, USERNAME, PASSWORD, NAME) VALUES (2, 'user', '$2a$08$UkVvwpULis18S19S5pZFn.YHPZt3oaqHZnDwqbCW9pft6uFtkXKDC', 'user');
+
+INSERT INTO authority (AUTHORITY_NAME) values ('ROLE_USER');
+INSERT INTO authority (AUTHORITY_NAME) values ('ROLE_ADMIN');
+
+INSERT INTO member_authority (MEMBER_ID, AUTHORITY_NAME) values (1, 'ROLE_USER');
+INSERT INTO member_authority (MEMBER_ID, AUTHORITY_NAME) values (1, 'ROLE_ADMIN');
+INSERT INTO member_authority (MEMBER_ID, AUTHORITY_NAME) values (2, 'ROLE_USER');

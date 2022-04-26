@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  backend:
+    image: backend:latest
+    ports:
+      - 8080:8080
+    depends_on:
+      - mysql
+
+  mysql:
+    image: library/mysql:5.7
+    platform: linux/bamd64
+    volumes:
+      - db_datas:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=디비이름
+      - MYSQL_ROOT_HOST='%'
+      - MYSQL_ROOT_PASSWORD=비밀번호
+      - TZ= Asia/Seoul
+    ports:
+      - 13306:3306
+
+volumes:
+  db_datas:

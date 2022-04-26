@@ -1,0 +1,15 @@
+spring:
+  profiles:
+    active: default
+    include:
+      - mysql
+      - jwt
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+
+logging:
+  level:
+    kr.megabrain : DEBUG
