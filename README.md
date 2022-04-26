@@ -2,7 +2,7 @@
 
 스프링부트 코드베이스
 
-Tech Stack
+## 적용한 기술들
 ```
 Spring Data JPA
 Spring Security
@@ -12,8 +12,8 @@ Swagger2
 Docker
 ```
 
-## How to Use
-
+# How to Use
+## 프로젝트 설정 변경
 - docker-compose.yml을 수정해주세요
   - DB 관련 Secrert 값 수정
   - 경로 및 포트 수정
@@ -75,3 +75,13 @@ Docker
           mode: ALWAYS
     
     ```
+  
+#서버 구동
+```shell
+> ./gradlew bootRun
+```
+or
+```shell
+> docker build -t backend:0.1 . # 도커 이미지 생성 후
+> docker-compose up -d
+```
