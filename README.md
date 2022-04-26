@@ -2,14 +2,15 @@
 
 스프링부트 코드베이스
 
-## 적용한 기술들
+## 적용된 기술들
 ```
 Spring Data JPA
 Spring Security
+Swagger2
 JWT
 MySQL
-Swagger2
 Docker
+Gradle
 ```
 
 # How to Use
