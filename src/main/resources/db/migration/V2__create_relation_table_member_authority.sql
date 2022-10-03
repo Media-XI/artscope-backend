@@ -5,4 +5,4 @@ CREATE TABLE IF NOT EXISTS `member_authority` (
     `authority_name` varchar(50) NOT NULL ,
     foreign key (`member_id`) REFERENCES member(`member_id`),
     foreign key (`authority_name`) REFERENCES authority(`authority_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

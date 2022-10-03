@@ -11,11 +11,11 @@ JWT
 MySQL
 Docker
 Gradle
+Flyway
 ```
 
 ## 적용할 기술들
 ```
-Flyway
 Redis
 Spring Multi module
 ```

@@ -6,4 +6,4 @@ CREATE TABLE IF NOT EXISTS `member` (
     `password` varchar(100),
     `name` varchar(50) NOT NULL,
     PRIMARY KEY (`member_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
