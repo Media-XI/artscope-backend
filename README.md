@@ -8,15 +8,16 @@ Spring Data JPA
 Spring Security
 Swagger2
 JWT
-MySQL
 Docker
 Gradle
+
+MySQL
 Flyway
+Redis
 ```
 
 ## 적용할 기술들
 ```
-Redis
 Spring Multi module
 ```
 
