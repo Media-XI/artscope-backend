@@ -15,7 +15,7 @@ services:
       - db_datas:/var/lib/mysql
     environment:
       - MYSQL_DATABASE=testdb
-      - MYSQL_ROOT_HOST='%'
+      - MYSQL_ROOT_HOST=%
       - MYSQL_ROOT_PASSWORD=changeme
       - TZ= Asia/Seoul
     ports:

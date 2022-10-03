@@ -4,15 +4,23 @@ spring:
     password: changeme
     url: jdbc:mysql://localhost:13306/testdb?allowPublicKeyRetrieval=true&useSSL=false
   jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    generate-ddl: false # DDL 생성 여부
+    open-in-view: false # View 단에서 Session(영속성 컨텍스트) 적용 여부 - 확작성 측면으로 볼때 false 권장 (default: true)
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
+      use-new-id-generator-mappings: false #  Hibernate의 id 생성 전략을 그대로 사용
     properties:
       hibernate:
         show_sql: true
         format_sql: true
-    defer-datasource-initialization: true
-  sql:
-    init:
-      schema-locations:
-      data-locations: classpath:sql/data.sql
-      mode: ALWAYS
+        enable_lazy_load_no_trans: true # LAZY 로드를 default로 설정
+
+# # Flyway 사용으로 초기화 주석
+#    defer-datasource-initialization: true
+#  sql:
+#    init:
+#      schema-locations:
+#      data-locations: classpath:sql/data.sql
+#      mode: ALWAYS
