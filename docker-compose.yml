@@ -1,12 +1,12 @@
 version: '3.8'
 
 services:
-  backend:
-    image: backend:latest
-    ports:
-      - 8080:8080
-    depends_on:
-      - mysql
+#  backend:
+#    image: backend:latest
+#    ports:
+#      - 8080:8080
+#    depends_on:
+#      - mysql
 
   mysql:
     image: library/mysql:5.7
@@ -16,7 +16,7 @@ services:
     environment:
       - MYSQL_DATABASE=testdb
       - MYSQL_ROOT_HOST='%'
-      - MYSQL_ROOT_PASSWORD='changeme'
+      - MYSQL_ROOT_PASSWORD=changeme
       - TZ= Asia/Seoul
     ports:
       - 13306:3306
