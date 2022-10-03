@@ -4,6 +4,7 @@ spring:
     include:
       - mysql
       - jwt
+      - flyway
 
   mvc:
     pathmatch:
