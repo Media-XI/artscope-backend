@@ -9,7 +9,7 @@ services:
 #      - mysql
 
   mysql:
-    image: library/mysql:5.7
+    image: library/mysql
     platform: linux/amd64
     volumes:
       - db_datas:/var/lib/mysql
