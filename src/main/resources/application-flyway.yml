@@ -1,0 +1,8 @@
+
+spring:
+  flyway:
+    enabled: true
+    baseline-on-migrate: true  # flyway_shcema_history table 자동 생성
+    url: jdbc:mysql://localhost:13306/testdb?allowPublicKeyRetrieval=true&useSSL=false
+    user: root
+    password: changeme

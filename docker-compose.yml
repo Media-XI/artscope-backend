@@ -10,13 +10,13 @@ services:
 
   mysql:
     image: library/mysql:5.7
-    platform: linux/bamd64
+    platform: linux/amd64
     volumes:
       - db_datas:/var/lib/mysql
     environment:
-      - MYSQL_DATABASE=디비이름
+      - MYSQL_DATABASE=testdb
       - MYSQL_ROOT_HOST='%'
-      - MYSQL_ROOT_PASSWORD=비밀번호
+      - MYSQL_ROOT_PASSWORD='changeme'
       - TZ= Asia/Seoul
     ports:
       - 13306:3306

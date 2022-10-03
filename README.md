@@ -13,6 +13,13 @@ Docker
 Gradle
 ```
 
+## 적용할 기술들
+```
+Flyway
+Redis
+Spring Multi module
+```
+
 # How to Use
 ## 프로젝트 설정 변경
 - docker-compose.yml을 수정해주세요
