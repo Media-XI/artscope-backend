@@ -5,6 +5,7 @@ spring:
       - mysql
       - jwt
       - flyway
+      - redis
 
   mvc:
     pathmatch:
