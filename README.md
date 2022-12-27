@@ -4,15 +4,16 @@
 
 ## 적용된 기술들
 ```
+Spring Boot
 Spring Data JPA
 Spring Security
-Swagger2
+JUnit5, Swagger2
 JWT
-Docker
+Docker, Docker Compose
 Gradle
-
-MySQL
 Flyway
+MySQL
+PostgreSQL
 Redis
 ```
 
