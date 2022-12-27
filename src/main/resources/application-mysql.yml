@@ -7,7 +7,7 @@ spring:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
     generate-ddl: false # DDL 생성 여부
-    open-in-view: false # View 단에서 Session(영속성 컨텍스트) 적용 여부 - 확작성 측면으로 볼때 false 권장 (default: true)
+    open-in-view: false # View 단에서 Session(영속성 컨텍스트) 적용 여부 - 확장성 측면으로 볼때 false 권장 (default: true)
     hibernate:
       ddl-auto: validate
       use-new-id-generator-mappings: false #  Hibernate의 id 생성 전략을 그대로 사용
