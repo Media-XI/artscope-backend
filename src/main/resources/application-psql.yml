@@ -2,7 +2,7 @@ spring:
   datasource:
     hikari:
       maximum-pool-size: 4
-    url: jdbc:postgresql://localhost:15432/testdb
+    url: jdbc:postgresql://localhost:15432/default
     username: root
     password: changme
   jpa:

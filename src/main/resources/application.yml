@@ -2,16 +2,15 @@ spring:
   profiles:
     active: default
     include:
-      - psql
+      - mysql
+      - redis
       - jwt
       - flyway
-      - redis
 
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
 
-
 logging:
   level:
-    kr.megabrain : DEBUG
+    com.example : DEBUG

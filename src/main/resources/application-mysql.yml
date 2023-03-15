@@ -2,7 +2,7 @@ spring:
   datasource:
     username: root
     password: changeme
-    url: jdbc:mysql://localhost:13306/testdb?allowPublicKeyRetrieval=true&useSSL=false
+    url: jdbc:mysql://localhost:13306/default?allowPublicKeyRetrieval=true&useSSL=false
   jpa:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect

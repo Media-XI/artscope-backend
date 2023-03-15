@@ -9,28 +9,26 @@ services:
 #      - mysql
 
   mysql:
-    image: library/mysql
+    image: mysql:8.0.32
+    container_name: codebase-mysql
     platform: linux/amd64
     volumes:
       - db_datas:/var/lib/mysql
     environment:
-      - MYSQL_DATABASE=testdb
+      - MYSQL_DATABASE=default
       - MYSQL_ROOT_HOST=%
       - MYSQL_ROOT_PASSWORD=changeme
       - TZ= Asia/Seoul
     ports:
       - 13306:3306
-
   redis:
-    image: redis:alpine
+    image: redis:7.0-alpine
     command: redis-server --port 6379
-    container_name: redis_boot
-    hostname: redis_boot
+    container_name: codebase-redis
     labels:
       - "name=redis"
       - "mode=standalone"
     ports:
       - 16379:6379
-
 volumes:
   db_datas:
