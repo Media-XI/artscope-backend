@@ -1,17 +1,40 @@
 spring:
+  config:
+    activate:
+      on-profile:
+        - test
+
+  flyway:
+    enabled: false
+
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false
     username: sa
     password:
+
   jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
         show_sql: true
       format_sql: true
+    defer-datasource-initialization: true
   h2:
     console:
       enabled: true
+  sql:
+    init:
+      data-locations:
+        - classpath:sql/data.sql
+
+
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql: trace

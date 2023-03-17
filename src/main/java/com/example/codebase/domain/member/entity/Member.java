@@ -1,11 +1,9 @@
 package com.example.codebase.domain.member.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -27,16 +25,22 @@ public class Member {
     @Column(name = "password", length = 100)
     private String password;
 
-    @Column(name = "name", unique = true)
+    @Column(name = "name")
     private String name;
 
-    @ManyToMany
-    @JoinTable(
-            name = "member_authority",
-            joinColumns = {@JoinColumn(name = "member_id", referencedColumnName = "member_id")},
-            inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "authority_name")}
-    )
-    private Set<Authority> authorities;
+    @Column(name = "email", unique = true)
+    private String email;
 
+    @Column(name = "activated")
+    private boolean activated;
 
+    @Column(name = "created_time")
+    private LocalDateTime createdTime;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private Set<MemberAuthority> authorities;
+
+    public void setAuthorities(Set<MemberAuthority> authorities) {
+        this.authorities = authorities;
+    }
 }
