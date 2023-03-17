@@ -1,11 +1,11 @@
 package com.example.codebase.jwt.domain;
 
+import com.example.codebase.domain.auth.entity.RefreshToken;
+import com.example.codebase.domain.auth.repository.RefreshTokenRedisRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 

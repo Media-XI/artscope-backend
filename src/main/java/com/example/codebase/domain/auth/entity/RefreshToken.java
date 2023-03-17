@@ -1,4 +1,4 @@
-package com.example.codebase.jwt.domain;
+package com.example.codebase.domain.auth.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
