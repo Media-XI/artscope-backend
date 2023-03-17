@@ -1,6 +1,6 @@
 package com.example.codebase.controller;
 
-import com.example.codebase.domain.member.dto.MemberDTO;
+import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.example.codebase.domain.member.dto.MemberResponseDTO;
 import io.swagger.annotations.ApiOperation;
 import com.example.codebase.domain.member.entity.Member;
@@ -27,9 +27,9 @@ public class MemberController {
 
     @ApiOperation(value = "회원 가입", notes = "회원 가입을 합니다.")
     @PostMapping("")
-    public ResponseEntity createMember(@RequestBody MemberDTO memberDTO) {
+    public ResponseEntity createMember(@RequestBody CreateMemberDTO createMemberDTO) {
         try {
-            MemberResponseDTO memberResponseDTO = memberService.createMember(memberDTO);
+            MemberResponseDTO memberResponseDTO = memberService.createMember(createMemberDTO);
             return new ResponseEntity(memberResponseDTO, HttpStatus.CREATED);
         } catch (RuntimeException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);

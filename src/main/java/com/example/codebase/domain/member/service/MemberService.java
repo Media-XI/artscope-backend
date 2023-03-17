@@ -1,11 +1,10 @@
 package com.example.codebase.domain.member.service;
 
-import com.example.codebase.domain.member.dto.MemberDTO;
+import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.example.codebase.domain.member.dto.MemberResponseDTO;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
-import com.example.codebase.domain.member.repository.AuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,7 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponseDTO createMember(MemberDTO member) {
+    public MemberResponseDTO createMember(CreateMemberDTO member) {
         if (memberRepository.findOneWithAuthoritiesByUsername(member.getUsername()).isPresent()) {
             throw new RuntimeException("이미 존재하는 회원입니다.");
         }
