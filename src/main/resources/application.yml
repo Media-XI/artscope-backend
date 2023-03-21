@@ -6,6 +6,7 @@ spring:
       - redis
       - jwt
       - flyway
+      - oauth
 
   mvc:
     pathmatch:

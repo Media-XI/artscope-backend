@@ -24,6 +24,7 @@ dependencies {
     implementation 'io.springfox:springfox-boot-starter:3.0.0'
     implementation 'org.springframework.boot:spring-boot-starter-security:2.6.7'
     implementation 'org.springframework.boot:spring-boot-starter-validation:2.6.7'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client:2.6.7'
 
     implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.3'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.3'

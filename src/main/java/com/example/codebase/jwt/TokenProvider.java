@@ -17,18 +17,15 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
 @Slf4j
 public class TokenProvider implements InitializingBean {
-
     private static final String AUTHORITIES_KEY = "auth";
-
     private final String secret;
-
     private final Long tokenValidityInMilliseconds;
-
     private Key key;
 
     public TokenProvider(
@@ -36,6 +33,10 @@ public class TokenProvider implements InitializingBean {
             @Value("${jwt.token-validity-in-seconds}") Long tokenValidityInMilliseconds) {
         this.secret = secret;
         this.tokenValidityInMilliseconds = tokenValidityInMilliseconds * 1000;
+    }
+
+    public Long getTokenValidityInMilliseconds() {
+        return tokenValidityInMilliseconds;
     }
 
     @Override
@@ -57,7 +58,6 @@ public class TokenProvider implements InitializingBean {
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)
                 .compact();
-
     }
 
     public Authentication getAuthentication(String token) {

@@ -1,10 +1,14 @@
 package com.example.codebase.domain.member.entity;
 
+import com.example.codebase.domain.member.entity.oauth2.oAuthProvider;
 import lombok.*;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "member")
@@ -31,6 +35,16 @@ public class Member {
     @Column(name = "email", unique = true)
     private String email;
 
+    @Column(name = "picture")
+    private String picture;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "oauth_provider", nullable = true)
+    private oAuthProvider oauthProvider;
+
+    @Column(name = "oauth_provider_id", nullable = true)
+    private String oauthProviderId;
+
     @Column(name = "activated")
     private boolean activated;
 
@@ -42,5 +56,18 @@ public class Member {
 
     public void setAuthorities(Set<MemberAuthority> authorities) {
         this.authorities = authorities;
+    }
+
+    public static User toUser(Member member) {
+        return new User(member.getUsername(), member.getPassword(), member.getAuthorities().stream()
+                .map(authority -> new SimpleGrantedAuthority(authority.getAuthority().getAuthorityName()))
+                .collect(Collectors.toList()));
+    }
+
+    public Member update(String name, String picture) {
+        this.name = name;
+        this.picture = picture;
+
+        return this;
     }
 }
