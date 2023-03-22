@@ -36,6 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private String[] permitList = {
             "/v2/**",
+            "/v3/**",
             "/configuration/**",
             "/swagger*/**",
             "/webjars/**",
