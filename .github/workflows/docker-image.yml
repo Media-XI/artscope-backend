@@ -16,7 +16,7 @@ env:
 
 jobs:
 
-  build:
+  build-dockerized:
 
     runs-on: ubuntu-latest
 
@@ -57,7 +57,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ secrets.MAJOR }}.${{ secrets.MINOR }}
 
       - name: Build and push Docker image
         id: build-and-push
@@ -67,3 +67,11 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Update Minor version
+        uses: hmanzur/actions-set-secret@v2.0.0
+        with:
+          name: 'MINOR'
+          value: $((${{ secrets.MINOR }}+1))
+          repository: ${{ secrets.REPO }}
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
