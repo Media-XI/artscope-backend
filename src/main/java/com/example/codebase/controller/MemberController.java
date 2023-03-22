@@ -38,16 +38,15 @@ public class MemberController {
 
 
     @ApiOperation(value = "전체 회원 조회" , notes = "등록된 전체 회원을 조회합니다.")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("")
     public ResponseEntity getAllMember() {
-        List<Member> members;
         try {
-            members = memberService.getAllMember();
-        } catch (Exception e) {
+            List<MemberResponseDTO> members = memberService.getAllMember();
+            return new ResponseEntity(members, HttpStatus.OK);
+        } catch (RuntimeException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity(members, HttpStatus.OK);
     }
 
 }

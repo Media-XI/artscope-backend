@@ -2,6 +2,7 @@ package com.example.codebase.domain.auth.handler;
 
 import com.example.codebase.domain.auth.dto.TokenResponseDTO;
 import com.example.codebase.domain.member.repository.MemberRepository;
+import com.example.codebase.jwt.JwtFilter;
 import com.example.codebase.jwt.TokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -38,21 +39,29 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         try {
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
             String token = tokenProvider.createToken(authentication);
-            TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
-            tokenResponseDTO.setExpiresIn(tokenProvider.getTokenValidityInMilliseconds());
-            tokenResponseDTO.setAccessToken(token);
-            tokenResponseDTO.setToken_type("bearer");
-
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.setContentType("application/json");
-            response.getWriter().write(mapper.writeValueAsString(tokenResponseDTO));
-
             log.info("token: " + token);
+
+            if (authentication.getAuthorities().contains("ROLE_GUEST") ){
+                response.addHeader(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + token);
+                response.sendRedirect("oauth2/sign-up"); // 프론트의 회원가입 추가 정보 입력 폼으로 리다이렉트
+            }
+            else {
+                loginSuccess(response, token);
+            }
         } catch (Exception e) {
             throw e;
         }
     }
 
+    private void loginSuccess(HttpServletResponse response, String token) throws IOException {
+        TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
+        tokenResponseDTO.setExpiresIn(tokenProvider.getTokenValidityInMilliseconds());
+        tokenResponseDTO.setAccessToken(token);
+        tokenResponseDTO.setToken_type("bearer");
+
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType("application/json");
+        response.getWriter().write(mapper.writeValueAsString(tokenResponseDTO));
+    }
 }
