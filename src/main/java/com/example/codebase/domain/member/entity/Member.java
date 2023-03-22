@@ -26,7 +26,7 @@ public class Member {
     @Column(name = "username", unique = true, length = 50)
     private String username;
 
-    @Column(name = "password", length = 100)
+    @Column(name = "password", length = 100, nullable = true)
     private String password;
 
     @Column(name = "name")
@@ -56,6 +56,10 @@ public class Member {
 
     public void setAuthorities(Set<MemberAuthority> authorities) {
         this.authorities = authorities;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public static User toUser(Member member) {

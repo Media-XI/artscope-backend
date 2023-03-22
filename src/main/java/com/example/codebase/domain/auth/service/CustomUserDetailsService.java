@@ -1,4 +1,4 @@
-package com.example.codebase.auth.security;
+package com.example.codebase.domain.auth.service;
 
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.repository.MemberRepository;
@@ -6,11 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 
-@Component
+@Service
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final MemberRepository memberRepository;

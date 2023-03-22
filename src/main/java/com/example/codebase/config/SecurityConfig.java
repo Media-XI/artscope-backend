@@ -1,21 +1,19 @@
 package com.example.codebase.config;
 
-import com.example.codebase.auth.oauth.CustomOAuth2UserService;
-import com.example.codebase.auth.oauth.OAuth2AuthenticationFailureHandler;
-import com.example.codebase.auth.oauth.OAuth2AuthenticationSuccessHandler;
+import com.example.codebase.domain.auth.service.CustomOAuth2UserService;
+import com.example.codebase.domain.auth.handler.OAuth2AuthenticationFailureHandler;
+import com.example.codebase.domain.auth.handler.OAuth2AuthenticationSuccessHandler;
 import com.example.codebase.jwt.JwtAuthenticationEntryPoint;
+import com.example.codebase.jwt.JwtSecurityConfig;
 import com.example.codebase.jwt.TokenProvider;
 import com.example.codebase.jwt.JwtAccessDeniedHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -34,12 +32,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         this.oAuth2AuthenticationSuccessHandler = oAuth2AuthenticationSuccessHandler;
         this.oAuth2AuthenticationFailureHandler = oAuth2AuthenticationFailureHandler;
         this.customOAuth2UserService = customOAuth2UserService;
-    }
-
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
     private String[] permitList = {
@@ -67,6 +59,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .headers().frameOptions().disable()
 
                 .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .accessDeniedHandler(jwtAccessDeniedHandler)
+
+
+                .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
@@ -78,11 +76,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
 
                 .and()
-                .oauth2Login()
+                .apply(new JwtSecurityConfig(tokenProvider))
+
+                .and()
+                .oauth2Login()  // oidc
                 .successHandler(oAuth2AuthenticationSuccessHandler)
                 .failureHandler(oAuth2AuthenticationFailureHandler)
-                .userInfoEndpoint()
-                .userService(customOAuth2UserService);
+                .userInfoEndpoint().userService(customOAuth2UserService);
     }
 }
 

@@ -1,5 +1,6 @@
 package com.example.codebase.domain.member.service;
 
+import com.example.codebase.domain.auth.OAuthAttributes;
 import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.example.codebase.domain.member.dto.MemberResponseDTO;
 import com.example.codebase.domain.member.entity.Authority;
@@ -60,6 +61,25 @@ public class MemberService {
         memberAuthorityRepository.save(memberAuthority);
 
         return MemberResponseDTO.from(save);
+    }
+
+    @Transactional
+    public Member createOAuthMember(OAuthAttributes oAuthAttributes) {
+        // New Save
+        Authority authority = new Authority();
+        authority.setAuthorityName("ROLE_USER");
+
+        Member newMember = oAuthAttributes.toEntity(passwordEncoder);
+        MemberAuthority memberAuthority = MemberAuthority.builder()
+                .authority(authority)
+                .member(newMember)
+                .build();
+        newMember.setAuthorities(Collections.singleton(memberAuthority));
+
+        Member save = memberRepository.save(newMember);
+        memberAuthorityRepository.save(memberAuthority);
+
+        return save;
     }
 
     public List<Member> getAllMember() {

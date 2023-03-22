@@ -1,4 +1,4 @@
-package com.example.codebase.auth.oauth.exception;
+package com.example.codebase.domain.auth.exception;
 
 public class BadRequestException extends RuntimeException {
     public BadRequestException(String message) {

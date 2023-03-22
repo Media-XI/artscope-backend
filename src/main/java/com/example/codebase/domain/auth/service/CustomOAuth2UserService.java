@@ -1,34 +1,41 @@
-package com.example.codebase.auth.oauth;
+package com.example.codebase.domain.auth.service;
 
+import com.example.codebase.domain.auth.OAuthAttributes;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
+import com.example.codebase.domain.member.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
     private MemberRepository memberRepository;
     private MemberAuthorityRepository memberAuthorityRepository;
+    private MemberService memberService;
+
     @Autowired
-    public CustomOAuth2UserService(MemberRepository memberRepository, MemberAuthorityRepository memberAuthorityRepository) {
+    public CustomOAuth2UserService(MemberRepository memberRepository, MemberAuthorityRepository memberAuthorityRepository, PasswordEncoder passwordEncoder, MemberService memberService) {
         this.memberRepository = memberRepository;
         this.memberAuthorityRepository = memberAuthorityRepository;
+        this.memberService = memberService;
     }
 
     @Override
@@ -56,20 +63,14 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     private Member saveOrUpdate(OAuthAttributes oAuthAttributes) {
-        Authority authority = new Authority();
-        authority.setAuthorityName("ROLE_USER");
+        Optional<Member> find = memberRepository.findByOauthProviderId(oAuthAttributes.getOAuthProviderId());
 
-        MemberAuthority memberAuthority = MemberAuthority.builder()
-                .authority(authority)
-                .build();
+        if (find.isPresent()) { // Update
+            Member presentMember = find.get();
+            presentMember.update(oAuthAttributes.getName(), oAuthAttributes.getPicture());
+            return presentMember;
+        }
 
-        Member member = memberRepository.findByUsername(oAuthAttributes.getNameAttributeKey())
-                .map(entity -> entity.update(oAuthAttributes.getName(), oAuthAttributes.getPicture()))
-                .orElse(oAuthAttributes.toEntity(memberAuthority));
-
-        memberAuthority.setMember(member);
-        memberAuthorityRepository.save(memberAuthority);
-
-        return memberRepository.save(member);
+        return memberService.createOAuthMember(oAuthAttributes);
     }
 }

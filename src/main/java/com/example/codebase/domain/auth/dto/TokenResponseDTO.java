@@ -7,8 +7,8 @@ import lombok.Setter;
 @Setter
 public class TokenResponseDTO {
     private String accessToken;
-    private int expiresIn;
+    private Long expiresIn;
     private String refreshToken;
-    private int refreshExpiresIn;
+    private Long refreshExpiresIn;
     private String token_type = "Bearer";
 }

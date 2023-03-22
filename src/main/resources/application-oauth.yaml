@@ -9,4 +9,4 @@ spring:
             scope:
               - email
               - profile
-              - openid
+              # - openid # OIDC 인증 활성화

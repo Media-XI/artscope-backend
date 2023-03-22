@@ -1,4 +1,4 @@
-package com.example.codebase.auth.oauth;
+package com.example.codebase.domain.auth.handler;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -13,7 +13,7 @@ import java.io.IOException;
 public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         response.getWriter().write("OAuth2 Authentication failed");
     }
 }
