@@ -22,4 +22,10 @@ public class Authority {
 
     @OneToMany(mappedBy = "authority")
     private Set<MemberAuthority> memberAuthorities;
+
+    public static Authority of(String authorityName) {
+        return Authority.builder()
+                .authorityName(authorityName)
+                .build();
+    }
 }
