@@ -56,7 +56,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private void loginSuccess(HttpServletResponse response, String token) throws IOException {
         TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
-        tokenResponseDTO.setExpiresIn(tokenProvider.getTokenValidityInMilliseconds());
+        tokenResponseDTO.setExpiresIn(tokenProvider.getTokenValidityInSeconds());
         tokenResponseDTO.setAccessToken(token);
         tokenResponseDTO.setToken_type("bearer");
 

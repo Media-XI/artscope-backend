@@ -39,7 +39,8 @@ public class AuthController {
 
             TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
             tokenResponseDTO.setAccessToken(accessToken);
-            tokenResponseDTO.setExpiresIn(tokenResponseDTO.getExpiresIn());
+            tokenResponseDTO.setExpiresIn(tokenProvider.getTokenValidityInSeconds());
+
             return new ResponseEntity(tokenResponseDTO, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.UNAUTHORIZED);

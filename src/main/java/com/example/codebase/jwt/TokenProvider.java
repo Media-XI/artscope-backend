@@ -39,6 +39,10 @@ public class TokenProvider implements InitializingBean {
         return tokenValidityInMilliseconds;
     }
 
+    public Long getTokenValidityInSeconds() {
+        return tokenValidityInMilliseconds / 1000;
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
