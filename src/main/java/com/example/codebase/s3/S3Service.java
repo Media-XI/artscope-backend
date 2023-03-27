@@ -14,6 +14,8 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Service
@@ -54,16 +56,15 @@ public class S3Service {
         String ext = originalFilename.substring(index + 1);
 
         String storeFileName = UUID.randomUUID() + "." + ext;
-        String key = "test/" + storeFileName;
+        String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
+        String key = now + "/" + storeFileName;
         try (InputStream inputStream = multipartFile.getInputStream()) {
             amazonS3Client.putObject(new PutObjectRequest(bucket, key, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
         }
-
-        String storeFileUrl = amazonS3Client.getUrl(bucket, key).toString();
         // TODO: ArtWork_Media 추가하기
-        return storeFileUrl;
+        return key;
     }
 
 }

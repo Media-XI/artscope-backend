@@ -16,7 +16,6 @@ public class ExhibitionController {
     @PostMapping("/")
     public ResponseEntity createExhibition() {
         try {
-            System.out.println("createExhibition");
             return new ResponseEntity("", HttpStatus.CREATED);
         } catch (RuntimeException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);

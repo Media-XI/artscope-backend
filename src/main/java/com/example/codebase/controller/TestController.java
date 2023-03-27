@@ -17,12 +17,6 @@ import java.io.IOException;
 @RequestMapping("/api/test")
 public class TestController {
 
-    private final S3Service s3Service;
-
-    public TestController(S3Service s3Service) {
-        this.s3Service = s3Service;
-    }
-
     @ApiOperation(value = "서버 상태 테스트", notes = "서버로 요청을 보내서, 정상작동하는지 확인한다.")
     @GetMapping("/ping")
     public String test() {
@@ -34,14 +28,5 @@ public class TestController {
     @GetMapping("/user")
     public String user() {
         return "user!";
-    }
-
-    @PostMapping("/upload")
-    public ResponseEntity upload(@RequestParam MultipartFile multipartFile) throws IOException {
-        try {
-            return new ResponseEntity(s3Service.saveUploadFile(multipartFile), HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
     }
 }
