@@ -10,12 +10,12 @@ services:
 
   mysql:
     image: mysql:8.0.32
-    container_name: codebase-mysql
+    container_name: art-mysql
     platform: linux/amd64
     volumes:
       - db_datas:/var/lib/mysql
     environment:
-      - MYSQL_DATABASE=default
+      - MYSQL_DATABASE=art
       - MYSQL_ROOT_HOST=%
       - MYSQL_ROOT_PASSWORD=mega123!
       - TZ= Asia/Seoul
@@ -24,7 +24,7 @@ services:
   redis:
     image: redis:7.0-alpine
     command: redis-server --port 6379
-    container_name: codebase-redisvar
+    container_name: art-redis
     labels:
       - "name=redis"
       - "mode=standalone"
