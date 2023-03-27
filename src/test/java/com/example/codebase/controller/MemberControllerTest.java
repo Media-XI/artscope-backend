@@ -1,5 +1,7 @@
 package com.example.codebase.controller;
 
+import com.example.codebase.domain.auth.WithMockCustomUser;
+import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
 import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +28,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Transactional
 class MemberControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -61,5 +62,27 @@ class MemberControllerTest {
                 .andExpect(status().isCreated())
                 .andDo(print());
     }
+
+    @DisplayName("아티스트 정보 입력 API가 작동한다")
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @Test
+    void test2() throws Exception {
+        CreateArtistMemberDTO dto = new CreateArtistMemberDTO();
+        dto.setIntroduction("소개");
+        dto.setSnsUrl("https://localhost");
+        dto.setWebsiteUrl("https://localhost");
+        dto.setHistory("연혁");
+
+        mockMvc.perform(
+                        post("/api/member/artist")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andExpect(status().isCreated())
+                .andDo(print());
+
+
+    }
+
 
 }

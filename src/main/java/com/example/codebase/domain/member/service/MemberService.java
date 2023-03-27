@@ -1,11 +1,14 @@
 package com.example.codebase.domain.member.service;
 
 import com.example.codebase.domain.auth.OAuthAttributes;
+import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
 import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.example.codebase.domain.member.dto.MemberResponseDTO;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
+import com.example.codebase.domain.member.exception.ExistMemberException;
+import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +38,7 @@ public class MemberService {
     @Transactional
     public MemberResponseDTO createMember(CreateMemberDTO member) {
         if (memberRepository.findOneWithAuthoritiesByUsername(member.getUsername()).isPresent()) {
-            throw new RuntimeException("이미 존재하는 회원입니다.");
+            throw new ExistMemberException();
         }
 
         Authority authority = Authority.builder()
@@ -87,5 +90,13 @@ public class MemberService {
         return memberRepository.findAll().stream()
                 .map(MemberResponseDTO::from)
                 .collect(Collectors.toList());
+    }
+
+    public MemberResponseDTO createArtist(CreateArtistMemberDTO createArtistMemberDTO) {
+        Member member = memberRepository
+                .findByUsername(createArtistMemberDTO.getUsername())
+                .orElseThrow(() -> new NotFoundMemberException());
+        member.setArtist(createArtistMemberDTO);
+        return MemberResponseDTO.from(member);
     }
 }

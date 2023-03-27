@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
@@ -20,6 +21,15 @@ public class MemberResponseDTO {
     private Optional<String> oauthProvider;
     private Optional<String> oauthProviderId;
     private boolean activated;
+
+    private String snsUrl;
+
+    private String websiteUrl;
+
+    private String introduction;
+
+    private String history;
+
     private Set<AuthorityDto> authrities;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdTime;
@@ -42,6 +52,11 @@ public class MemberResponseDTO {
                         ).collect(Collectors.toSet())
         );
         dto.setCreatedTime(member.getCreatedTime());
+        dto.setSnsUrl(member.getSnsUrl());
+        dto.setWebsiteUrl(member.getWebsiteUrl());
+        dto.setIntroduction(member.getIntroduction());
+        dto.setHistory(member.getHistory());
+
         return dto;
     }
 

@@ -1,5 +1,6 @@
 package com.example.codebase.domain.member.entity;
 
+import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
 import com.example.codebase.domain.member.entity.oauth2.oAuthProvider;
 import lombok.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -84,5 +85,12 @@ public class Member {
         this.picture = picture;
 
         return this;
+    }
+
+    public void setArtist(CreateArtistMemberDTO dto) {
+        this.snsUrl = dto.getSnsUrl();
+        this.websiteUrl = dto.getWebsiteUrl();
+        this.introduction = dto.getIntroduction();
+        this.history = dto.getHistory();
     }
 }

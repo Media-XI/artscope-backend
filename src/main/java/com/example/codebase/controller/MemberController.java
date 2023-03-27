@@ -1,7 +1,9 @@
 package com.example.codebase.controller;
 
+import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
 import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.example.codebase.domain.member.dto.MemberResponseDTO;
+import com.example.codebase.util.SecurityUtil;
 import io.swagger.annotations.ApiOperation;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.service.MemberService;
@@ -31,6 +33,19 @@ public class MemberController {
         try {
             MemberResponseDTO memberResponseDTO = memberService.createMember(createMemberDTO);
             return new ResponseEntity(memberResponseDTO, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @ApiOperation(value = "아티스트 정보 입력", notes = "아티스트 정보를 입력합니다.")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
+    @PostMapping("/artist")
+    public ResponseEntity createArtist(@RequestBody CreateArtistMemberDTO createArtistMemberDTO) {
+        try {
+            SecurityUtil.getCurrentUsername().ifPresent(createArtistMemberDTO::setUsername);
+            MemberResponseDTO artist = memberService.createArtist(createArtistMemberDTO);
+            return new ResponseEntity(artist, HttpStatus.CREATED);
         } catch (RuntimeException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
