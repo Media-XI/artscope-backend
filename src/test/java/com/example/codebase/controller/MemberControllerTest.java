@@ -48,9 +48,9 @@ class MemberControllerTest {
     @Test
     void test1() throws Exception {
         CreateMemberDTO dto = new CreateMemberDTO();
-        dto.setEmail("test@test.com");
+        dto.setEmail("test23@test.com");
         dto.setName("test");
-        dto.setUsername("testid");
+        dto.setUsername("test23");
         dto.setPassword("1234");
 
         mockMvc.perform(
@@ -63,7 +63,7 @@ class MemberControllerTest {
     }
 
     @DisplayName("아티스트 정보 입력 API가 작동한다")
-    @WithMockCustomUser(username = "testid", role = "USER")
+    @WithMockCustomUser(username = "test23", role = "USER")
     @Test
     void test2() throws Exception {
         CreateArtistMemberDTO dto = new CreateArtistMemberDTO();
