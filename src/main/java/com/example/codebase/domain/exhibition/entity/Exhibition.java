@@ -1,5 +1,6 @@
 package com.example.codebase.domain.exhibition.entity;
 
+import com.example.codebase.domain.exhibition.dto.CreateExhibitionDTO;
 import com.example.codebase.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,4 +43,15 @@ public class Exhibition {
     @ManyToOne
     @JoinColumn(name = "member_id")
     private Member member;
+
+    public static Exhibition of(CreateExhibitionDTO dto, Member member) {
+        return Exhibition.builder()
+                .title(dto.getTitle())
+                .description(dto.getDescription())
+                .startDate(dto.getStartDate())
+                .endDate(dto.getEndDate())
+                .createdTime(LocalDateTime.now())
+                .member(member)
+                .build();
+    }
 }
