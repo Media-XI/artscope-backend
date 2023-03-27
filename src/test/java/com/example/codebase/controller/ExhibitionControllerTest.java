@@ -28,6 +28,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -66,6 +67,11 @@ class ExhibitionControllerTest {
     }
 
     public Member createMember() {
+        Optional<Member> testMember = memberRepository.findByUsername("testid");
+        if (testMember.isPresent()) {
+            return testMember.get();
+        }
+
         Member dummy = Member.builder()
                 .username("testid")
                 .password(passwordEncoder.encode("1234"))
