@@ -1,5 +1,6 @@
 package com.example.codebase.domain.artwork.entity;
 
+import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,4 +36,12 @@ public class ArtworkMedia {
     @ManyToOne
     @JoinColumn(name = "artwork_id")
     private Artwork artwork;
+
+    public static ArtworkMedia of (ArtworkMediaCreateDTO media) {
+        return ArtworkMedia.builder()
+                .mediaType(media.getMediaType())
+                .mediaUrl(media.getMediaUrl())
+                .createdTime(LocalDateTime.now())
+                .build();
+    }
 }
