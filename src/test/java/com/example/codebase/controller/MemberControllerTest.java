@@ -47,7 +47,6 @@ class MemberControllerTest {
     @DisplayName("회원가입 API가 작동한다")
     @Test
     void test1() throws Exception {
-
         CreateMemberDTO dto = new CreateMemberDTO();
         dto.setEmail("test@test.com");
         dto.setName("test");
