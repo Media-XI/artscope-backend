@@ -1,7 +1,7 @@
 spring:
   datasource:
     username: root
-    password: changeme
+    password: mega123!
     url: jdbc:mysql://localhost:13306/default?allowPublicKeyRetrieval=true&useSSL=false
   jpa:
     database: mysql

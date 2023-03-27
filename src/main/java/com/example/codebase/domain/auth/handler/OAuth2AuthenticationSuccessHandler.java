@@ -42,7 +42,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             String token = tokenProvider.createToken(authentication);
             log.info("token: " + token);
 
-            if (authentication.getAuthorities().contains("ROLE_GUEST") ){
+            if (authentication.getAuthorities().contains("ROLE_GUEST") ){ // 최초 가입한 사람 -> ROLE_GUEST
                 response.addHeader(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + token);
                 response.sendRedirect("oauth2/sign-up"); // 프론트의 회원가입 추가 정보 입력 폼으로 리다이렉트
             }

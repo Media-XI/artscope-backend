@@ -48,6 +48,17 @@ public class Member {
     @Column(name = "activated")
     private boolean activated;
 
+    @Column(name = "sns_url")
+    private String snsUrl;
+
+    @Column(name = "website_url")
+    private String websiteUrl;
+
+    @Column(name = "introduction")
+    private String introduction;
+
+    @Column(name = "history")
+    private String history;
     @Column(name = "created_time")
     private LocalDateTime createdTime;
 

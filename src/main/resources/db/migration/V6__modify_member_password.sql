@@ -1,1 +1,2 @@
-ALTER TABLE `member` MODIFY `password` varchar(100) null;
+ALTER TABLE `member`
+    MODIFY `password` varchar(100) null;

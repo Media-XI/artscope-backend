@@ -17,14 +17,14 @@ services:
     environment:
       - MYSQL_DATABASE=default
       - MYSQL_ROOT_HOST=%
-      - MYSQL_ROOT_PASSWORD=changeme
+      - MYSQL_ROOT_PASSWORD=mega123!
       - TZ= Asia/Seoul
     ports:
       - 13306:3306
   redis:
     image: redis:7.0-alpine
     command: redis-server --port 6379
-    container_name: codebase-redis
+    container_name: codebase-redisvar
     labels:
       - "name=redis"
       - "mode=standalone"
