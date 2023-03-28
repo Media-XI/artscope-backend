@@ -37,14 +37,13 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDTO createMember(CreateMemberDTO member) {
-        if (memberRepository.findOneWithAuthoritiesByUsername(member.getUsername()).isPresent()) {
+        if (memberRepository.findByUsername(member.getUsername()).isPresent()) {
             throw new ExistMemberException();
         }
 
         Authority authority = Authority.builder()
                 .authorityName("ROLE_USER")
                 .build();
-
 
         Member newMember = Member.builder()
                 .username(member.getUsername())
