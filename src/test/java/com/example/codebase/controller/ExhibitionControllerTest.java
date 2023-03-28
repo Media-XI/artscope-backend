@@ -1,5 +1,9 @@
 package com.example.codebase.controller;
 
+import com.example.codebase.domain.artwork.entity.Artwork;
+import com.example.codebase.domain.artwork.entity.ArtworkMedia;
+import com.example.codebase.domain.artwork.entity.MediaType;
+import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.auth.WithMockCustomUser;
 import com.example.codebase.domain.exhibition.dto.CreateExhibitionDTO;
 import com.example.codebase.domain.member.entity.Authority;
@@ -16,7 +20,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -25,6 +28,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.transaction.Transactional;
+import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -52,6 +56,9 @@ class ExhibitionControllerTest {
 
     @Autowired
     private MemberAuthorityRepository memberAuthorityRepository;
+
+    @Autowired
+    private ArtworkRepository artworkRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -91,6 +98,29 @@ class ExhibitionControllerTest {
         return save;
     }
 
+    public Artwork createOrLoadArtwork() {
+        Optional<Artwork> testArtwork = artworkRepository.findById(1L);
+        if (testArtwork.isPresent()) {
+            return testArtwork.get();
+        }
+        ArtworkMedia artworkMedia = ArtworkMedia.builder()
+                .mediaType(MediaType.video)
+                .mediaUrl("url")
+                .createdTime(LocalDateTime.now())
+                .build();
+
+        Artwork artwork = Artwork.builder()
+                .title("작품 제목")
+                .description("작품 설명")
+                .member(createOrLoadMember())
+                .visible(true)
+                .createdTime(LocalDateTime.now())
+                .build();
+        artwork.addArtworkMedia(artworkMedia);
+
+        return artworkRepository.save(artwork);
+    }
+
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("전시회 등록 - 로그인한 사용자")
     @Test
@@ -110,7 +140,7 @@ class ExhibitionControllerTest {
 
         mockMvc.perform(
                         post("/api/exhibition")
-                                .contentType(MediaType.APPLICATION_JSON)
+                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto))
                 )
                 .andDo(print())
@@ -122,7 +152,31 @@ class ExhibitionControllerTest {
     public void test02() throws Exception {
         mockMvc.perform(
                         get("/api/exhibition")
-                                .contentType(MediaType.APPLICATION_JSON)
+                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("해당 전시회에 아트워크 등록")
+    @Test
+    public void test03() throws Exception {
+        Artwork artwork = createOrLoadArtwork();    // 전시회 생성
+
+        mockMvc.perform(
+                        post(String.format("/api/exhibition/1/artwork/%d", artwork.getId()))
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
+    }
+
+    @DisplayName("해당 전시회에 등록된 아트워크들 조회")
+    @Test
+    public void test04() throws Exception {
+        mockMvc.perform(
+                        get("/api/exhibition/1/artworks")
+                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isOk());

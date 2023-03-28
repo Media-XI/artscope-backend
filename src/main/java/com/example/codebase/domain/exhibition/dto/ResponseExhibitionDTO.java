@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class ResponseExhibitionDTO {
+    private Long id;
     private String title;
 
     private String description;
@@ -33,6 +34,7 @@ public class ResponseExhibitionDTO {
 
     public static ResponseExhibitionDTO from(Exhibition exhibition) {
         ResponseExhibitionDTO dto = new ResponseExhibitionDTO();
+        dto.setId(exhibition.getId());
         dto.setTitle(exhibition.getTitle());
         dto.setDescription(exhibition.getDescription());
         dto.setStartDate(exhibition.getStartDate());

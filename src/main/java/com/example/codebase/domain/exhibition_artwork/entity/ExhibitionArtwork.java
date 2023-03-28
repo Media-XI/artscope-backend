@@ -2,6 +2,7 @@ package com.example.codebase.domain.exhibition_artwork.entity;
 
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
+import com.example.codebase.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,7 +25,7 @@ public class ExhibitionArtwork {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "exhibition_id")
     private Exhibition exhibition;
 
@@ -41,4 +42,13 @@ public class ExhibitionArtwork {
 
     @Column(name = "updated_time")
     private LocalDateTime updatedTime;
+
+    public static ExhibitionArtwork of(Exhibition exhibition, Artwork artwork) {
+        return ExhibitionArtwork.builder()
+                .exhibition(exhibition)
+                .artwork(artwork)
+                .status(ExhibitionArtworkStatus.submitted)
+                .createdTime(LocalDateTime.now())
+                .build();
+    }
 }
