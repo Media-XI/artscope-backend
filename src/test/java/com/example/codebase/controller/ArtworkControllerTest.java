@@ -26,13 +26,11 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -68,7 +66,7 @@ class ArtworkControllerTest {
                 .build();
     }
 
-    public Member createMember() {
+    public Member createOrLoadMember() {
         Optional<Member> testMember = memberRepository.findByUsername("testid");
         if (testMember.isPresent()) {
             return testMember.get();
@@ -97,10 +95,10 @@ class ArtworkControllerTest {
     @DisplayName("아트워크 한개 등록")
     @Test
     public void test01() throws Exception {
-        createMember();
+        createOrLoadMember();
 
         ArtworkMediaCreateDTO mediaCreateDTO = new ArtworkMediaCreateDTO();
-        mediaCreateDTO.setMediaType(MediaType.image);
+        mediaCreateDTO.setMediaType(MediaType.image.toString());
         mediaCreateDTO.setMediaUrl("url");
 
         ArtworkCreateDTO dto = new ArtworkCreateDTO();
@@ -122,17 +120,17 @@ class ArtworkControllerTest {
     @DisplayName("아트워크 두개 등록")
     @Test
     public void test02() throws Exception {
-        createMember();
+        createOrLoadMember();
 
         List<ArtworkMediaCreateDTO> mediaCreateDTOList = new ArrayList<>();
 
         ArtworkMediaCreateDTO mediaCreateDTO1 = new ArtworkMediaCreateDTO();
-        mediaCreateDTO1.setMediaType(MediaType.image);
+        mediaCreateDTO1.setMediaType(MediaType.image.toString());
         mediaCreateDTO1.setMediaUrl("url");
         mediaCreateDTOList.add(mediaCreateDTO1);
 
         ArtworkMediaCreateDTO mediaCreateDTO2 = new ArtworkMediaCreateDTO();
-        mediaCreateDTO2.setMediaType(MediaType.video);
+        mediaCreateDTO2.setMediaType(MediaType.video.toString());
         mediaCreateDTO2.setMediaUrl("url");
         mediaCreateDTOList.add(mediaCreateDTO2);
 
@@ -162,5 +160,30 @@ class ArtworkControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("아트워크 미디어 부적절한 타입일 시 테스트")
+    @Test
+    public void test04() throws Exception {
+        createOrLoadMember();
+
+        ArtworkMediaCreateDTO mediaCreateDTO = new ArtworkMediaCreateDTO();
+        mediaCreateDTO.setMediaType("test");
+        mediaCreateDTO.setMediaUrl("url");
+
+        ArtworkCreateDTO dto = new ArtworkCreateDTO();
+        dto.setTitle("아트워크_테스트");
+        dto.setDescription("작품 설명");
+        dto.setVisible(false);
+        dto.setMediaUrls(Collections.singletonList(mediaCreateDTO));
+
+        mockMvc.perform(
+                        post("/api/artwork")
+                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 }

@@ -46,7 +46,6 @@ public class ArtworkService {
                 .description(dto.getDescription())
                 .createdTime(LocalDateTime.now())
                 .member(member)
-                .artworkMedia(new ArrayList<>())    // Builder로 생성할 때는 초기화를 해줘야 한다.
                 .build();
 
         for (ArtworkMediaCreateDTO mediaCreateDTO : dto.getMediaUrls()) {

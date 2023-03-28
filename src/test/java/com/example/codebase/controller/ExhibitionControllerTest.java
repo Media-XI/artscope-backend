@@ -66,7 +66,7 @@ class ExhibitionControllerTest {
                 .build();
     }
 
-    public Member createMember() {
+    public Member createOrLoadMember() {
         Optional<Member> testMember = memberRepository.findByUsername("testid");
         if (testMember.isPresent()) {
             return testMember.get();
@@ -95,7 +95,7 @@ class ExhibitionControllerTest {
     @DisplayName("전시회 등록 - 로그인한 사용자")
     @Test
     public void test01() throws Exception {
-        createMember();
+        createOrLoadMember();
 
         CreateExhibitionDTO dto = new CreateExhibitionDTO();
         dto.setTitle("전시회 제목");

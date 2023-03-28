@@ -64,7 +64,7 @@ class AuthControllerTest {
                 .build();
     }
 
-    public Member createMember() {
+    public Member createOrLoadMember() {
         Optional<Member> testMember = memberRepository.findByUsername("testid");
         if (testMember.isPresent()) {
             return testMember.get();
@@ -92,7 +92,7 @@ class AuthControllerTest {
     @DisplayName("로그인 API가 작동한다")
     @Test
     public void test1() throws Exception {
-        Member member = createMember();
+        Member member = createOrLoadMember();
         LoginDTO loginDTO = new LoginDTO();
         loginDTO.setUsername("testid");
         loginDTO.setPassword("1234");

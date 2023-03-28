@@ -43,6 +43,7 @@ public class Artwork {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Builder.Default
     @OneToMany(mappedBy = "artwork", cascade = CascadeType.ALL)
     private List<ArtworkMedia> artworkMedia = new ArrayList<>();
 

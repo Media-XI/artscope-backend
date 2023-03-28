@@ -40,7 +40,7 @@ public class ArtworkMedia {
 
     public static ArtworkMedia of (ArtworkMediaCreateDTO media, Artwork artwork) {
         return ArtworkMedia.builder()
-                .mediaType(media.getMediaType())
+                .mediaType(MediaType.create(media.getMediaType()))  // create() 메서드를 통해 MediaType을 생성 과 예외처리를 한다.
                 .mediaUrl(media.getMediaUrl())
                 .artwork(artwork)
                 .createdTime(LocalDateTime.now())
