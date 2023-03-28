@@ -22,8 +22,9 @@ public class ArtworkMedia {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "media_type", nullable = false)
-    private String mediaType;
+    private MediaType mediaType;
 
     @Column(name = "media_url", nullable = false)
     private String mediaUrl;
@@ -37,11 +38,16 @@ public class ArtworkMedia {
     @JoinColumn(name = "artwork_id")
     private Artwork artwork;
 
-    public static ArtworkMedia of (ArtworkMediaCreateDTO media) {
+    public static ArtworkMedia of (ArtworkMediaCreateDTO media, Artwork artwork) {
         return ArtworkMedia.builder()
                 .mediaType(media.getMediaType())
                 .mediaUrl(media.getMediaUrl())
+                .artwork(artwork)
                 .createdTime(LocalDateTime.now())
                 .build();
+    }
+
+    public void setArtwork(Artwork artwork) {
+        this.artwork = artwork;
     }
 }

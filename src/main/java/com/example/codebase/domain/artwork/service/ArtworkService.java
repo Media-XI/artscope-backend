@@ -13,6 +13,7 @@ import com.example.codebase.domain.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,27 +39,26 @@ public class ArtworkService {
         }
 
         Member member = memberRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundMemberException());
-
-        List<ArtworkMedia> artworkMedia = new ArrayList<>();
-        for (ArtworkMediaCreateDTO mediaCreateDTO : dto.getMediaUrls()) {
-            ArtworkMedia media = ArtworkMedia.of(mediaCreateDTO);
-            artworkMedia.add(media); // TODO: 단방향 매핑으로 변경할 것 Artwork 가 null로 저장됨 (FK 가 지정 안됨)
-        }
+                .orElseThrow(NotFoundMemberException::new);
 
         Artwork artwork = Artwork.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
+                .createdTime(LocalDateTime.now())
                 .member(member)
-                .artworkMedia(artworkMedia)
+                .artworkMedia(new ArrayList<>())    // Builder로 생성할 때는 초기화를 해줘야 한다.
                 .build();
+
+        for (ArtworkMediaCreateDTO mediaCreateDTO : dto.getMediaUrls()) {
+            ArtworkMedia media = ArtworkMedia.of(mediaCreateDTO, artwork);
+            artwork.addArtworkMedia(media);
+        }
 
         Artwork saveArtwork = artworkRepository.save(artwork);
         return ArtworkResponseDTO.from(saveArtwork);
     }
 
     public List<ArtworkResponseDTO> getAllArtwork() {
-        List<ArtworkMedia> all = artworkMediaRepository.findAll();
         List<ArtworkResponseDTO> dtos = artworkRepository.findAll().stream()
                 .map(ArtworkResponseDTO::from)
                 .collect(Collectors.toList());

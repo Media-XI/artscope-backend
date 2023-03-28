@@ -1,5 +1,6 @@
 package com.example.codebase.domain.artwork.dto;
 
+import com.example.codebase.domain.artwork.entity.MediaType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,6 +8,6 @@ import lombok.Setter;
 @Setter
 public class ArtworkMediaCreateDTO {
 
-    private String mediaType;
+    private MediaType mediaType;
     private String mediaUrl;
 }

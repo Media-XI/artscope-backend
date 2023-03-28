@@ -44,7 +44,7 @@ public class Artwork {
     private Member member;
 
     @OneToMany(mappedBy = "artwork", cascade = CascadeType.ALL)
-    private List<ArtworkMedia> artworkMedia;
+    private List<ArtworkMedia> artworkMedia = new ArrayList<>();
 
     public static Artwork of (ArtworkCreateDTO dto, Member member) {
         return Artwork.builder()
@@ -57,9 +57,6 @@ public class Artwork {
     }
 
     public void addArtworkMedia(ArtworkMedia artworkMedia) {
-        if (this.artworkMedia.size() >= 5) {
-            throw new RuntimeException("미디어 파일 개수는 5개까지만 등록할 수 있습니다.");
-        }
         this.artworkMedia.add(artworkMedia);
     }
 }

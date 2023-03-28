@@ -2,8 +2,8 @@ package com.example.codebase.controller;
 
 import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
+import com.example.codebase.domain.artwork.entity.MediaType;
 import com.example.codebase.domain.auth.WithMockCustomUser;
-import com.example.codebase.domain.exhibition.dto.CreateExhibitionDTO;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
@@ -18,7 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -28,7 +27,9 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -93,13 +94,13 @@ class ArtworkControllerTest {
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("아트워크 등록")
+    @DisplayName("아트워크 한개 등록")
     @Test
     public void test01() throws Exception {
         createMember();
 
         ArtworkMediaCreateDTO mediaCreateDTO = new ArtworkMediaCreateDTO();
-        mediaCreateDTO.setMediaType("image");
+        mediaCreateDTO.setMediaType(MediaType.image);
         mediaCreateDTO.setMediaUrl("url");
 
         ArtworkCreateDTO dto = new ArtworkCreateDTO();
@@ -110,19 +111,54 @@ class ArtworkControllerTest {
 
         mockMvc.perform(
                         post("/api/artwork")
-                                .contentType(MediaType.APPLICATION_JSON)
+                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto))
                 )
                 .andDo(print())
                 .andExpect(status().isCreated());
     }
 
-    @DisplayName("아트워크 전체 조회")
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("아트워크 두개 등록")
     @Test
     public void test02() throws Exception {
+        createMember();
+
+        List<ArtworkMediaCreateDTO> mediaCreateDTOList = new ArrayList<>();
+
+        ArtworkMediaCreateDTO mediaCreateDTO1 = new ArtworkMediaCreateDTO();
+        mediaCreateDTO1.setMediaType(MediaType.image);
+        mediaCreateDTO1.setMediaUrl("url");
+        mediaCreateDTOList.add(mediaCreateDTO1);
+
+        ArtworkMediaCreateDTO mediaCreateDTO2 = new ArtworkMediaCreateDTO();
+        mediaCreateDTO2.setMediaType(MediaType.video);
+        mediaCreateDTO2.setMediaUrl("url");
+        mediaCreateDTOList.add(mediaCreateDTO2);
+
+
+        ArtworkCreateDTO dto = new ArtworkCreateDTO();
+        dto.setTitle("아트워크_테스트");
+        dto.setDescription("작품 설명");
+        dto.setVisible(true);
+        dto.setMediaUrls(mediaCreateDTOList);
+
+        mockMvc.perform(
+                        post("/api/artwork")
+                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
+    }
+
+
+    @DisplayName("아트워크 전체 조회")
+    @Test
+    public void test03() throws Exception {
         mockMvc.perform(
                         get("/api/artwork")
-                                .contentType(MediaType.APPLICATION_JSON)
+                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isOk());

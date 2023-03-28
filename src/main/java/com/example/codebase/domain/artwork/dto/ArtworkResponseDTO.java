@@ -20,7 +20,7 @@ public class ArtworkResponseDTO {
     private List<ArtworkMediaResponseDTO> artworkMedias;
 
     public static ArtworkResponseDTO from(Artwork artwork) {
-        List<ArtworkMedia> artworkMedia = artwork.getArtworkMedia();
+        List<ArtworkMedia> artworkMedia = artwork.getArtworkMedia();    // Lazy Loading!
         List<ArtworkMediaResponseDTO> artworkMediaResponseDTOS = artworkMedia.stream()
                 .map(ArtworkMediaResponseDTO::from)
                 .collect(Collectors.toList());
