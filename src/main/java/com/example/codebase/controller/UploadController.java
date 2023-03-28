@@ -1,6 +1,7 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.s3.S3Service;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+@ApiOperation(value = "파일 업로드 API", notes = "파일 업로드")
 @RestController
 @RequestMapping("/api/upload")
 public class UploadController {
@@ -19,6 +21,7 @@ public class UploadController {
         this.s3Service = s3Service;
     }
 
+    @ApiOperation(value = "파일 업로드", notes = "파일 업로드")
     @PostMapping
     public ResponseEntity upload(@RequestParam MultipartFile multipartFile) throws IOException {
         try {

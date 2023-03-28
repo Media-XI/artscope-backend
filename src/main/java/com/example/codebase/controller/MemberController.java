@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@ApiOperation(value = "회원 관련 APIs" , notes = "")
+@ApiOperation(value = "회원", notes = "회원 관련 API")
 @RequestMapping("/api/member")
 public class MemberController {
 

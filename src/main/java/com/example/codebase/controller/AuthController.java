@@ -3,6 +3,7 @@ package com.example.codebase.controller;
 import com.example.codebase.domain.auth.dto.LoginDTO;
 import com.example.codebase.domain.auth.dto.TokenResponseDTO;
 import com.example.codebase.jwt.TokenProvider;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+@ApiOperation(value = "인증", notes = "인증 관련 API")
 @RestController
 @RequestMapping("/api")
 public class AuthController {
@@ -26,6 +28,7 @@ public class AuthController {
         this.tokenProvider = tokenProvider;
     }
 
+    @ApiOperation(value = "로그인", notes = "로그인")
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody LoginDTO loginDTO) {
         try {

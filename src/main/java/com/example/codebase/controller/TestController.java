@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+@ApiOperation(value = "테스트", notes = "테스트 관련 API")
 @RestController
 @RequestMapping("/api/test")
 public class TestController {
@@ -23,7 +24,7 @@ public class TestController {
         return "pong!";
     }
 
-    @ApiOperation(value = "서버 상태 테스트", notes = "서버로 요청을 보내서, 정상작동하는지 확인한다.")
+    @ApiOperation(value = "사용자 권한 테스트", notes = "사용자 권한이 있는지 확인한다.")
     @PreAuthorize("hasAnyRole('ROLE_USER')")
     @GetMapping("/user")
     public String user() {
