@@ -63,7 +63,7 @@ public class S3Service {
             amazonS3Client.putObject(new PutObjectRequest(bucket, key, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
         }
-        // TODO: ArtWork_Media 추가하기
+
         return key;
     }
 
