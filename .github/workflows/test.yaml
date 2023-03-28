@@ -9,7 +9,7 @@ name: Spring Boot Test by Gradle
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
 
