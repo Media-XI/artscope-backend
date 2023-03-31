@@ -29,23 +29,15 @@ public class ArtworkController {
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PostMapping
     public ResponseEntity createArtwork(@RequestBody ArtworkCreateDTO dto) {
-        try {
-            String username = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
-            ArtworkResponseDTO artwork = artworkService.createArtwork(dto, username);
-            return new ResponseEntity(artwork, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        String username = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+        ArtworkResponseDTO artwork = artworkService.createArtwork(dto, username);
+        return new ResponseEntity(artwork, HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "아트워크 조회", notes = "아트워크를 조회합니다.")
     @GetMapping
     public ResponseEntity getAllArtwork() {
-        try {
-            List<ArtworkResponseDTO> artworks = artworkService.getAllArtwork();
-            return new ResponseEntity(artworks, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        List<ArtworkResponseDTO> artworks = artworkService.getAllArtwork();
+        return new ResponseEntity(artworks, HttpStatus.OK);
     }
 }

@@ -30,37 +30,25 @@ public class MemberController {
     @ApiOperation(value = "회원 가입", notes = "회원 가입을 합니다.")
     @PostMapping("")
     public ResponseEntity createMember(@RequestBody CreateMemberDTO createMemberDTO) {
-        try {
-            MemberResponseDTO memberResponseDTO = memberService.createMember(createMemberDTO);
-            return new ResponseEntity(memberResponseDTO, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        MemberResponseDTO memberResponseDTO = memberService.createMember(createMemberDTO);
+        return new ResponseEntity(memberResponseDTO, HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "아티스트 정보 입력", notes = "아티스트 정보를 입력합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PostMapping("/artist")
     public ResponseEntity createArtist(@RequestBody CreateArtistMemberDTO createArtistMemberDTO) {
-        try {
-            SecurityUtil.getCurrentUsername().ifPresent(createArtistMemberDTO::setUsername);
-            MemberResponseDTO artist = memberService.createArtist(createArtistMemberDTO);
-            return new ResponseEntity(artist, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        SecurityUtil.getCurrentUsername().ifPresent(createArtistMemberDTO::setUsername);
+        MemberResponseDTO artist = memberService.createArtist(createArtistMemberDTO);
+        return new ResponseEntity(artist, HttpStatus.CREATED);
     }
 
 
-    @ApiOperation(value = "전체 회원 조회" , notes = "등록된 전체 회원을 조회합니다.")
+    @ApiOperation(value = "전체 회원 조회", notes = "등록된 전체 회원을 조회합니다.")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("")
     public ResponseEntity getAllMember() {
-        try {
-            List<MemberResponseDTO> members = memberService.getAllMember();
-            return new ResponseEntity(members, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        List<MemberResponseDTO> members = memberService.getAllMember();
+        return new ResponseEntity(members, HttpStatus.OK);
     }
 }

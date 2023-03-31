@@ -20,6 +20,7 @@ import java.util.List;
 @RequestMapping("/api/exhibition")
 public class ExhibitionController {
     private final ExhibitionService exhibitionService;
+
     public ExhibitionController(ExhibitionService exhibitionService) {
         this.exhibitionService = exhibitionService;
     }
@@ -28,47 +29,31 @@ public class ExhibitionController {
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PostMapping
     public ResponseEntity createExhibition(@RequestBody CreateExhibitionDTO createExhibitionDTO) {
-        try {
-            String username = SecurityUtil.getCurrentUsername().get();
-            ResponseExhibitionDTO exhibition = exhibitionService.createExhibition(createExhibitionDTO, username);
-            return new ResponseEntity(exhibition, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        String username = SecurityUtil.getCurrentUsername().get();
+        ResponseExhibitionDTO exhibition = exhibitionService.createExhibition(createExhibitionDTO, username);
+        return new ResponseEntity(exhibition, HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "공모전 조회", notes = "공모전을 조회합니다.")
     @GetMapping
     public ResponseEntity getExhibition() {
-        try {
-            List<ResponseExhibitionDTO> dtos = exhibitionService.getAllExhibition();
-            return new ResponseEntity(dtos, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        List<ResponseExhibitionDTO> dtos = exhibitionService.getAllExhibition();
+        return new ResponseEntity(dtos, HttpStatus.OK);
     }
 
     @ApiOperation(value = "공모전에 작품 추가", notes = "공모전에 작품을 추가합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PostMapping("/{exhibitionId}/artwork/{artworkId}")
     public ResponseEntity addArtworkToExhibition(@PathVariable Long exhibitionId, @PathVariable Long artworkId) {
-        try {
-            String username = SecurityUtil.getCurrentUsername().get();
-            ExhibitionArtworkResponseDTO exhibitionArtworkResponseDTO = exhibitionService.addArtworkToExhibition(exhibitionId, artworkId, username);
-            return new ResponseEntity(exhibitionArtworkResponseDTO, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        String username = SecurityUtil.getCurrentUsername().get();
+        ExhibitionArtworkResponseDTO exhibitionArtworkResponseDTO = exhibitionService.addArtworkToExhibition(exhibitionId, artworkId, username);
+        return new ResponseEntity(exhibitionArtworkResponseDTO, HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "공모전 작품 조회", notes = "공모전에 등록된 작품을 조회합니다.")
     @GetMapping("/{exhibitionId}/artworks")
     public ResponseEntity getExhibitionWithArtworks(@PathVariable Long exhibitionId) {
-        try {
-            ExhibitionArtworksResponseDTO exhibitionArtworks = exhibitionService.getArtworkFromExhibition(exhibitionId);
-            return new ResponseEntity(exhibitionArtworks, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        ExhibitionArtworksResponseDTO exhibitionArtworks = exhibitionService.getArtworkFromExhibition(exhibitionId);
+        return new ResponseEntity(exhibitionArtworks, HttpStatus.OK);
     }
 }

@@ -31,12 +31,14 @@ public class ArtworkMedia {
 
     @Column(name = "created_time")
     private LocalDateTime createdTime;
+
     @Column(name = "updated_time")
     private LocalDateTime updatedTime;
 
     @ManyToOne
     @JoinColumn(name = "artwork_id")
     private Artwork artwork;
+
 
     public static ArtworkMedia of (ArtworkMediaCreateDTO media, Artwork artwork) {
         return ArtworkMedia.builder()

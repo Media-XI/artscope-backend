@@ -17,6 +17,7 @@ import java.io.IOException;
 @RequestMapping("/api/upload")
 public class UploadController {
     private final S3Service s3Service;
+
     public UploadController(S3Service s3Service) {
         this.s3Service = s3Service;
     }
@@ -24,10 +25,6 @@ public class UploadController {
     @ApiOperation(value = "파일 업로드", notes = "파일 업로드")
     @PostMapping
     public ResponseEntity upload(@RequestParam MultipartFile multipartFile) throws IOException {
-        try {
-            return new ResponseEntity(s3Service.saveUploadFile(multipartFile), HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        return new ResponseEntity(s3Service.saveUploadFile(multipartFile), HttpStatus.CREATED);
     }
 }

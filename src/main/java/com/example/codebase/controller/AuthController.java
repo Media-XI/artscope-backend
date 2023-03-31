@@ -13,6 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 @ApiOperation(value = "인증", notes = "인증 관련 API")
 @RestController
 @RequestMapping("/api")
@@ -31,22 +34,20 @@ public class AuthController {
     @ApiOperation(value = "로그인", notes = "로그인")
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody LoginDTO loginDTO) {
-        try {
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword());
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword());
 
-            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            String accessToken = tokenProvider.createToken(authentication);
+        String accessToken = tokenProvider.createToken(authentication);
 
-            TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
-            tokenResponseDTO.setAccessToken(accessToken);
-            tokenResponseDTO.setExpiresIn(tokenProvider.getTokenValidityInSeconds());
+        TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
+        tokenResponseDTO.setAccessToken(accessToken);
+        tokenResponseDTO.setExpiresIn(tokenProvider.getTokenValidityInSeconds());
 
-            return new ResponseEntity(tokenResponseDTO, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.UNAUTHORIZED);
-        }
+        return new ResponseEntity(tokenResponseDTO, HttpStatus.OK);
     }
 }
+
+// localhost:8080/oauth2/authorization/google?redirect_uri=http://localhost:3000/oauth2/redirect
