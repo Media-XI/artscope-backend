@@ -1,5 +1,6 @@
 package com.example.codebase.domain.auth.handler;
 
+import com.amazonaws.services.ec2.model.CreateSecurityGroupRequest;
 import com.example.codebase.domain.auth.dto.TokenResponseDTO;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.jwt.JwtFilter;
@@ -48,6 +49,10 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             }
             else {
                 loginSuccess(response, token);
+                request.setAttribute("token", token);
+                response.setHeader("token", token);
+                getRedirectStrategy().sendRedirect(request, response, "http://localhost:3000/oauth2/redirect?token=" + token);
+                //
             }
         } catch (Exception e) {
             throw e;
