@@ -22,7 +22,7 @@ public class UploadController {
         this.s3Service = s3Service;
     }
 
-    @ApiOperation(value = "파일 업로드", notes = "파일 업로드")
+    @ApiOperation(value = "파일 업로드", notes = "[USER] 파일 업로드")
     @PostMapping
     public ResponseEntity upload(@RequestParam MultipartFile multipartFile) throws IOException {
         return new ResponseEntity(s3Service.saveUploadFile(multipartFile), HttpStatus.CREATED);

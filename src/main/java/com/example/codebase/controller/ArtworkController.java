@@ -25,7 +25,7 @@ public class ArtworkController {
         this.artworkService = artworkService;
     }
 
-    @ApiOperation(value = "아트워크 생성", notes = "아트워크를 생성합니다.")
+    @ApiOperation(value = "아트워크 생성", notes = "[ROLE_USER] 아트워크를 생성합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PostMapping
     public ResponseEntity createArtwork(@RequestBody ArtworkCreateDTO dto) {

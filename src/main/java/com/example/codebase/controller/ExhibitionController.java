@@ -41,7 +41,7 @@ public class ExhibitionController {
         return new ResponseEntity(dtos, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "공모전에 작품 추가", notes = "공모전에 작품을 추가합니다.")
+    @ApiOperation(value = "공모전에 작품 추가", notes = "[USER] 공모전에 작품을 추가합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PostMapping("/{exhibitionId}/artwork/{artworkId}")
     public ResponseEntity addArtworkToExhibition(@PathVariable Long exhibitionId, @PathVariable Long artworkId) {

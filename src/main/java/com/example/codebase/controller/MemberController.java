@@ -34,7 +34,7 @@ public class MemberController {
         return new ResponseEntity(memberResponseDTO, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "아티스트 정보 입력", notes = "아티스트 정보를 입력합니다.")
+    @ApiOperation(value = "아티스트 정보 입력", notes = "[USER] 아티스트 정보를 입력합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PostMapping("/artist")
     public ResponseEntity createArtist(@RequestBody CreateArtistMemberDTO createArtistMemberDTO) {
@@ -44,7 +44,7 @@ public class MemberController {
     }
 
 
-    @ApiOperation(value = "전체 회원 조회", notes = "등록된 전체 회원을 조회합니다.")
+    @ApiOperation(value = "전체 회원 조회", notes = "[ADMIN] 등록된 전체 회원을 조회합니다.")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("")
     public ResponseEntity getAllMember() {
