@@ -16,23 +16,3 @@ spring:
 logging:
   level:
     com.example : DEBUG
-
----
-spring:
-  config:
-    activate:
-      on-profile:
-        - default
-
-api:
-  oauth2-redirect-uri: http://localhost:3000/oauth2/success
-
----
-spring:
-  config:
-    activate:
-      on-profile:
-        - prod
-
-api:
-    oauth2-redirect-uri: https://artfe.megabrain.kr/oauth2/success
