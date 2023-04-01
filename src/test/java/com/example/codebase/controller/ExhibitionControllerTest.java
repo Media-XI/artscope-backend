@@ -244,6 +244,30 @@ class ExhibitionControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("관리자가 공모전에 제출한 아트워크 상태 변경 ")
+    @Test
+    public void test08() throws Exception {
+        String status = "accepted";
+
+        mockMvc.perform(
+                        put(String.format("/api/exhibitions/1/artworks/1?status=%s", status))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("공모전에 제출한 아트워크 삭제 ")
+    @Test
+    public void test09() throws Exception {
+
+        mockMvc.perform(
+                        delete(String.format("/api/exhibitions/1/artworks/1"))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
 
 
     @WithMockCustomUser(username = "testid", role = "USER")

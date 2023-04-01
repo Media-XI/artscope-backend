@@ -59,6 +59,36 @@ public class ExhibitionService {
         return dtos;
     }
 
+    public ResponseExhibitionDTO updateExhibition(Long exhibitionId, CreateExhibitionDTO createExhibitionDTO, String username) {
+        Exhibition exhibition = exhibitionRepository.findById(exhibitionId)
+                .orElseThrow(() -> new NotFoundExhibitionException());
+
+        if (!exhibition.getMember().getUsername().equals(username)) {
+            throw new RuntimeException("공모전의 작성자가 아닙니다.");
+        }
+
+        exhibition.update(createExhibitionDTO);
+
+        return ResponseExhibitionDTO.from(exhibition);
+    }
+
+    public void deleteExhibition(Long exhibitionId, String username) {
+        Exhibition exhibition = exhibitionRepository.findById(exhibitionId)
+                .orElseThrow(() -> new NotFoundExhibitionException());
+
+        if (!exhibition.getMember().getUsername().equals(username)) {
+            throw new RuntimeException("공모전의 작성자가 아닙니다.");
+        }
+
+        // 공모전에 제출된 작품들을 반려처리
+        List<ExhibitionArtwork> all = exhibitionArtworkRepository.findAllByExhibitionId(exhibitionId);
+        all.forEach(exhibitionArtwork -> {
+            exhibitionArtwork.setExhibitionArtworkStatus(ExhibitionArtworkStatus.rejected);
+        });
+
+        exhibition.delete(); // 소프트 삭제
+    }
+
     public ExhibitionArtworkResponseDTO addArtworkToExhibition(Long exhibitionId, Long artworkId, String username) {
         Artwork artwork = artworkRepository.findById(artworkId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 작품입니다."));
@@ -91,33 +121,23 @@ public class ExhibitionService {
         return ExhibitionArtworksResponseDTO.from(exhibition, artworkResponseDTOS);
     }
 
-    public ResponseExhibitionDTO updateExhibition(Long exhibitionId, CreateExhibitionDTO createExhibitionDTO, String username) {
-        Exhibition exhibition = exhibitionRepository.findById(exhibitionId)
+    public ExhibitionArtworkResponseDTO updateStatusExhibitionArtwork(Long exhibitionId, Long artworkId, String status) {
+        ExhibitionArtwork exhibitionArtwork = exhibitionArtworkRepository.findByExhibitionIdAndArtworkId(exhibitionId, artworkId)
                 .orElseThrow(() -> new NotFoundExhibitionException());
 
-        if (!exhibition.getMember().getUsername().equals(username)) {
-            throw new RuntimeException("공모전의 작성자가 아닙니다.");
-        }
+        exhibitionArtwork.updateStatus(status);
 
-        exhibition.update(createExhibitionDTO);
-
-        return ResponseExhibitionDTO.from(exhibition);
+        return ExhibitionArtworkResponseDTO.from(exhibitionArtwork);
     }
 
-    public void deleteExhibition(Long exhibitionId, String username) {
-        Exhibition exhibition = exhibitionRepository.findById(exhibitionId)
+    public void deleteExhibitionArtwork(Long exhibitionId, Long artworkId, String username) {
+        ExhibitionArtwork exhibitionArtwork = exhibitionArtworkRepository.findByExhibitionIdAndArtworkId(exhibitionId, artworkId)
                 .orElseThrow(() -> new NotFoundExhibitionException());
 
-        if (!exhibition.getMember().getUsername().equals(username)) {
-            throw new RuntimeException("공모전의 작성자가 아닙니다.");
+        if (!exhibitionArtwork.getArtwork().getMember().getUsername().equals(username)) {
+            throw new RuntimeException("아트워크의 작성자가 아닙니다.");
         }
 
-        // 공모전에 제출된 작품들을 반려처리
-        List<ExhibitionArtwork> all = exhibitionArtworkRepository.findAllByExhibitionId(exhibitionId);
-        all.forEach(exhibitionArtwork -> {
-            exhibitionArtwork.setExhibitionArtworkStatus(ExhibitionArtworkStatus.rejected);
-        });
-
-        exhibition.delete(); // 소프트 삭제
+        exhibitionArtworkRepository.delete(exhibitionArtwork);
     }
 }

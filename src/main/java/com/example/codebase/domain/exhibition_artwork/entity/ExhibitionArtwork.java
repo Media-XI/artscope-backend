@@ -55,4 +55,9 @@ public class ExhibitionArtwork {
     public void setExhibitionArtworkStatus(ExhibitionArtworkStatus status) {
         this.status = status;
     }
+
+    public void updateStatus(String status) {
+        this.status = ExhibitionArtworkStatus.create(status);
+        this.updatedTime = LocalDateTime.now();
+    }
 }
