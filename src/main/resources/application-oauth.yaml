@@ -4,9 +4,30 @@ spring:
       client:
         registration:
           google:
-            client-id: 467839366837-mv88pmnabicku2a867v0hnpihk0spkhi.apps.googleusercontent.com
-            client-secret: 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
+            client-id: ENC(WnO/Aj0noGP/YP7rIQS9z9t9gqJzKFOmMG91Lr2B/aBeKxI+ArN1MjP4rlUMmP62TB/o1heuu95t//SCeyZUNPqM5HSRV8R2UbKpaChN+vw/lvWqAtSMxlYLyvRkfVv1)
+            client-secret: ENC(WQjxvaYIoaxm2vxW59mmE/jUR6XF/GVA7evbX1jMS4oRTbes187OfacEqo0aHP40PTa1hE7ckSmgQCoidNjXwA==)
             scope:
               - email
               - profile
               # - openid # OIDC 인증 활성화
+
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - default
+        - test
+
+app:
+  oauth2-redirect-uri: http://localhost:3000/oauth2/redirect
+
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - prod
+
+app:
+  oauth2-redirect-uri: https://artfe.megabrain.kr/oauth2/redirect

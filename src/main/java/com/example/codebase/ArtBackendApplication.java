@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @SpringBootApplication
 public class ArtBackendApplication {
 
-    @Value("${api.oauth2-redirect-uri}")
+    @Value("${app.oauth2-redirect-uri}")
     private String oauth2RedirectUri;
 
     public static void main(String[] args) {
