@@ -108,7 +108,7 @@ class ArtworkControllerTest {
         dto.setMediaUrls(Collections.singletonList(mediaCreateDTO));
 
         mockMvc.perform(
-                        post("/api/artwork")
+                        post("/api/artworks")
                                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto))
                 )
@@ -142,7 +142,7 @@ class ArtworkControllerTest {
         dto.setMediaUrls(mediaCreateDTOList);
 
         mockMvc.perform(
-                        post("/api/artwork")
+                        post("/api/artworks")
                                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto))
                 )
@@ -155,7 +155,7 @@ class ArtworkControllerTest {
     @Test
     public void test03() throws Exception {
         mockMvc.perform(
-                        get("/api/artwork")
+                        get("/api/artworks?page=0&size=10")
                                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
@@ -179,7 +179,7 @@ class ArtworkControllerTest {
         dto.setMediaUrls(Collections.singletonList(mediaCreateDTO));
 
         mockMvc.perform(
-                        post("/api/artwork")
+                        post("/api/artworks")
                                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto))
                 )

@@ -1,8 +1,10 @@
 package com.example.codebase.domain.artwork.service;
 
+import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkResponseDTO;
+import com.example.codebase.domain.artwork.dto.ArtworksResponseDTO;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
 import com.example.codebase.domain.artwork.repository.ArtworkMediaRepository;
@@ -10,6 +12,10 @@ import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -57,10 +63,16 @@ public class ArtworkService {
         return ArtworkResponseDTO.from(saveArtwork);
     }
 
-    public List<ArtworkResponseDTO> getAllArtwork() {
-        List<ArtworkResponseDTO> dtos = artworkRepository.findAll().stream()
+    public ArtworksResponseDTO getAllArtwork(int page, int size, String sortDirection) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        Page<Artwork> artworksPage = artworkRepository.findAll(pageRequest);
+
+        PageInfo pageInfo = PageInfo.of(page, size, artworksPage.getTotalPages(), artworksPage.getTotalElements());
+        List<ArtworkResponseDTO> dtos = artworksPage.stream()
                 .map(ArtworkResponseDTO::from)
                 .collect(Collectors.toList());
-        return dtos;
+        return ArtworksResponseDTO.of(dtos, pageInfo);
     }
 }
