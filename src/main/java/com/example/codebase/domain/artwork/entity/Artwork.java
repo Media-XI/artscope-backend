@@ -1,6 +1,8 @@
 package com.example.codebase.domain.artwork.entity;
 
 import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkUpdateDTO;
 import com.example.codebase.domain.exhibition_artwork.entity.ExhibitionArtwork;
 import com.example.codebase.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
@@ -68,5 +70,21 @@ public class Artwork {
 
     public void addExhibitionArtwork(ExhibitionArtwork exhibitionArtwork) {
         this.exhibitionArtworks.add(exhibitionArtwork);
+    }
+
+    public void update(ArtworkUpdateDTO dto) {
+        this.title = dto.getTitle();
+        this.description = dto.getDescription();
+        this.visible = dto.isVisible();
+        this.updatedTime = LocalDateTime.now();
+    }
+
+    public void updateArtworkMedia(Long mediaId, ArtworkMediaCreateDTO dto) {
+        ArtworkMedia artworkMedia = this.artworkMedia.stream()
+                .filter(media -> media.getId().equals(mediaId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("해당 미디어 파일을 찾을 수 없습니다."));
+
+        artworkMedia.update(dto);
     }
 }

@@ -52,4 +52,10 @@ public class ArtworkMedia {
     public void setArtwork(Artwork artwork) {
         this.artwork = artwork;
     }
+
+    public void update(ArtworkMediaCreateDTO media) {
+        this.mediaType = MediaType.create(media.getMediaType());
+        this.mediaUrl = media.getMediaUrl();
+        this.updatedTime = LocalDateTime.now();
+    }
 }

@@ -2,6 +2,7 @@ package com.example.codebase.controller;
 
 import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkUpdateDTO;
 import com.example.codebase.domain.artwork.entity.MediaType;
 import com.example.codebase.domain.auth.WithMockCustomUser;
 import com.example.codebase.domain.member.entity.Authority;
@@ -32,8 +33,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -94,7 +94,7 @@ class ArtworkControllerTest {
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("아트워크 한개 등록")
     @Test
-    public void test01() throws Exception {
+    public void test00() throws Exception {
         createOrLoadMember();
 
         ArtworkMediaCreateDTO mediaCreateDTO = new ArtworkMediaCreateDTO();
@@ -119,7 +119,7 @@ class ArtworkControllerTest {
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("아트워크 두개 등록")
     @Test
-    public void test02() throws Exception {
+    public void test01() throws Exception {
         createOrLoadMember();
 
         List<ArtworkMediaCreateDTO> mediaCreateDTOList = new ArrayList<>();
@@ -153,10 +153,20 @@ class ArtworkControllerTest {
 
     @DisplayName("아트워크 전체 조회")
     @Test
-    public void test03() throws Exception {
+    public void test02() throws Exception {
         mockMvc.perform(
                         get("/api/artworks?page=0&size=10")
                                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("아트워크 단일 조회")
+    @Test
+    public void test03() throws Exception {
+        mockMvc.perform(
+                        get("/api/artworks/1")
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -185,5 +195,82 @@ class ArtworkControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("일반 사용자 아트워크 수정")
+    @Test
+    public void test05() throws Exception {
+        ArtworkUpdateDTO dto = new ArtworkUpdateDTO();
+        dto.setTitle("아트워크_수정");
+        dto.setDescription("작품 수정함 설명");
+        dto.setVisible(true);
+
+        mockMvc.perform(
+                        put("/api/artworks/1")
+                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "user", role = "USER")
+    @DisplayName("작성자가 아닌 회원이 아트워크 수정 시")
+    @Test
+    public void test06() throws Exception {
+        ArtworkUpdateDTO dto = new ArtworkUpdateDTO();
+        dto.setTitle("아트워크_수정");
+        dto.setDescription("작품 수정함 설명");
+        dto.setVisible(true);
+
+        mockMvc.perform(
+                        put("/api/artworks/1")
+                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("아트워크 미디어 수정 시")
+    @Test
+    public void test07() throws Exception {
+        ArtworkMediaCreateDTO dto = new ArtworkMediaCreateDTO();
+        dto.setMediaType(MediaType.image.toString());
+        dto.setMediaUrl("수정한 URL");
+
+
+        mockMvc.perform(
+                        put("/api/artworks/1/media/1")
+                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("일반 사용자 아트워크 삭제")
+    @Test
+    public void 일반사용자_아트워크_삭제() throws Exception {
+        mockMvc.perform(
+                        delete("/api/artworks/1")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("관리자 아트워크 삭제")
+    @Test
+    public void 관리자_아트워크_삭제() throws Exception {
+        mockMvc.perform(
+                        delete("/api/artworks/2")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }
