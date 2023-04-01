@@ -56,7 +56,7 @@ public class ExhibitionArtworkController {
     public ResponseEntity deleteExhibitionArtwork(@PathVariable Long exhibitionId, @PathVariable Long artworkId) {
         String username = SecurityUtil.getCurrentUsername().get();
         exhibitionService.deleteExhibitionArtwork(exhibitionId, artworkId, username);
-        return new ResponseEntity("제출한 아트워크 삭제되었습니다. ",HttpStatus.OK);
+        return new ResponseEntity("제출한 아트워크 삭제되었습니다. ", HttpStatus.OK);
     }
 
 

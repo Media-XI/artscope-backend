@@ -249,9 +249,9 @@ class ExhibitionControllerTest {
     @Test
     public void test08() throws Exception {
         String status = "accepted";
-
+        Artwork artwork = createOrLoadArtwork();
         mockMvc.perform(
-                        put(String.format("/api/exhibitions/1/artworks/1?status=%s", status))
+                        put(String.format("/api/exhibitions/1/artworks/%d?status=%s", artwork.getId(), status))
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -261,9 +261,10 @@ class ExhibitionControllerTest {
     @DisplayName("공모전에 제출한 아트워크 삭제 ")
     @Test
     public void test09() throws Exception {
+        Artwork artwork = createOrLoadArtwork();
 
         mockMvc.perform(
-                        delete(String.format("/api/exhibitions/1/artworks/1"))
+                        delete(String.format(String.format("/api/exhibitions/1/artworks/%d", artwork.getId())))
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
