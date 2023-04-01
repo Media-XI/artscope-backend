@@ -44,7 +44,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Test with Gradle
-        run: ./gradlew --info test
+        run: ./gradlew --info test -DJASYPT_ENCRYPTOR_PASSWORD=$JASYPT_ENCRYPTOR_PASSWORD
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
