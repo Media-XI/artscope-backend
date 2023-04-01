@@ -139,7 +139,7 @@ class ExhibitionControllerTest {
         dto.setEndDate(endDate);
 
         mockMvc.perform(
-                        post("/api/exhibition")
+                        post("/api/exhibitions")
                                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto))
                 )
@@ -151,7 +151,7 @@ class ExhibitionControllerTest {
     @Test
     public void test02() throws Exception {
         mockMvc.perform(
-                        get("/api/exhibition")
+                        get("/api/exhibitions")
                                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
@@ -165,7 +165,7 @@ class ExhibitionControllerTest {
         Artwork artwork = createOrLoadArtwork();    // 전시회 생성
 
         mockMvc.perform(
-                        post(String.format("/api/exhibition/1/artwork/%d", artwork.getId()))
+                        post(String.format("/api/exhibitions/1/artworks/%d", artwork.getId()))
                 )
                 .andDo(print())
                 .andExpect(status().isCreated());
@@ -175,7 +175,7 @@ class ExhibitionControllerTest {
     @Test
     public void test04() throws Exception {
         mockMvc.perform(
-                        get("/api/exhibition/1/artworks")
+                        get("/api/exhibitions/1/artworks")
                                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())

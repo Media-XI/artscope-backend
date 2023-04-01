@@ -17,7 +17,7 @@ import java.util.List;
 
 @ApiOperation(value = "공모전", notes = "공모전 관련 API")
 @RestController
-@RequestMapping("/api/exhibition")
+@RequestMapping("/api/exhibitions")
 public class ExhibitionController {
     private final ExhibitionService exhibitionService;
 
@@ -43,7 +43,7 @@ public class ExhibitionController {
 
     @ApiOperation(value = "공모전에 작품 추가", notes = "[USER] 공모전에 작품을 추가합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
-    @PostMapping("/{exhibitionId}/artwork/{artworkId}")
+    @PostMapping("/{exhibitionId}/artworks/{artworkId}")
     public ResponseEntity addArtworkToExhibition(@PathVariable Long exhibitionId, @PathVariable Long artworkId) {
         String username = SecurityUtil.getCurrentUsername().get();
         ExhibitionArtworkResponseDTO exhibitionArtworkResponseDTO = exhibitionService.addArtworkToExhibition(exhibitionId, artworkId, username);

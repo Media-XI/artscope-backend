@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @ApiOperation(value = "회원", notes = "회원 관련 API")
-@RequestMapping("/api/member")
+@RequestMapping("/api/members")
 public class MemberController {
 
     private MemberService memberService;

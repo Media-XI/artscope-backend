@@ -54,7 +54,7 @@ class MemberControllerTest {
         dto.setPassword("1234");
 
         mockMvc.perform(
-                        post("/api/member")
+                        post("/api/members")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto))
                 )
@@ -73,7 +73,7 @@ class MemberControllerTest {
         dto.setHistory("연혁");
 
         mockMvc.perform(
-                        post("/api/member/artist")
+                        post("/api/members/artist")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto))
                 )
