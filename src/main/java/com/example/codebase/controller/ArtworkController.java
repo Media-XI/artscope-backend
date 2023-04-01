@@ -27,7 +27,7 @@ public class ArtworkController {
         this.artworkService = artworkService;
     }
 
-    @ApiOperation(value = "아트워크 생성", notes = "[ROLE_USER] 아트워크를 생성합니다.")
+    @ApiOperation(value = "아트워크 생성", notes = "[USER] 아트워크를 생성합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PostMapping
     public ResponseEntity createArtwork(@RequestBody ArtworkCreateDTO dto) {
@@ -52,7 +52,7 @@ public class ArtworkController {
         return new ResponseEntity(artwork, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "아트워크 수정", notes = "[ROLE_USER] 아트워크를 수정합니다. 작성자만 수정 가능합니다.")
+    @ApiOperation(value = "아트워크 수정", notes = "[USER] 아트워크를 수정합니다. 작성자만 수정 가능합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PutMapping("/{id}")
     public ResponseEntity updateArtwork(@PathVariable Long id, @RequestBody ArtworkUpdateDTO dto) {
@@ -64,7 +64,7 @@ public class ArtworkController {
     /*
         현재 아트워크 목록을 받아오고
      */
-    @ApiOperation(value = "아트워크 미디어 수정", notes = "[ROLE_USER] 아트워크의 미디어를 수정합니다. 작성자만 수정 가능합니다.")
+    @ApiOperation(value = "아트워크 미디어 수정", notes = "[USER] 아트워크의 미디어를 수정합니다. 작성자만 수정 가능합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PutMapping("/{id}/media/{mediaId}")
     public ResponseEntity updateMediaArtwork(@PathVariable Long id,
@@ -76,7 +76,7 @@ public class ArtworkController {
     }
 
 
-    @ApiOperation(value = "아트워크 삭제", notes = "[ROLE_USER, ROLE_ADMIN] 아트워크를 삭제합니다. 작성자 또는 관리자만 삭제 가능합니다.")
+    @ApiOperation(value = "아트워크 삭제", notes = "[USER, ADMIN] 아트워크를 삭제합니다. 작성자 또는 관리자만 삭제 가능합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity deleteArtwork(@PathVariable Long id) {
