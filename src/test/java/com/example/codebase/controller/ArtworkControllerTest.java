@@ -3,7 +3,10 @@ package com.example.codebase.controller;
 import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkUpdateDTO;
+import com.example.codebase.domain.artwork.entity.Artwork;
+import com.example.codebase.domain.artwork.entity.ArtworkMedia;
 import com.example.codebase.domain.artwork.entity.MediaType;
+import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.auth.WithMockCustomUser;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
@@ -26,6 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,6 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Transactional
 class ArtworkControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -52,6 +57,9 @@ class ArtworkControllerTest {
 
     @Autowired
     private MemberAuthorityRepository memberAuthorityRepository;
+
+    @Autowired
+    private ArtworkRepository artworkRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -89,6 +97,28 @@ class ArtworkControllerTest {
         Member save = memberRepository.save(dummy);
         memberAuthorityRepository.save(memberAuthority);
         return save;
+    }
+
+    public Artwork createOrLoadArtwork() {
+        Optional<Artwork> artwork = artworkRepository.findById(1L);
+        if (artwork.isPresent()) {
+            return artwork.get();
+        }
+        ArtworkMedia artworkMedia = ArtworkMedia.builder()
+                .mediaType(MediaType.image)
+                .mediaUrl("url")
+                .build();
+
+        Artwork dummy = Artwork.builder()
+                .title("아트워크_테스트")
+                .description("작품 설명")
+                .visible(true)
+                .member(createOrLoadMember())
+                .createdTime(LocalDateTime.now())
+                .build();
+        dummy.addArtworkMedia(artworkMedia);
+
+        return artworkRepository.save(dummy);
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -154,6 +184,7 @@ class ArtworkControllerTest {
     @DisplayName("아트워크 전체 조회")
     @Test
     public void test02() throws Exception {
+
         mockMvc.perform(
                         get("/api/artworks?page=0&size=10")
                                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
@@ -165,8 +196,10 @@ class ArtworkControllerTest {
     @DisplayName("아트워크 단일 조회")
     @Test
     public void test03() throws Exception {
+        Artwork artwork = createOrLoadArtwork();
+
         mockMvc.perform(
-                        get("/api/artworks/1")
+                        get(String.format("/api/artworks/%d", artwork.getId()))
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -201,13 +234,15 @@ class ArtworkControllerTest {
     @DisplayName("일반 사용자 아트워크 수정")
     @Test
     public void test05() throws Exception {
+        Artwork artwork = createOrLoadArtwork();
+
         ArtworkUpdateDTO dto = new ArtworkUpdateDTO();
         dto.setTitle("아트워크_수정");
         dto.setDescription("작품 수정함 설명");
         dto.setVisible(true);
 
         mockMvc.perform(
-                        put("/api/artworks/1")
+                        put(String.format("/api/artworks/%d", artwork.getId()))
                                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto))
                 )
@@ -219,13 +254,15 @@ class ArtworkControllerTest {
     @DisplayName("작성자가 아닌 회원이 아트워크 수정 시")
     @Test
     public void test06() throws Exception {
+        Artwork artwork = createOrLoadArtwork();
+
         ArtworkUpdateDTO dto = new ArtworkUpdateDTO();
         dto.setTitle("아트워크_수정");
         dto.setDescription("작품 수정함 설명");
         dto.setVisible(true);
 
         mockMvc.perform(
-                        put("/api/artworks/1")
+                        put(String.format("/api/artworks/%d", artwork.getId()))
                                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto))
                 )
@@ -237,13 +274,15 @@ class ArtworkControllerTest {
     @DisplayName("아트워크 미디어 수정 시")
     @Test
     public void test07() throws Exception {
+        Artwork artwork = createOrLoadArtwork();
+
         ArtworkMediaCreateDTO dto = new ArtworkMediaCreateDTO();
         dto.setMediaType(MediaType.image.toString());
         dto.setMediaUrl("수정한 URL");
 
 
         mockMvc.perform(
-                        put("/api/artworks/1/media/1")
+                        put(String.format("/api/artworks/%d/media/%d", artwork.getId(), artwork.getArtworkMedia().get(0).getId()))
                                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto))
                 )
@@ -256,8 +295,10 @@ class ArtworkControllerTest {
     @DisplayName("일반 사용자 아트워크 삭제")
     @Test
     public void 일반사용자_아트워크_삭제() throws Exception {
+        Artwork artwork = createOrLoadArtwork();
+
         mockMvc.perform(
-                        delete("/api/artworks/1")
+                        delete(String.format("/api/artworks/%d", artwork.getId()))
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -267,8 +308,10 @@ class ArtworkControllerTest {
     @DisplayName("관리자 아트워크 삭제")
     @Test
     public void 관리자_아트워크_삭제() throws Exception {
+        Artwork artwork = createOrLoadArtwork();
+
         mockMvc.perform(
-                        delete("/api/artworks/2")
+                        delete(String.format("/api/artworks/%d", artwork.getId()))
                 )
                 .andDo(print())
                 .andExpect(status().isOk());

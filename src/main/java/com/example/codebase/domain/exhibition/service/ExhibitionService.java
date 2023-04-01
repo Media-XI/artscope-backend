@@ -123,7 +123,7 @@ public class ExhibitionService {
 
     public ExhibitionArtworkResponseDTO updateStatusExhibitionArtwork(Long exhibitionId, Long artworkId, String status) {
         ExhibitionArtwork exhibitionArtwork = exhibitionArtworkRepository.findByExhibitionIdAndArtworkId(exhibitionId, artworkId)
-                .orElseThrow(() -> new NotFoundExhibitionException());
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 공모전 또는 작품입니다."));
 
         exhibitionArtwork.updateStatus(status);
 
@@ -132,7 +132,7 @@ public class ExhibitionService {
 
     public void deleteExhibitionArtwork(Long exhibitionId, Long artworkId, String username) {
         ExhibitionArtwork exhibitionArtwork = exhibitionArtworkRepository.findByExhibitionIdAndArtworkId(exhibitionId, artworkId)
-                .orElseThrow(() -> new NotFoundExhibitionException());
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 공모전 또는 작품입니다."));
 
         if (!exhibitionArtwork.getArtwork().getMember().getUsername().equals(username)) {
             throw new RuntimeException("아트워크의 작성자가 아닙니다.");

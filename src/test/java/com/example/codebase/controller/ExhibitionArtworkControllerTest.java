@@ -5,9 +5,10 @@ import com.example.codebase.domain.artwork.entity.ArtworkMedia;
 import com.example.codebase.domain.artwork.entity.MediaType;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.auth.WithMockCustomUser;
-import com.example.codebase.domain.exhibition.dto.CreateExhibitionDTO;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
 import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
+import com.example.codebase.domain.exhibition_artwork.entity.ExhibitionArtwork;
+import com.example.codebase.domain.exhibition_artwork.entity.ExhibitionArtworkStatus;
 import com.example.codebase.domain.exhibition_artwork.repository.ExhibitionArtworkRepository;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
@@ -31,15 +32,15 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.transaction.Transactional;
-import java.lang.reflect.Array;
+
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,11 +49,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
-class ExhibitionControllerTest {
+class ExhibitionArtworkControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
     private WebApplicationContext context;
+    private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @Autowired
     private MemberRepository memberRepository;
@@ -67,9 +69,10 @@ class ExhibitionControllerTest {
     private ExhibitionRepository exhibitionRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private ExhibitionArtworkRepository exhibitionArtworkRepository;
 
-    private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @BeforeEach
     public void setUp() {
@@ -127,6 +130,24 @@ class ExhibitionControllerTest {
         return artworkRepository.save(artwork);
     }
 
+
+    public ExhibitionArtwork createOrLoadExhibitionArtwork() {
+        Optional<ExhibitionArtwork> save = exhibitionArtworkRepository.findById(1L);
+
+        if (save.isPresent()) {
+            return save.get();
+        }
+
+        ExhibitionArtwork exhibitionArtwork = ExhibitionArtwork.builder()
+                .artwork(createOrLoadArtwork())
+                .exhibition(createOrLoadExhibition())
+                .status(ExhibitionArtworkStatus.submitted)
+                .createdTime(LocalDateTime.now())
+                .build();
+
+        return exhibitionArtworkRepository.save(exhibitionArtwork);
+    }
+
     public Exhibition createOrLoadExhibition() {
         Optional<Exhibition> save = exhibitionRepository.findById(1L);
         if (save.isPresent()) {
@@ -145,122 +166,59 @@ class ExhibitionControllerTest {
         return exhibitionRepository.save(exhibition);
     }
 
-
     @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("공모전 등록")
+    @DisplayName("해당 공모전 아트워크 등록")
     @Test
-    public void test01() throws Exception {
-        createOrLoadMember();
-
-        CreateExhibitionDTO dto = new CreateExhibitionDTO();
-        dto.setTitle("공모전 제목");
-        dto.setDescription("공모전 내용");
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime startDate = LocalDateTime.parse(LocalDateTime.now().format(formatter), formatter);
-        LocalDateTime endDate = LocalDateTime.parse(LocalDateTime.now().plusMonths(1L).format(formatter), formatter);
-
-        dto.setStartDate(startDate);
-        dto.setEndDate(endDate);
+    public void test04() throws Exception {
+        Exhibition exhibition = createOrLoadExhibition();
+        Artwork artwork = createOrLoadArtwork();    // 전시회 생성
 
         mockMvc.perform(
-                        post("/api/exhibitions")
-                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
+                        post(String.format("/api/exhibitions/%d/artworks/%d", exhibition.getId(), artwork.getId()))
                 )
                 .andDo(print())
                 .andExpect(status().isCreated());
     }
 
-    @DisplayName("비회원이 공모전 등록 시")
+    @DisplayName("해당 공모전 등록된 아트워크들 조회")
     @Test
-    public void test02() throws Exception {
-        createOrLoadMember();
-
-        CreateExhibitionDTO dto = new CreateExhibitionDTO();
-        dto.setTitle("공모전 제목");
-        dto.setDescription("공모전 내용");
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime startDate = LocalDateTime.parse(LocalDateTime.now().format(formatter), formatter);
-        LocalDateTime endDate = LocalDateTime.parse(LocalDateTime.now().plusMonths(1L).format(formatter), formatter);
-
-        dto.setStartDate(startDate);
-        dto.setEndDate(endDate);
+    public void test05() throws Exception {
+        ExhibitionArtwork exhibitionArtwork = createOrLoadExhibitionArtwork();
 
         mockMvc.perform(
-                        post("/api/exhibitions")
-                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
-                )
-                .andDo(print())
-                .andExpect(status().isBadRequest());
-    }
-
-
-    @DisplayName("공모전 조회")
-    @Test
-    public void test03() throws Exception {
-        mockMvc.perform(
-                        get("/api/exhibitions")
-                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        get(String.format("/api/exhibitions/%d/artworks", exhibitionArtwork.getExhibition().getId()))
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
-
-    @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("공모전 수정")
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("관리자가 공모전에 제출한 아트워크 상태 변경 ")
     @Test
-    public void test06() throws Exception {
-        Exhibition exhibition = createOrLoadExhibition();
+    public void test08() throws Exception {
+        ExhibitionArtwork exhibitionArtwork = createOrLoadExhibitionArtwork();
 
-        CreateExhibitionDTO dto = new CreateExhibitionDTO();
-        dto.setTitle("공모전 제목 수정");
-        dto.setDescription("공모전 내용 수정");
-        dto.setStartDate(LocalDateTime.now());
-        dto.setEndDate(LocalDateTime.now().plusMonths(1L));
+        String status = "accepted";
 
         mockMvc.perform(
-                        put(String.format("/api/exhibitions/%d", exhibition.getId()))
-                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
+                        put(String.format("/api/exhibitions/%d/artworks/%d?status=%s", exhibitionArtwork.getExhibition().getId(), exhibitionArtwork.getArtwork().getId(), status))
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
-    }
-
-    @WithMockCustomUser(username = "asdsad", role = "USER")
-    @DisplayName("다른 사람이 해당 공모전 수정 시")
-    @Test
-    public void test07() throws Exception {
-        Exhibition exhibition = createOrLoadExhibition();
-
-        CreateExhibitionDTO dto = new CreateExhibitionDTO();
-        dto.setTitle("공모전 제목 수정");
-        dto.setDescription("공모전 내용 수정");
-        dto.setStartDate(LocalDateTime.now());
-        dto.setEndDate(LocalDateTime.now().plusMonths(1L));
-
-        mockMvc.perform(
-                        put(String.format("/api/exhibitions/%d", exhibition.getId()))
-                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
-                )
-                .andDo(print())
-                .andExpect(status().isBadRequest());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("공모전 삭제")
+    @DisplayName("공모전에 제출한 아트워크 삭제 ")
     @Test
-    public void test10() throws Exception {
-        Exhibition exhibition = createOrLoadExhibition();
+    public void test09() throws Exception {
+        ExhibitionArtwork exhibitionArtwork = createOrLoadExhibitionArtwork();
+
         mockMvc.perform(
-                        delete(String.format("/api/exhibitions/%d", exhibition.getId()))
+                        delete(String.format("/api/exhibitions/%d/artworks/%d", exhibitionArtwork.getExhibition().getId(), exhibitionArtwork.getArtwork().getId()))
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
     }
+
+
 }
