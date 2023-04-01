@@ -1,0 +1,2 @@
+ALTER TABLE `exhibition`
+    ADD COLUMN `enabled` BOOLEAN NOT NULL DEFAULT TRUE;

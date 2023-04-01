@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@ApiOperation(value = "공모전", notes = "공모전 관련 API")
+@ApiOperation(value = "공모전", notes = "공모전 관련 API") // TODO: 공모전 인가에 대해 생각해보기
 @RestController
 @RequestMapping("/api/exhibitions")
 public class ExhibitionController {
@@ -41,19 +41,19 @@ public class ExhibitionController {
         return new ResponseEntity(dtos, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "공모전에 작품 추가", notes = "[USER] 공모전에 작품을 추가합니다.")
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
-    @PostMapping("/{exhibitionId}/artworks/{artworkId}")
-    public ResponseEntity addArtworkToExhibition(@PathVariable Long exhibitionId, @PathVariable Long artworkId) {
+    @ApiOperation(value = "공모전 수정", notes = "[USER] 공모전을 수정합니다.")
+    @PutMapping("/{exhibitionId}")
+    public ResponseEntity updateExhibition(@PathVariable Long exhibitionId, @RequestBody CreateExhibitionDTO createExhibitionDTO) {
         String username = SecurityUtil.getCurrentUsername().get();
-        ExhibitionArtworkResponseDTO exhibitionArtworkResponseDTO = exhibitionService.addArtworkToExhibition(exhibitionId, artworkId, username);
-        return new ResponseEntity(exhibitionArtworkResponseDTO, HttpStatus.CREATED);
+        ResponseExhibitionDTO exhibition = exhibitionService.updateExhibition(exhibitionId, createExhibitionDTO, username);
+        return new ResponseEntity(exhibition, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "공모전 작품 조회", notes = "공모전에 등록된 작품을 조회합니다.")
-    @GetMapping("/{exhibitionId}/artworks")
-    public ResponseEntity getExhibitionWithArtworks(@PathVariable Long exhibitionId) {
-        ExhibitionArtworksResponseDTO exhibitionArtworks = exhibitionService.getArtworkFromExhibition(exhibitionId);
-        return new ResponseEntity(exhibitionArtworks, HttpStatus.OK);
+    @ApiOperation(value = "공모전 삭제", notes = "[USER] 공모전을 삭제합니다.")
+    @DeleteMapping("/{exhibitionId}")
+    public ResponseEntity deleteExhibition(@PathVariable Long exhibitionId) {
+        String username = SecurityUtil.getCurrentUsername().get();
+        exhibitionService.deleteExhibition(exhibitionId, username);
+        return new ResponseEntity("공모전 삭제되었습니다.",HttpStatus.OK);
     }
 }

@@ -11,8 +11,11 @@ import java.util.List;
 @Getter
 @Setter
 public class ExhibitionArtworksResponseDTO {
+
     private ResponseExhibitionDTO exhibition;
+
     private List<ArtworkResponseDTO> artworks;
+
     public static ExhibitionArtworksResponseDTO from(Exhibition exhibition, List<ArtworkResponseDTO> artworks) {
         ExhibitionArtworksResponseDTO dto = new ExhibitionArtworksResponseDTO();
         dto.setExhibition(ResponseExhibitionDTO.from(exhibition));

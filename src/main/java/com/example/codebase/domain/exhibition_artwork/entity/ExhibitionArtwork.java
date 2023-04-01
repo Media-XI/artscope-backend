@@ -51,4 +51,8 @@ public class ExhibitionArtwork {
                 .createdTime(LocalDateTime.now())
                 .build();
     }
+
+    public void setExhibitionArtworkStatus(ExhibitionArtworkStatus status) {
+        this.status = status;
+    }
 }

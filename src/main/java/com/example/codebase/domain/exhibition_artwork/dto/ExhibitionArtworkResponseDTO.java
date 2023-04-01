@@ -15,8 +15,11 @@ import java.time.LocalDateTime;
 public class ExhibitionArtworkResponseDTO {
     private Long id;
     private ResponseExhibitionDTO exhibition;
+
     private ArtworkResponseDTO artwork;
+
     private ExhibitionArtworkStatus status;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdTime;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")

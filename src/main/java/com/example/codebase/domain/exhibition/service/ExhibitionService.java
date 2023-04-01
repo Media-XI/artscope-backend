@@ -10,6 +10,7 @@ import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
 import com.example.codebase.domain.exhibition_artwork.dto.ExhibitionArtworkResponseDTO;
 import com.example.codebase.domain.exhibition_artwork.dto.ExhibitionArtworksResponseDTO;
 import com.example.codebase.domain.exhibition_artwork.entity.ExhibitionArtwork;
+import com.example.codebase.domain.exhibition_artwork.entity.ExhibitionArtworkStatus;
 import com.example.codebase.domain.exhibition_artwork.exception.NotFoundExhibitionException;
 import com.example.codebase.domain.exhibition_artwork.repository.ExhibitionArtworkRepository;
 import com.example.codebase.domain.member.entity.Member;
@@ -41,16 +42,20 @@ public class ExhibitionService {
     public ResponseExhibitionDTO createExhibition(CreateExhibitionDTO dto, String username) {
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundMemberException());
+
         Exhibition exhibition = Exhibition.of(dto, member);
         Exhibition save = exhibitionRepository.save(exhibition);
+
         return ResponseExhibitionDTO.from(save);
     }
 
     public List<ResponseExhibitionDTO> getAllExhibition() {
         List<Exhibition> exhibitions = exhibitionRepository.findAll();
+
         List<ResponseExhibitionDTO> dtos = exhibitions.stream()
                 .map(ResponseExhibitionDTO::from)
                 .collect(Collectors.toList());
+
         return dtos;
     }
 
@@ -69,6 +74,7 @@ public class ExhibitionService {
         artwork.addExhibitionArtwork(exhibitionArtwork);
 
         ExhibitionArtwork save = exhibitionArtworkRepository.save(exhibitionArtwork);
+
         return ExhibitionArtworkResponseDTO.from(save);
     }
 
@@ -83,5 +89,35 @@ public class ExhibitionService {
                 .collect(Collectors.toList());
 
         return ExhibitionArtworksResponseDTO.from(exhibition, artworkResponseDTOS);
+    }
+
+    public ResponseExhibitionDTO updateExhibition(Long exhibitionId, CreateExhibitionDTO createExhibitionDTO, String username) {
+        Exhibition exhibition = exhibitionRepository.findById(exhibitionId)
+                .orElseThrow(() -> new NotFoundExhibitionException());
+
+        if (!exhibition.getMember().getUsername().equals(username)) {
+            throw new RuntimeException("공모전의 작성자가 아닙니다.");
+        }
+
+        exhibition.update(createExhibitionDTO);
+
+        return ResponseExhibitionDTO.from(exhibition);
+    }
+
+    public void deleteExhibition(Long exhibitionId, String username) {
+        Exhibition exhibition = exhibitionRepository.findById(exhibitionId)
+                .orElseThrow(() -> new NotFoundExhibitionException());
+
+        if (!exhibition.getMember().getUsername().equals(username)) {
+            throw new RuntimeException("공모전의 작성자가 아닙니다.");
+        }
+
+        // 공모전에 제출된 작품들을 반려처리
+        List<ExhibitionArtwork> all = exhibitionArtworkRepository.findAllByExhibitionId(exhibitionId);
+        all.forEach(exhibitionArtwork -> {
+            exhibitionArtwork.setExhibitionArtworkStatus(ExhibitionArtworkStatus.rejected);
+        });
+
+        exhibition.delete(); // 소프트 삭제
     }
 }

@@ -1,6 +1,7 @@
 package com.example.codebase.domain.exhibition.entity;
 
 import com.example.codebase.domain.exhibition.dto.CreateExhibitionDTO;
+import com.example.codebase.domain.exhibition_artwork.entity.ExhibitionArtwork;
 import com.example.codebase.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,6 +32,7 @@ public class Exhibition {
 
     @Column(name = "start_date")
     private LocalDateTime startDate;
+
     @Column(name = "end_date")
     private LocalDateTime endDate;
 
@@ -39,6 +41,10 @@ public class Exhibition {
 
     @Column(name = "updated_time")
     private LocalDateTime updatedTime;
+
+    @Builder.Default
+    @Column(name = "enabled")
+    private boolean enabled = true;    // 공모전 활성상태 -> 삭제 여부와 같음
 
     @ManyToOne
     @JoinColumn(name = "member_id")
@@ -53,5 +59,17 @@ public class Exhibition {
                 .createdTime(LocalDateTime.now())
                 .member(member)
                 .build();
+    }
+
+    public void update(CreateExhibitionDTO createExhibitionDTO) {
+        this.title = createExhibitionDTO.getTitle();
+        this.description = createExhibitionDTO.getDescription();
+        this.startDate = createExhibitionDTO.getStartDate();
+        this.endDate = createExhibitionDTO.getEndDate();
+        this.updatedTime = LocalDateTime.now();
+    }
+
+    public void delete() {
+        this.enabled = false;
     }
 }

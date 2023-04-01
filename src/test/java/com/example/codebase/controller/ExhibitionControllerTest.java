@@ -36,8 +36,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -122,14 +121,14 @@ class ExhibitionControllerTest {
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("전시회 등록 - 로그인한 사용자")
+    @DisplayName("공모전 등록")
     @Test
     public void test01() throws Exception {
         createOrLoadMember();
 
         CreateExhibitionDTO dto = new CreateExhibitionDTO();
-        dto.setTitle("전시회 제목");
-        dto.setDescription("전시회 내용");
+        dto.setTitle("공모전 제목");
+        dto.setDescription("공모전 내용");
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime startDate = LocalDateTime.parse(LocalDateTime.now().format(formatter), formatter);
@@ -147,9 +146,35 @@ class ExhibitionControllerTest {
                 .andExpect(status().isCreated());
     }
 
-    @DisplayName("전시회 조회")
+    @DisplayName("비회원이 공모전 등록 시")
     @Test
     public void test02() throws Exception {
+        createOrLoadMember();
+
+        CreateExhibitionDTO dto = new CreateExhibitionDTO();
+        dto.setTitle("공모전 제목");
+        dto.setDescription("공모전 내용");
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime startDate = LocalDateTime.parse(LocalDateTime.now().format(formatter), formatter);
+        LocalDateTime endDate = LocalDateTime.parse(LocalDateTime.now().plusMonths(1L).format(formatter), formatter);
+
+        dto.setStartDate(startDate);
+        dto.setEndDate(endDate);
+
+        mockMvc.perform(
+                        post("/api/exhibitions")
+                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @DisplayName("공모전 조회")
+    @Test
+    public void test03() throws Exception {
         mockMvc.perform(
                         get("/api/exhibitions")
                                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
@@ -159,9 +184,9 @@ class ExhibitionControllerTest {
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("해당 전시회에 아트워크 등록")
+    @DisplayName("해당 공모전 아트워크 등록")
     @Test
-    public void test03() throws Exception {
+    public void test04() throws Exception {
         Artwork artwork = createOrLoadArtwork();    // 전시회 생성
 
         mockMvc.perform(
@@ -171,12 +196,62 @@ class ExhibitionControllerTest {
                 .andExpect(status().isCreated());
     }
 
-    @DisplayName("해당 전시회에 등록된 아트워크들 조회")
+    @DisplayName("해당 공모전 등록된 아트워크들 조회")
     @Test
-    public void test04() throws Exception {
+    public void test05() throws Exception {
         mockMvc.perform(
                         get("/api/exhibitions/1/artworks")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("공모전 수정")
+    @Test
+    public void test06() throws Exception {
+        CreateExhibitionDTO dto = new CreateExhibitionDTO();
+        dto.setTitle("공모전 제목 수정");
+        dto.setDescription("공모전 내용 수정");
+        dto.setStartDate(LocalDateTime.now());
+        dto.setEndDate(LocalDateTime.now().plusMonths(1L));
+
+        mockMvc.perform(
+                        put("/api/exhibitions/1")
                                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "asdsad", role = "USER")
+    @DisplayName("다른 사람이 해당 공모전 수정 시")
+    @Test
+    public void test07() throws Exception {
+        CreateExhibitionDTO dto = new CreateExhibitionDTO();
+        dto.setTitle("공모전 제목 수정");
+        dto.setDescription("공모전 내용 수정");
+        dto.setStartDate(LocalDateTime.now());
+        dto.setEndDate(LocalDateTime.now().plusMonths(1L));
+
+        mockMvc.perform(
+                        put("/api/exhibitions/1")
+                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("공모전 삭제")
+    @Test
+    public void test10() throws Exception {
+        mockMvc.perform(
+                        delete("/api/exhibitions/1")
                 )
                 .andDo(print())
                 .andExpect(status().isOk());

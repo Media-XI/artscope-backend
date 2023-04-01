@@ -37,12 +37,16 @@ public class ArtworkResponseDTO {
                 .map(ArtworkMediaResponseDTO::from)
                 .collect(Collectors.toList());
 
+        ArtworkMediaResponseDTO thumbnail = artworkMediaResponseDTOS.stream()
+                .findFirst()
+                .orElse(null);
+
         return ArtworkResponseDTO.builder()
                 .id(artwork.getId())
                 .title(artwork.getTitle())
                 .description(artwork.getDescription())
                 .member(artwork.getMember().getUsername())
-                .thumbnail(artworkMediaResponseDTOS.get(0))
+                .thumbnail(thumbnail)
                 .artworkMedias(artworkMediaResponseDTOS)
                 .createdTime(artwork.getCreatedTime())
                 .updatedTime(artwork.getUpdatedTime())
