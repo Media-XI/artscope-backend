@@ -17,7 +17,7 @@ services:
     environment:
       - MYSQL_DATABASE=art
       - MYSQL_ROOT_HOST=%
-      - MYSQL_ROOT_PASSWORD=mega123!
+      - MYSQL_ROOT_PASSWORD=changeme
       - TZ= Asia/Seoul
     ports:
       - 13306:3306
