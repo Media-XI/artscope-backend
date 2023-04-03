@@ -23,12 +23,7 @@ jobs:
 
     services:
       redis:
-        image: redis:7.0-alpine
-        command: redis-server --port 6379
-        container_name: art-redis
-        labels:
-          - "name=redis"
-          - "mode=standalone"
+        image: redis
         ports:
           - 16379:6379
 
