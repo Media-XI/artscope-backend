@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.Optional;
 
 @Component
 @Slf4j
@@ -19,9 +20,9 @@ public class RedisUtil {
         this.redisTemplate = redisTemplate;
     }
 
-    public String getData(String key) {
+    public Optional<String> getData(String key) {
         ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-        return valueOperations.get(key);
+        return Optional.ofNullable(valueOperations.get(key));
     }
 
     // 유효시간 동안 Data 저장

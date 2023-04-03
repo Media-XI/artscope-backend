@@ -3,6 +3,7 @@ package com.example.codebase.controller;
 import com.example.codebase.domain.auth.dto.LoginDTO;
 import com.example.codebase.domain.auth.dto.TokenResponseDTO;
 import com.example.codebase.jwt.TokenProvider;
+import com.example.codebase.util.RedisUtil;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,39 +14,28 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 @ApiOperation(value = "인증", notes = "인증 관련 API")
 @RestController
 @RequestMapping("/api")
 public class AuthController {
 
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
-
     private final TokenProvider tokenProvider;
 
-    @Autowired
-    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, TokenProvider tokenProvider) {
-        this.authenticationManagerBuilder = authenticationManagerBuilder;
+    public AuthController(TokenProvider tokenProvider) {
         this.tokenProvider = tokenProvider;
     }
 
     @ApiOperation(value = "로그인", notes = "로그인")
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody LoginDTO loginDTO) {
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword());
+        TokenResponseDTO responseDTO = tokenProvider.generateToken(loginDTO);
+        return new ResponseEntity(responseDTO, HttpStatus.OK);
+    }
 
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        String accessToken = tokenProvider.createToken(authentication);
-
-        TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
-        tokenResponseDTO.setAccessToken(accessToken);
-        tokenResponseDTO.setExpiresIn(tokenProvider.getTokenValidityInSeconds());
-
-        return new ResponseEntity(tokenResponseDTO, HttpStatus.OK);
+    @ApiOperation(value = "토큰 재발급", notes = "토큰 재발급")
+    @PostMapping("/refresh")
+    public ResponseEntity refresh(@RequestBody String refreshToken) {
+        TokenResponseDTO responseDTO = tokenProvider.regenerateToken(refreshToken);
+        return new ResponseEntity(responseDTO, HttpStatus.OK);
     }
 }
