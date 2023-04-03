@@ -96,6 +96,15 @@ public class MemberService {
                 .findByUsername(createArtistMemberDTO.getUsername())
                 .orElseThrow(() -> new NotFoundMemberException());
         member.setArtist(createArtistMemberDTO);
+
+        Member saved = memberRepository.save(member);
+        return MemberResponseDTO.from(saved);
+    }
+
+    public MemberResponseDTO getProfile(String username) {
+        Member member = memberRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new NotFoundMemberException());
         return MemberResponseDTO.from(member);
     }
 }

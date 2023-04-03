@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -79,9 +80,41 @@ class MemberControllerTest {
                 )
                 .andExpect(status().isCreated())
                 .andDo(print());
-
-
     }
 
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("전체 회원 조회 시")
+    @Test
+    void test3() throws Exception {
+        mockMvc.perform(
+                        get("/api/members")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
 
+    @WithMockCustomUser(username = "test23", role = "USER")
+    @DisplayName("로그인한 사용자 프로필 조회 시")
+    @Test
+    void test4() throws Exception {
+        mockMvc.perform(
+                        get("/api/members/profile")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("관리자가 사용자 프로필 조회 시")
+    @Test
+    void test5() throws Exception {
+        mockMvc.perform(
+                        get(String.format("/api/members/%s", "test23"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
 }
