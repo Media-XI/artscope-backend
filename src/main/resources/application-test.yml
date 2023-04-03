@@ -4,6 +4,9 @@ spring:
       on-profile:
         - test
 
+  redis:
+    host: localhost
+    port: 16379
 
   flyway:
     enabled: false
