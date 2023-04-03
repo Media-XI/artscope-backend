@@ -65,7 +65,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private void loginSuccess(HttpServletRequest request, HttpServletResponse response, String token) throws IOException {
         // add to refresh token in set-cookie
-        String redirect = redirectUri + "#token=" + token;  // state 파라미터를 추가해서 보내줘야 함 (CSRF Attack 방지)
+        String redirect = redirectUri + "?token=" + token;  // state 파라미터를 추가해서 보내줘야 함 (CSRF Attack 방지)
 
         response.setStatus(HttpServletResponse.SC_OK);
         getRedirectStrategy().sendRedirect(request, response, redirect);
