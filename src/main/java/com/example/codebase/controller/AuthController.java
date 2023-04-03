@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -25,11 +26,22 @@ public class AuthController {
         this.tokenProvider = tokenProvider;
     }
 
+
+
     @ApiOperation(value = "로그인", notes = "로그인")
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody LoginDTO loginDTO) {
         TokenResponseDTO responseDTO = tokenProvider.generateToken(loginDTO);
         return new ResponseEntity(responseDTO, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "로그아웃", notes = "해당 사용자의 리프레시 토큰을 서버에서 삭제합니다.")
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/logout")
+    public ResponseEntity logout() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        tokenProvider.removeRefreshToken(username);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @ApiOperation(value = "토큰 재발급", notes = "토큰 재발급")

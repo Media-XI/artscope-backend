@@ -56,13 +56,6 @@ public class TokenProvider implements InitializingBean {
         this.memberRepository = memberRepository;
     }
 
-    public Long getTokenValidityInMilliseconds() {
-        return tokenValidityInMilliseconds;
-    }
-
-    public Long getTokenValidityInSeconds() {
-        return tokenValidityInMilliseconds / 1000;
-    }
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -74,16 +67,8 @@ public class TokenProvider implements InitializingBean {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
-        long now = (new Date()).getTime();
-        Date validity = new Date(now + this.tokenValidityInMilliseconds);
 
-        return Jwts.builder()
-                .setHeaderParam("typ", "JWT")
-                .setSubject(authentication.getName())
-                .claim(AUTHORITIES_KEY, authorities)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(validity)
-                .compact();
+        return createToken(authentication.getName(), authorities);
     }
 
     public String createToken(Member member) {
@@ -91,11 +76,16 @@ public class TokenProvider implements InitializingBean {
                 .map(a -> a.getAuthority().getAuthorityName())
                 .collect(Collectors.joining(","));
 
+        return createToken(member.getName(), authorities);
+    }
+
+    public String createToken(String sub, String authorities) {
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.tokenValidityInMilliseconds);
 
         return Jwts.builder()
-                .setSubject(member.getUsername())
+                .setHeaderParam("typ", "JWT")
+                .setSubject(sub)
                 .claim(AUTHORITIES_KEY, authorities)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)
@@ -104,28 +94,26 @@ public class TokenProvider implements InitializingBean {
 
 
     public String createRefreshToken(Authentication authentication) {
+        return createRefreshToken(authentication.getName());
+    }
+
+    public String createRefreshToken(Member member) {
+        return createRefreshToken(member.getUsername());
+    }
+
+    public String createRefreshToken(String sub) {
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.refreshTokenValidityInMilliseconds);
 
         return Jwts.builder()
                 .setHeaderParam("typ", "JWT")
-                .setSubject(authentication.getName())
+                .setSubject(sub)
                 .claim("typ", "refresh")
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)
                 .compact();
     }
 
-    public String createRefreshToken(Member member) {
-        long now = (new Date()).getTime();
-        Date validity = new Date(now + this.refreshTokenValidityInMilliseconds);
-
-        return Jwts.builder()
-                .setSubject(member.getUsername())
-                .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(validity)
-                .compact();
-    }
 
     public Authentication getAuthentication(String token) {
         Claims claims = getClaims(token);            // Token 값
@@ -161,15 +149,14 @@ public class TokenProvider implements InitializingBean {
     }
 
     public TokenResponseDTO regenerateToken(String token) {
+        if (!validateToken(token)) {
+            throw new InvalidJwtTokenException("유효하지 않은 토큰입니다");
+        }
 
         String usernameFromToken = getClaims(token).getSubject();
         Optional<String> tokenData = redisUtil.getData(usernameFromToken + "_token");
         if (tokenData.isEmpty()) {
-            throw new NotFoundException("존재하지 않는 토큰입니다");
-        }
-
-        if (!validateToken(token)) {
-            throw new InvalidJwtTokenException("유효하지 않은 토큰입니다");
+            throw new NotFoundException("서버에 저장되지 않은 토큰입니다.");
         }
 
         // Refresh Token 에서 User 아이디를 가져온다
@@ -179,7 +166,8 @@ public class TokenProvider implements InitializingBean {
         }
 
         Member find = memberRepository.findByUsername(usernameFromToken).orElseThrow(
-                () -> new NotFoundException("존재하지 않는 회원입니다"));
+                () -> new NotFoundException("존재하지 않는 회원입니다")
+        );
 
         String newAccessToken = createToken(find);
         String newRefreshToken = createRefreshToken(find);
@@ -221,7 +209,16 @@ public class TokenProvider implements InitializingBean {
         return false;
     }
 
+
+    public Long getTokenValidityInSeconds() {
+        return tokenValidityInMilliseconds / 1000;
+    }
+
     public Long getRefreshTokenValidityInSeconds() {
         return refreshTokenValidityInMilliseconds / 1000;
+    }
+
+    public void removeRefreshToken(String username) {
+        redisUtil.deleteData(username + "_token");
     }
 }

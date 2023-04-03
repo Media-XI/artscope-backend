@@ -1,11 +1,15 @@
 package com.example.codebase.controller;
 
+import com.example.codebase.ArtBackendApplication;
+import com.example.codebase.domain.auth.WithMockCustomUser;
 import com.example.codebase.domain.auth.dto.LoginDTO;
+import com.example.codebase.domain.auth.dto.TokenResponseDTO;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
+import com.example.codebase.jwt.TokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,8 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.event.annotation.PrepareTestInstance;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -42,6 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AuthControllerTest {
     @Autowired
     private MockMvc mockMvc;
+
     @Autowired
     private WebApplicationContext context;
 
@@ -50,6 +57,9 @@ class AuthControllerTest {
 
     @Autowired
     private MemberAuthorityRepository memberAuthorityRepository;
+
+    @Autowired
+    private TokenProvider tokenProvider;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -105,4 +115,44 @@ class AuthControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
     }
+
+    @DisplayName("토큰 재발급 시")
+    @Test
+    public void test2() throws Exception {
+        createOrLoadMember();
+
+        LoginDTO loginDTO = new LoginDTO();
+        loginDTO.setUsername("testid");
+        loginDTO.setPassword("1234");
+
+        String refreshToken = tokenProvider.generateToken(loginDTO).getRefreshToken();
+
+        mockMvc.perform(
+                        post("/api/refresh")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(refreshToken)
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid")
+    @DisplayName("사용자 로그아웃")
+    @Test
+    public void test3() throws Exception {
+        createOrLoadMember();
+
+        LoginDTO loginDTO = new LoginDTO();
+        loginDTO.setUsername("testid");
+        loginDTO.setPassword("1234");
+
+        tokenProvider.generateToken(loginDTO);
+
+        mockMvc.perform(
+                        post("/api/logout")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
 }

@@ -16,11 +16,10 @@ spring:
   config:
     activate:
       on-profile:
-        - default
         - test
 
 app:
-  oauth2-redirect-uri: http://localhost:3000/oauth2/redirect
+  oauth2-redirect-uri: http://localhost:8080/oauth2/redirect
 
 ---
 spring:
@@ -30,4 +29,4 @@ spring:
         - prod
 
 app:
-  oauth2-redirect-uri: https://artfe.megabrain.kr/oauth2/redirect
+  oauth2-redirect-uri: https://artscope.kr/oauth2/redirect
