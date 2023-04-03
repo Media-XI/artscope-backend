@@ -12,12 +12,14 @@ public class ArtworkMediaResponseDTO {
     private Long id;
     private String mediaType;
     private String mediaUrl;
+    private String description;
 
     public static ArtworkMediaResponseDTO from (ArtworkMedia artworkMedia) {
         return ArtworkMediaResponseDTO.builder()
                 .id(artworkMedia.getId())
                 .mediaType(artworkMedia.getMediaType().name())
                 .mediaUrl(artworkMedia.getMediaUrl())
+                .description(artworkMedia.getDescription())
                 .build();
     }
 }

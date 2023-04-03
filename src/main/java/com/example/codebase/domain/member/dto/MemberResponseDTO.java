@@ -17,10 +17,16 @@ public class MemberResponseDTO {
     private String username;
     private String name;
     private String email;
+
     private Optional<String> picture;
+
     private Optional<String> oauthProvider;
+
     private Optional<String> oauthProviderId;
+
     private boolean activated;
+
+    private String artistStatus;
 
     private String snsUrl;
 
@@ -52,6 +58,7 @@ public class MemberResponseDTO {
                         ).collect(Collectors.toSet())
         );
         dto.setCreatedTime(member.getCreatedTime());
+        dto.setArtistStatus(member.getArtistStatus().toString());
         dto.setSnsUrl(member.getSnsUrl());
         dto.setWebsiteUrl(member.getWebsiteUrl());
         dto.setIntroduction(member.getIntroduction());

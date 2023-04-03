@@ -111,6 +111,7 @@ class ArtworkControllerTest {
         ArtworkMedia artworkMedia = ArtworkMedia.builder()
                 .mediaType(MediaType.image)
                 .mediaUrl("url")
+                .description("미디어 설명")
                 .build();
 
         Artwork dummy = Artwork.builder()
@@ -134,6 +135,7 @@ class ArtworkControllerTest {
         ArtworkMediaCreateDTO mediaCreateDTO = new ArtworkMediaCreateDTO();
         mediaCreateDTO.setMediaType(MediaType.image.toString());
         mediaCreateDTO.setMediaUrl("url");
+        mediaCreateDTO.setDescription("미디어 설명");
 
         ArtworkCreateDTO dto = new ArtworkCreateDTO();
         dto.setTitle("아트워크_테스트");
@@ -161,11 +163,13 @@ class ArtworkControllerTest {
         ArtworkMediaCreateDTO mediaCreateDTO1 = new ArtworkMediaCreateDTO();
         mediaCreateDTO1.setMediaType(MediaType.image.toString());
         mediaCreateDTO1.setMediaUrl("url");
+        mediaCreateDTO1.setDescription("미디어 설명1");
         mediaCreateDTOList.add(mediaCreateDTO1);
 
         ArtworkMediaCreateDTO mediaCreateDTO2 = new ArtworkMediaCreateDTO();
         mediaCreateDTO2.setMediaType(MediaType.video.toString());
         mediaCreateDTO2.setMediaUrl("url");
+        mediaCreateDTO2.setDescription("미디어 설명2");
         mediaCreateDTOList.add(mediaCreateDTO2);
 
 
@@ -188,6 +192,7 @@ class ArtworkControllerTest {
     @DisplayName("아트워크 전체 조회")
     @Test
     public void test02() throws Exception {
+        createOrLoadArtwork(3);
 
         mockMvc.perform(
                         get("/api/artworks?page=0&size=10")
@@ -218,6 +223,7 @@ class ArtworkControllerTest {
         ArtworkMediaCreateDTO mediaCreateDTO = new ArtworkMediaCreateDTO();
         mediaCreateDTO.setMediaType("test");
         mediaCreateDTO.setMediaUrl("url");
+        mediaCreateDTO.setDescription("미디어 설명");
 
         ArtworkCreateDTO dto = new ArtworkCreateDTO();
         dto.setTitle("아트워크_테스트");
@@ -283,6 +289,7 @@ class ArtworkControllerTest {
         ArtworkMediaCreateDTO dto = new ArtworkMediaCreateDTO();
         dto.setMediaType(MediaType.image.toString());
         dto.setMediaUrl("수정한 URL");
+        dto.setDescription("수정한 설명");
 
 
         mockMvc.perform(

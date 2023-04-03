@@ -60,8 +60,14 @@ public class Member {
 
     @Column(name = "history")
     private String history;
+
     @Column(name = "created_time")
     private LocalDateTime createdTime;
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "artist_status")
+    private ArtistStatus artistStatus = ArtistStatus.NONE;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private Set<MemberAuthority> authorities;
@@ -83,7 +89,6 @@ public class Member {
     public Member update(String name, String picture) {
         this.name = name;
         this.picture = picture;
-
         return this;
     }
 
@@ -92,5 +97,6 @@ public class Member {
         this.websiteUrl = dto.getWebsiteUrl();
         this.introduction = dto.getIntroduction();
         this.history = dto.getHistory();
+        this.artistStatus = ArtistStatus.PENDING;
     }
 }
