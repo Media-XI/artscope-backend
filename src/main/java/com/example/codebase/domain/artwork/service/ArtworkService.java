@@ -112,4 +112,18 @@ public class ArtworkService {
         artwork.updateArtworkMedia(mediaId, dto);
         return ArtworkResponseDTO.from(artwork);
     }
+
+    public ArtworksResponseDTO getUserArtworks(int page, int size, String sortDirection, String username) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        Page<Artwork> artworks = artworkRepository.findAllByMember_Username(pageRequest, username);
+        PageInfo pageInfo = PageInfo.of(page, size, artworks.getTotalPages(), artworks.getTotalElements());
+
+        List<ArtworkResponseDTO> dtos = artworks.stream()
+                .map(ArtworkResponseDTO::from)
+                .collect(Collectors.toList());
+
+        return ArtworksResponseDTO.of(dtos, pageInfo);
+    }
 }

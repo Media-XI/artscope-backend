@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -45,7 +46,7 @@ public class ArtworkController {
         return new ResponseEntity(responseDTO, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "아트워크 단일 조회", notes = "아트워크를 단일 조회합니다.")
+    @ApiOperation(value = "ID로 아트워크 조회", notes = "해당 ID의 아트워크를 조회합니다.")
     @GetMapping("/{id}")
     public ResponseEntity getArtwork(@PathVariable Long id) {
         ArtworkResponseDTO artwork = artworkService.getArtwork(id);
@@ -88,5 +89,16 @@ public class ArtworkController {
 
         artworkService.deleteArtwork(id, username);
         return new ResponseEntity("아트워크가 삭제되었습니다.", HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "사용자의 아트워크 조회", notes = "사용자의 아트워크를 조회합니다.")
+    @GetMapping("/member/{username}")
+    public ResponseEntity getUserArtworks(
+            @PositiveOrZero @RequestParam int page,
+            @PositiveOrZero @RequestParam int size,
+            @RequestParam(defaultValue = "DESC", required = false) String sortDirection,
+            @PathVariable String username) {
+        ArtworksResponseDTO artworks = artworkService.getUserArtworks(page, size, sortDirection, username);
+        return new ResponseEntity(artworks, HttpStatus.OK);
     }
 }

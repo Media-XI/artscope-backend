@@ -100,7 +100,11 @@ class ArtworkControllerTest {
     }
 
     public Artwork createOrLoadArtwork() {
-        Optional<Artwork> artwork = artworkRepository.findById(1L);
+        return createOrLoadArtwork(1);
+    }
+
+    public Artwork createOrLoadArtwork(int index) {
+        Optional<Artwork> artwork = artworkRepository.findById(Long.valueOf(index));
         if (artwork.isPresent()) {
             return artwork.get();
         }
@@ -110,11 +114,11 @@ class ArtworkControllerTest {
                 .build();
 
         Artwork dummy = Artwork.builder()
-                .title("아트워크_테스트")
+                .title("아트워크_테스트" + index)
                 .description("작품 설명")
                 .visible(true)
                 .member(createOrLoadMember())
-                .createdTime(LocalDateTime.now())
+                .createdTime(LocalDateTime.now().plusSeconds(index))
                 .build();
         dummy.addArtworkMedia(artworkMedia);
 
@@ -312,6 +316,20 @@ class ArtworkControllerTest {
 
         mockMvc.perform(
                         delete(String.format("/api/artworks/%d", artwork.getId()))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("해당 사용자 아트워크 오래된 순으로 조회")
+    @Test
+    public void 사용자_아트워크_조회() throws Exception {
+        Artwork artwork1 = createOrLoadArtwork(1);
+        Artwork artwork2 = createOrLoadArtwork(2);
+        String username = artwork1.getMember().getUsername();
+
+        mockMvc.perform(
+                        get(String.format("/api/artworks/member/%s?size=10&page=0&sortDirection=ASC", username))
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
