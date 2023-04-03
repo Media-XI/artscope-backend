@@ -29,7 +29,7 @@ public class ArtworkMedia {
     @Column(name = "media_url", nullable = false)
     private String mediaUrl;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = true)
     private String description;
 
     @Column(name = "created_time")

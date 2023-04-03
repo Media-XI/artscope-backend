@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class RuntimeExceptionHandler {
+public class CustomExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity handleRuntimeException(RuntimeException e) {
         return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -16,5 +16,10 @@ public class RuntimeExceptionHandler {
     @ExceptionHandler(NotAccessException.class)
     public ResponseEntity handleNotAccessException(NotAccessException e) {
         return new ResponseEntity(e.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity handleException(Exception e) {
+        return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

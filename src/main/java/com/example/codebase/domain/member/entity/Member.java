@@ -64,6 +64,9 @@ public class Member {
     @Column(name = "created_time")
     private LocalDateTime createdTime;
 
+    @Column(name = "updated_time")
+    private LocalDateTime updatedTime;
+
     @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "artist_status")
@@ -89,6 +92,7 @@ public class Member {
     public Member update(String name, String picture) {
         this.name = name;
         this.picture = picture;
+        this.updatedTime = LocalDateTime.now();
         return this;
     }
 
@@ -98,5 +102,6 @@ public class Member {
         this.introduction = dto.getIntroduction();
         this.history = dto.getHistory();
         this.artistStatus = ArtistStatus.PENDING;
+        this.updatedTime = LocalDateTime.now();
     }
 }

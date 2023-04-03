@@ -115,6 +115,7 @@ class ExhibitionArtworkControllerTest {
         ArtworkMedia artworkMedia = ArtworkMedia.builder()
                 .mediaType(MediaType.video)
                 .mediaUrl("url")
+                .description("미디어 설명")
                 .createdTime(LocalDateTime.now())
                 .build();
 
@@ -125,6 +126,7 @@ class ExhibitionArtworkControllerTest {
                 .visible(true)
                 .createdTime(LocalDateTime.now())
                 .build();
+
         artwork.addArtworkMedia(artworkMedia);
 
         return artworkRepository.save(artwork);

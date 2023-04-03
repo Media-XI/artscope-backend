@@ -94,7 +94,7 @@ public class MemberService {
     public MemberResponseDTO createArtist(CreateArtistMemberDTO createArtistMemberDTO) {
         Member member = memberRepository
                 .findByUsername(createArtistMemberDTO.getUsername())
-                .orElseThrow(() -> new NotFoundMemberException());
+                .orElseThrow(NotFoundMemberException::new);
         member.setArtist(createArtistMemberDTO);
 
         Member saved = memberRepository.save(member);
@@ -104,7 +104,7 @@ public class MemberService {
     public MemberResponseDTO getProfile(String username) {
         Member member = memberRepository
                 .findByUsername(username)
-                .orElseThrow(() -> new NotFoundMemberException());
+                .orElseThrow(NotFoundMemberException::new);
         return MemberResponseDTO.from(member);
     }
 }

@@ -14,15 +14,18 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 public class MemberResponseDTO {
+
     private String username;
+
     private String name;
+
     private String email;
 
     private Optional<String> picture;
 
     private Optional<String> oauthProvider;
 
-    private Optional<String> oauthProviderId;
+    // private Optional<String> oauthProviderId;
 
     private boolean activated;
 
@@ -37,8 +40,12 @@ public class MemberResponseDTO {
     private String history;
 
     private Set<AuthorityDto> authrities;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdTime;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime updatedTime;
 
     public static MemberResponseDTO from(Member member) {
         MemberResponseDTO dto = new MemberResponseDTO();
@@ -47,7 +54,7 @@ public class MemberResponseDTO {
         dto.setEmail(member.getEmail());
         dto.setPicture(Optional.ofNullable(member.getPicture()));
         dto.setOauthProvider(Optional.ofNullable(String.valueOf(member.getOauthProvider())));
-        dto.setOauthProviderId(Optional.ofNullable(member.getOauthProviderId()));
+        // dto.setOauthProviderId(Optional.ofNullable(member.getOauthProviderId()));
         dto.setActivated(member.isActivated());
         dto.setAuthrities(
                 member.getAuthorities().stream()
@@ -58,6 +65,7 @@ public class MemberResponseDTO {
                         ).collect(Collectors.toSet())
         );
         dto.setCreatedTime(member.getCreatedTime());
+        dto.setUpdatedTime(member.getUpdatedTime());
         dto.setArtistStatus(member.getArtistStatus().toString());
         dto.setSnsUrl(member.getSnsUrl());
         dto.setWebsiteUrl(member.getWebsiteUrl());

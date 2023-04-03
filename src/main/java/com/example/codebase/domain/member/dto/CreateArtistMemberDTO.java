@@ -9,10 +9,12 @@ import lombok.Setter;
 public class CreateArtistMemberDTO {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String username;
+
     private String snsUrl;
+
     private String websiteUrl;
+
     private String introduction;
+
     private String history;
-
-
 }

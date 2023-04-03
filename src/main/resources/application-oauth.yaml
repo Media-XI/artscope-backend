@@ -11,15 +11,8 @@ spring:
               - profile
               # - openid # OIDC 인증 활성화
 
----
-spring:
-  config:
-    activate:
-      on-profile:
-        - test
-
 app:
-  oauth2-redirect-uri: http://localhost:8080/oauth2/redirect
+  oauth2-redirect-uri: http://localhost:3000/oauth2/redirect
 
 ---
 spring:

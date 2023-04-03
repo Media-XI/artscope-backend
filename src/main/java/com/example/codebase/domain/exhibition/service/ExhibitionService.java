@@ -18,6 +18,7 @@ import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.exception.NotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,6 +40,7 @@ public class ExhibitionService {
         this.memberRepository = memberRepository;
     }
 
+    @Transactional
     public ResponseExhibitionDTO createExhibition(CreateExhibitionDTO dto, String username) {
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundMemberException());
@@ -72,6 +74,7 @@ public class ExhibitionService {
         return ResponseExhibitionDTO.from(exhibition);
     }
 
+    @Transactional
     public void deleteExhibition(Long exhibitionId, String username) {
         Exhibition exhibition = exhibitionRepository.findById(exhibitionId)
                 .orElseThrow(() -> new NotFoundExhibitionException());
@@ -89,6 +92,7 @@ public class ExhibitionService {
         exhibition.delete(); // 소프트 삭제
     }
 
+    @Transactional
     public ExhibitionArtworkResponseDTO addArtworkToExhibition(Long exhibitionId, Long artworkId, String username) {
         Artwork artwork = artworkRepository.findById(artworkId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 작품입니다."));
@@ -130,6 +134,7 @@ public class ExhibitionService {
         return ExhibitionArtworkResponseDTO.from(exhibitionArtwork);
     }
 
+    @Transactional
     public void deleteExhibitionArtwork(Long exhibitionId, Long artworkId, String username) {
         ExhibitionArtwork exhibitionArtwork = exhibitionArtworkRepository.findByExhibitionIdAndArtworkId(exhibitionId, artworkId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 공모전 또는 작품입니다."));
