@@ -18,7 +18,9 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,6 +66,35 @@ public class MemberService {
         memberAuthorityRepository.save(memberAuthority);
 
         return MemberResponseDTO.from(save);
+    }
+
+    @Transactional
+    public MemberResponseDTO createAdmin(CreateMemberDTO member) {
+        if (memberRepository.findByUsername(member.getUsername()).isPresent()) {
+            throw new ExistMemberException();
+        }
+
+        Member newMember = Member.builder()
+                .username(member.getUsername())
+                .password(passwordEncoder.encode(member.getPassword()))
+                .name(member.getName())
+                .email(member.getEmail())
+                .createdTime(LocalDateTime.now())
+                .activated(true)
+                .build();
+
+        Set<MemberAuthority> memberAuthority = new HashSet<>();
+        memberAuthority.add(MemberAuthority.builder()
+                .authority(Authority.of("ROLE_USER"))
+                .member(newMember)
+                .build());
+        memberAuthority.add(MemberAuthority.builder()
+                .authority(Authority.of("ROLE_ADMIN"))
+                .member(newMember)
+                .build());
+        newMember.setAuthorities(memberAuthority);
+
+        return MemberResponseDTO.from(memberRepository.save(newMember));
     }
 
     @Transactional

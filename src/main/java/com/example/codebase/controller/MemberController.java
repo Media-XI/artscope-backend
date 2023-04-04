@@ -35,6 +35,14 @@ public class MemberController {
         return new ResponseEntity(memberResponseDTO, HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "관리자 가입", notes = "관리자 가입을 합니다.")
+    @PostMapping("/admin")
+    public ResponseEntity createAdmin(@RequestBody CreateMemberDTO createMemberDTO) {
+        MemberResponseDTO admin = memberService.createAdmin(createMemberDTO);
+        return new ResponseEntity(admin, HttpStatus.CREATED);
+    }
+
+
     @ApiOperation(value = "아티스트 정보 입력", notes = "[USER] 아티스트 정보를 입력합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PostMapping("/artist")

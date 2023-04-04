@@ -110,6 +110,24 @@ class MemberControllerTest {
                 .andDo(print());
     }
 
+    @DisplayName("관리자 회원가입 API가 작동한다")
+    @Test
+    void 관리자_가입() throws Exception {
+        CreateMemberDTO dto = new CreateMemberDTO();
+        dto.setEmail("test23@test.com");
+        dto.setName("test");
+        dto.setUsername("test23");
+        dto.setPassword("1234");
+
+        mockMvc.perform(
+                        post("/api/members/admin")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andExpect(status().isCreated())
+                .andDo(print());
+    }
+
     @DisplayName("아티스트 정보 입력 API가 작동한다")
     @WithMockCustomUser(username = "testid1", role = "USER")
     @Test
