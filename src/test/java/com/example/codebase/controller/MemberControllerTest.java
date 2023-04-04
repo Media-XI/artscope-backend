@@ -96,9 +96,9 @@ class MemberControllerTest {
     @Test
     void test1() throws Exception {
         CreateMemberDTO dto = new CreateMemberDTO();
-        dto.setEmail("test23@test.com");
-        dto.setName("test");
-        dto.setUsername("test23");
+        dto.setEmail("test213@test.com");
+        dto.setName("test1");
+        dto.setUsername("test213");
         dto.setPassword("1234");
 
         mockMvc.perform(

@@ -83,6 +83,10 @@ public class Member {
         this.password = password;
     }
 
+    public void addAuthority(MemberAuthority memberAuthority) {
+        this.authorities.add(memberAuthority);
+    }
+
     public static User toUser(Member member) {
         return new User(member.getUsername(), member.getPassword(), member.getAuthorities().stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.getAuthority().getAuthorityName()))
@@ -97,6 +101,7 @@ public class Member {
     }
 
     public void setArtist(CreateArtistMemberDTO dto) {
+        this.picture = dto.getProfile();
         this.snsUrl = dto.getSnsUrl();
         this.websiteUrl = dto.getWebsiteUrl();
         this.introduction = dto.getIntroduction();

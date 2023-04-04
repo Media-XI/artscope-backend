@@ -39,7 +39,7 @@ public class MemberResponseDTO {
 
     private String history;
 
-    private Set<AuthorityDto> authrities;
+    private Set<String> authrities;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdTime;
@@ -58,11 +58,9 @@ public class MemberResponseDTO {
         dto.setActivated(member.isActivated());
         dto.setAuthrities(
                 member.getAuthorities().stream()
-                        .map(authority ->
-                                AuthorityDto.builder()
-                                        .authorityName(authority.getAuthority().getAuthorityName())
-                                        .build()
-                        ).collect(Collectors.toSet())
+                        .map(authority -> authority.getAuthority().getAuthorityName()
+                        )
+                        .collect(Collectors.toSet())
         );
         dto.setCreatedTime(member.getCreatedTime());
         dto.setUpdatedTime(member.getUpdatedTime());

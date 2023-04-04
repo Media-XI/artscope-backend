@@ -10,6 +10,8 @@ public class CreateArtistMemberDTO {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String username;
 
+    private String profile;
+
     private String snsUrl;
 
     private String websiteUrl;
