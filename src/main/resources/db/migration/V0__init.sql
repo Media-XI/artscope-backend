@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS `member`;
 
 CREATE TABLE IF NOT EXISTS `member` (
-    `member_id` bigint NOT NULL AUTO_INCREMENT,
+    `member_id` binary(16) NOT NULL,
     `username` varchar(50) NOT NULL UNIQUE,
     `password` varchar(100) NOT NULL,
     `name` varchar(50) NOT NULL,

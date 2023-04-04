@@ -3,12 +3,14 @@ package com.example.codebase.domain.member.entity;
 import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
 import com.example.codebase.domain.member.entity.oauth2.oAuthProvider;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Entity
@@ -20,9 +22,10 @@ import java.util.stream.Collectors;
 public class Member {
 
     @Id
-    @Column(name = "member_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "member_id", columnDefinition = "BINARY(16)")
+    @GeneratedValue(generator = "uuid4")
+    @GenericGenerator(name = "UUID", strategy = "uuid4")
+    private UUID id;
 
     @Column(name = "username", unique = true, length = 50)
     private String username;
