@@ -1,11 +1,15 @@
 package com.example.codebase.domain.exhibition.service;
 
+import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkResponseDTO;
 import com.example.codebase.domain.artwork.entity.Artwork;
+import com.example.codebase.domain.artwork.entity.ArtworkMedia;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.exhibition.dto.CreateExhibitionDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionMediaCreateDTO;
 import com.example.codebase.domain.exhibition.dto.ResponseExhibitionDTO;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
+import com.example.codebase.domain.exhibition.entity.ExhibitionMedia;
 import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
 import com.example.codebase.domain.exhibition_artwork.dto.ExhibitionArtworkResponseDTO;
 import com.example.codebase.domain.exhibition_artwork.dto.ExhibitionArtworksResponseDTO;
@@ -46,8 +50,13 @@ public class ExhibitionService {
                 .orElseThrow(() -> new NotFoundMemberException());
 
         Exhibition exhibition = Exhibition.of(dto, member);
-        Exhibition save = exhibitionRepository.save(exhibition);
 
+        for (ExhibitionMediaCreateDTO mediaCreateDTO : dto.getMediaUrls()) {
+            ExhibitionMedia media = ExhibitionMedia.of(mediaCreateDTO, exhibition);
+            exhibition.addExhibitionMedia(media);
+        }
+
+        Exhibition save = exhibitionRepository.save(exhibition);
         return ResponseExhibitionDTO.from(save);
     }
 

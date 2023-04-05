@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Column;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,6 +15,10 @@ public class CreateExhibitionDTO {
     private String title;
 
     private String description;
+
+    private String link;
+
+    private List<ExhibitionMediaCreateDTO> mediaUrls;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime startDate;

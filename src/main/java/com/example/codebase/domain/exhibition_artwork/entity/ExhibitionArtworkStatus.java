@@ -1,6 +1,5 @@
 package com.example.codebase.domain.exhibition_artwork.entity;
 
-import com.example.codebase.domain.artwork.entity.MediaType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import java.util.stream.Stream;

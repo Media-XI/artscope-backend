@@ -5,7 +5,7 @@ import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkUpdateDTO;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
-import com.example.codebase.domain.artwork.entity.MediaType;
+import com.example.codebase.domain.artwork.entity.ArtworkMediaType;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.auth.WithMockCustomUser;
 import com.example.codebase.domain.member.entity.Authority;
@@ -109,7 +109,7 @@ class ArtworkControllerTest {
             return artwork.get();
         }
         ArtworkMedia artworkMedia = ArtworkMedia.builder()
-                .mediaType(MediaType.image)
+                .artworkMediaType(ArtworkMediaType.image)
                 .mediaUrl("url")
                 .description("미디어 설명")
                 .build();
@@ -133,7 +133,7 @@ class ArtworkControllerTest {
         createOrLoadMember();
 
         ArtworkMediaCreateDTO mediaCreateDTO = new ArtworkMediaCreateDTO();
-        mediaCreateDTO.setMediaType(MediaType.image.toString());
+        mediaCreateDTO.setMediaType(ArtworkMediaType.image.toString());
         mediaCreateDTO.setMediaUrl("url");
         mediaCreateDTO.setDescription("미디어 설명");
 
@@ -161,13 +161,13 @@ class ArtworkControllerTest {
         List<ArtworkMediaCreateDTO> mediaCreateDTOList = new ArrayList<>();
 
         ArtworkMediaCreateDTO mediaCreateDTO1 = new ArtworkMediaCreateDTO();
-        mediaCreateDTO1.setMediaType(MediaType.image.toString());
+        mediaCreateDTO1.setMediaType(ArtworkMediaType.image.toString());
         mediaCreateDTO1.setMediaUrl("url");
         mediaCreateDTO1.setDescription("미디어 설명1");
         mediaCreateDTOList.add(mediaCreateDTO1);
 
         ArtworkMediaCreateDTO mediaCreateDTO2 = new ArtworkMediaCreateDTO();
-        mediaCreateDTO2.setMediaType(MediaType.video.toString());
+        mediaCreateDTO2.setMediaType(ArtworkMediaType.video.toString());
         mediaCreateDTO2.setMediaUrl("url");
         mediaCreateDTO2.setDescription("미디어 설명2");
         mediaCreateDTOList.add(mediaCreateDTO2);
@@ -287,7 +287,7 @@ class ArtworkControllerTest {
         Artwork artwork = createOrLoadArtwork();
 
         ArtworkMediaCreateDTO dto = new ArtworkMediaCreateDTO();
-        dto.setMediaType(MediaType.image.toString());
+        dto.setMediaType(ArtworkMediaType.image.toString());
         dto.setMediaUrl("수정한 URL");
         dto.setDescription("수정한 설명");
 

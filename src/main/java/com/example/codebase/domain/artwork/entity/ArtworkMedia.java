@@ -24,7 +24,7 @@ public class ArtworkMedia {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "media_type", nullable = false)
-    private MediaType mediaType;
+    private ArtworkMediaType artworkMediaType;
 
     @Column(name = "media_url", nullable = false)
     private String mediaUrl;
@@ -44,7 +44,7 @@ public class ArtworkMedia {
 
     public static ArtworkMedia of (ArtworkMediaCreateDTO media, Artwork artwork) {
         return ArtworkMedia.builder()
-                .mediaType(MediaType.create(media.getMediaType()))  // create() 메서드를 통해 MediaType을 생성 과 예외처리를 한다.
+                .artworkMediaType(ArtworkMediaType.create(media.getMediaType()))  // create() 메서드를 통해 MediaType을 생성 과 예외처리를 한다.
                 .mediaUrl(media.getMediaUrl())
                 .description(media.getDescription())
                 .artwork(artwork)
@@ -57,7 +57,7 @@ public class ArtworkMedia {
     }
 
     public void update(ArtworkMediaCreateDTO media) {
-        this.mediaType = MediaType.create(media.getMediaType());
+        this.artworkMediaType = ArtworkMediaType.create(media.getMediaType());
         this.mediaUrl = media.getMediaUrl();
         this.description = media.getDescription();
         this.updatedTime = LocalDateTime.now();

@@ -17,7 +17,7 @@ public class ArtworkMediaResponseDTO {
     public static ArtworkMediaResponseDTO from (ArtworkMedia artworkMedia) {
         return ArtworkMediaResponseDTO.builder()
                 .id(artworkMedia.getId())
-                .mediaType(artworkMedia.getMediaType().name())
+                .mediaType(artworkMedia.getArtworkMediaType().name())
                 .mediaUrl(artworkMedia.getMediaUrl())
                 .description(artworkMedia.getDescription())
                 .build();

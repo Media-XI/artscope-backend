@@ -2,13 +2,15 @@ package com.example.codebase.controller;
 
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
-import com.example.codebase.domain.artwork.entity.MediaType;
+import com.example.codebase.domain.artwork.entity.ArtworkMediaType;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.auth.WithMockCustomUser;
 import com.example.codebase.domain.exhibition.dto.CreateExhibitionDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionMediaCreateDTO;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
+import com.example.codebase.domain.exhibition.entity.ExhibitionMedia;
+import com.example.codebase.domain.exhibition.entity.ExhibtionMediaType;
 import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
-import com.example.codebase.domain.exhibition_artwork.repository.ExhibitionArtworkRepository;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
@@ -31,13 +33,11 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.transaction.Transactional;
-import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -80,16 +80,19 @@ class ExhibitionControllerTest {
     }
 
     public Member createOrLoadMember() {
-        Optional<Member> testMember = memberRepository.findByUsername("testid");
+        return createOrLoadMember(1);
+    }
+    public Member createOrLoadMember(int idx) {
+        Optional<Member> testMember = memberRepository.findByUsername("testid" + idx);
         if (testMember.isPresent()) {
             return testMember.get();
         }
 
         Member dummy = Member.builder()
-                .username("testid")
+                .username("testid" + idx)
                 .password(passwordEncoder.encode("1234"))
-                .email("email")
-                .name("test")
+                .email("email" + idx)
+                .name("test" + idx)
                 .activated(true)
                 .createdTime(LocalDateTime.now())
                 .build();
@@ -100,7 +103,7 @@ class ExhibitionControllerTest {
         dummy.setAuthorities(Collections.singleton(memberAuthority));
 
         Member save = memberRepository.save(dummy);
-        memberAuthorityRepository.save(memberAuthority);
+        // memberAuthorityRepository.save(memberAuthority);
         return save;
     }
 
@@ -110,7 +113,7 @@ class ExhibitionControllerTest {
             return testArtwork.get();
         }
         ArtworkMedia artworkMedia = ArtworkMedia.builder()
-                .mediaType(MediaType.video)
+                .artworkMediaType(ArtworkMediaType.video)
                 .mediaUrl("url")
                 .createdTime(LocalDateTime.now())
                 .build();
@@ -128,40 +131,52 @@ class ExhibitionControllerTest {
     }
 
     public Exhibition createOrLoadExhibition() {
-        Optional<Exhibition> save = exhibitionRepository.findById(1L);
+        return createOrLoadExhibition(1);
+    }
+
+    public Exhibition createOrLoadExhibition(int idx) {
+        Optional<Exhibition> save = exhibitionRepository.findById(Long.valueOf(idx));
         if (save.isPresent()) {
             return save.get();
         }
 
-        Exhibition exhibition = Exhibition.builder()
-                .title("공모전 제목")
-                .description("공모전 설명")
-                .startDate(LocalDateTime.now())
-                .endDate(LocalDateTime.now().plusMonths(1L))
+        ExhibitionMedia media = ExhibitionMedia.builder()
+                .mediaUrl("url" + idx)
+                .exhibtionMediaType(ExhibtionMediaType.image)
                 .createdTime(LocalDateTime.now())
-                .member(createOrLoadMember())
                 .build();
+
+        Exhibition exhibition = Exhibition.builder()
+                .title("공모전 제목" + idx)
+                .description("공모전 설명" + idx)
+                .startDate(LocalDateTime.now())
+                .endDate(LocalDateTime.now().plusMonths(idx))
+                .createdTime(LocalDateTime.now())
+                .member(createOrLoadMember(idx))
+                .build();
+        exhibition.addExhibitionMedia(media);
 
         return exhibitionRepository.save(exhibition);
     }
 
 
-    @WithMockCustomUser(username = "testid", role = "USER")
+    @WithMockCustomUser(username = "testid1", role = "USER")
     @DisplayName("공모전 등록")
     @Test
     public void test01() throws Exception {
         createOrLoadMember();
 
+        ExhibitionMediaCreateDTO createDTO = new ExhibitionMediaCreateDTO();
+        createDTO.setMediaType(ExhibtionMediaType.image.name());
+        createDTO.setMediaUrl("http://localhost:123");
+
         CreateExhibitionDTO dto = new CreateExhibitionDTO();
         dto.setTitle("공모전 제목");
         dto.setDescription("공모전 내용");
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime startDate = LocalDateTime.parse(LocalDateTime.now().format(formatter), formatter);
-        LocalDateTime endDate = LocalDateTime.parse(LocalDateTime.now().plusMonths(1L).format(formatter), formatter);
-
-        dto.setStartDate(startDate);
-        dto.setEndDate(endDate);
+        dto.setLink("링크");
+        dto.setStartDate(LocalDateTime.now());
+        dto.setEndDate(LocalDateTime.now().plusMonths(1));
+        dto.setMediaUrls(Collections.singletonList(createDTO));
 
         mockMvc.perform(
                         post("/api/exhibitions")
@@ -177,16 +192,17 @@ class ExhibitionControllerTest {
     public void test02() throws Exception {
         createOrLoadMember();
 
+        ExhibitionMediaCreateDTO createDTO = new ExhibitionMediaCreateDTO();
+        createDTO.setMediaType(ExhibtionMediaType.image.name());
+        createDTO.setMediaUrl("http://localhost:123");
+
         CreateExhibitionDTO dto = new CreateExhibitionDTO();
         dto.setTitle("공모전 제목");
         dto.setDescription("공모전 내용");
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime startDate = LocalDateTime.parse(LocalDateTime.now().format(formatter), formatter);
-        LocalDateTime endDate = LocalDateTime.parse(LocalDateTime.now().plusMonths(1L).format(formatter), formatter);
-
-        dto.setStartDate(startDate);
-        dto.setEndDate(endDate);
+        dto.setLink("링크");
+        dto.setStartDate(LocalDateTime.now());
+        dto.setEndDate(LocalDateTime.now().plusMonths(1));
+        dto.setMediaUrls(Collections.singletonList(createDTO));
 
         mockMvc.perform(
                         post("/api/exhibitions")
@@ -197,20 +213,21 @@ class ExhibitionControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-
-    @DisplayName("공모전 조회")
+    @DisplayName("공모전 전체 조회")
     @Test
     public void test03() throws Exception {
+        createOrLoadExhibition(1);
+        createOrLoadExhibition(2);
+        createOrLoadExhibition(3);
+
         mockMvc.perform(
                         get("/api/exhibitions")
-                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
-
-    @WithMockCustomUser(username = "testid", role = "USER")
+    @WithMockCustomUser(username = "testid1", role = "USER")
     @DisplayName("공모전 수정")
     @Test
     public void test06() throws Exception {
@@ -219,6 +236,7 @@ class ExhibitionControllerTest {
         CreateExhibitionDTO dto = new CreateExhibitionDTO();
         dto.setTitle("공모전 제목 수정");
         dto.setDescription("공모전 내용 수정");
+        dto.setLink("링크 수정");
         dto.setStartDate(LocalDateTime.now());
         dto.setEndDate(LocalDateTime.now().plusMonths(1L));
 
@@ -240,6 +258,7 @@ class ExhibitionControllerTest {
         CreateExhibitionDTO dto = new CreateExhibitionDTO();
         dto.setTitle("공모전 제목 수정");
         dto.setDescription("공모전 내용 수정");
+        dto.setLink("링크 수정");
         dto.setStartDate(LocalDateTime.now());
         dto.setEndDate(LocalDateTime.now().plusMonths(1L));
 
@@ -252,11 +271,12 @@ class ExhibitionControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    @WithMockCustomUser(username = "testid", role = "USER")
+    @WithMockCustomUser(username = "testid1", role = "USER")
     @DisplayName("공모전 삭제")
     @Test
     public void test10() throws Exception {
         Exhibition exhibition = createOrLoadExhibition();
+
         mockMvc.perform(
                         delete(String.format("/api/exhibitions/%d", exhibition.getId()))
                 )

@@ -2,7 +2,7 @@ package com.example.codebase.controller;
 
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
-import com.example.codebase.domain.artwork.entity.MediaType;
+import com.example.codebase.domain.artwork.entity.ArtworkMediaType;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.auth.WithMockCustomUser;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
@@ -37,7 +37,6 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -113,7 +112,7 @@ class ExhibitionArtworkControllerTest {
             return testArtwork.get();
         }
         ArtworkMedia artworkMedia = ArtworkMedia.builder()
-                .mediaType(MediaType.video)
+                .artworkMediaType(ArtworkMediaType.video)
                 .mediaUrl("url")
                 .description("미디어 설명")
                 .createdTime(LocalDateTime.now())

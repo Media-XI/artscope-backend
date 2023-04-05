@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "exhibition")
@@ -29,6 +31,9 @@ public class Exhibition {
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
+
+    @Column(name = "link")
+    private String link;
 
     @Column(name = "start_date")
     private LocalDateTime startDate;
@@ -50,10 +55,15 @@ public class Exhibition {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Builder.Default
+    @OneToMany(mappedBy = "exhibition", cascade = CascadeType.ALL)
+    private List<ExhibitionMedia> exhibitionMedias = new ArrayList<>();
+
     public static Exhibition of(CreateExhibitionDTO dto, Member member) {
         return Exhibition.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
+                .link(dto.getLink())
                 .startDate(dto.getStartDate())
                 .endDate(dto.getEndDate())
                 .createdTime(LocalDateTime.now())
@@ -71,5 +81,9 @@ public class Exhibition {
 
     public void delete() {
         this.enabled = false;
+    }
+
+    public void addExhibitionMedia(ExhibitionMedia media) {
+        this.exhibitionMedias.add(media);
     }
 }
