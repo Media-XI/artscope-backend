@@ -47,12 +47,7 @@ public class ArtworkService {
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(NotFoundMemberException::new);
 
-        Artwork artwork = Artwork.builder()
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .createdTime(LocalDateTime.now())
-                .member(member)
-                .build();
+        Artwork artwork = Artwork.of(dto, member);
 
         for (ArtworkMediaCreateDTO mediaCreateDTO : dto.getMediaUrls()) {
             ArtworkMedia media = ArtworkMedia.of(mediaCreateDTO, artwork);

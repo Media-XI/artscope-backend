@@ -74,6 +74,7 @@ class ArtworkControllerTest {
                 .build();
     }
 
+    @Transactional
     public Member createOrLoadMember() {
         Optional<Member> testMember = memberRepository.findByUsername("testid");
         if (testMember.isPresent()) {
@@ -99,10 +100,12 @@ class ArtworkControllerTest {
         return save;
     }
 
+    @Transactional
     public Artwork createOrLoadArtwork() {
         return createOrLoadArtwork(1, true);
     }
 
+    @Transactional
     public Artwork createOrLoadArtwork(int index, boolean isVisible) {
         Optional<Artwork> artwork = artworkRepository.findById(Long.valueOf(index));
         if (artwork.isPresent()) {

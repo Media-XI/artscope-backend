@@ -10,8 +10,11 @@ import java.util.List;
 public class ArtworkCreateDTO {
 
     private String title;
+
     private String description;
-    private boolean visible;
+
+    private Boolean visible;
+
     private List<ArtworkMediaCreateDTO> mediaUrls;
 
 }
