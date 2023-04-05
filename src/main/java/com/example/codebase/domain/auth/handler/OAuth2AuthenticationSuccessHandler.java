@@ -46,17 +46,18 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         try {
             String authorizationCode = request.getParameter("code");
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            String refreshToken = tokenProvider.createRefreshToken(authentication);
+
+            TokenResponseDTO token = tokenProvider.generateToken(authentication);
 
             log.info("authorizationCode: " + authorizationCode);
-            log.info("우리가 발급한 refreshToken: " + refreshToken);
+            log.info("우리가 발급한 refreshToken: " + token.getRefreshToken());
 
             if (authentication.getAuthorities().contains("ROLE_GUEST") ){ // 최초 가입한 사람 -> ROLE_GUEST
-                response.addHeader(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + refreshToken);
+                response.addHeader(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + token.getRefreshToken());
                 response.sendRedirect("oauth2/sign-up"); // 프론트의 회원가입 추가 정보 입력 폼으로 리다이렉트
             }
             else {
-                loginSuccess(request, response, refreshToken);
+                loginSuccess(request, response, token.getRefreshToken());
             }
         } catch (RuntimeException e) {
             throw e;

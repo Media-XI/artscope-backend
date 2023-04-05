@@ -1,5 +1,6 @@
 package com.example.codebase.jwt;
 
+import antlr.Token;
 import com.example.codebase.domain.auth.dto.LoginDTO;
 import com.example.codebase.domain.auth.dto.TokenResponseDTO;
 import com.example.codebase.domain.member.entity.Member;
@@ -132,6 +133,23 @@ public class TokenProvider implements InitializingBean {
                 new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword());
 
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String accessToken = createToken(authentication);
+        String refreshToken = createRefreshToken(authentication);
+
+        // Redis에 Refresh Token 캐싱
+        redisUtil.setDataAndExpire(authentication.getName() + "_token", refreshToken, getRefreshTokenValidityInSeconds());
+
+        TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
+        tokenResponseDTO.setAccessToken(accessToken);
+        tokenResponseDTO.setExpiresIn(getTokenValidityInSeconds());
+        tokenResponseDTO.setRefreshToken(refreshToken);
+        tokenResponseDTO.setRefreshExpiresIn(getRefreshTokenValidityInSeconds());
+        return tokenResponseDTO;
+    }
+
+    public TokenResponseDTO generateToken(Authentication authentication) {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String accessToken = createToken(authentication);
