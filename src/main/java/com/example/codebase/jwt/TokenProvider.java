@@ -68,7 +68,6 @@ public class TokenProvider implements InitializingBean {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
-
         return createToken(authentication.getName(), authorities);
     }
 
@@ -77,7 +76,7 @@ public class TokenProvider implements InitializingBean {
                 .map(a -> a.getAuthority().getAuthorityName())
                 .collect(Collectors.joining(","));
 
-        return createToken(member.getName(), authorities);
+        return createToken(member.getUsername(), authorities);
     }
 
     public String createToken(String sub, String authorities) {
