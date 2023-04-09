@@ -5,6 +5,7 @@ import com.example.codebase.domain.artwork.service.ArtworkService;
 import com.example.codebase.s3.S3Service;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,9 @@ public class ArtworkController {
 
     private final S3Service s3Service;
 
+    @Value("${app.file-count}")
+    private String fileCount;
+
     public ArtworkController(ArtworkService artworkService, S3Service s3Service) {
         this.artworkService = artworkService;
         this.s3Service = s3Service;
@@ -37,8 +41,8 @@ public class ArtworkController {
             @RequestPart(value = "mediaFiles") List<MultipartFile> mediaFiles
     ) throws Exception {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
-        if (mediaFiles.size() > 5) {
-            throw new RuntimeException("파일은 최대 5개까지 업로드 가능합니다.");
+        if (mediaFiles.size() > Integer.valueOf(fileCount)) {
+            throw new RuntimeException("파일은 최대 " + fileCount +"개까지 업로드 가능합니다.");
         }
 
         if (mediaFiles.size() == 0) {
