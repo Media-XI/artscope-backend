@@ -1,16 +1,15 @@
 package com.example.codebase.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
+import com.example.codebase.util.FileUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
-import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
@@ -23,6 +22,9 @@ public class S3Service {
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+
+    @Value("${cloud.aws.s3.root-dir}")
+    private String dir;
 
     private final AmazonS3 amazonS3Client;
 
@@ -54,16 +56,22 @@ public class S3Service {
         String originalFilename = multipartFile.getOriginalFilename();
         int index = originalFilename.lastIndexOf(".");
         String ext = originalFilename.substring(index + 1);
+        if (!FileUtil.checkExtension(ext)) {
+            throw new IOException("지원하지 않는 파일 확장자 입니다.");
+        }
 
         String storeFileName = UUID.randomUUID() + "." + ext;
         String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        String key = now + "/" + storeFileName;
+        String key = dir + now + "/" + storeFileName;
+
         try (InputStream inputStream = multipartFile.getInputStream()) {
-            amazonS3Client.putObject(new PutObjectRequest(bucket, key, inputStream, objectMetadata)
+            if (FileUtil.validateFile(inputStream)) {
+                throw new IOException("파일이 손상되었습니다.");
+            }
+            amazonS3Client.putObject(new PutObjectRequest(bucket, key, multipartFile.getInputStream(), objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
         }
-
         return key;
     }
 

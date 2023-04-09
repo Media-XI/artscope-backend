@@ -22,14 +22,27 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.mock.web.MockPart;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
+import javax.imageio.ImageIO;
 import javax.transaction.Transactional;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,6 +76,9 @@ class ArtworkControllerTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
@@ -129,6 +145,11 @@ class ArtworkControllerTest {
         return artworkRepository.save(dummy);
     }
 
+    private byte[] createImageFile() throws IOException {
+        File file = resourceLoader.getResource("classpath:test/img.jpg").getFile();
+        return Files.readAllBytes(file.toPath());
+    }
+
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("아트워크 한개 등록")
     @Test
@@ -137,19 +158,26 @@ class ArtworkControllerTest {
 
         ArtworkMediaCreateDTO mediaCreateDTO = new ArtworkMediaCreateDTO();
         mediaCreateDTO.setMediaType(ArtworkMediaType.image.toString());
-        mediaCreateDTO.setMediaUrl("url");
         mediaCreateDTO.setDescription("미디어 설명");
 
         ArtworkCreateDTO dto = new ArtworkCreateDTO();
         dto.setTitle("아트워크_테스트");
         dto.setDescription("작품 설명");
         dto.setVisible(true);
-        dto.setMediaUrls(Collections.singletonList(mediaCreateDTO));
+        dto.setMedias(Collections.singletonList(mediaCreateDTO));
+
+        List<MockMultipartFile> mediaFiles = new ArrayList<>();
+        MockMultipartFile mockMultipartFile = new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
+        mediaFiles.add(mockMultipartFile);
 
         mockMvc.perform(
-                        post("/api/artworks")
-                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
+                        multipart("/api/artworks")
+                                .file(mediaFiles.get(0))
+                                .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding("UTF-8")
+
                 )
                 .andDo(print())
                 .andExpect(status().isCreated());
@@ -165,27 +193,34 @@ class ArtworkControllerTest {
 
         ArtworkMediaCreateDTO mediaCreateDTO1 = new ArtworkMediaCreateDTO();
         mediaCreateDTO1.setMediaType(ArtworkMediaType.image.toString());
-        mediaCreateDTO1.setMediaUrl("url");
         mediaCreateDTO1.setDescription("미디어 설명1");
         mediaCreateDTOList.add(mediaCreateDTO1);
-
         ArtworkMediaCreateDTO mediaCreateDTO2 = new ArtworkMediaCreateDTO();
         mediaCreateDTO2.setMediaType(ArtworkMediaType.video.toString());
-        mediaCreateDTO2.setMediaUrl("url");
         mediaCreateDTO2.setDescription("미디어 설명2");
         mediaCreateDTOList.add(mediaCreateDTO2);
 
+        List<MockMultipartFile> mediaFiles = new ArrayList<>();
+        MockMultipartFile mockMultipartFile1 = new MockMultipartFile("mediaFiles", "image1.jpg", "image/jpg", createImageFile());
+        MockMultipartFile mockMultipartFile2 = new MockMultipartFile("mediaFiles", "image2.jpg", "image/jpg", createImageFile());
+
+        mediaFiles.add(mockMultipartFile1);
+        mediaFiles.add(mockMultipartFile2);
 
         ArtworkCreateDTO dto = new ArtworkCreateDTO();
         dto.setTitle("아트워크_테스트");
         dto.setDescription("작품 설명");
         dto.setVisible(true);
-        dto.setMediaUrls(mediaCreateDTOList);
+        dto.setMedias(mediaCreateDTOList);
 
         mockMvc.perform(
-                        post("/api/artworks")
-                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
+                        multipart("/api/artworks")
+                                .file(mediaFiles.get(0))
+                                .file(mediaFiles.get(1))
+                                .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding("UTF-8")
                 )
                 .andDo(print())
                 .andExpect(status().isCreated());
@@ -231,19 +266,25 @@ class ArtworkControllerTest {
         mediaCreateDTO.setMediaUrl("url");
         mediaCreateDTO.setDescription("미디어 설명");
 
+        List<MockMultipartFile> mediaFiles = new ArrayList<>();
+        mediaFiles.add(new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", "test".getBytes()));
+
         ArtworkCreateDTO dto = new ArtworkCreateDTO();
         dto.setTitle("아트워크_테스트");
         dto.setDescription("작품 설명");
         dto.setVisible(false);
-        dto.setMediaUrls(Collections.singletonList(mediaCreateDTO));
+        dto.setMedias(Collections.singletonList(mediaCreateDTO));
 
         mockMvc.perform(
-                        post("/api/artworks")
-                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
+                        multipart("/api/artworks")
+                                .file(mediaFiles.get(0))
+                                .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding("UTF-8")
                 )
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -307,6 +348,28 @@ class ArtworkControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("미디어 파일 없는 아트워크 등록 시 ")
+    @Test
+    public void 아트워크_등록_시_미디어_파일_부재() throws Exception {
+        createOrLoadMember();
+
+        ArtworkCreateDTO dto = new ArtworkCreateDTO();
+        dto.setTitle("아트워크_테스트");
+        dto.setDescription("작품 설명");
+        dto.setVisible(true);
+
+        mockMvc.perform(
+                        multipart("/api/artworks")
+                                .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding("UTF-8")
+                )
+                .andDo(print())
+                .andExpect(status().isInternalServerError());
+    }
+
 
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("일반 사용자 아트워크 삭제")
@@ -320,6 +383,7 @@ class ArtworkControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
     }
+
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
     @DisplayName("관리자 아트워크 삭제")

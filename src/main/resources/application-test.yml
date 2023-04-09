@@ -34,6 +34,12 @@ spring:
       data-locations:
         - classpath:sql/data.sql
 
+cloud:
+  aws:
+    s3:
+      root-dir: "test/"
+
+
 jasypt:
   encryptor:
     password: ${JASYPT_ENCRYPTOR_PASSWORD}

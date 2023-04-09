@@ -40,16 +40,13 @@ public class ArtworkService {
 
     @Transactional
     public ArtworkResponseDTO createArtwork(ArtworkCreateDTO dto, String username) {
-        if (dto.getMediaUrls().size() >= 5) {
-            throw new RuntimeException("미디어 파일 개수는 5개까지만 등록할 수 있습니다.");
-        }
 
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(NotFoundMemberException::new);
 
         Artwork artwork = Artwork.of(dto, member);
 
-        for (ArtworkMediaCreateDTO mediaCreateDTO : dto.getMediaUrls()) {
+        for (ArtworkMediaCreateDTO mediaCreateDTO : dto.getMedias()) {
             ArtworkMedia media = ArtworkMedia.of(mediaCreateDTO, artwork);
             artwork.addArtworkMedia(media);
         }

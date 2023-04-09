@@ -27,6 +27,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client:2.6.7'
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
+    // https://mvnrepository.com/artifact/org.apache.tika/tika-core
+    implementation 'org.apache.tika:tika-core:2.7.0'
+
+
 
 
     implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.3'
