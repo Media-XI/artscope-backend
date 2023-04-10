@@ -106,6 +106,11 @@ public class MemberService {
 
     @Transactional
     public Member createOAuthMember(OAuthAttributes oAuthAttributes) {
+        // TODO: 이메일 중복 체크
+        if (memberRepository.findByUsername(oAuthAttributes.getName()).isPresent()) {
+            throw new ExistMemberException();
+        }
+
         // New Save
         Authority authority = new Authority();
         authority.setAuthorityName("ROLE_USER");
@@ -119,7 +124,6 @@ public class MemberService {
 
         Member save = memberRepository.save(newMember);
         memberAuthorityRepository.save(memberAuthority);
-
         return save;
     }
 
@@ -170,5 +174,12 @@ public class MemberService {
         }
 
         return MemberResponseDTO.from(member);
+    }
+
+    public void deleteMember(String username) {
+        Member member = memberRepository
+                .findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+        memberRepository.delete(member);
     }
 }

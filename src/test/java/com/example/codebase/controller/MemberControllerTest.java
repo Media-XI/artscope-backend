@@ -273,4 +273,19 @@ class MemberControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
     }
+
+    @WithMockCustomUser(username = "testid1", role = "USER")
+    @DisplayName("회원 탈퇴 시")
+    @Test
+    void 회원_탈퇴() throws Exception {
+        createOrLoadMember();
+
+        mockMvc.perform(
+                        delete(String.format("/api/members/testid1"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
 }

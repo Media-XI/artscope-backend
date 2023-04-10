@@ -108,4 +108,18 @@ public class MemberController {
         MemberResponseDTO member = memberService.getProfile(username);
         return new ResponseEntity(member, HttpStatus.OK);
     }
+
+    @ApiOperation("회원 탈퇴")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
+    @DeleteMapping("/{username}")
+    public ResponseEntity deleteMember(@PathVariable String username) {
+        String currentUsername = SecurityUtil.getCurrentUsername()
+                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+        if (!currentUsername.equals(username)) {
+            throw new RuntimeException("본인의 정보만 삭제할 수 있습니다.");
+        }
+
+        memberService.deleteMember(username);
+        return new ResponseEntity("성공적으로 삭제되었습니다.", HttpStatus.OK);
+    }
 }
