@@ -42,7 +42,7 @@ public class Artwork {
     @Column(name = "updated_time")
     private LocalDateTime updatedTime;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "member_id")
     private Member member;
 

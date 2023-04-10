@@ -1,5 +1,6 @@
 package com.example.codebase.domain.member.entity;
 
+import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
 import com.example.codebase.domain.member.dto.UpdateMemberDTO;
 import com.example.codebase.domain.member.entity.oauth2.oAuthProvider;
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -78,6 +80,9 @@ public class Member {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private Set<MemberAuthority> authorities;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<Artwork> artworks;
 
     public void setAuthorities(Set<MemberAuthority> authorities) {
         this.authorities = authorities;
