@@ -47,7 +47,7 @@ public class S3Service {
         return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
     }
 
-    @Transactional
+    // TODO : 테스트 코드 시 Mock 작업
     public String saveUploadFile(MultipartFile multipartFile) throws IOException {
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(multipartFile.getContentType());

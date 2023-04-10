@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.io.IOException;
+
 @RestControllerAdvice
 public class CustomExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
@@ -18,8 +20,14 @@ public class CustomExceptionHandler {
         return new ResponseEntity(e.getMessage(), HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity handleIOException(IOException e) {
+        return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity handleException(Exception e) {
         return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
 }

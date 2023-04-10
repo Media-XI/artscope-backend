@@ -28,10 +28,7 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
     // https://mvnrepository.com/artifact/org.apache.tika/tika-core
-    implementation 'org.apache.tika:tika-core:2.7.0'
-
-
-
+    implementation 'org.apache.tika:tika-core:2.7.0'    // Image Validation
 
     implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.3'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.3'
@@ -56,8 +53,8 @@ dependencies {
 
     testCompileOnly 'org.projectlombok:lombok:1.18.22'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
-
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.findify:s3mock_2.13:0.2.6'
 }
 
 tasks.named('test') {

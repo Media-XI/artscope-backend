@@ -1,6 +1,7 @@
 package com.example.codebase.domain.member.entity;
 
 import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
+import com.example.codebase.domain.member.dto.UpdateMemberDTO;
 import com.example.codebase.domain.member.entity.oauth2.oAuthProvider;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -103,8 +104,37 @@ public class Member {
         return this;
     }
 
+    public Member update(UpdateMemberDTO dto) {
+        // dto all field Nullable
+        if (dto.getName() != null) {
+            this.name = dto.getName();
+        }
+        if (dto.getEmail() != null) {
+            this.email = dto.getEmail();
+        }
+        if (dto.getSnsUrl() != null) {
+            this.snsUrl = dto.getSnsUrl();
+        }
+        if (dto.getWebsiteUrl() != null) {
+            this.websiteUrl = dto.getWebsiteUrl();
+        }
+        if (dto.getIntroduction() != null) {
+            this.introduction = dto.getIntroduction();
+        }
+        if (dto.getHistory() != null) {
+            this.history = dto.getHistory();
+        }
+        this.updatedTime = LocalDateTime.now();
+        return this;
+    }
+
+    public Member update(String picture) {
+        this.picture = picture;
+        this.updatedTime = LocalDateTime.now();
+        return this;
+    }
+
     public void setArtist(CreateArtistMemberDTO dto) {
-        this.picture = dto.getProfile();
         this.snsUrl = dto.getSnsUrl();
         this.websiteUrl = dto.getWebsiteUrl();
         this.introduction = dto.getIntroduction();

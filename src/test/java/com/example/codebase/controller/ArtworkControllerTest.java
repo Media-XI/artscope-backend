@@ -1,5 +1,7 @@
 package com.example.codebase.controller;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.example.codebase.config.S3MockConfig;
 import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkUpdateDTO;
@@ -15,13 +17,14 @@ import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import io.findify.s3mock.S3Mock;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -54,11 +57,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Import(S3MockConfig.class)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Transactional
+@Transactional @Slf4j
 class ArtworkControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -88,6 +92,23 @@ class ArtworkControllerTest {
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
+    }
+
+    @BeforeAll
+    static void setUp(@Autowired S3Mock s3Mock,
+                      @Autowired AmazonS3 amazonS3,
+                      @Autowired MockMvc mockMvc) {
+        log.info("s3Mock start");
+        s3Mock.start();
+        amazonS3.createBucket("media-xi-art-storage");
+    }
+
+    @AfterAll
+    static void tearDown(@Autowired S3Mock s3Mock,
+                         @Autowired AmazonS3 amazonS3) {
+        log.info("s3Mock stop");
+        amazonS3.deleteBucket("media-xi-art-storage");
+        s3Mock.stop();
     }
 
     @Transactional

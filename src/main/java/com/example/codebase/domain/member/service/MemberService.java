@@ -4,6 +4,7 @@ import com.example.codebase.domain.auth.OAuthAttributes;
 import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
 import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.example.codebase.domain.member.dto.MemberResponseDTO;
+import com.example.codebase.domain.member.dto.UpdateMemberDTO;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
@@ -11,11 +12,14 @@ import com.example.codebase.domain.member.exception.ExistMemberException;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
+import com.example.codebase.s3.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
@@ -30,11 +34,14 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final MemberAuthorityRepository memberAuthorityRepository;
 
+    private final S3Service s3Service;
+
     @Autowired
-    public MemberService(PasswordEncoder passwordEncoder, MemberRepository memberRepository, MemberAuthorityRepository memberAuthorityRepository) {
+    public MemberService(PasswordEncoder passwordEncoder, MemberRepository memberRepository, MemberAuthorityRepository memberAuthorityRepository, S3Service s3Service) {
         this.passwordEncoder = passwordEncoder;
         this.memberRepository = memberRepository;
         this.memberAuthorityRepository = memberAuthorityRepository;
+        this.s3Service = s3Service;
     }
 
     @Transactional
@@ -122,20 +129,46 @@ public class MemberService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public MemberResponseDTO createArtist(CreateArtistMemberDTO createArtistMemberDTO) {
         Member member = memberRepository
                 .findByUsername(createArtistMemberDTO.getUsername())
                 .orElseThrow(NotFoundMemberException::new);
         member.setArtist(createArtistMemberDTO);
 
-        Member saved = memberRepository.save(member);
-        return MemberResponseDTO.from(saved);
+        return MemberResponseDTO.from(member);
     }
 
     public MemberResponseDTO getProfile(String username) {
         Member member = memberRepository
                 .findByUsername(username)
                 .orElseThrow(NotFoundMemberException::new);
+        return MemberResponseDTO.from(member);
+    }
+
+    @Transactional
+    public MemberResponseDTO updateMember(UpdateMemberDTO updateMemberDTO) {
+        Member member = memberRepository
+                .findByUsername(updateMemberDTO.getUsername())
+                .orElseThrow(NotFoundMemberException::new);
+        member.update(updateMemberDTO);
+
+        return MemberResponseDTO.from(member);
+    }
+
+    @Transactional
+    public MemberResponseDTO updateProfile(String username, MultipartFile multipartFile) {
+        Member member = memberRepository
+                .findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+
+        try {
+            String fileUrl = s3Service.saveUploadFile(multipartFile);
+            member.update(fileUrl);
+        } catch (IOException e) {
+            throw new RuntimeException("S3 Upload Error");
+        }
+
         return MemberResponseDTO.from(member);
     }
 }
