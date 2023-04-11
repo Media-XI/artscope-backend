@@ -29,6 +29,12 @@ public class ArtworkMedia {
     @Column(name = "media_url", nullable = false)
     private String mediaUrl;
 
+    @Column(name = "image_width")
+    private Integer imageWidth;
+
+    @Column(name = "image_height")
+    private Integer imageHeight;
+
     @Column(name = "description", nullable = true)
     private String description;
 
@@ -46,6 +52,8 @@ public class ArtworkMedia {
         return ArtworkMedia.builder()
                 .artworkMediaType(ArtworkMediaType.create(media.getMediaType()))  // create() 메서드를 통해 MediaType을 생성 과 예외처리를 한다.
                 .mediaUrl(media.getMediaUrl())
+                .imageWidth(media.getWidth())
+                .imageHeight(media.getHeight())
                 .description(media.getDescription())
                 .artwork(artwork)
                 .createdTime(LocalDateTime.now())

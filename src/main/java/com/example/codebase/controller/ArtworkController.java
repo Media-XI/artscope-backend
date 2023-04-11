@@ -13,7 +13,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
 import javax.validation.constraints.PositiveOrZero;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 @ApiOperation(value = "아트워크", notes = "아트워크 관련 API")
@@ -51,7 +53,9 @@ public class ArtworkController {
 
         int i = 0;
         for (ArtworkMediaCreateDTO mediaDto : dto.getMedias()) {
+            BufferedImage image = ImageIO.read(mediaFiles.get(i).getInputStream());
             String savedUrl = s3Service.saveUploadFile(mediaFiles.get(i++));
+            mediaDto.setImageSize(image);
             mediaDto.setMediaUrl(savedUrl);
         }
 

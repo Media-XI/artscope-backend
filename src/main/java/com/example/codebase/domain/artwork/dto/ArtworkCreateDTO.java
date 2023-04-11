@@ -13,13 +13,13 @@ import java.util.List;
 @Setter
 public class ArtworkCreateDTO {
 
-    @NotNull
+    @NotNull(message = "작품명은 필수입니다.")
     private String title;
 
-    @Null
+    @NotNull(message = "작품 설명은 필수입니다.")
     private String description;
 
-    @NotNull
+    @NotNull(message = "노출 여부는 필수입니다.")
     private Boolean visible;
 
     private List<MultipartFile> mediaFiles;
