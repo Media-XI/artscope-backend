@@ -210,7 +210,7 @@ class ExhibitionControllerTest {
                                 .content(objectMapper.writeValueAsString(dto))
                 )
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
     }
 
     @DisplayName("공모전 전체 조회")

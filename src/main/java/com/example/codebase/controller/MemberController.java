@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +35,7 @@ public class MemberController {
 
     @ApiOperation(value = "회원 가입", notes = "회원 가입을 합니다.")
     @PostMapping
-    public ResponseEntity createMember(@RequestBody CreateMemberDTO createMemberDTO) {
+    public ResponseEntity createMember(@Valid @RequestBody CreateMemberDTO createMemberDTO) {
         MemberResponseDTO memberResponseDTO = memberService.createMember(createMemberDTO);
         return new ResponseEntity(memberResponseDTO, HttpStatus.CREATED);
     }

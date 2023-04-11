@@ -63,7 +63,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     private Member saveOrUpdate(OAuthAttributes oAuthAttributes) {
-        Optional<Member> find = memberRepository.findByOauthProviderId(oAuthAttributes.getOAuthProviderId());
+        Optional<Member> find = memberRepository.findByOauthProviderIdOrEmail(oAuthAttributes.getOAuthProviderId(), oAuthAttributes.getEmail());
 
         if (find.isPresent()) { // Update
             Member presentMember = find.get();

@@ -9,6 +9,7 @@ import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
 import com.example.codebase.domain.member.exception.ExistMemberException;
+import com.example.codebase.domain.member.exception.ExistsEmailException;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
@@ -48,6 +49,10 @@ public class MemberService {
     public MemberResponseDTO createMember(CreateMemberDTO member) {
         if (memberRepository.findByUsername(member.getUsername()).isPresent()) {
             throw new ExistMemberException();
+        }
+
+        if (memberRepository.existsByEmail(member.getEmail())) {
+            throw new ExistsEmailException();
         }
 
         Authority authority = Authority.builder()

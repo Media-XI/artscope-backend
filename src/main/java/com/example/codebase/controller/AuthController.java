@@ -15,6 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @ApiOperation(value = "인증", notes = "인증 관련 API")
 @RestController
 @RequestMapping("/api")
@@ -30,7 +32,7 @@ public class AuthController {
 
     @ApiOperation(value = "로그인", notes = "로그인")
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity login(@Valid @RequestBody LoginDTO loginDTO) {
         TokenResponseDTO responseDTO = tokenProvider.generateToken(loginDTO);
         return new ResponseEntity(responseDTO, HttpStatus.OK);
     }
