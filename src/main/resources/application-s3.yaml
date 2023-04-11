@@ -7,7 +7,7 @@ cloud:
       static: ap-northeast-2
     s3:
       bucket: media-xi-art-storage
-      root-dir: "prod/"
+      root-dir: "test/"
     stack:
       auto: false
     file-dir: classpath:/static/files
@@ -30,3 +30,26 @@ logging:
         util:
           EC2MetadataUtils: error
 
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - dev
+
+cloud:
+  aws:
+    s3:
+      root-dir: "dev/"
+
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - prod
+
+cloud:
+  aws:
+    s3:
+      root-dir: "prod/"

@@ -19,6 +19,16 @@ spring:
   config:
     activate:
       on-profile:
+        - dev
+
+app:
+  oauth2-redirect-uri: http://dev.artscope.kr/oauth2/redirect
+
+---
+spring:
+  config:
+    activate:
+      on-profile:
         - prod
 
 app:
