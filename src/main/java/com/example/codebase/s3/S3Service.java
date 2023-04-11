@@ -47,7 +47,6 @@ public class S3Service {
         return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
     }
 
-    // TODO : 테스트 코드 시 Mock 작업
     public String saveUploadFile(MultipartFile multipartFile) throws IOException {
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(multipartFile.getContentType());
@@ -67,7 +66,7 @@ public class S3Service {
 
         try (InputStream inputStream = multipartFile.getInputStream()) {
             if (!FileUtil.validateFile(inputStream)) {
-                throw new IOException("파일이 손상되었습니다.");
+                throw new IOException("파일이 손상되었거나 지원하지 않는 확장자 입니다.");
             }
             amazonS3Client.putObject(new PutObjectRequest(bucket, key, multipartFile.getInputStream(), objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));

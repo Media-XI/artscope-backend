@@ -12,18 +12,18 @@ import java.awt.image.BufferedImage;
 @Getter
 @Setter
 public class ArtworkMediaCreateDTO {
+
     @NotNull
     private String mediaType;
-
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String mediaUrl;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Integer width;
+    private int width;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Integer height;
+    private int height;
 
     @Null
     private String description;

@@ -53,9 +53,11 @@ public class ArtworkController {
 
         int i = 0;
         for (ArtworkMediaCreateDTO mediaDto : dto.getMedias()) {
-            BufferedImage image = ImageIO.read(mediaFiles.get(i).getInputStream());
+            if (dto.getMedias().get(i).getMediaType().equals("image")) {
+                BufferedImage image = ImageIO.read(mediaFiles.get(i).getInputStream()); // Illegal refelective access
+                mediaDto.setImageSize(image);
+            }
             String savedUrl = s3Service.saveUploadFile(mediaFiles.get(i++));
-            mediaDto.setImageSize(image);
             mediaDto.setMediaUrl(savedUrl);
         }
 
