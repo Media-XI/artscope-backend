@@ -125,7 +125,7 @@ jobs:
         uses: docker/setup-buildx-action@79abd3f86f79a9d68a23c75a09a9a85889262adf
 
       - name: Build the Docker image
-        run: docker build --tag ${{ env.IMAGE_NAME }}:${{ secrets.MAJOR }}.${{ secrets.MINOR }} -f Dockerfile.dev .
+        run: docker build --tag ${{ env.IMAGE_NAME }}:${{ secrets.MAJOR }}.${{ secrets.MINOR }}.dev -f Dockerfile.dev .
 
       - name: Login to registry ${{ env.REGISTRY }}
         run: echo "$DOCKER_REGISTRY_PASSWORD" | docker login "$REGISTRY" -u "$DOCKER_REGISTRY_USERNAME" --password-stdin
