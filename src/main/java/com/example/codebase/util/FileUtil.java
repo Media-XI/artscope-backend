@@ -19,22 +19,22 @@ public class FileUtil {
     }
     public static boolean validateFile(InputStream inputStream) throws IOException {
         String mimeType = tika.detect(inputStream);
-        return !(allowedImageTypes.contains(mimeType) || allowedVideoTypes.contains(mimeType) || allowedAudioTypes.contains(mimeType));
+        return allowedImageTypes.contains(mimeType) || allowedVideoTypes.contains(mimeType) || allowedAudioTypes.contains(mimeType);
     }
 
     public static boolean validateImageFile(InputStream inputStream) throws IOException {
         String mimeType = tika.detect(inputStream);
-        return !allowedImageTypes.contains(mimeType);
+        return allowedImageTypes.contains(mimeType);
     }
 
     public static boolean validateVideoFile(InputStream inputStream) throws IOException {
         String mimeType = tika.detect(inputStream);
-        return !allowedVideoTypes.contains(mimeType);
+        return allowedVideoTypes.contains(mimeType);
     }
 
     public static boolean validateAudioFile(InputStream inputStream) throws IOException {
         String mimeType = tika.detect(inputStream);
-        return !allowedAudioTypes.contains(mimeType);
+        return allowedAudioTypes.contains(mimeType);
     }
 
 }

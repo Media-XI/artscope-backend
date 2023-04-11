@@ -66,7 +66,7 @@ public class S3Service {
         String key = dir + now + "/" + storeFileName;
 
         try (InputStream inputStream = multipartFile.getInputStream()) {
-            if (FileUtil.validateFile(inputStream)) {
+            if (!FileUtil.validateFile(inputStream)) {
                 throw new IOException("파일이 손상되었습니다.");
             }
             amazonS3Client.putObject(new PutObjectRequest(bucket, key, multipartFile.getInputStream(), objectMetadata)
