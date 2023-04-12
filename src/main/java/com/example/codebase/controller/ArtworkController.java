@@ -17,6 +17,8 @@ import javax.imageio.ImageIO;
 import javax.validation.constraints.PositiveOrZero;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @ApiOperation(value = "아트워크", notes = "아트워크 관련 API")
 @RestController
@@ -54,7 +56,8 @@ public class ArtworkController {
         int i = 0;
         for (ArtworkMediaCreateDTO mediaDto : dto.getMedias()) {
             if (dto.getMedias().get(i).getMediaType().equals("image")) {
-                BufferedImage image = ImageIO.read(mediaFiles.get(i).getInputStream()); // Illegal refelective access
+                BufferedImage image = Optional.ofNullable(ImageIO.read(mediaFiles.get(i).getInputStream()))
+                        .orElseThrow(() -> new NoSuchElementException("이미지 파일이 아닙니다.")); // 위변조된 Image를 읽을 시 null 이므로 Optional로 감싸줘야함
                 mediaDto.setImageSize(image);
             }
             String savedUrl = s3Service.saveUploadFile(mediaFiles.get(i++));

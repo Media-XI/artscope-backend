@@ -54,8 +54,8 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler({NullPointerException.class})
-    public ResponseEntity handleInternal(final RuntimeException e) {
-        RestResponse response = new RestResponse(false, e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+    public ResponseEntity handleInternal(final NullPointerException e) {
+        RestResponse response = new RestResponse(false, e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         return new ResponseEntity(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
