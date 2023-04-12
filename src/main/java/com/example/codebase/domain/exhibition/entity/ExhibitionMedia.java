@@ -36,6 +36,7 @@ public class ExhibitionMedia {
 
     @Column(name = "updated_time")
     private LocalDateTime updatedTime;
+
     @ManyToOne
     @JoinColumn(name = "exhibition_id")
     private Exhibition exhibition;

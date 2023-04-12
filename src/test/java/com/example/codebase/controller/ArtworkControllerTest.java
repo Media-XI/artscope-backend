@@ -115,7 +115,6 @@ class ArtworkControllerTest {
         s3Mock.stop();
     }
 
-    @Transactional
     public Member createOrLoadMember() {
         Optional<Member> testMember = memberRepository.findByUsername("testid");
         if (testMember.isPresent()) {
@@ -141,35 +140,41 @@ class ArtworkControllerTest {
         return save;
     }
 
-    @Transactional
     public Artwork createOrLoadArtwork() throws IOException {
-        return createOrLoadArtwork(1, true);
+        return createOrLoadArtwork(1, true, 1);
     }
 
-    @Transactional
     public Artwork createOrLoadArtwork(int index, boolean isVisible) throws IOException {
+        return createOrLoadArtwork(index, isVisible, 1);
+    }
+
+    public Artwork createOrLoadArtwork(int index, boolean isVisible, int mediaSize) throws IOException {
         Optional<Artwork> artwork = artworkRepository.findById(Long.valueOf(index));
         if (artwork.isPresent()) {
             return artwork.get();
         }
 
-        MockMultipartFile mockMultipartFile = new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
-        String url = s3Service.saveUploadFile(mockMultipartFile);
+        List<ArtworkMedia> artworkMediaList = new ArrayList<>();
+        for (int i = 0; i < mediaSize; i++) {
+            MockMultipartFile mockMultipartFile = new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
+            String url = s3Service.saveUploadFile(mockMultipartFile);
 
-        ArtworkMedia artworkMedia = ArtworkMedia.builder()
-                .artworkMediaType(ArtworkMediaType.image)
-                .mediaUrl(url)
-                .description("미디어 설명")
-                .build();
+            ArtworkMedia artworkMedia = ArtworkMedia.builder()
+                    .artworkMediaType(ArtworkMediaType.image)
+                    .mediaUrl(url)
+                    .description("미디어 설명")
+                    .build();
+            artworkMediaList.add(artworkMedia);
+        }
 
         Artwork dummy = Artwork.builder()
                 .title("아트워크_테스트" + index)
                 .description("작품 설명")
                 .visible(isVisible)
                 .member(createOrLoadMember())
+                .artworkMedia(artworkMediaList)
                 .createdTime(LocalDateTime.now().plusSeconds(index))
                 .build();
-        dummy.addArtworkMedia(artworkMedia);
 
         return artworkRepository.save(dummy);
     }
@@ -256,13 +261,13 @@ class ArtworkControllerTest {
     }
 
 
-    @DisplayName("아트워크 전체 조회")
+    @DisplayName("아트워크 4개 전체 조회")
     @Test
     public void test02() throws Exception {
-        createOrLoadArtwork(1, true);
-        createOrLoadArtwork(2, false);
-        createOrLoadArtwork(3, true);
-        createOrLoadArtwork(4, true);
+        createOrLoadArtwork(10, true, 1);
+        createOrLoadArtwork(11, false, 1);
+        createOrLoadArtwork(12, true, 1);
+        createOrLoadArtwork(13, true, 1);
 
         mockMvc.perform(
                         get("/api/artworks?page=0&size=10")
@@ -412,6 +417,20 @@ class ArtworkControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
     }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("일반 사용자 아트워크 미디어 여러개있을때 삭제")
+    @Test
+    public void 일반사용자_아트워크_미디어여러개_삭제() throws Exception {
+        Artwork artwork = createOrLoadArtwork(1, false, 3);
+
+        mockMvc.perform(
+                        delete(String.format("/api/artworks/%d", artwork.getId()))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
 
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")

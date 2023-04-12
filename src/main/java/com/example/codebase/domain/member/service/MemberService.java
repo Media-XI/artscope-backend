@@ -1,5 +1,8 @@
 package com.example.codebase.domain.member.service;
 
+import com.example.codebase.domain.artwork.entity.Artwork;
+import com.example.codebase.domain.artwork.entity.ArtworkMedia;
+import com.example.codebase.domain.artwork.repository.ArtworkMediaRepository;
 import com.example.codebase.domain.auth.OAuthAttributes;
 import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
 import com.example.codebase.domain.member.dto.CreateMemberDTO;
@@ -22,10 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,7 +34,6 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
     private final MemberAuthorityRepository memberAuthorityRepository;
-
     private final S3Service s3Service;
 
     @Autowired
@@ -185,6 +184,29 @@ public class MemberService {
         Member member = memberRepository
                 .findByUsername(username)
                 .orElseThrow(NotFoundMemberException::new);
+
+        // S3 오브젝트 삭제
+        if (Optional.ofNullable(member.getPicture()).isPresent() && member.getPicture().startsWith(s3Service.getDir())) {
+            s3Service.deleteObject(member.getPicture());
+        }
+
+        if (Optional.ofNullable(member.getArtworks()).isPresent()) {
+            deleteMemberAllArtworkMedias(member.getArtworks());
+        }
+
         memberRepository.delete(member);
+    }
+
+    public void deleteMemberAllArtworkMedias(List<Artwork> artworks) {
+        for (Artwork artwork : artworks) {
+            List<ArtworkMedia> artworkMedias = artwork.getArtworkMedia();
+            List<String> urls = artworkMedias.stream()
+                    .map(ArtworkMedia::getMediaUrl)
+                    .collect(Collectors.toList());
+
+            if (urls.size() > 0) {
+                s3Service.deleteObjects(urls);
+            }
+        }
     }
 }

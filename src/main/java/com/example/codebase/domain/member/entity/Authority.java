@@ -2,10 +2,7 @@ package com.example.codebase.domain.member.entity;
 
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.Set;
 
 @Entity
@@ -20,7 +17,7 @@ public class Authority {
     @Column(name = "authority_name", length = 50)
     private String authorityName;
 
-    @OneToMany(mappedBy = "authority")
+    @OneToMany(mappedBy = "authority", cascade = CascadeType.ALL)
     private Set<MemberAuthority> memberAuthorities;
 
     public static Authority of(String authorityName) {
