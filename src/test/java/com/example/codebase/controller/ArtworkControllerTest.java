@@ -15,9 +15,11 @@ import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
+import com.example.codebase.s3.S3Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.findify.s3mock.S3Mock;
+import lombok.With;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -84,6 +86,9 @@ class ArtworkControllerTest {
     @Autowired
     private ResourceLoader resourceLoader;
 
+    @Autowired
+    private S3Service s3Service;
+
     private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @BeforeEach
@@ -96,8 +101,7 @@ class ArtworkControllerTest {
 
     @BeforeAll
     static void setUp(@Autowired S3Mock s3Mock,
-                      @Autowired AmazonS3 amazonS3,
-                      @Autowired MockMvc mockMvc) {
+                      @Autowired AmazonS3 amazonS3) {
         log.info("s3Mock start");
         s3Mock.start();
         amazonS3.createBucket("media-xi-art-storage");
@@ -138,19 +142,23 @@ class ArtworkControllerTest {
     }
 
     @Transactional
-    public Artwork createOrLoadArtwork() {
+    public Artwork createOrLoadArtwork() throws IOException {
         return createOrLoadArtwork(1, true);
     }
 
     @Transactional
-    public Artwork createOrLoadArtwork(int index, boolean isVisible) {
+    public Artwork createOrLoadArtwork(int index, boolean isVisible) throws IOException {
         Optional<Artwork> artwork = artworkRepository.findById(Long.valueOf(index));
         if (artwork.isPresent()) {
             return artwork.get();
         }
+
+        MockMultipartFile mockMultipartFile = new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
+        String url = s3Service.saveUploadFile(mockMultipartFile);
+
         ArtworkMedia artworkMedia = ArtworkMedia.builder()
                 .artworkMediaType(ArtworkMediaType.image)
-                .mediaUrl("url")
+                .mediaUrl(url)
                 .description("미디어 설명")
                 .build();
 

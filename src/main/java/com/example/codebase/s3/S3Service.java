@@ -15,7 +15,9 @@ import java.io.InputStream;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class S3Service {
@@ -72,6 +74,21 @@ public class S3Service {
                     .withCannedAcl(CannedAccessControlList.PublicRead));
         }
         return key;
+    }
+
+    public void deleteObject(String url) {
+        DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucket, url);
+        amazonS3Client.deleteObject(deleteObjectRequest);
+    }
+
+    public void deleteObjects(List<String> urls) {
+        List<DeleteObjectsRequest.KeyVersion> keyVersions = urls.stream()
+                .map(DeleteObjectsRequest.KeyVersion::new)
+                .collect(Collectors.toList());
+
+        DeleteObjectsRequest deleteObjectRequest = new DeleteObjectsRequest(bucket)
+                .withKeys(keyVersions);
+        amazonS3Client.deleteObjects(deleteObjectRequest);
     }
 
 }

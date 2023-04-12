@@ -110,7 +110,6 @@ public class ArtworkController {
     @DeleteMapping("/{id}")
     public ResponseEntity deleteArtwork(@PathVariable Long id) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
-
         if (SecurityUtil.isAdmin()) {
             username = null;
         }

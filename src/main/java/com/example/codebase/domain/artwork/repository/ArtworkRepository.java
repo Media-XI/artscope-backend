@@ -16,4 +16,5 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
     Optional<Artwork> findByIdAndMember_Username(Long id, String username);
 
     Page<Artwork> findAllByMember_Username(Pageable pageable, String username);
+
 }

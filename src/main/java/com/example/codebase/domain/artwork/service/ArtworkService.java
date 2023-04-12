@@ -11,30 +11,29 @@ import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.exception.NotAccessException;
 import com.example.codebase.exception.NotFoundException;
+import com.example.codebase.s3.S3Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class ArtworkService {
     private final ArtworkRepository artworkRepository;
     private final ArtworkMediaRepository artworkMediaRepository;
-
+    private final S3Service s3Service;
     private final MemberRepository memberRepository;
 
-
-    public ArtworkService(ArtworkRepository artworkRepository, ArtworkMediaRepository artworkMediaRepository, MemberRepository memberRepository) {
+    @Autowired
+    public ArtworkService(ArtworkRepository artworkRepository, ArtworkMediaRepository artworkMediaRepository, S3Service s3Service, MemberRepository memberRepository) {
         this.artworkRepository = artworkRepository;
         this.artworkMediaRepository = artworkMediaRepository;
+        this.s3Service = s3Service;
         this.memberRepository = memberRepository;
     }
 
@@ -81,13 +80,6 @@ public class ArtworkService {
         artwork.update(dto);
         return ArtworkResponseDTO.from(artwork);
     }
-
-    public void deleteArtwork(Long id) {
-        Artwork artwork = artworkRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
-        artworkRepository.delete(artwork);
-    }
-
     public void deleteArtwork(Long id, String username) {
         Artwork artwork = artworkRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
@@ -95,8 +87,27 @@ public class ArtworkService {
         if (username != null && !artwork.getMember().getUsername().equals(username)) {
             throw new NotAccessException("해당 작품의 소유자가 아닙니다.");
         }
+
+        // Artwork의 Artwork Media URL를 가져와서 S3 Object Delete
+        List<ArtworkMedia> artworkMedias = artwork.getArtworkMedia();
+        deleteS3Objects(artworkMedias);
+
         artworkRepository.delete(artwork);
     }
+
+    public void deleteS3Object(List<ArtworkMedia> artworkMedias) {
+        for (ArtworkMedia artworkMedia : artworkMedias) {
+            s3Service.deleteObject(artworkMedia.getMediaUrl());
+        }
+    }
+
+    public void deleteS3Objects(List<ArtworkMedia> artworkMedias) {
+        List<String> urls = artworkMedias.stream()
+                .map(ArtworkMedia::getMediaUrl)
+                .collect(Collectors.toList());
+        s3Service.deleteObjects(urls);
+    }
+
 
     public ArtworkResponseDTO updateArtworkMedia(Long id, Long mediaId, ArtworkMediaCreateDTO dto, String username) {
         Artwork artwork = artworkRepository.findByIdAndMember_Username(id, username)
