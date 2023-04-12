@@ -2,9 +2,13 @@ package com.example.codebase.util;
 
 import org.apache.tika.Tika;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class FileUtil {
 
@@ -35,6 +39,11 @@ public class FileUtil {
     public static boolean validateAudioFile(InputStream inputStream) throws IOException {
         String mimeType = tika.detect(inputStream);
         return allowedAudioTypes.contains(mimeType);
+    }
+
+    public static BufferedImage getBufferedImage(InputStream inputStream) throws IOException {
+        return Optional.ofNullable(ImageIO.read(inputStream))
+                .orElseThrow(() -> new NoSuchElementException("이미지 파일이 아닙니다."));
     }
 
 }

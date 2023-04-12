@@ -27,11 +27,4 @@ public class ArtworkCreateDTO {
     private List<MultipartFile> mediaFiles;
 
     private List<ArtworkMediaCreateDTO> medias;
-
-    public void addMedia(ArtworkMediaCreateDTO media) {
-        if (medias == null) {
-            medias = new ArrayList<>();
-        }
-        medias.add(media);
-    }
 }

@@ -3,6 +3,7 @@ package com.example.codebase.controller;
 import com.example.codebase.domain.artwork.dto.*;
 import com.example.codebase.domain.artwork.service.ArtworkService;
 import com.example.codebase.s3.S3Service;
+import com.example.codebase.util.FileUtil;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,11 +56,13 @@ public class ArtworkController {
 
         int i = 0;
         for (ArtworkMediaCreateDTO mediaDto : dto.getMedias()) {
+
+            // 이미지 파일이면 원본 이미지의 사이즈를 구합니다.
             if (dto.getMedias().get(i).getMediaType().equals("image")) {
-                BufferedImage image = Optional.ofNullable(ImageIO.read(mediaFiles.get(i).getInputStream()))
-                        .orElseThrow(() -> new NoSuchElementException("이미지 파일이 아닙니다.")); // 위변조된 Image를 읽을 시 null 이므로 Optional로 감싸줘야함
-                mediaDto.setImageSize(image);
+                BufferedImage bufferedImage = FileUtil.getBufferedImage(mediaFiles.get(i).getInputStream());
+                mediaDto.setImageSize(bufferedImage);
             }
+
             String savedUrl = s3Service.saveUploadFile(mediaFiles.get(i++));
             mediaDto.setMediaUrl(savedUrl);
         }

@@ -404,6 +404,39 @@ class ArtworkControllerTest {
                 .andExpect(status().isInternalServerError());
     }
 
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("아트워크 오디오 등록 시")
+    @Test
+    public void 아트워크_오디오_등록() throws Exception {
+        createOrLoadMember();
+
+        ArtworkMediaCreateDTO mediaCreateDTO = new ArtworkMediaCreateDTO();
+        mediaCreateDTO.setMediaType(ArtworkMediaType.audio.toString());
+        mediaCreateDTO.setDescription("미디어 설명");
+
+        ArtworkCreateDTO dto = new ArtworkCreateDTO();
+        dto.setTitle("아트워크_테스트");
+        dto.setDescription("작품 설명");
+        dto.setVisible(true);
+        dto.setMedias(Collections.singletonList(mediaCreateDTO));
+
+        List<MockMultipartFile> mediaFiles = new ArrayList<>();
+        MockMultipartFile mockMultipartFile = new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
+        mediaFiles.add(mockMultipartFile);
+
+        mockMvc.perform(
+                        multipart("/api/artworks")
+                                .file(mediaFiles.get(0))
+                                .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding("UTF-8")
+
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
+    }
+
 
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("일반 사용자 아트워크 삭제")
