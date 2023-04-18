@@ -3,6 +3,7 @@ package com.example.codebase.s3;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
+import com.amazonaws.util.StringUtils;
 import com.example.codebase.util.FileUtil;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,7 +59,8 @@ public class S3Service {
 
         String originalFilename = multipartFile.getOriginalFilename();
         int index = originalFilename.lastIndexOf(".");
-        String ext = originalFilename.substring(index + 1);
+        String ext = originalFilename.substring(index + 1).toLowerCase();
+
         if (!FileUtil.checkExtension(ext)) {
             throw new IOException("지원하지 않는 파일 확장자 입니다.");
         }
