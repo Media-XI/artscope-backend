@@ -288,4 +288,31 @@ class MemberControllerTest {
                 .andDo(print());
     }
 
+    @DisplayName("이메일 중복 체크 시")
+    @Test
+    void 이메일_중복_체크() throws Exception {
+        createOrLoadMember();
+
+        mockMvc.perform(
+                        get(String.format("/api/members/email/%s", "email1"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @DisplayName("아이디 중복 체크 시")
+    @Test
+    void 아이디_중복_체크() throws Exception {
+        createOrLoadMember();
+
+        mockMvc.perform(
+                        get(String.format("/api/members/username/%s", "testid1"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+
 }

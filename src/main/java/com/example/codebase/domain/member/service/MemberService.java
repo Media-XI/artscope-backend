@@ -209,4 +209,20 @@ public class MemberService {
             }
         }
     }
+
+    public String isExistEmail(String email) {
+        if (memberRepository.existsByEmail(email)) {
+            return "이미 존재하는 이메일입니다.";
+        }
+
+        return "사용 가능한 이메일입니다.";
+    }
+
+    public String isExistUsername(String username) {
+        if (memberRepository.findByUsername(username).isPresent()) {
+            return "이미 존재하는 아이디입니다.";
+        }
+
+        return "사용 가능한 아이디입니다.";
+    }
 }

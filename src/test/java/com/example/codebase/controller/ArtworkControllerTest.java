@@ -68,6 +68,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ArtworkControllerTest {
     @Autowired
     private MockMvc mockMvc;
+
     @Autowired
     private WebApplicationContext context;
 

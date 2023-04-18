@@ -45,5 +45,4 @@ public class FileUtil {
         return Optional.ofNullable(ImageIO.read(inputStream))
                 .orElseThrow(() -> new NoSuchElementException("이미지 파일이 아닙니다."));
     }
-
 }
