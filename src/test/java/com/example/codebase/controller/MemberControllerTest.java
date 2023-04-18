@@ -314,5 +314,34 @@ class MemberControllerTest {
                 .andDo(print());
     }
 
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("사용자 아티스트 승인 시")
+    @Test
+    void 아티스트_승인() throws Exception {
+        createOrLoadMember();
+
+        String status = "APPROVED";
+
+        mockMvc.perform(
+                        put(String.format("/api/members/artist/%s?status=%s", "testid1", status))
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("사용자 잘못된 값으로 아티스트 승인 시")
+    @Test
+    void 아티스트_승인_잘못된값() throws Exception {
+        createOrLoadMember();
+
+        String status = "asd";
+
+        mockMvc.perform(
+                        put(String.format("/api/members/artist/%s?status=%s", "testid1", status))
+                )
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
 
 }

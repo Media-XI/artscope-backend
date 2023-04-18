@@ -138,4 +138,13 @@ public class MemberController {
         String isExist = memberService.isExistUsername(username);
         return new ResponseEntity(isExist, HttpStatus.OK);
     }
+
+    @ApiOperation(value = "사용자 아티스트 상태 수정", notes = "[ADMIN] 사용자의 아티스트 상태를 수정합니다.")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @PutMapping("/artist/{username}")
+    public ResponseEntity updateArtistStatus(@PathVariable String username,
+                                             @RequestParam String status) {
+        MemberResponseDTO member = memberService.updateArtistStatus(username, status);
+        return new ResponseEntity(member, HttpStatus.OK);
+    }
 }

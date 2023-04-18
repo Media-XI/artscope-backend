@@ -147,4 +147,8 @@ public class Member {
         this.artistStatus = ArtistStatus.PENDING;
         this.updatedTime = LocalDateTime.now();
     }
+
+    public void updateArtistStatus(String status) {
+        this.artistStatus = ArtistStatus.create(status);
+    }
 }

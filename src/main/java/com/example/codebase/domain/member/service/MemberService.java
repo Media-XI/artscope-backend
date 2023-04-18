@@ -225,4 +225,14 @@ public class MemberService {
 
         return "사용 가능한 아이디입니다.";
     }
+
+    public MemberResponseDTO updateArtistStatus(String username, String status) {
+        Member member = memberRepository
+                .findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+
+        member.updateArtistStatus(status);
+
+        return MemberResponseDTO.from(member);
+    }
 }
