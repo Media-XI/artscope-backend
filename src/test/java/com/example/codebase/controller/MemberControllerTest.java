@@ -240,7 +240,8 @@ class MemberControllerTest {
         createOrLoadMember();
 
         UpdateMemberDTO dto = new UpdateMemberDTO();
-        dto.setName("test1");
+        dto.setUsername("asdasdasd");
+        dto.setName("수정이름");
         dto.setIntroduction("소개 수정");
         dto.setHistory("history 수정");
 

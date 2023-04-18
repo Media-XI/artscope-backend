@@ -13,7 +13,8 @@ import java.util.Optional;
 @Setter
 public class UpdateMemberDTO {
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Parameter(required = false)
+    @Null
     private String username;
 
     @Parameter(required = false)

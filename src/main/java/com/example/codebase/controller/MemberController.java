@@ -62,12 +62,14 @@ public class MemberController {
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PutMapping("/{uesrname}")
     public ResponseEntity updateMember(@PathVariable String uesrname, @RequestBody UpdateMemberDTO updateMemberDTO) {
-        SecurityUtil.getCurrentUsername().ifPresent(updateMemberDTO::setUsername);
-        if (!uesrname.equals(updateMemberDTO.getUsername())) {
+        String loginUsername = SecurityUtil.getCurrentUsername()
+                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+
+        if (!uesrname.equals(loginUsername)) {
             throw new RuntimeException("본인의 정보만 수정할 수 있습니다.");
         }
 
-        MemberResponseDTO member = memberService.updateMember(updateMemberDTO);
+        MemberResponseDTO member = memberService.updateMember(uesrname, updateMemberDTO);
         return new ResponseEntity(member, HttpStatus.OK);
     }
 
@@ -147,4 +149,5 @@ public class MemberController {
         MemberResponseDTO member = memberService.updateArtistStatus(username, status);
         return new ResponseEntity(member, HttpStatus.OK);
     }
+
 }

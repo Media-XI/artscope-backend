@@ -155,10 +155,11 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponseDTO updateMember(UpdateMemberDTO updateMemberDTO) {
+    public MemberResponseDTO updateMember(String username, UpdateMemberDTO updateMemberDTO) {
         Member member = memberRepository
-                .findByUsername(updateMemberDTO.getUsername())
+                .findByUsername(username)
                 .orElseThrow(NotFoundMemberException::new);
+
         member.update(updateMemberDTO);
 
         return MemberResponseDTO.from(member);

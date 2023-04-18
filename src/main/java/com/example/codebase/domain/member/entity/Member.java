@@ -111,6 +111,10 @@ public class Member {
 
     public Member update(UpdateMemberDTO dto) {
         // dto all field Nullable
+        if (dto.getUsername() != null) {
+            this.username = dto.getUsername();
+        }
+
         if (dto.getName() != null) {
             this.name = dto.getName();
         }
