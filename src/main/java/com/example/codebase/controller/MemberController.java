@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +47,7 @@ public class MemberController {
 
     @ApiOperation(value = "관리자 가입", notes = "관리자 가입을 합니다.")
     @PostMapping("/admin")
-    public ResponseEntity createAdmin(@RequestBody CreateMemberDTO createMemberDTO) {
+    public ResponseEntity createAdmin(@Valid @RequestBody CreateMemberDTO createMemberDTO) {
         MemberResponseDTO admin = memberService.createAdmin(createMemberDTO);
         return new ResponseEntity(admin, HttpStatus.CREATED);
     }
@@ -54,7 +56,7 @@ public class MemberController {
     @ApiOperation(value = "아티스트 정보 입력", notes = "[USER] 아티스트 정보를 입력합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PostMapping("/artist")
-    public ResponseEntity createArtist(@RequestBody CreateArtistMemberDTO createArtistMemberDTO) {
+    public ResponseEntity createArtist(@Valid @RequestBody CreateArtistMemberDTO createArtistMemberDTO) {
         SecurityUtil.getCurrentUsername().ifPresent(createArtistMemberDTO::setUsername);
         MemberResponseDTO artist = memberService.createArtist(createArtistMemberDTO);
         return new ResponseEntity(artist, HttpStatus.CREATED);
@@ -63,7 +65,7 @@ public class MemberController {
     @ApiOperation(value = "내 정보 수정", notes = "[USER] 내 정보를 수정합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PutMapping("/{uesrname}")
-    public ResponseEntity updateMember(@PathVariable String uesrname, @RequestBody UpdateMemberDTO updateMemberDTO) {
+    public ResponseEntity updateMember(@PathVariable String uesrname,@Valid @RequestBody UpdateMemberDTO updateMemberDTO) {
         String loginUsername = SecurityUtil.getCurrentUsername()
                 .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
@@ -140,14 +142,14 @@ public class MemberController {
 
     @ApiOperation("이메일 중복 확인")
     @GetMapping("/email/{email}")
-    public ResponseEntity checkEmail(@PathVariable String email) {
+    public ResponseEntity checkEmail(@Valid @Email @PathVariable String email) {
         String isExist = memberService.isExistEmail(email);
         return new ResponseEntity(isExist, HttpStatus.OK);
     }
 
     @ApiOperation("아이디 중복 확인")
     @GetMapping("/username/{username}")
-    public ResponseEntity checkUsername(@PathVariable String username) {
+    public ResponseEntity checkUsername(@Valid @NotBlank @PathVariable String username) {
         String isExist = memberService.isExistUsername(username);
         return new ResponseEntity(isExist, HttpStatus.OK);
     }
@@ -155,8 +157,8 @@ public class MemberController {
     @ApiOperation(value = "사용자 아티스트 상태 수정", notes = "[ADMIN] 사용자의 아티스트 상태를 수정합니다.")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/artist/{username}")
-    public ResponseEntity updateArtistStatus(@PathVariable String username,
-                                             @RequestParam String status) {
+    public ResponseEntity updateArtistStatus(@Valid @NotBlank @PathVariable String username,
+                                             @Valid @NotBlank @RequestParam String status) {
         MemberResponseDTO member = memberService.updateArtistStatus(username, status);
         return new ResponseEntity(member, HttpStatus.OK);
     }

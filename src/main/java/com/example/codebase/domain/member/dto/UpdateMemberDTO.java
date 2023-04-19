@@ -19,7 +19,7 @@ public class UpdateMemberDTO {
     private String username;
 
     @Parameter(required = false)
-    @NotBlank(message = "이름은 필수 입력입니다.")
+    @NotBlank(message = "작가명은 필수 입력입니다.")
     private String name;
 
     @Parameter(required = false)
