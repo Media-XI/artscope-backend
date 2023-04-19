@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import java.awt.image.BufferedImage;
@@ -13,7 +14,7 @@ import java.awt.image.BufferedImage;
 @Setter
 public class ArtworkMediaCreateDTO {
 
-    @NotNull
+    @NotBlank
     private String mediaType;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

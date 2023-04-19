@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.swing.text.html.Option;
-import javax.validation.constraints.Null;
+import javax.validation.constraints.*;
 import java.util.Optional;
 
 @Getter
@@ -14,30 +14,34 @@ import java.util.Optional;
 public class UpdateMemberDTO {
 
     @Parameter(required = false)
-    @Null
+    @NotBlank(message = "아이디는 필수 입력입니다.")
+    @Pattern(regexp = "^[a-zA-Z0-9]{4,12}$", message = "아이디는 4~12자의 영문자와 숫자로만 입력 가능합니다.")
     private String username;
 
     @Parameter(required = false)
-    @Null
+    @NotBlank(message = "이름은 필수 입력입니다.")
     private String name;
 
     @Parameter(required = false)
-    @Null
+    @Email(message = "이메일 형식이 올바르지 않습니다.")
+    @NotBlank(message = "이메일은 필수 입력입니다.")
     private String email;
 
     @Parameter(required = false)
-    @Null
+    @Size(min = 1, max = 120, message = "주소는 1~120자 이내로 입력해주세요.")
+    @Pattern(regexp = "^(http|https)://.*", message = "SNS 주소를 입력해주세요.")
     private String snsUrl;
 
     @Parameter(required = false)
-    @Null
+    @Size(min = 1, max = 120, message = "주소는 1~120자 이내로 입력해주세요.")
+    @Pattern(regexp = "^(http|https)://.*", message = "웹사이트 주소를 입력해주세요.")
     private String websiteUrl;
 
     @Parameter(required = false)
-    @Null
+    @Size(min = 1, max = 120, message = "소개는 1~120자 이내로 입력해주세요.")
     private String introduction;
 
     @Parameter(required = false)
-    @Null
+    @Size(min = 1, max = 120, message = "히스토리는 1~120자 이내로 입력해주세요.")
     private String history;
 }

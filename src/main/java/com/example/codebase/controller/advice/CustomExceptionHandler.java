@@ -2,6 +2,7 @@ package com.example.codebase.controller.advice;
 
 import com.example.codebase.controller.dto.RestResponse;
 import com.example.codebase.exception.ErrorCode;
+import com.example.codebase.exception.NotAcceptTypeException;
 import com.example.codebase.exception.NotAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,12 @@ public class CustomExceptionHandler {
     public ResponseEntity handleNotAccessException(NotAccessException e) {
         RestResponse response = new RestResponse(false, e.getMessage(), HttpStatus.FORBIDDEN.value());
         return new ResponseEntity(response, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(NotAcceptTypeException.class)
+    public ResponseEntity handleNotAcceptTypeException(NotAcceptTypeException e) {
+        RestResponse response = new RestResponse(false, e.getMessage(), HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
+        return new ResponseEntity(response, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 
     @ExceptionHandler(IOException.class)

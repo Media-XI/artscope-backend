@@ -4,6 +4,8 @@ import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
 import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.example.codebase.domain.member.dto.MemberResponseDTO;
 import com.example.codebase.domain.member.dto.UpdateMemberDTO;
+import com.example.codebase.exception.NotAcceptTypeException;
+import com.example.codebase.util.FileUtil;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -78,11 +80,20 @@ public class MemberController {
     @PutMapping("/{username}/picture")
     public ResponseEntity updateProfile(
             @PathVariable String username,
-            @RequestPart MultipartFile profile) {
+            @RequestPart MultipartFile profile
+    ) throws Exception {
         String currentUsername = SecurityUtil.getCurrentUsername()
                 .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
         if (!currentUsername.equals(username)) {
             throw new RuntimeException("본인의 프로필 사진만 수정할 수 있습니다.");
+        }
+
+        String originalFilename = profile.getOriginalFilename();
+        int index = originalFilename.lastIndexOf(".");
+        String ext = originalFilename.substring(index + 1).toLowerCase();
+
+        if (!FileUtil.checkImageExtension(ext)) {
+            throw new NotAcceptTypeException("지원하지 않는 파일 확장자 입니다.");
         }
 
         MemberResponseDTO member = memberService.updateProfile(username, profile);

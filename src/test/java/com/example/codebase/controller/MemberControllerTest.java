@@ -276,6 +276,27 @@ class MemberControllerTest {
     }
 
     @WithMockCustomUser(username = "testid1", role = "USER")
+    @DisplayName("내 프로필 사진 수정시 이미지 타입이 아닐 시")
+    @Test
+    void 프로필_이미지가_아닐시() throws Exception {
+        createOrLoadMember();
+
+        MockMultipartFile file = new MockMultipartFile("profile", "test.mp3", "audio/mp3", "asd".getBytes());
+
+        mockMvc.perform(
+                        multipart(String.format("/api/members/testid1/picture"))
+                                .file(file)
+                                .with(request -> {
+                                    request.setMethod("PUT");
+                                    return request;
+                                })
+
+                )
+                .andExpect(status().isUnsupportedMediaType())
+                .andDo(print());
+    }
+
+    @WithMockCustomUser(username = "testid1", role = "USER")
     @DisplayName("회원 탈퇴 시")
     @Test
     void 회원_탈퇴() throws Exception {

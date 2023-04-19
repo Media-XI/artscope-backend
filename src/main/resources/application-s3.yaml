@@ -21,7 +21,7 @@ spring:
         resolve-lazily: true  # Error Handling
 
 app:
-  file-count: 8
+  file-count: 10
 
 logging:
   level:

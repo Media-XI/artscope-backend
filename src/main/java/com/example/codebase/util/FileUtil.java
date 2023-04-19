@@ -21,6 +21,11 @@ public class FileUtil {
     public static boolean checkExtension(String extension) {
         return allowedImageTypes.contains("image/"+ extension) || allowedVideoTypes.contains("video/" + extension) || allowedAudioTypes.contains("audio/" + extension);
     }
+
+    public static boolean checkImageExtension(String extension) {
+        return allowedImageTypes.contains("image/"+ extension);
+    }
+
     public static boolean validateFile(InputStream inputStream) throws IOException {
         String mimeType = tika.detect(inputStream);
         return allowedImageTypes.contains(mimeType) || allowedVideoTypes.contains(mimeType) || allowedAudioTypes.contains(mimeType);

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import java.util.ArrayList;
@@ -14,13 +15,13 @@ import java.util.List;
 @Setter
 public class ArtworkCreateDTO {
 
-    @NotNull(message = "작품명은 필수입니다.")
+    @NotBlank(message = "작품명은 필수입니다.")
     private String title;
 
-    @NotNull(message = "작품 설명은 필수입니다.")
+    @NotBlank(message = "작품 설명은 필수입니다.")
     private String description;
 
-    @NotNull(message = "노출 여부는 필수입니다.")
+    @NotBlank(message = "노출 여부는 필수입니다.")
     private Boolean visible;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
