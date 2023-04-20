@@ -54,6 +54,10 @@ public class ArtworkController {
             throw new RuntimeException("파일을 업로드 해주세요.");
         }
 
+        if (Optional.ofNullable(dto.getTags()).isPresent() && dto.getTags().size() > 5) {
+            throw new RuntimeException("태그는 최대 5개까지 등록 가능합니다.");
+        }
+
         int i = 0;
         for (ArtworkMediaCreateDTO mediaDto : dto.getMedias()) {
 
@@ -92,6 +96,11 @@ public class ArtworkController {
     @PutMapping("/{id}")
     public ResponseEntity updateArtwork(@PathVariable Long id, @RequestBody ArtworkUpdateDTO dto) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+
+        if (Optional.ofNullable(dto.getTags()).isPresent() && dto.getTags().size() > 5) {
+            throw new RuntimeException("태그는 최대 5개까지 등록 가능합니다.");
+        }
+
         ArtworkResponseDTO artwork = artworkService.updateArtwork(id, dto, username);
         return new ResponseEntity(artwork, HttpStatus.OK);
     }

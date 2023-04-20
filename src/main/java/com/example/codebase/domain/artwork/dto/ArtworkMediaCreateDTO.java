@@ -26,7 +26,7 @@ public class ArtworkMediaCreateDTO {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private int height;
 
-    @Null
+    @NotBlank
     private String description;
 
     public void setImageSize(BufferedImage image) {
