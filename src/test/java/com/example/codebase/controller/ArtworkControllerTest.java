@@ -49,10 +49,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -171,6 +168,7 @@ class ArtworkControllerTest {
         Artwork dummy = Artwork.builder()
                 .title("아트워크_테스트" + index)
                 .description("작품 설명")
+                .tags("태그1,태그2,태그3")
                 .visible(isVisible)
                 .member(createOrLoadMember())
                 .artworkMedia(artworkMediaList)
@@ -197,6 +195,7 @@ class ArtworkControllerTest {
 
         ArtworkCreateDTO dto = new ArtworkCreateDTO();
         dto.setTitle("아트워크_테스트");
+        dto.setTags(Arrays.asList("태그1", "태그2", "태그3"));
         dto.setDescription("작품 설명");
         dto.setVisible(true);
         dto.setMedias(Collections.singletonList(mediaCreateDTO));

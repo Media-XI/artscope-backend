@@ -110,11 +110,9 @@ public class Member {
     }
 
     public Member update(UpdateMemberDTO dto) {
-        // dto all field Nullable
         if (dto.getUsername() != null) {
             this.username = dto.getUsername();
         }
-
         if (dto.getName() != null) {
             this.name = dto.getName();
         }
@@ -133,6 +131,7 @@ public class Member {
         if (dto.getHistory() != null) {
             this.history = dto.getHistory();
         }
+
         this.updatedTime = LocalDateTime.now();
         return this;
     }

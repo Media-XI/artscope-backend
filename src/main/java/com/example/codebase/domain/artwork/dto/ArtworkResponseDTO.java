@@ -7,6 +7,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Getter
@@ -16,8 +17,13 @@ import java.util.stream.Collectors;
 @Builder
 public class ArtworkResponseDTO {
     private Long id;
+
     private String title;
+
+    private List<String> tags;
+
     private String description;
+
     private String member;
 
     private ArtworkMediaResponseDTO thumbnail;
@@ -41,9 +47,16 @@ public class ArtworkResponseDTO {
                 .findFirst()
                 .orElse(null);
 
+        List<String> tags = null;
+        if (Optional.ofNullable(artwork.getTags()).isPresent()) {
+            String[] split = artwork.getTags().split(",");
+            tags = List.of(split);
+        }
+
         return ArtworkResponseDTO.builder()
                 .id(artwork.getId())
                 .title(artwork.getTitle())
+                .tags(tags)
                 .description(artwork.getDescription())
                 .member(artwork.getMember().getUsername())
                 .thumbnail(thumbnail)

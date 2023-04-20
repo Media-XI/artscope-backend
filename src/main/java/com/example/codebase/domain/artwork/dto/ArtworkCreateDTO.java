@@ -18,6 +18,8 @@ public class ArtworkCreateDTO {
     @NotBlank(message = "작품명은 필수입니다.")
     private String title;
 
+    private List<String> tags;
+
     @NotBlank(message = "작품 설명은 필수입니다.")
     private String description;
 

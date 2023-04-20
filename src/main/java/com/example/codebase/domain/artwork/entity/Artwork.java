@@ -14,6 +14,8 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "artwork")
@@ -29,6 +31,9 @@ public class Artwork {
 
     @Column(name = "title", nullable = false)
     private String title;
+
+    @Column(name = "tags")
+    private String tags;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
@@ -55,8 +60,15 @@ public class Artwork {
     private List<ArtworkMedia> artworkMedia = new ArrayList<>();
 
     public static Artwork of (ArtworkCreateDTO dto, Member member) {
+        String tempTags = "";
+        if (Optional.ofNullable(dto.getTags()).isPresent()) {
+            tempTags = dto.getTags().stream()
+                    .collect(Collectors.joining(","));
+        }
+
         return Artwork.builder()
                 .title(dto.getTitle())
+                .tags(tempTags)
                 .description(dto.getDescription())
                 .visible(dto.getVisible())
                 .createdTime(LocalDateTime.now())
@@ -74,6 +86,10 @@ public class Artwork {
 
     public void update(ArtworkUpdateDTO dto) {
         this.title = dto.getTitle();
+        if (Optional.ofNullable(dto.getTags()).isPresent()) {
+            this.tags = dto.getTags().stream()
+                    .collect(Collectors.joining(","));
+        }
         this.description = dto.getDescription();
         this.visible = dto.isVisible();
         this.updatedTime = LocalDateTime.now();

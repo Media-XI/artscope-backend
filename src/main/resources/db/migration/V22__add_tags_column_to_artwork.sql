@@ -1,0 +1,2 @@
+ALTER TABLE `artwork`
+    ADD COLUMN `tags` VARCHAR(255) NULL DEFAULT NULL AFTER `title`;

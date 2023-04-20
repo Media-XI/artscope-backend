@@ -14,17 +14,14 @@ import java.util.Optional;
 public class UpdateMemberDTO {
 
     @Parameter(required = false)
-    @NotBlank(message = "아이디는 필수 입력입니다.")
     @Pattern(regexp = "^[a-zA-Z0-9]{4,12}$", message = "아이디는 4~12자의 영문자와 숫자로만 입력 가능합니다.")
     private String username;
 
     @Parameter(required = false)
-    @NotBlank(message = "작가명은 필수 입력입니다.")
     private String name;
 
     @Parameter(required = false)
     @Email(message = "이메일 형식이 올바르지 않습니다.")
-    @NotBlank(message = "이메일은 필수 입력입니다.")
     private String email;
 
     @Parameter(required = false)

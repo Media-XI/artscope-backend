@@ -240,9 +240,6 @@ class MemberControllerTest {
         createOrLoadMember();
 
         UpdateMemberDTO dto = new UpdateMemberDTO();
-        dto.setUsername("testid1234");
-        dto.setName("수정이름");
-        dto.setEmail("email@eee.com");
         dto.setWebsiteUrl("https://localhost/");
         dto.setSnsUrl("https://localhost/");
         dto.setIntroduction("소개 수정");
