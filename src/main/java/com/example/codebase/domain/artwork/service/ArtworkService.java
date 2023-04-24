@@ -45,6 +45,10 @@ public class ArtworkService {
 
         Artwork artwork = Artwork.of(dto, member);
 
+        // 썸네일 추가
+        ArtworkMedia thumbnail = ArtworkMedia.of(dto.getThumbnail(), artwork);
+        artwork.addArtworkMedia(thumbnail); // 제일 첫번째는 썸네일로
+
         for (ArtworkMediaCreateDTO mediaCreateDTO : dto.getMedias()) {
             ArtworkMedia media = ArtworkMedia.of(mediaCreateDTO, artwork);
             artwork.addArtworkMedia(media);

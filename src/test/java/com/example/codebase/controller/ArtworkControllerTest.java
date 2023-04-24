@@ -184,10 +184,14 @@ class ArtworkControllerTest {
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("아트워크 한개 등록")
+    @DisplayName("아트워크 등록")
     @Test
     public void test00() throws Exception {
         createOrLoadMember();
+
+        ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
+        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setDescription("썸네일 설명");
 
         ArtworkMediaCreateDTO mediaCreateDTO = new ArtworkMediaCreateDTO();
         mediaCreateDTO.setMediaType(ArtworkMediaType.image.toString());
@@ -198,7 +202,10 @@ class ArtworkControllerTest {
         dto.setTags(Arrays.asList("태그1", "태그2", "태그3"));
         dto.setDescription("작품 설명");
         dto.setVisible(true);
+        dto.setThumbnail(thumbnailCreateDTO);
         dto.setMedias(Collections.singletonList(mediaCreateDTO));
+
+        MockMultipartFile thumbnailFile = new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
 
         List<MockMultipartFile> mediaFiles = new ArrayList<>();
         MockMultipartFile mockMultipartFile = new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
@@ -207,6 +214,7 @@ class ArtworkControllerTest {
         mockMvc.perform(
                         multipart("/api/artworks")
                                 .file(mediaFiles.get(0))
+                                .file(thumbnailFile)
                                 .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                                 .accept(MediaType.APPLICATION_JSON)
@@ -218,12 +226,16 @@ class ArtworkControllerTest {
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("아트워크 두개 등록")
+    @DisplayName("아트워크에 미디어 두개 등록")
     @Test
     public void test01() throws Exception {
         createOrLoadMember();
 
         List<ArtworkMediaCreateDTO> mediaCreateDTOList = new ArrayList<>();
+
+        ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
+        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setDescription("썸네일 설명");
 
         ArtworkMediaCreateDTO mediaCreateDTO1 = new ArtworkMediaCreateDTO();
         mediaCreateDTO1.setMediaType(ArtworkMediaType.image.toString());
@@ -233,6 +245,8 @@ class ArtworkControllerTest {
         mediaCreateDTO2.setMediaType(ArtworkMediaType.video.toString());
         mediaCreateDTO2.setDescription("미디어 설명2");
         mediaCreateDTOList.add(mediaCreateDTO2);
+
+        MockMultipartFile thumbnailFile = new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
 
         List<MockMultipartFile> mediaFiles = new ArrayList<>();
         MockMultipartFile mockMultipartFile1 = new MockMultipartFile("mediaFiles", "image1.jpg", "image/jpg", createImageFile());
@@ -245,12 +259,14 @@ class ArtworkControllerTest {
         dto.setTitle("아트워크_테스트");
         dto.setDescription("작품 설명");
         dto.setVisible(true);
+        dto.setThumbnail(thumbnailCreateDTO);
         dto.setMedias(mediaCreateDTOList);
 
         mockMvc.perform(
                         multipart("/api/artworks")
                                 .file(mediaFiles.get(0))
                                 .file(mediaFiles.get(1))
+                                .file(thumbnailFile)
                                 .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                                 .accept(MediaType.APPLICATION_JSON)
@@ -295,6 +311,10 @@ class ArtworkControllerTest {
     public void test04() throws Exception {
         createOrLoadMember();
 
+        ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
+        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setDescription("썸네일 설명");
+
         ArtworkMediaCreateDTO mediaCreateDTO = new ArtworkMediaCreateDTO();
         mediaCreateDTO.setMediaType("test");
         mediaCreateDTO.setMediaUrl("url");
@@ -303,15 +323,19 @@ class ArtworkControllerTest {
         List<MockMultipartFile> mediaFiles = new ArrayList<>();
         mediaFiles.add(new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", "test".getBytes()));
 
+        MockMultipartFile thumbnailFile = new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
+
         ArtworkCreateDTO dto = new ArtworkCreateDTO();
         dto.setTitle("아트워크_테스트");
         dto.setDescription("작품 설명");
         dto.setVisible(false);
+        dto.setThumbnail(thumbnailCreateDTO);
         dto.setMedias(Collections.singletonList(mediaCreateDTO));
 
         mockMvc.perform(
                         multipart("/api/artworks")
                                 .file(mediaFiles.get(0))
+                                .file(thumbnailFile)
                                 .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                                 .accept(MediaType.APPLICATION_JSON)
@@ -401,7 +425,7 @@ class ArtworkControllerTest {
                                 .characterEncoding("UTF-8")
                 )
                 .andDo(print())
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isBadRequest());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -409,6 +433,10 @@ class ArtworkControllerTest {
     @Test
     public void 아트워크_오디오_등록() throws Exception {
         createOrLoadMember();
+
+        ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
+        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setDescription("썸네일 설명");
 
         ArtworkMediaCreateDTO mediaCreateDTO = new ArtworkMediaCreateDTO();
         mediaCreateDTO.setMediaType(ArtworkMediaType.audio.toString());
@@ -419,14 +447,18 @@ class ArtworkControllerTest {
         dto.setDescription("작품 설명");
         dto.setVisible(true);
         dto.setMedias(Collections.singletonList(mediaCreateDTO));
+        dto.setThumbnail(thumbnailCreateDTO);
 
         List<MockMultipartFile> mediaFiles = new ArrayList<>();
         MockMultipartFile mockMultipartFile = new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
         mediaFiles.add(mockMultipartFile);
 
+        MockMultipartFile thumbnailFile = new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
+
         mockMvc.perform(
                         multipart("/api/artworks")
                                 .file(mediaFiles.get(0))
+                                .file(thumbnailFile)
                                 .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                                 .accept(MediaType.APPLICATION_JSON)

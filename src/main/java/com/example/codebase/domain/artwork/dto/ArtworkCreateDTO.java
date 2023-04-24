@@ -30,4 +30,10 @@ public class ArtworkCreateDTO {
     private List<MultipartFile> mediaFiles;
 
     private List<ArtworkMediaCreateDTO> medias;
+
+    private ArtworkMediaCreateDTO thumbnail;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private MultipartFile thumbnailFile;
+
 }

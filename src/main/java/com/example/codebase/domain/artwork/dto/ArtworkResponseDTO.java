@@ -39,13 +39,16 @@ public class ArtworkResponseDTO {
     public static ArtworkResponseDTO from(Artwork artwork) {
         List<ArtworkMedia> artworkMedia = artwork.getArtworkMedia();
 
+        ArtworkMediaResponseDTO thumbnail = artworkMedia.stream()
+                .findFirst()
+                .map(ArtworkMediaResponseDTO::from)
+                .orElse(null);
+
         List<ArtworkMediaResponseDTO> artworkMediaResponseDTOS = artworkMedia.stream()
+                .skip(1)
                 .map(ArtworkMediaResponseDTO::from)
                 .collect(Collectors.toList());
 
-        ArtworkMediaResponseDTO thumbnail = artworkMediaResponseDTOS.stream()
-                .findFirst()
-                .orElse(null);
 
         List<String> tags = null;
         if (Optional.ofNullable(artwork.getTags()).isPresent()) {

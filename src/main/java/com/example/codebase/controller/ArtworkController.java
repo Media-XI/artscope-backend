@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -43,7 +45,8 @@ public class ArtworkController {
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity createArtwork(
             @RequestPart(value = "dto") ArtworkCreateDTO dto,
-            @RequestPart(value = "mediaFiles") List<MultipartFile> mediaFiles
+            @RequestPart(value = "mediaFiles") List<MultipartFile> mediaFiles,
+            @RequestPart(value = "thumbnailFile") MultipartFile thumbnailFile
     ) throws Exception {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
         if (mediaFiles.size() > Integer.valueOf(fileCount)) {
@@ -58,16 +61,28 @@ public class ArtworkController {
             throw new RuntimeException("태그는 최대 5개까지 등록 가능합니다.");
         }
 
-        int i = 0;
-        for (ArtworkMediaCreateDTO mediaDto : dto.getMedias()) {
+        if (!dto.getThumbnail().getMediaType().equals("image") && FileUtil.validateImageFile(thumbnailFile.getInputStream())) {
+            throw new RuntimeException("썸네일은 이미지 파일만 업로드 가능합니다.");
+        }
+        else {
+            // 썸네일 파일 이미지 사이즈 구하기
+            BufferedImage bufferedImage = FileUtil.getBufferedImage(thumbnailFile.getInputStream());
+            dto.getThumbnail().setImageSize(bufferedImage);
+            // 썸네일 업로드
+            String savedUrl = s3Service.saveUploadFile(thumbnailFile);
+            dto.getThumbnail().setMediaUrl(savedUrl);
+        }
+
+        for (int i = 0; i < dto.getMedias().size(); i++){
+            ArtworkMediaCreateDTO mediaDto = dto.getMedias().get(i);
 
             // 이미지 파일이면 원본 이미지의 사이즈를 구합니다.
             if (dto.getMedias().get(i).getMediaType().equals("image")) {
                 BufferedImage bufferedImage = FileUtil.getBufferedImage(mediaFiles.get(i).getInputStream());
                 mediaDto.setImageSize(bufferedImage);
             }
-
-            String savedUrl = s3Service.saveUploadFile(mediaFiles.get(i++));
+            // 파일 업로드
+            String savedUrl = s3Service.saveUploadFile(mediaFiles.get(i));
             mediaDto.setMediaUrl(savedUrl);
         }
 
