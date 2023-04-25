@@ -77,6 +77,7 @@ public class ArtworkService {
         return ArtworkResponseDTO.from(artwork);
     }
 
+    @Transactional
     public ArtworkResponseDTO updateArtwork(Long id, ArtworkUpdateDTO dto, String username) {
         Artwork artwork = artworkRepository.findByIdAndMember_Username(id, username)
                 .orElseThrow(() -> new NotAccessException("해당 작품의 소유자가 아닙니다."));
@@ -84,6 +85,8 @@ public class ArtworkService {
         artwork.update(dto);
         return ArtworkResponseDTO.from(artwork);
     }
+
+    @Transactional
     public void deleteArtwork(Long id, String username) {
         Artwork artwork = artworkRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
