@@ -19,10 +19,22 @@ logging:
     jdbc:
       sqlonly: off
       sqltiming: info
-      resultsettable: off
+      resultsettable: info
       audit: off
       resultset: off
       connection: off
+
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - prod
+
+logging:
+  level:
+    jdbc:
+      resultsettable: off
 
 #logging:
 #  level:

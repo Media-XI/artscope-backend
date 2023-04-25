@@ -53,11 +53,11 @@
 
     <!--TRACE > DEBUG > INFO > WARN > ERROR > FATAL -->
     <Loggers>
-        <!-- 스프링 프레임워크에서 찍는건 level을 info로 설정 -->
-<!--        <logger name="org.springframework" level="info" additivity="false" >-->
-<!--            <AppenderRef ref="console" />-->
-<!--            <AppenderRef ref="file" />-->
-<!--        </logger>-->
+        <!-- 스프링 프레임워크에서 찍는건 level을 info로 설정-->
+        <logger name="org.springframework" level="info" additivity="false" >
+            <AppenderRef ref="console" />
+            <AppenderRef ref="file" />
+        </logger>
 
         <!-- rolling file에는 debug, console에는 info 분리하여 처리 가능하다. -->
         <logger name="com.example.codebase" level="warn" additivity="true" >
