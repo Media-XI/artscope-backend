@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: default # default profile
+    active: dev # default profile
     include:
       - mysql
       - redis
@@ -14,5 +14,16 @@ spring:
       matching-strategy: ant_path_matcher
 
 logging:
+  config: classpath:log/log4j2-${spring.profiles.active}.xml
   level:
-    com.example : DEBUG
+    jdbc:
+      sqlonly: off
+      sqltiming: info
+      resultsettable: off
+      audit: off
+      resultset: off
+      connection: off
+
+#logging:
+#  level:
+#    com.example : DEBUG

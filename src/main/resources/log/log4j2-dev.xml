@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration status="debug">
+    <Properties>
+        <Property name="LOG_FILE_NAME">application</Property>
+        <Property name="LOG_DATEFORMAT_PATTERN">{yyyy-MM-dd HH:mm:ss.SSS}</Property>
+        <Property name="LOG_LEVEL_PATTERN">{-%6p}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=green, DEBUG=green bold, TRACE=blue} %style{${sys:PID}}{magenta} [%15.15t] %style{%-40.40C{1.}}{cyan} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}</Property>
+        <Property name="LOG_FILE_PATTER">%d [%t] %-5level %c(%M:%L) - %m%n</Property>
+    </Properties>
+
+    <Appenders>
+        <!-- ConsoleAppender -->
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout disableAnsi="false" pattern="%d${LOG_DATEFORMAT_PATTERN} %highlight${LOG_LEVEL_PATTERN}"/>
+        </Console>
+
+        <!-- FileAppender -->
+        <RollingFile name="file_appender"
+                     fileName="logs/${LOG_FILE_NAME}.log"
+                     filePattern="logs/${LOG_FILE_NAME}.%d{yyyy-MM-dd}_%i.log">
+<!--            <JsonLayout complete="false" compact="false" charset="UTF-8">-->
+<!--                <KeyValuePair key="service" value="simple" />-->
+<!--            </JsonLayout>-->
+            <PatternLayout disableAnsi="false" pattern="${LOG_FILE_PATTER}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" /> <!-- 시간별 로그 생성 -->
+                <SizeBasedTriggeringPolicy size="10MB" />
+            </Policies>
+            <DefaultRolloverstrategy max="5" fileIndex="min" > <!-- 파일 5개 까지 생성 -->
+                <Delete basePath="/logs" maxDepth="3">
+                    <IfLastModified age="10d" />
+                </Delete>
+            </DefaultRolloverstrategy>
+        </RollingFile>
+
+        <RollingFile name="daily_error"
+                     fileName="logs/error/error.log"
+                     filePattern="logs/error/error.%d{yyyy-MM-dd}_%i.log">
+            <PatternLayout disableAnsi="false" pattern="${LOG_FILE_PATTER}"/>
+            <!--LevelRangeFilter필터를 사용할때에 단일 level의 필터만 허용한다. -->
+            <LevelRangeFilter minLevel="WARN" maxLevel="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" /> <!-- 시간별 로그 생성 -->
+                <SizeBasedTriggeringPolicy size="20MB" />
+            </Policies>
+            <DefaultRolloverstrategy>
+                <Delete basePath="/logs/error" maxDepth="3">
+                    <IfLastModified age="10d" />
+                </Delete>
+            </DefaultRolloverstrategy>
+        </RollingFile>
+
+    </Appenders>
+
+    <!--TRACE > DEBUG > INFO > WARN > ERROR > FATAL -->
+    <Loggers>
+        <!-- 스프링 프레임워크에서 찍는건 level을 info로 설정 -->
+<!--        <logger name="org.springframework" level="info" additivity="false" >-->
+<!--            <AppenderRef ref="console" />-->
+<!--            <AppenderRef ref="file" />-->
+<!--        </logger>-->
+
+        <!-- rolling file에는 debug, console에는 info 분리하여 처리 가능하다. -->
+        <logger name="com.example.codebase" level="warn" additivity="true" >
+            <AppenderRef ref="daily_error" />
+        </logger>
+
+        <Root level="info">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="file_appender" />
+            <AppenderRef ref="daily_error" />
+        </Root>
+
+    </Loggers>
+
+</Configuration>

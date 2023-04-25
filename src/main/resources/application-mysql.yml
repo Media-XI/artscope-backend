@@ -1,20 +1,21 @@
 spring:
   datasource:
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
     username: ENC(Kt7o5icqv0HbyhvK8lkkq5NLvsd+w2sgInF6GV9woNY=)
     password: ENC(Lyvfgi2lU9jdpTKScZdyi/uqiZlpVIWMBFJTqH+QMyk=)
-    url: jdbc:mysql://localhost:13306/art?allowPublicKeyRetrieval=true&useSSL=false
+    url: jdbc:log4jdbc:mysql://localhost:13306/art?allowPublicKeyRetrieval=true&useSSL=false
   jpa:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
     generate-ddl: false # DDL 생성 여부
     open-in-view: false # View 단에서 Session(영속성 컨텍스트) 적용 여부 - 확장성 측면으로 볼때 false 권장 (default: true)
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
       use-new-id-generator-mappings: false #  Hibernate의 id 생성 전략을 그대로 사용
     properties:
       hibernate:
-        show_sql: true
-        format_sql: true
+#        show_sql: true
+#        format_sql: true
         enable_lazy_load_no_trans: true # LAZY 로드를 default로 설정
 
 # # Flyway 사용으로 초기화 주석
