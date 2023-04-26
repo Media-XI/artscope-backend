@@ -27,7 +27,7 @@
             </Policies>
             <DefaultRolloverstrategy max="5" fileIndex="min" > <!-- 파일 5개 까지 생성 -->
                 <Delete basePath="/logs" maxDepth="3">
-                    <IfLastModified age="10d" />
+                    <IfLastModified age="7d" />
                 </Delete>
             </DefaultRolloverstrategy>
         </RollingFile>
@@ -44,7 +44,7 @@
             </Policies>
             <DefaultRolloverstrategy>
                 <Delete basePath="/logs/error" maxDepth="3">
-                    <IfLastModified age="10d" />
+                    <IfLastModified age="7d" />
                 </Delete>
             </DefaultRolloverstrategy>
         </RollingFile>

@@ -63,6 +63,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @Transactional @Slf4j
 class ArtworkControllerTest {
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -87,7 +88,7 @@ class ArtworkControllerTest {
     @Autowired
     private S3Service s3Service;
 
-    private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     public void setUp() {
