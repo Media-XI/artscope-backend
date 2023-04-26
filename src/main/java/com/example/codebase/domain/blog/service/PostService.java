@@ -1,0 +1,57 @@
+package com.example.codebase.domain.blog.service;
+
+
+import com.example.codebase.controller.dto.PageInfo;
+import com.example.codebase.domain.artwork.dto.ArtworkResponseDTO;
+import com.example.codebase.domain.artwork.entity.Artwork;
+import com.example.codebase.domain.blog.dto.PostCreateDTO;
+import com.example.codebase.domain.blog.dto.PostResponseDTO;
+import com.example.codebase.domain.blog.dto.PostsResponseDTO;
+import com.example.codebase.domain.blog.entity.Post;
+import com.example.codebase.domain.blog.repository.PostRepository;
+import com.example.codebase.domain.member.entity.Member;
+import com.example.codebase.domain.member.exception.NotFoundMemberException;
+import com.example.codebase.domain.member.repository.MemberRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class PostService {
+
+    private final PostRepository postRepository;
+
+    private final MemberRepository memberRepository;
+    @Autowired
+    public PostService(PostRepository postRepository, MemberRepository memberRepository) {
+        this.postRepository = postRepository;
+        this.memberRepository = memberRepository;
+    }
+
+
+    public PostResponseDTO createPost(PostCreateDTO postCreateDTO, String loginUsername) {
+        Member author = memberRepository.findByUsername(loginUsername).orElseThrow(() -> new NotFoundMemberException());
+
+        Post newPost = Post.of(postCreateDTO, author);
+        postRepository.save(newPost);
+        return PostResponseDTO.of(newPost);
+    }
+
+    public PostsResponseDTO getPosts(int page, int size, String sortDirection) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        Page<Post> posts = postRepository.findAll(pageRequest);
+        PageInfo pageInfo = PageInfo.of(page, size, posts.getTotalPages(), posts.getTotalElements());
+
+        List<PostResponseDTO> dtos = posts.stream()
+                .map(PostResponseDTO::from)
+                .collect(Collectors.toList());
+        return PostsResponseDTO.of(dtos, pageInfo);
+    }
+}
