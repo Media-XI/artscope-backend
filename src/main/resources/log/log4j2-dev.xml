@@ -2,10 +2,10 @@
 <Configuration status="debug">
     <Properties>
         <Property name="LOG_FILE_NAME">application</Property>
-        <Property name="LOG_BASIC_PATTERN">%d [%t] %-5level %c(%M:%L) - %m%n</Property>
+        <Property name="LOG_BASIC_PATTERN">%d [%t] %-5level %c(%M:%L) - %m%n%wEx</Property>
         <Property name="LOG_DATEFORMAT_PATTERN">{yyyy-MM-dd HH:mm:ss.SSS}</Property>
-        <Property name="LOG_LEVEL_PATTERN">{-%6p}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=green, DEBUG=green bold, TRACE=blue} %style{${sys:PID}}{magenta} [%15.15t] %style{%-40.40C{1.}}{cyan} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}</Property>
-        <Property name="LOG_FILE_PATTERN">%d [%t] %-5level %c(%M:%L) - %m%n</Property>
+        <Property name="LOG_LEVEL_PATTERN">{-%6p}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=green, DEBUG=green bold, TRACE=blue} %style{${sys:PID}}{magenta} [%15.15t] %style{%-40.40C{1.}(%M:%L)}{cyan} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}</Property>
+        <Property name="LOG_FILE_PATTERN">%d [%t] %-5level %c(%M:%L) - %m%n%wEx</Property>
         <Property name="LOG_REQUEST_ID_PATTERN">%style{[%equals{%X{request_id}}{}{Default}]}{Cyan}</Property>
     </Properties>
 
@@ -37,7 +37,7 @@
         <RollingFile name="daily_error"
                      fileName="logs/error/error.log"
                      filePattern="logs/error/error.%d{yyyy-MM-dd}_%i.log">
-            <PatternLayout disableAnsi="false" pattern="${LOG_REQUEST_ID_PATTERN} ${LOG_FILE_PATTER}"/>
+            <PatternLayout disableAnsi="false" pattern="${LOG_REQUEST_ID_PATTERN} ${LOG_FILE_PATTERN}"/>
             <!--LevelRangeFilter필터를 사용할때에 단일 level의 필터만 허용한다. -->
             <LevelRangeFilter minLevel="WARN" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             <Policies>
@@ -51,10 +51,25 @@
             </DefaultRolloverstrategy>
         </RollingFile>
 
+        <RollingFile name="sql_file"
+                     fileName="logs/sql/sql.log"
+                     filePattern="logs/sql/sql.%d{yyyy-MM-dd}_%i.log">
+            <PatternLayout disableAnsi="false" pattern="${LOG_REQUEST_ID_PATTERN} ${LOG_FILE_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" /> <!-- 시간별 로그 생성 -->
+                <SizeBasedTriggeringPolicy size="20MB" />
+            </Policies>
+            <DefaultRolloverstrategy>
+                <Delete basePath="/logs/sql" maxDepth="1">
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverstrategy>
+        </RollingFile>
+
         <RollingFile name="sql_error"
-                     fileName="logs/sql/error.log"
-                     filePattern="logs/sql/error.%d{yyyy-MM-dd}_%i.log">
-            <PatternLayout disableAnsi="false" pattern="${LOG_REQUEST_ID_PATTERN} ${LOG_FILE_PATTER}"/>
+                     fileName="logs/sql/error/error.log"
+                     filePattern="logs/sql/error/error.%d{yyyy-MM-dd}_%i.log">
+            <PatternLayout disableAnsi="false" pattern="${LOG_REQUEST_ID_PATTERN} ${LOG_FILE_PATTERN}"/>
             <!--LevelRangeFilter필터를 사용할때에 단일 level의 필터만 허용한다. -->
             <LevelRangeFilter minLevel="WARN" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             <Policies>
@@ -62,7 +77,7 @@
                 <SizeBasedTriggeringPolicy size="20MB" />
             </Policies>
             <DefaultRolloverstrategy>
-                <Delete basePath="/logs/sql" maxDepth="3">
+                <Delete basePath="/logs/sql/error" maxDepth="3">
                     <IfLastModified age="7d" />
                 </Delete>
             </DefaultRolloverstrategy>
@@ -91,13 +106,13 @@
         <!--  SQL 쿼리 문장 -->
         <Logger name="java.sql" level="ERROR" additivity="false">
             <AppenderRef ref="console" />
-            <AppenderRef ref="file_appender" />
+            <AppenderRef ref="sql_file" />
             <AppenderRef ref="sql_error"/>
         </Logger>
 
         <Logger name="jdbc.sqlonly" level="ERROR" additivity="false">
             <AppenderRef ref="console" />
-            <AppenderRef ref="file_appender" />
+            <AppenderRef ref="sql_file" />
             <AppenderRef ref="sql_error"/>
         </Logger>
 
@@ -105,23 +120,24 @@
         <Logger name="jdbc.sqltiming" level="INFO" additivity="false">
             <AppenderRef ref="console" />
             <AppenderRef ref="file_appender" />
+            <AppenderRef ref="sql_file" />
         </Logger>
 
         <Logger name="jdbc.audit" level="WARN" additivity="false">
             <AppenderRef ref="console" />
-            <AppenderRef ref="file_appender" />
+            <AppenderRef ref="sql_file" />
             <AppenderRef ref="sql_error"/>
         </Logger>
 
         <Logger name="jdbc.resultset" level="WARN" additivity="false">
             <AppenderRef ref="console" />
-            <AppenderRef ref="file_appender" />
+            <AppenderRef ref="sql_file" />
             <AppenderRef ref="sql_error"/>
         </Logger>
 
-        <Logger name="jdbc.resultSettable" level="INFO" additivity="false">
-            <AppenderRef ref="console" />
-            <AppenderRef ref="file_appender" />
+        <Logger name="jdbc.resultsettable" level="INFO" additivity="false">
+<!--            <AppenderRef ref="console" />-->
+            <AppenderRef ref="sql_file" />
         </Logger>
 
         <!-- root는 모든 로그를 받는다. -->

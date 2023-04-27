@@ -29,7 +29,7 @@
             </Policies>
             <DefaultRolloverstrategy max="5" fileIndex="min" > <!-- 파일 5개 까지 생성 -->
                 <Delete basePath="/logs" maxDepth="3">
-                    <IfLastModified age="20d" />
+                    <IfLastModified age="7d" />
                 </Delete>
             </DefaultRolloverstrategy>
         </RollingFile>
@@ -46,7 +46,23 @@
             </Policies>
             <DefaultRolloverstrategy>
                 <Delete basePath="/logs/error" maxDepth="3">
-                    <IfLastModified age="20d" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverstrategy>
+        </RollingFile>
+
+        <RollingFile name="sql_file"
+                     fileName="logs/sql/sql.log"
+                     filePattern="logs/sql/sql.%d{yyyy-MM-dd}_%i.log">
+            <PatternLayout disableAnsi="false" pattern="${LOG_REQUEST_ID_PATTERN} ${LOG_FILE_PATTER}"/>
+            <!--LevelRangeFilter필터를 사용할때에 단일 level의 필터만 허용한다. -->
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" /> <!-- 시간별 로그 생성 -->
+                <SizeBasedTriggeringPolicy size="20MB" />
+            </Policies>
+            <DefaultRolloverstrategy>
+                <Delete basePath="/logs/sql" maxDepth="3">
+                    <IfLastModified age="7d" />
                 </Delete>
             </DefaultRolloverstrategy>
         </RollingFile>
@@ -63,7 +79,7 @@
             </Policies>
             <DefaultRolloverstrategy>
                 <Delete basePath="/logs/sql" maxDepth="3">
-                    <IfLastModified age="20d" />
+                    <IfLastModified age="7d" />
                 </Delete>
             </DefaultRolloverstrategy>
         </RollingFile>
@@ -91,37 +107,36 @@
         <!--  SQL 쿼리 문장 -->
         <Logger name="java.sql" level="ERROR" additivity="false">
             <AppenderRef ref="console" />
-            <AppenderRef ref="file_appender" />
+            <AppenderRef ref="sql_file" />
             <AppenderRef ref="sql_error"/>
         </Logger>
 
         <Logger name="jdbc.sqlonly" level="ERROR" additivity="false">
             <AppenderRef ref="console" />
-            <AppenderRef ref="file_appender" />
+            <AppenderRef ref="sql_file" />
             <AppenderRef ref="sql_error"/>
         </Logger>
 
         <!-- log SQL with timing information, post execution -->
         <Logger name="jdbc.sqltiming" level="INFO" additivity="false">
             <AppenderRef ref="console" />
-            <AppenderRef ref="file_appender" />
+            <AppenderRef ref="sql_file" />
         </Logger>
 
         <Logger name="jdbc.audit" level="WARN" additivity="false">
             <AppenderRef ref="console" />
-            <AppenderRef ref="file_appender" />
+            <AppenderRef ref="sql_file" />
             <AppenderRef ref="sql_error"/>
         </Logger>
 
         <Logger name="jdbc.resultset" level="WARN" additivity="false">
             <AppenderRef ref="console" />
-            <AppenderRef ref="file_appender" />
+            <AppenderRef ref="sql_file" />
             <AppenderRef ref="sql_error"/>
         </Logger>
 
         <Logger name="jdbc.resultSettable" level="INFO" additivity="false">
-            <AppenderRef ref="console" />
-            <AppenderRef ref="file_appender" />
+            <AppenderRef ref="sql_file" />
         </Logger>
 
         <!-- root는 모든 로그를 받는다. -->
