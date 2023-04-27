@@ -29,19 +29,28 @@ public class ExecutionTimeLogging {
 
     @AfterReturning(value = "within(com.example.codebase.controller.advice.*)", returning = "response")
     public void logResponseException(JoinPoint joinPoint, Object response) {
-        ResponseEntity res = (ResponseEntity) response;
-        log.info("Advice Method : {}", joinPoint.getSignature().toString());
-        // log.info("Advice Error : {}", joinPoint.getTarget());
-        log.info("Advice Response : {}", res.getBody());
+        if (response instanceof ResponseEntity) {
+            ResponseEntity res = (ResponseEntity) response;
+            log.info("Advice Method : {}", joinPoint.getSignature().toString());
+            // log.info("Advice Error : {}", joinPoint.getTarget());
+            log.info("Advice Response : {}", res.getBody());
+        } else {
+            log.info("Advice Method : {}", joinPoint.getSignature().toString());
+            // log.info("Advice Error : {}", joinPoint.getTarget());
+            log.info("Advice Response : {}", response);
+        }
     }
 
     @AfterReturning(value = "within(com.example.codebase.controller.advice.FileSizeExceptionHandler)", returning = "response")
     public void logResponseFile(JoinPoint joinPoint, Object response) {
-        ResponseEntity res = (ResponseEntity) response;
-
-        log.info("Advice Method : {}", joinPoint.getSignature().toString());
-        // log.info("Advice Error : {}", joinPoint.getTarget());
-        log.info("Advice Response : {}", res.getBody());
+        if (response instanceof ResponseEntity) {
+            ResponseEntity res = (ResponseEntity) response;
+            log.info("Advice Method : {}", joinPoint.getSignature().toString());
+            log.info("Advice Response : {}", res.getBody());
+        } else {
+            log.info("Advice Method : {}", joinPoint.getSignature().toString());
+            log.info("Advice Response : {}", response);
+        }
     }
 
 }
