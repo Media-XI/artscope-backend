@@ -21,9 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 public class ServletLoggingFilter extends OncePerRequestFilter {
@@ -68,6 +66,7 @@ public class ServletLoggingFilter extends OncePerRequestFilter {
     }
 
     private static void logPayload(String prefix, String contentType, InputStream inputStream) throws IOException {
+        long start = System.currentTimeMillis();
         boolean visible = isVisible(MediaType.valueOf(contentType == null ? "application/json" : contentType)); // default: application/json
 
         // ContentType이 있다면 페이로드를 출력한다.
@@ -75,13 +74,24 @@ public class ServletLoggingFilter extends OncePerRequestFilter {
             byte[] content = StreamUtils.copyToByteArray(inputStream);
             if (content.length > 0) {
                 String contentString = new String(content);
-                if (contentString.length() > 1000) {
-                    contentString = contentString.substring(0, 1000) + "...";
+                String[] split = contentString.split("----------------------------");
+
+                if (split.length > 1) {
+                    // Multipartform 에서 application/json 이 들어있는 split 요소만 반환
+                    List<String> contentList = new ArrayList<String>();
+                    for (String s : split) {
+                        if (s.contains("application/json")) {
+                            contentList.add(s);
+                        } else if (s.length() > 300) {
+                            contentList.add(s.substring(0, (s.indexOf("Content-Type") + 50)) + "...\n\n");
+                        }
+                    }
+                    contentString = String.join("\n", contentList);
                 }
 
                 if (contentString.contains("<!-- HTML for static distribution bundle build -->")) {
                     log.info("{} Payload: HTML Content", prefix);
-                    return ;
+                    return;
                 }
 
                 if (prefix.equals("Response"))
@@ -93,6 +103,8 @@ public class ServletLoggingFilter extends OncePerRequestFilter {
         } else {
             log.info("{} Payload: Binary Content", prefix);
         }
+        long executionTime = System.currentTimeMillis() - start;
+        log.info("{} logPayload ExecutionTime : {}ms", prefix, executionTime);
     }
 
     private static boolean isVisible(MediaType mediaType) {
