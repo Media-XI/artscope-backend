@@ -15,26 +15,26 @@ spring:
 
 logging:
   config: classpath:log/log4j2-${spring.profiles.active}.xml
-  level:
-    jdbc:
-      sqlonly: off
-      sqltiming: info
-      resultsettable: info
-      audit: off
-      resultset: off
-      connection: off
+#  level:
+#    jdbc:
+#      sqlonly: off
+#      sqltiming: info
+#      resultsettable: info
+#      audit: off
+#      resultset: off
+#      connection: off
 
----
-spring:
-  config:
-    activate:
-      on-profile:
-        - prod
-
-logging:
-  level:
-    jdbc:
-      resultsettable: off
+#---
+#spring:
+#  config:
+#    activate:
+#      on-profile:
+#        - prod
+#
+#logging:
+#  level:
+#    jdbc:
+#      resultsettable: off
 
 #logging:
 #  level:

@@ -4,7 +4,6 @@ import com.example.codebase.domain.auth.service.CustomOAuth2UserService;
 import com.example.codebase.domain.auth.handler.OAuth2AuthenticationFailureHandler;
 import com.example.codebase.domain.auth.handler.OAuth2AuthenticationSuccessHandler;
 import com.example.codebase.jwt.JwtAuthenticationEntryPoint;
-import com.example.codebase.jwt.JwtSecurityConfig;
 import com.example.codebase.jwt.TokenProvider;
 import com.example.codebase.jwt.JwtAccessDeniedHandler;
 import org.springframework.beans.factory.annotation.Autowired;

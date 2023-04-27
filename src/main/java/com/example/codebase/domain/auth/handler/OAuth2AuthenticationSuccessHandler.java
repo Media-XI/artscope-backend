@@ -1,18 +1,13 @@
 package com.example.codebase.domain.auth.handler;
 
-import com.amazonaws.services.ec2.model.CreateSecurityGroupRequest;
 import com.example.codebase.domain.auth.dto.TokenResponseDTO;
-import com.example.codebase.domain.member.repository.MemberRepository;
-import com.example.codebase.jwt.JwtFilter;
+import com.example.codebase.filter.JwtFilter;
 import com.example.codebase.jwt.TokenProvider;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
