@@ -42,7 +42,7 @@
             <LevelRangeFilter minLevel="WARN" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" /> <!-- 시간별 로그 생성 -->
-                <SizeBasedTriggeringPolicy size="20MB" />
+                <SizeBasedTriggeringPolicy size="10MB" />
             </Policies>
             <DefaultRolloverstrategy>
                 <Delete basePath="/logs/error" maxDepth="3">
@@ -57,7 +57,7 @@
             <PatternLayout disableAnsi="false" pattern="${LOG_REQUEST_ID_PATTERN} ${LOG_FILE_PATTERN}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" /> <!-- 시간별 로그 생성 -->
-                <SizeBasedTriggeringPolicy size="20MB" />
+                <SizeBasedTriggeringPolicy size="10MB" />
             </Policies>
             <DefaultRolloverstrategy>
                 <Delete basePath="/logs/sql" maxDepth="1">
@@ -74,7 +74,7 @@
             <LevelRangeFilter minLevel="WARN" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" /> <!-- 시간별 로그 생성 -->
-                <SizeBasedTriggeringPolicy size="20MB" />
+                <SizeBasedTriggeringPolicy size="10MB" />
             </Policies>
             <DefaultRolloverstrategy>
                 <Delete basePath="/logs/sql/error" maxDepth="3">
