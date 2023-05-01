@@ -27,5 +27,4 @@ public class ExecutionTimeLogging {
         return proceed;
     }
 
-
 }
