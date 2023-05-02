@@ -4,6 +4,7 @@ import com.example.codebase.config.S3MockConfig;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.auth.WithMockCustomUser;
 import com.example.codebase.domain.blog.dto.PostCreateDTO;
+import com.example.codebase.domain.blog.dto.PostUpdateDTO;
 import com.example.codebase.domain.blog.entity.Post;
 import com.example.codebase.domain.blog.repository.PostRepository;
 import com.example.codebase.domain.member.entity.Authority;
@@ -38,8 +39,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -131,11 +131,11 @@ class PostControllerTest {
         }
     }
 
-    @WithMockCustomUser(username = "admin",  role = "ADMIN")
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
     @DisplayName("포스트 생성 시")
     @Test
     void 포스트_생성() throws Exception {
-        createOrLoadMember("admin","ROLE_ADMIN");
+        createOrLoadMember("admin", "ROLE_ADMIN");
         // given
         PostCreateDTO postCreateDTO = PostCreateDTO.builder()
                 .title("제목")
@@ -159,10 +159,44 @@ class PostControllerTest {
 
         // when
         mockMvc.perform(
-                        get("/api/post?page=0&size=5")
+                        get("/api/post?page=0&size=20")
                 )
                 .andDo(print())
                 .andExpect(status().isOk()); // then
     }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("포스트 수정 시")
+    @Test
+    void 포스트_수정() throws Exception {
+        Post post = createPost();
+
+        PostUpdateDTO dto = PostUpdateDTO.builder()
+                .title("제목 수정")
+                .content("내용 수정")
+                .build();
+
+        mockMvc.perform(
+                        put("/api/post/" + post.getId())
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("포스트 삭제 시")
+    @Test
+    void 포스트_삭제() throws Exception {
+        Post post = createPost();
+
+        mockMvc.perform(
+                        delete("/api/post/" + post.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
 
 }

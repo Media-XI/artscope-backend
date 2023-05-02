@@ -2,6 +2,7 @@ package com.example.codebase.controller;
 
 import com.example.codebase.domain.blog.dto.PostCreateDTO;
 import com.example.codebase.domain.blog.dto.PostResponseDTO;
+import com.example.codebase.domain.blog.dto.PostUpdateDTO;
 import com.example.codebase.domain.blog.dto.PostsResponseDTO;
 import com.example.codebase.domain.blog.service.PostService;
 import com.example.codebase.util.SecurityUtil;
@@ -34,7 +35,7 @@ public class PostController {
 
         PostResponseDTO post = postService.createPost(postCreateDTO, loginUsername);
 
-        return new ResponseEntity(post ,HttpStatus.CREATED);
+        return new ResponseEntity(post, HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "게시글 전체 조회", notes = "[페이지네이션] 게시글을 조회합니다.")
@@ -46,4 +47,27 @@ public class PostController {
 
         return new ResponseEntity(posts, HttpStatus.OK);
     }
+
+    @ApiOperation(value = "게시글 수정", notes = "[관리자 접근] 게시글을 수정합니다.")
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
+    @PutMapping("/{postId}")
+    public ResponseEntity updatePost(@PathVariable Long postId, @RequestBody PostUpdateDTO postUpdateDTO) {
+        String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+
+        PostResponseDTO post = postService.updatePost(postId, postUpdateDTO);
+
+        return new ResponseEntity(post, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "게시글 삭제", notes = "[관리자 접근] 게시글을 삭제합니다.")
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/{postId}")
+    public ResponseEntity deletePost(@PathVariable Long postId) {
+        String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+
+        postService.deletePost(postId);
+
+        return new ResponseEntity("게시글 삭제되었습니다.", HttpStatus.OK);
+    }
+
 }

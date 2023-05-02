@@ -6,6 +6,7 @@ import com.example.codebase.domain.artwork.dto.ArtworkResponseDTO;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.blog.dto.PostCreateDTO;
 import com.example.codebase.domain.blog.dto.PostResponseDTO;
+import com.example.codebase.domain.blog.dto.PostUpdateDTO;
 import com.example.codebase.domain.blog.dto.PostsResponseDTO;
 import com.example.codebase.domain.blog.entity.Post;
 import com.example.codebase.domain.blog.repository.PostRepository;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,5 +55,23 @@ public class PostService {
                 .map(PostResponseDTO::from)
                 .collect(Collectors.toList());
         return PostsResponseDTO.of(dtos, pageInfo);
+    }
+
+
+    @Transactional
+    public PostResponseDTO updatePost(Long postId, PostUpdateDTO postUpdateDTO) {
+        // TODO: 동일 작성자 검증 추가
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("존재하지 않는 게시글입니다."));
+
+        post.update(postUpdateDTO);
+        return PostResponseDTO.of(post);
+    }
+
+    @Transactional
+    public void deletePost(Long postId) {
+        // TODO: 동일 작성자 검증 추가
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("존재하지 않는 게시글입니다."));
+
+        postRepository.delete(post);
     }
 }

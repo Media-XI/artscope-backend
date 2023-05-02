@@ -1,6 +1,7 @@
 package com.example.codebase.domain.blog.entity;
 
 import com.example.codebase.domain.blog.dto.PostCreateDTO;
+import com.example.codebase.domain.blog.dto.PostUpdateDTO;
 import com.example.codebase.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,5 +47,11 @@ public class Post {
                 .author(author)
                 .createdTime(LocalDateTime.now())
                 .build();
+    }
+
+    public void update(PostUpdateDTO postUpdateDTO) {
+        this.title = postUpdateDTO.getTitle();
+        this.content = postUpdateDTO.getContent();
+        this.updatedTime = LocalDateTime.now();
     }
 }
