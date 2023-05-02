@@ -50,7 +50,11 @@ public class ClientUtil {
         try
         {
             jsonInString = objectMapper.writerWithDefaultPrettyPrinter()
-                    .writeValueAsString(body).replaceAll("\"password\" : \"[^\"]*\"", "\"password\" : \"*****\"");
+                    .writeValueAsString(body)
+                    .replaceAll("\"password\" : \"[^\"]*\"", "\"password\" : \"*****\"")
+                    .replaceAll("\"accessToken\" : \"[^\"]*\"", "\"accessToken\" : \"*****\"")
+                    .replaceAll("\"refreshToken\" : \"[^\"]*\"", "\"refreshToken\" : \"*****\"");
+
         }
         catch (JsonProcessingException e)
         {

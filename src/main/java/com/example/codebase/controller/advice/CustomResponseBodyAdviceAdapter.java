@@ -23,7 +23,9 @@ public class CustomResponseBodyAdviceAdapter implements ResponseBodyAdvice {
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         try {
+            long start = System.currentTimeMillis();
             log.info(ClientUtil.jsonBodyForLogging(body).insert(0, "Response ").toString() + "\n\n");
+            log.info("beforeBodyWrite execution time: " + (System.currentTimeMillis() - start) + "ms");
         } catch (IOException e) {
             log.info("Error while logging request body: " + e.getMessage());
         }

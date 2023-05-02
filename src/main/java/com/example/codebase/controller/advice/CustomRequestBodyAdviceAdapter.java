@@ -37,7 +37,9 @@ public class CustomRequestBodyAdviceAdapter extends RequestBodyAdviceAdapter {
     public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
         try {
             // GET 요청일때 body는 true임..
+            long start = System.currentTimeMillis();
             log.info(ClientUtil.jsonBodyForLogging(body).insert(0, "Request ").toString());
+            log.info("afterBodyRead execution time: " + (System.currentTimeMillis() - start) + "ms");
         } catch (IOException e) {
             log.info("Error while logging request body: " + e.getMessage());
         }
