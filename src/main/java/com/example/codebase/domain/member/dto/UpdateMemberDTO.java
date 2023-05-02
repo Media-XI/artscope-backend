@@ -35,10 +35,10 @@ public class UpdateMemberDTO {
     private String websiteUrl;
 
     @Parameter(required = false)
-    @Size(min = 1, max = 120, message = "소개는 1~120자 이내로 입력해주세요.")
+    @Size(min = 1, max = 250, message = "소개는 1~250자 이내로 입력해주세요.")
     private String introduction;
 
     @Parameter(required = false)
-    @Size(min = 1, max = 120, message = "히스토리는 1~120자 이내로 입력해주세요.")
+    @Size(min = 1, max = 250, message = "히스토리는 1~250자 이내로 입력해주세요.")
     private String history;
 }

@@ -36,7 +36,7 @@ class JasyptConfigTest {
     @DisplayName("Jasypt 복호화")
     @Test
     void decrypt() {
-        String text = "ko4AjdHG0A9aqM/Xh5TRwUWVsTFFmwXw/3p1tnUWTjo=";
+        String text = "Lyvfgi2lU9jdpTKScZdyi/uqiZlpVIWMBFJTqH+QMyk=";
         System.out.println(String.format("%s", stringEncryptor.decrypt(text)));
     }
 
