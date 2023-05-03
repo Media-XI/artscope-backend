@@ -1,0 +1,31 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - logs/*.log
+    fields:
+      index_name: app-log
+
+  - type: erorr-log
+    enabled: true
+    paths:
+      - logs/error/*.log
+    fields:
+      index_name: error-log
+
+  - type: sql-log
+    enabled: true
+    paths:
+      - logs/sql/*.log
+    fields:
+      index_name: sql-log
+
+  - type: sql-error-log
+    enabled: true
+    paths:
+      - logs/sql/error/*.log
+    fields:
+      index_name: sql-error-log
+
+output.logstash:
+  hosts: ["ip"]

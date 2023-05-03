@@ -1,12 +1,14 @@
 version: '3.8'
 
 services:
-#  backend:
-#    image: backend:latest
-#    ports:
-#      - 8080:8080
-#    depends_on:
-#      - mysql
+  backend:
+    image: backend:latest
+    ports:
+      - 8080:8080
+    depends_on:
+      - mysql
+    volumes:
+      - log_datas:/logs
 
   mysql:
     image: mysql:8.0.32
@@ -30,5 +32,18 @@ services:
       - "mode=standalone"
     ports:
       - 16379:6379
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.6.2
+    container_name: art-filebeat
+    volumes:
+      - ./filebeat-template.yml:/usr/share/filebeat/filebeat-template.yml
+      - log_datas:/logs
+    ports:
+      - 5044:5044
+    depends_on:
+      - backend
+
 volumes:
   db_datas:
+  log_datas:
