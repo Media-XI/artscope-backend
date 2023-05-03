@@ -19,9 +19,7 @@
         <RollingFile name="file_appender"
                      fileName="logs/${LOG_FILE_NAME}.log"
                      filePattern="logs/${LOG_FILE_NAME}.%d{yyyy-MM-dd}_%i.log">
-            <!--            <JsonLayout complete="false" compact="false" charset="UTF-8">-->
-            <!--                <KeyValuePair key="service" value="simple" />-->
-            <!--            </JsonLayout>-->
+            <JsonLayout compact="true" eventEol="true" properties="true" complete="true" />
             <PatternLayout disableAnsi="false" pattern="${LOG_REQUEST_ID_PATTERN} ${LOG_FILE_PATTERN}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" /> <!-- 시간별 로그 생성 -->
@@ -29,7 +27,7 @@
             </Policies>
             <DefaultRolloverstrategy max="5" fileIndex="min" > <!-- 파일 5개 까지 생성 -->
                 <Delete basePath="/logs" maxDepth="3">
-                    <IfLastModified age="20d" />
+                    <IfLastModified age="14d" />
                 </Delete>
             </DefaultRolloverstrategy>
         </RollingFile>
@@ -37,6 +35,7 @@
         <RollingFile name="daily_error"
                      fileName="logs/error/error.log"
                      filePattern="logs/error/error.%d{yyyy-MM-dd}_%i.log">
+            <JsonLayout compact="true" eventEol="true" properties="true" complete="true" />
             <PatternLayout disableAnsi="false" pattern="${LOG_REQUEST_ID_PATTERN} ${LOG_FILE_PATTERN}"/>
             <!--LevelRangeFilter필터를 사용할때에 단일 level의 필터만 허용한다. -->
             <LevelRangeFilter minLevel="WARN" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
@@ -46,7 +45,7 @@
             </Policies>
             <DefaultRolloverstrategy>
                 <Delete basePath="/logs/error" maxDepth="3">
-                    <IfLastModified age="20d" />
+                    <IfLastModified age="14d" />
                 </Delete>
             </DefaultRolloverstrategy>
         </RollingFile>
@@ -54,6 +53,7 @@
         <RollingFile name="sql_file"
                      fileName="logs/sql/sql.log"
                      filePattern="logs/sql/sql.%d{yyyy-MM-dd}_%i.log">
+            <JsonLayout compact="true" eventEol="true" properties="true" complete="true" />
             <PatternLayout disableAnsi="false" pattern="${LOG_REQUEST_ID_PATTERN} ${LOG_FILE_PATTERN}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" /> <!-- 시간별 로그 생성 -->
@@ -61,7 +61,7 @@
             </Policies>
             <DefaultRolloverstrategy>
                 <Delete basePath="/logs/sql" maxDepth="1">
-                    <IfLastModified age="20d" />
+                    <IfLastModified age="14d" />
                 </Delete>
             </DefaultRolloverstrategy>
         </RollingFile>
@@ -69,6 +69,7 @@
         <RollingFile name="sql_error"
                      fileName="logs/sql/error/error.log"
                      filePattern="logs/sql/error/error.%d{yyyy-MM-dd}_%i.log">
+            <JsonLayout compact="true" eventEol="true" properties="true" complete="true" />
             <PatternLayout disableAnsi="false" pattern="${LOG_REQUEST_ID_PATTERN} ${LOG_FILE_PATTERN}"/>
             <!--LevelRangeFilter필터를 사용할때에 단일 level의 필터만 허용한다. -->
             <LevelRangeFilter minLevel="WARN" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
@@ -78,7 +79,7 @@
             </Policies>
             <DefaultRolloverstrategy>
                 <Delete basePath="/logs/sql/error" maxDepth="3">
-                    <IfLastModified age="20d" />
+                    <IfLastModified age="14d" />
                 </Delete>
             </DefaultRolloverstrategy>
         </RollingFile>

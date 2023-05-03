@@ -3,6 +3,9 @@ version: '3.8'
 services:
   backend:
     image: backend:latest
+    environment:
+    - LOGSTASH_HOST_NAME=localhost
+    - LOGSTASH_HOST_PORT=50000
     ports:
       - 8080:8080
     depends_on:
