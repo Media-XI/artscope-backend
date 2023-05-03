@@ -71,9 +71,13 @@ public class ArtworkService {
         return ArtworksResponseDTO.of(dtos, pageInfo);
     }
 
+    @Transactional
     public ArtworkResponseDTO getArtwork(Long id) {
         Artwork artwork = artworkRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
+
+        artwork.increaseView(); // 조회수 증가
+
         return ArtworkResponseDTO.from(artwork);
     }
 

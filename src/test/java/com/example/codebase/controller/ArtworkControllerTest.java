@@ -147,6 +147,7 @@ class ArtworkControllerTest {
         return createOrLoadArtwork(index, isVisible, 1);
     }
 
+    @Transactional
     public Artwork createOrLoadArtwork(int index, boolean isVisible, int mediaSize) throws IOException {
         Optional<Artwork> artwork = artworkRepository.findById(Long.valueOf(index));
         if (artwork.isPresent()) {
@@ -294,7 +295,7 @@ class ArtworkControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @DisplayName("아트워크 단일 조회")
+    @DisplayName("아트워크 상세 조회")
     @Test
     public void test03() throws Exception {
         Artwork artwork = createOrLoadArtwork();

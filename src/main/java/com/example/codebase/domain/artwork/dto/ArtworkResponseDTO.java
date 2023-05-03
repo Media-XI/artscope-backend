@@ -24,6 +24,8 @@ public class ArtworkResponseDTO {
 
     private String description;
 
+    private Integer view;
+
     private String member;
 
     private ArtworkMediaResponseDTO thumbnail;
@@ -61,6 +63,7 @@ public class ArtworkResponseDTO {
                 .title(artwork.getTitle())
                 .tags(tags)
                 .description(artwork.getDescription())
+                .view(artwork.getView())
                 .member(artwork.getMember().getUsername())
                 .thumbnail(thumbnail)
                 .artworkMedias(artworkMediaResponseDTOS)

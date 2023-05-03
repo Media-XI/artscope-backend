@@ -48,6 +48,15 @@ public class PostController {
         return new ResponseEntity(posts, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "게시글 상세 조회", notes = "[페이지네이션] 해당 ID의 게시글을 조회합니다.")
+    @GetMapping("/{postId}")
+    public ResponseEntity getPost(@PathVariable Long postId) {
+        PostResponseDTO post = postService.getPost(postId);
+
+        return new ResponseEntity(post, HttpStatus.OK);
+    }
+
+
     @ApiOperation(value = "게시글 수정", notes = "[관리자 접근] 게시글을 수정합니다.")
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @PutMapping("/{postId}")

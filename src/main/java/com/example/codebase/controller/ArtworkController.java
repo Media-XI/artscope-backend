@@ -90,7 +90,7 @@ public class ArtworkController {
         return new ResponseEntity(artwork, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "아트워크 조회", notes = "아트워크 전체 조회합니다. \n 정렬 : ASC 오름차순, DESC 내림차순")
+    @ApiOperation(value = "아트워크 전체 조회", notes = "아트워크 전체 조회합니다. \n 정렬 : ASC 오름차순, DESC 내림차순")
     @GetMapping
     public ResponseEntity getAllArtwork(@PositiveOrZero @RequestParam int page,
                                         @PositiveOrZero @RequestParam int size,

@@ -1,0 +1,2 @@
+ALTER TABLE `artwork`
+    ADD COLUMN `view` INTEGER NOT NULL DEFAULT 0 AFTER `description`;

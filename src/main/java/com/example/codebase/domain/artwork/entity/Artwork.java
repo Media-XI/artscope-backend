@@ -9,6 +9,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -23,6 +26,7 @@ import java.util.stream.Collectors;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@DynamicUpdate // 변경된 필드만 update 쿼리에 반영
 public class Artwork {
     @Id
     @Column(name = "artwork_id")
@@ -38,6 +42,10 @@ public class Artwork {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    @Builder.Default
+    @Column(name = "view", columnDefinition = "integer default 0")
+    private Integer view = 0;
+
     @Column(name = "visible")
     private boolean visible;
 
@@ -47,7 +55,7 @@ public class Artwork {
     @Column(name = "updated_time")
     private LocalDateTime updatedTime;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
@@ -102,5 +110,9 @@ public class Artwork {
                 .orElseThrow(() -> new RuntimeException("해당 미디어 파일을 찾을 수 없습니다."));
 
         artworkMedia.update(dto);
+    }
+
+    public void increaseView() {
+        this.view++;
     }
 }

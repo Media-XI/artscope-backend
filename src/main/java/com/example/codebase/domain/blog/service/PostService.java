@@ -74,4 +74,10 @@ public class PostService {
 
         postRepository.delete(post);
     }
+
+    public PostResponseDTO getPost(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("존재하지 않는 게시글입니다."));
+
+        return PostResponseDTO.of(post);
+    }
 }
