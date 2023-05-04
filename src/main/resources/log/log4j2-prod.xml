@@ -17,8 +17,8 @@
 
         <!-- FileAppender -->
         <RollingFile name="file_appender"
-                     fileName="logs/${LOG_FILE_NAME}.log"
-                     filePattern="logs/${LOG_FILE_NAME}.%d{yyyy-MM-dd}_%i.log">
+                     fileName="/logs/${LOG_FILE_NAME}.log"
+                     filePattern="/logs/${LOG_FILE_NAME}.%d{yyyy-MM-dd}_%i.log">
             <JsonLayout compact="true" eventEol="true" properties="true" complete="true" />
             <PatternLayout disableAnsi="false" pattern="${LOG_REQUEST_ID_PATTERN} ${LOG_FILE_PATTERN}"/>
             <Policies>
@@ -33,8 +33,8 @@
         </RollingFile>
 
         <RollingFile name="daily_error"
-                     fileName="logs/error/error.log"
-                     filePattern="logs/error/error.%d{yyyy-MM-dd}_%i.log">
+                     fileName="/logs/error/error.log"
+                     filePattern="/logs/error/error.%d{yyyy-MM-dd}_%i.log">
             <JsonLayout compact="true" eventEol="true" properties="true" complete="true" />
             <PatternLayout disableAnsi="false" pattern="${LOG_REQUEST_ID_PATTERN} ${LOG_FILE_PATTERN}"/>
             <!--LevelRangeFilter필터를 사용할때에 단일 level의 필터만 허용한다. -->
@@ -51,8 +51,8 @@
         </RollingFile>
 
         <RollingFile name="sql_file"
-                     fileName="logs/sql/sql.log"
-                     filePattern="logs/sql/sql.%d{yyyy-MM-dd}_%i.log">
+                     fileName="/logs/sql/sql.log"
+                     filePattern="/logs/sql/sql.%d{yyyy-MM-dd}_%i.log">
             <JsonLayout compact="true" eventEol="true" properties="true" complete="true" />
             <PatternLayout disableAnsi="false" pattern="${LOG_REQUEST_ID_PATTERN} ${LOG_FILE_PATTERN}"/>
             <Policies>
@@ -67,8 +67,8 @@
         </RollingFile>
 
         <RollingFile name="sql_error"
-                     fileName="logs/sql/error/error.log"
-                     filePattern="logs/sql/error/error.%d{yyyy-MM-dd}_%i.log">
+                     fileName="/logs/sql/error/error.log"
+                     filePattern="/logs/sql/error/error.%d{yyyy-MM-dd}_%i.log">
             <JsonLayout compact="true" eventEol="true" properties="true" complete="true" />
             <PatternLayout disableAnsi="false" pattern="${LOG_REQUEST_ID_PATTERN} ${LOG_FILE_PATTERN}"/>
             <!--LevelRangeFilter필터를 사용할때에 단일 level의 필터만 허용한다. -->

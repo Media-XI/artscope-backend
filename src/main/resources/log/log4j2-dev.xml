@@ -34,7 +34,7 @@
                 <SizeBasedTriggeringPolicy size="10MB" />
             </Policies>
             <DefaultRolloverstrategy max="5" fileIndex="min" > <!-- 파일 5개 까지 생성 -->
-                <Delete basePath="/logs" maxDepth="3">
+                <Delete basePath="logs" maxDepth="3">
                     <IfLastModified age="7d" />
                 </Delete>
             </DefaultRolloverstrategy>
@@ -52,7 +52,7 @@
                 <SizeBasedTriggeringPolicy size="10MB" />
             </Policies>
             <DefaultRolloverstrategy>
-                <Delete basePath="/logs/error" maxDepth="3">
+                <Delete basePath="logs/error" maxDepth="3">
                     <IfLastModified age="7d" />
                 </Delete>
             </DefaultRolloverstrategy>
@@ -68,7 +68,7 @@
                 <SizeBasedTriggeringPolicy size="10MB" />
             </Policies>
             <DefaultRolloverstrategy>
-                <Delete basePath="/logs/sql" maxDepth="1">
+                <Delete basePath="logs/sql" maxDepth="1">
                     <IfLastModified age="7d" />
                 </Delete>
             </DefaultRolloverstrategy>
@@ -86,7 +86,7 @@
                 <SizeBasedTriggeringPolicy size="10MB" />
             </Policies>
             <DefaultRolloverstrategy>
-                <Delete basePath="/logs/sql/error" maxDepth="3">
+                <Delete basePath="logs/sql/error" maxDepth="3">
                     <IfLastModified age="7d" />
                 </Delete>
             </DefaultRolloverstrategy>
