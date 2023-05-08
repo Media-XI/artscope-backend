@@ -143,15 +143,19 @@ public class MemberController {
     @ApiOperation("이메일 중복 확인")
     @GetMapping("/email/{email}")
     public ResponseEntity checkEmail(@Valid @Email @PathVariable String email) {
-        String isExist = memberService.isExistEmail(email);
-        return new ResponseEntity(isExist, HttpStatus.OK);
+        if(memberService.isExistEmail(email)){
+            return new ResponseEntity("이미 존재하는 이메일 입니다.", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity("사용 가능한 이메일 입니다.", HttpStatus.OK);
     }
 
     @ApiOperation("아이디 중복 확인")
     @GetMapping("/username/{username}")
     public ResponseEntity checkUsername(@Valid @NotBlank @PathVariable String username) {
-        String isExist = memberService.isExistUsername(username);
-        return new ResponseEntity(isExist, HttpStatus.OK);
+        if(memberService.isExistUsername(username)) {
+            return new ResponseEntity("이미 존재하는 아이디 입니다.", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity("사용 가능한 아이디 입니다.", HttpStatus.OK);
     }
 
     @ApiOperation(value = "사용자 아티스트 상태 수정", notes = "[ADMIN] 사용자의 아티스트 상태를 수정합니다.")
