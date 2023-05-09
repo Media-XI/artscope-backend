@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev # default profile
+    active: local # default profile
     include:
       - mysql
       - redis
