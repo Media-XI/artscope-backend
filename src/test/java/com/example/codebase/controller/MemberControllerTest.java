@@ -319,7 +319,7 @@ class MemberControllerTest {
                         get(String.format("/api/members/email/%s", "email1"))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
-                .andExpect(status().isOk())
+                .andExpect(status().isBadRequest())
                 .andDo(print());
     }
 
@@ -332,7 +332,7 @@ class MemberControllerTest {
                         get(String.format("/api/members/username/%s", "testid1"))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
-                .andExpect(status().isOk())
+                .andExpect(status().isBadRequest())
                 .andDo(print());
     }
 
