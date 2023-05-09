@@ -30,6 +30,10 @@ public class Post {
     @Column(name="content", columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @Builder.Default
+    @Column(name = "view", columnDefinition = "integer default 0", nullable = false)
+    private Integer view = 0;
+
     @Column(name = "created_time")
     private LocalDateTime createdTime;
 
@@ -53,5 +57,9 @@ public class Post {
         this.title = postUpdateDTO.getTitle();
         this.content = postUpdateDTO.getContent();
         this.updatedTime = LocalDateTime.now();
+    }
+
+    public void incressView() {
+        this.view++;
     }
 }

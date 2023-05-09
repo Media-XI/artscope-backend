@@ -78,6 +78,8 @@ public class PostService {
     public PostResponseDTO getPost(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("존재하지 않는 게시글입니다."));
 
+        post.incressView();
+
         return PostResponseDTO.of(post);
     }
 }
