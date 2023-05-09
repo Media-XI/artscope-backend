@@ -17,7 +17,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "member")
+@Table(name = "member", indexes = {
+        @Index(name = "idx_member_username", columnList = "username"),
+        @Index(name = "idx_member_email", columnList = "email")
+})
 @Getter
 @Builder
 @AllArgsConstructor
