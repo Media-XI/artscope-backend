@@ -24,11 +24,11 @@ public class CreateArtistMemberDTO {
     @Pattern(regexp = "^(http|https)://.*", message = "웹사이트 주소를 입력해주세요.")
     private String websiteUrl;
 
-    @Size(min = 1, max = 250, message = "소개는 1~250자 이내로 입력해주세요.")
+    @Size(min = 1, max = 1000, message = "소개는 1~1000자 이내로 입력해주세요.")
     @NotBlank(message = "소개를 입력해주세요.")
     private String introduction;
 
-    @Size(min = 1, max = 250, message = "히스토리는 1~250자 이내로 입력해주세요.")
+    @Size(min = 1, max = 1000, message = "히스토리는 1~1000자 이내로 입력해주세요.")
     @NotBlank(message = "히스토리를 입력해주세요.")
     private String history;
 }

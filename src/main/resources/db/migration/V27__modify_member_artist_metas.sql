@@ -1,0 +1,3 @@
+ALTER TABLE `member`
+    MODIFY COLUMN `introduction` VARCHAR(1500) NULL DEFAULT NULL AFTER `website_url`,
+    MODIFY COLUMN `history` VARCHAR(1500) NULL DEFAULT NULL AFTER `introduction`;
