@@ -76,14 +76,19 @@ public class ArtworkController {
         for (int i = 0; i < dto.getMedias().size(); i++){
             ArtworkMediaCreateDTO mediaDto = dto.getMedias().get(i);
 
-            // 이미지 파일이면 원본 이미지의 사이즈를 구합니다.
-            if (dto.getMedias().get(i).getMediaType().equals("image")) {
-                BufferedImage bufferedImage = FileUtil.getBufferedImage(mediaFiles.get(i).getInputStream());
-                mediaDto.setImageSize(bufferedImage);
+            if (mediaDto.getMediaType().equals("url")) {
+                mediaDto.setMediaUrl(new String(mediaFiles.get(i).getBytes(), "UTF-8"));
             }
-            // 파일 업로드
-            String savedUrl = s3Service.saveUploadFile(mediaFiles.get(i));
-            mediaDto.setMediaUrl(savedUrl);
+            else {
+                // 이미지 파일이면 원본 이미지의 사이즈를 구합니다.
+                if (mediaDto.getMediaType().equals("image") ) {
+                    BufferedImage bufferedImage = FileUtil.getBufferedImage(mediaFiles.get(i).getInputStream());
+                    mediaDto.setImageSize(bufferedImage);
+                }
+                // 파일 업로드
+                String savedUrl = s3Service.saveUploadFile(mediaFiles.get(i));
+                mediaDto.setMediaUrl(savedUrl);
+            }
         }
 
         ArtworkResponseDTO artwork = artworkService.createArtwork(dto, username);

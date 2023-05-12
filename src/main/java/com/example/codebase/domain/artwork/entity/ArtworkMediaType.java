@@ -7,7 +7,9 @@ import java.util.stream.Stream;
 public enum ArtworkMediaType {
     image,
     video,
-    audio;
+    audio,
+
+    url;
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static ArtworkMediaType create(String type) {

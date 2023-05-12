@@ -227,6 +227,58 @@ class ArtworkControllerTest {
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("아트워크 URL 미디어 등록")
+    @Test
+    public void 아트워크_URL_등록() throws Exception {
+        createOrLoadMember();
+
+        ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
+        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setDescription("썸네일 설명");
+
+        List<ArtworkMediaCreateDTO> mediaCreateDTOList = new ArrayList<>();
+        ArtworkMediaCreateDTO mediaCreateDTO1 = new ArtworkMediaCreateDTO();
+        mediaCreateDTO1.setMediaType(ArtworkMediaType.url.toString());
+        mediaCreateDTO1.setDescription("url 미디어 설명");
+        mediaCreateDTOList.add(mediaCreateDTO1);
+
+        ArtworkMediaCreateDTO mediaCreateDTO2 = new ArtworkMediaCreateDTO();
+        mediaCreateDTO2.setMediaType(ArtworkMediaType.image.toString());
+        mediaCreateDTO2.setDescription("미디어 설명2");
+        mediaCreateDTOList.add(mediaCreateDTO2);
+
+        ArtworkCreateDTO dto = new ArtworkCreateDTO();
+        dto.setTitle("아트워크_테스트");
+        dto.setTags(Arrays.asList("태그1", "태그2", "태그3"));
+        dto.setDescription("작품 설명");
+        dto.setVisible(true);
+        dto.setThumbnail(thumbnailCreateDTO);
+        dto.setMedias(mediaCreateDTOList);
+
+        MockMultipartFile thumbnailFile = new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
+
+        List<MockMultipartFile> mediaFiles = new ArrayList<>();
+        MockMultipartFile mockMultipartFile1 = new MockMultipartFile("mediaFiles", "url", "text/plane", "https://www.naver.com".getBytes());
+        MockMultipartFile mockMultipartFile2 = new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
+        mediaFiles.add(mockMultipartFile1);
+        mediaFiles.add(mockMultipartFile2);
+
+        mockMvc.perform(
+                        multipart("/api/artworks")
+                                .file(mediaFiles.get(0))
+                                .file(mediaFiles.get(1))
+                                .file(thumbnailFile)
+                                .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding("UTF-8")
+
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("아트워크에 미디어 두개 등록")
     @Test
     public void test01() throws Exception {
