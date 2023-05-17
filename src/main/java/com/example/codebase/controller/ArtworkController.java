@@ -77,7 +77,13 @@ public class ArtworkController {
             ArtworkMediaCreateDTO mediaDto = dto.getMedias().get(i);
 
             if (mediaDto.getMediaType().equals("url")) {
-                mediaDto.setMediaUrl(new String(mediaFiles.get(i).getBytes(), "UTF-8"));
+                String youtubeUrl = new String(mediaFiles.get(i).getBytes(), "UTF-8");
+
+                if (!youtubeUrl.matches("^(https?\\:\\/\\/)?(www\\.)?(youtube\\.com|youtu\\.?be)\\/.+$")) {
+                    throw new RuntimeException("유튜브 링크 형식이 올바르지 않습니다. ex) https://www.youtube.com/watch?v=XXXXXXXXXXX 또는 https://youtu.be/XXXXXXXXXXX");
+                }
+
+                mediaDto.setMediaUrl(youtubeUrl);
             }
             else {
                 // 이미지 파일이면 원본 이미지의 사이즈를 구합니다.
