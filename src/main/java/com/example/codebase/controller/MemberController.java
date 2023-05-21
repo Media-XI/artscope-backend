@@ -1,9 +1,6 @@
 package com.example.codebase.controller;
 
-import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
-import com.example.codebase.domain.member.dto.CreateMemberDTO;
-import com.example.codebase.domain.member.dto.MemberResponseDTO;
-import com.example.codebase.domain.member.dto.UpdateMemberDTO;
+import com.example.codebase.domain.member.dto.*;
 import com.example.codebase.exception.NotAcceptTypeException;
 import com.example.codebase.util.FileUtil;
 import com.example.codebase.util.SecurityUtil;
@@ -16,18 +13,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @ApiOperation(value = "회원", notes = "회원 관련 API")
+@Validated
 @RequestMapping("/api/members")
 public class MemberController {
 
@@ -65,7 +65,7 @@ public class MemberController {
     @ApiOperation(value = "내 정보 수정", notes = "[USER] 내 정보를 수정합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PutMapping("/{uesrname}")
-    public ResponseEntity updateMember(@PathVariable String uesrname,@Valid @RequestBody UpdateMemberDTO updateMemberDTO) {
+    public ResponseEntity updateMember(@PathVariable String uesrname, @Valid @RequestBody UpdateMemberDTO updateMemberDTO) {
         String loginUsername = SecurityUtil.getCurrentUsername()
                 .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
@@ -143,7 +143,7 @@ public class MemberController {
     @ApiOperation("이메일 중복 확인")
     @GetMapping("/email/{email}")
     public ResponseEntity checkEmail(@Valid @Email @PathVariable String email) {
-        if(memberService.isExistEmail(email)){
+        if (memberService.isExistEmail(email)) {
             return new ResponseEntity("이미 존재하는 이메일 입니다.", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity("사용 가능한 이메일 입니다.", HttpStatus.OK);
@@ -152,7 +152,7 @@ public class MemberController {
     @ApiOperation("아이디 중복 확인")
     @GetMapping("/username/{username}")
     public ResponseEntity checkUsername(@Valid @NotBlank @PathVariable String username) {
-        if(memberService.isExistUsername(username)) {
+        if (memberService.isExistUsername(username)) {
             return new ResponseEntity("이미 존재하는 아이디 입니다.", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity("사용 가능한 아이디 입니다.", HttpStatus.OK);
@@ -164,6 +164,21 @@ public class MemberController {
     public ResponseEntity updateArtistStatus(@Valid @NotBlank @PathVariable String username,
                                              @Valid @NotBlank @RequestParam String status) {
         MemberResponseDTO member = memberService.updateArtistStatus(username, status);
+        return new ResponseEntity(member, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "아이디 수정", notes = "[USER] 아이디를 수정합니다.")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
+    @PutMapping("/{username}/username")
+    public ResponseEntity updateUsername(@PathVariable String username,
+                                         @Valid @RequestParam UsernameDTO newUsername) {
+        String currentUsername = SecurityUtil.getCurrentUsername()
+                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+        if (!SecurityUtil.isAdmin() && !currentUsername.equals(username)) {
+            throw new RuntimeException("본인의 정보만 수정할 수 있습니다.");
+        }
+
+        MemberResponseDTO member = memberService.updateUsername(username, newUsername.getUsername());
         return new ResponseEntity(member, HttpStatus.OK);
     }
 

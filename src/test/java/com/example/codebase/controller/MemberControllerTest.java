@@ -317,7 +317,6 @@ class MemberControllerTest {
 
         mockMvc.perform(
                         get(String.format("/api/members/email/%s", "email1"))
-                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isBadRequest())
                 .andDo(print());
@@ -326,11 +325,10 @@ class MemberControllerTest {
     @DisplayName("아이디 중복 체크 시")
     @Test
     void 아이디_중복_체크() throws Exception {
-        createOrLoadMember();
+        Member member = createOrLoadMember();
 
         mockMvc.perform(
-                        get(String.format("/api/members/username/%s", "testid1"))
-                                .contentType(MediaType.APPLICATION_JSON)
+                        get(String.format("/api/members/username/%s", member.getUsername()))
                 )
                 .andExpect(status().isBadRequest())
                 .andDo(print());
@@ -364,6 +362,60 @@ class MemberControllerTest {
                 )
                 .andExpect(status().isBadRequest())
                 .andDo(print());
+    }
+
+    @WithMockCustomUser(username = "testid1", role = "USER")
+    @DisplayName("아이디 변경 시")
+    @Test
+    void 아이디_변경() throws Exception {
+        Member loadMember = createOrLoadMember();
+
+        mockMvc.perform(
+                        put(String.format("/api/members/%s/username?newUsername=%s", loadMember.getUsername(), "newid"))
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @WithMockCustomUser(username = "testid1", role = "USER")
+    @DisplayName("이미 사용중인 아이디로 변경 시")
+    @Test
+    void 사용중인_아이디로_변경() throws Exception {
+        Member loadMember1 = createOrLoadMember();
+        Member loadMember2 = createOrLoadMember(2);
+
+        mockMvc.perform(
+                        put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(), loadMember2.getUsername()))
+                )
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @WithMockCustomUser(username = "testid1", role = "USER")
+    @DisplayName("아이디 변경 시 유효성 검증 확인")
+    @Test
+    void 아이디_검증 () throws Exception {
+        Member loadMember1 = createOrLoadMember();
+
+
+        mockMvc.perform(
+                        put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(), "1"))
+                )
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+
+        mockMvc.perform(
+                        put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(), "한글"))
+                )
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+
+        mockMvc.perform(
+                        put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(), "asdasdasdsadasdasdasdsa"))
+                )
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+
     }
 
 }

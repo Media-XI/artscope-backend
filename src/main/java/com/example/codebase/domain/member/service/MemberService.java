@@ -212,27 +212,36 @@ public class MemberService {
     }
 
     public boolean isExistEmail(String email) {
-        if (memberRepository.existsByEmail(email)) {
-            return true;
-        }
-
-        return false;
+        return memberRepository.existsByEmail(email);
     }
 
     public boolean isExistUsername(String username) {
-        if (memberRepository.findByUsername(username).isPresent()) {
-            return true;
-        }
-
-        return false;
+        return memberRepository.existsByUsername(username);
     }
 
+    @Transactional
     public MemberResponseDTO updateArtistStatus(String username, String status) {
         Member member = memberRepository
                 .findByUsername(username)
                 .orElseThrow(NotFoundMemberException::new);
 
         member.updateArtistStatus(status);
+
+        return MemberResponseDTO.from(member);
+    }
+
+    @Transactional
+    public MemberResponseDTO updateUsername(String username, String newUsername) {
+        Member member = memberRepository
+                .findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+
+        Boolean existsByUsername = memberRepository.existsByUsername(newUsername);
+        if (existsByUsername) {
+            throw new RuntimeException("사용중인 아이디입니다.");
+        }
+
+        member.updateUsername(newUsername);
 
         return MemberResponseDTO.from(member);
     }

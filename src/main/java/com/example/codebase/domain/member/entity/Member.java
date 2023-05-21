@@ -161,4 +161,8 @@ public class Member {
     public void updateArtistStatus(String status) {
         this.artistStatus = ArtistStatus.create(status);
     }
+
+    public void updateUsername(String newUsername) {
+        this.username = newUsername;
+    }
 }
