@@ -38,7 +38,7 @@ class ArtworkRepositoryTest {
                 .title("title")
                 .description("description")
                 .visible(true)
-                .view(10)
+                .views(10)
                 .createdTime(LocalDateTime.now())
                 .build();
 
@@ -47,7 +47,7 @@ class ArtworkRepositoryTest {
                 .description("description1")
                 .createdTime(LocalDateTime.now().minusDays(1))
                 .visible(true)
-                .view(5)
+                .views(5)
                 .build();
 
         Artwork artwork2 = Artwork.builder()
@@ -55,7 +55,7 @@ class ArtworkRepositoryTest {
                 .description("description2")
                 .createdTime(LocalDateTime.now().minusDays(2))
                 .visible(true)
-                .view(1)
+                .views(1)
                 .build();
 
         Artwork artwork3 = Artwork.builder()
@@ -63,7 +63,7 @@ class ArtworkRepositoryTest {
                 .description("description3")
                 .createdTime(LocalDateTime.now().minusDays(8))
                 .visible(true)
-                .view(100)
+                .views(100)
                 .build();
         artworkRepository.saveAll(List.of(artwork, artwork1, artwork2, artwork3));
 
@@ -75,7 +75,7 @@ class ArtworkRepositoryTest {
         // then
         assertThat(topByPopular.size()).isEqualTo(3);
         assertThat(topByPopular.get(0).getTitle()).isEqualTo("title");
-        assertThat(topByPopular.get(0).getView()).isEqualTo(10);
+        assertThat(topByPopular.get(0).getViews()).isEqualTo(10);
     }
 
 }

@@ -665,4 +665,54 @@ class ArtworkControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
     }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("해당 아트워크 좋아요 API 두번 호출 시 ")
+    @Test
+    public void 아트워크_좋아요_호출() throws Exception {
+        Artwork artwork = createOrLoadArtwork();
+
+        // 좋아요 발생
+        mockMvc.perform(
+                        post(String.format("/api/artworks/%d/like", artwork.getId()))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        // 좋아요 취소
+        mockMvc.perform(
+                        post(String.format("/api/artworks/%d/like", artwork.getId()))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("해당 사용자의 좋아요를 누른 아트워크 전체 조회 시")
+    @Test
+    public void 사용자_좋아요_아트워크_전체_조회() throws Exception {
+        Artwork artwork1 = createOrLoadArtwork(1, true);
+        Artwork artwork2 = createOrLoadArtwork(2, true);
+        String username = artwork1.getMember().getUsername();
+
+        // 좋아요 발생
+        mockMvc.perform(
+                        post(String.format("/api/artworks/%d/like", artwork1.getId()))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        mockMvc.perform(
+                        post(String.format("/api/artworks/%d/like", artwork2.getId()))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        mockMvc.perform(
+                        get(String.format("/api/artworks/member/%s/likes", username))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+    }
 }

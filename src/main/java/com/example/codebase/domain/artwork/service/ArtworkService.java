@@ -3,7 +3,10 @@ package com.example.codebase.domain.artwork.service;
 import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.artwork.dto.*;
 import com.example.codebase.domain.artwork.entity.Artwork;
+import com.example.codebase.domain.artwork.entity.ArtworkLikeMember;
+import com.example.codebase.domain.artwork.entity.ArtworkLikeMemberId;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
+import com.example.codebase.domain.artwork.repository.ArtworkLikeMemberRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkMediaRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.member.entity.Member;
@@ -20,19 +23,22 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class ArtworkService {
     private final ArtworkRepository artworkRepository;
     private final ArtworkMediaRepository artworkMediaRepository;
+    private final ArtworkLikeMemberRepository artworkLikeMemberRepository;
     private final S3Service s3Service;
     private final MemberRepository memberRepository;
 
     @Autowired
-    public ArtworkService(ArtworkRepository artworkRepository, ArtworkMediaRepository artworkMediaRepository, S3Service s3Service, MemberRepository memberRepository) {
+    public ArtworkService(ArtworkRepository artworkRepository, ArtworkMediaRepository artworkMediaRepository, ArtworkLikeMemberRepository artworkLikeMemberRepository, S3Service s3Service, MemberRepository memberRepository) {
         this.artworkRepository = artworkRepository;
         this.artworkMediaRepository = artworkMediaRepository;
+        this.artworkLikeMemberRepository = artworkLikeMemberRepository;
         this.s3Service = s3Service;
         this.memberRepository = memberRepository;
     }
@@ -139,5 +145,49 @@ public class ArtworkService {
                 .collect(Collectors.toList());
 
         return ArtworksResponseDTO.of(dtos, pageInfo);
+    }
+
+    @Transactional
+    public ArtworkLikeResponseDTO likeArtwork(Long id, String username) {
+        Artwork artwork = artworkRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
+
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+
+        Optional<ArtworkLikeMember> likeMemberOptional = artworkLikeMemberRepository.findById(new ArtworkLikeMemberId(member.getId(), artwork.getId()));
+        String status = "좋아요";
+        if(likeMemberOptional.isPresent()){
+            // 좋아요 해제
+            artworkLikeMemberRepository.delete(likeMemberOptional.get());
+            status = "좋아요 취소";
+        }
+        else {
+            // 좋아요 추가
+            ArtworkLikeMember artworkLikeMember = ArtworkLikeMember.of(artwork, member);
+            artworkLikeMemberRepository.save(artworkLikeMember);
+        }
+
+        Integer Likes = artworkLikeMemberRepository.countByArtworkId(artwork.getId());
+        artwork.setLikes(Likes);
+
+        return ArtworkLikeResponseDTO.from(artwork, !likeMemberOptional.isPresent(), status);
+    }
+
+    public ArtworkLikeMemberPageDTO getUserLikeArtworks(int page, int size, String sortDirection, String username) {
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "likedTime");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        Page<ArtworkLikeMember> memberLikeArtworks = artworkLikeMemberRepository.findAllByMemberId(member.getId(), pageRequest);
+        PageInfo pageInfo = PageInfo.of(page, size, memberLikeArtworks.getTotalPages(), memberLikeArtworks.getTotalElements());
+
+        List<ArtworkLikeMemberResponseDTO> dtos = memberLikeArtworks.stream()
+                .map(ArtworkLikeMemberResponseDTO::from)
+                .collect(Collectors.toList());
+
+        return ArtworkLikeMemberPageDTO.of(dtos, pageInfo);
     }
 }

@@ -1,0 +1,2 @@
+ALTER TABLE `artwork`
+    ADD COLUMN `like` INTEGER DEFAULT 0 NOT NULL AFTER `view`;

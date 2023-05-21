@@ -1,6 +1,7 @@
 package com.example.codebase.domain.member.entity;
 
 import com.example.codebase.domain.artwork.entity.Artwork;
+import com.example.codebase.domain.artwork.entity.ArtworkLikeMember;
 import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
 import com.example.codebase.domain.member.dto.UpdateMemberDTO;
 import com.example.codebase.domain.member.entity.oauth2.oAuthProvider;
@@ -86,6 +87,9 @@ public class Member {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Artwork> artworks;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<ArtworkLikeMember> artworkLike;
 
     public void setAuthorities(Set<MemberAuthority> authorities) {
         this.authorities = authorities;

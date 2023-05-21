@@ -42,7 +42,7 @@ public class ArtworkController {
 
     @ApiOperation(value = "아트워크 생성", notes = "[USER] 아트워크를 생성합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
-    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity createArtwork(
             @RequestPart(value = "dto") ArtworkCreateDTO dto,
             @RequestPart(value = "mediaFiles") List<MultipartFile> mediaFiles,
@@ -50,7 +50,7 @@ public class ArtworkController {
     ) throws Exception {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
         if (mediaFiles.size() > Integer.valueOf(fileCount)) {
-            throw new RuntimeException("파일은 최대 " + fileCount +"개까지 업로드 가능합니다.");
+            throw new RuntimeException("파일은 최대 " + fileCount + "개까지 업로드 가능합니다.");
         }
 
         if (mediaFiles.size() == 0) {
@@ -63,8 +63,7 @@ public class ArtworkController {
 
         if (!dto.getThumbnail().getMediaType().equals("image") && FileUtil.validateImageFile(thumbnailFile.getInputStream())) {
             throw new RuntimeException("썸네일은 이미지 파일만 업로드 가능합니다.");
-        }
-        else {
+        } else {
             // 썸네일 파일 이미지 사이즈 구하기
             BufferedImage bufferedImage = FileUtil.getBufferedImage(thumbnailFile.getInputStream());
             dto.getThumbnail().setImageSize(bufferedImage);
@@ -73,7 +72,7 @@ public class ArtworkController {
             dto.getThumbnail().setMediaUrl(savedUrl);
         }
 
-        for (int i = 0; i < dto.getMedias().size(); i++){
+        for (int i = 0; i < dto.getMedias().size(); i++) {
             ArtworkMediaCreateDTO mediaDto = dto.getMedias().get(i);
 
             if (mediaDto.getMediaType().equals("url")) {
@@ -84,10 +83,9 @@ public class ArtworkController {
                 }
 
                 mediaDto.setMediaUrl(youtubeUrl);
-            }
-            else {
+            } else {
                 // 이미지 파일이면 원본 이미지의 사이즈를 구합니다.
-                if (mediaDto.getMediaType().equals("image") ) {
+                if (mediaDto.getMediaType().equals("image")) {
                     BufferedImage bufferedImage = FileUtil.getBufferedImage(mediaFiles.get(i).getInputStream());
                     mediaDto.setImageSize(bufferedImage);
                 }
@@ -103,9 +101,10 @@ public class ArtworkController {
 
     @ApiOperation(value = "아트워크 전체 조회", notes = "아트워크 전체 조회합니다. \n 정렬 : ASC 오름차순, DESC 내림차순")
     @GetMapping
-    public ResponseEntity getAllArtwork(@PositiveOrZero @RequestParam int page,
-                                        @PositiveOrZero @RequestParam int size,
-                                        @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
+    public ResponseEntity getAllArtwork(
+            @PositiveOrZero @RequestParam(defaultValue = "0") int page,
+            @PositiveOrZero @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
         ArtworksResponseDTO responseDTO = artworkService.getAllArtwork(page, size, sortDirection);
         return new ResponseEntity(responseDTO, HttpStatus.OK);
     }
@@ -162,11 +161,38 @@ public class ArtworkController {
     @ApiOperation(value = "사용자의 아트워크 조회", notes = "사용자의 아트워크를 조회합니다.")
     @GetMapping("/member/{username}")
     public ResponseEntity getUserArtworks(
-            @PositiveOrZero @RequestParam int page,
-            @PositiveOrZero @RequestParam int size,
+            @PositiveOrZero @RequestParam(defaultValue = "0") int page,
+            @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "DESC", required = false) String sortDirection,
             @PathVariable String username) {
         ArtworksResponseDTO artworks = artworkService.getUserArtworks(page, size, sortDirection, username);
         return new ResponseEntity(artworks, HttpStatus.OK);
     }
+
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
+    @ApiOperation(value = "아트워크 좋아요", notes = "해당 아트워크의 좋아요를 누릅니다. (좋아요는 토글 방식입니다)")
+    @PostMapping("/{id}/like")
+    public ResponseEntity likeArtwork(@PathVariable Long id) {
+        String username = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+        ArtworkLikeResponseDTO artworkWithLike = artworkService.likeArtwork(id, username);
+        return new ResponseEntity(artworkWithLike, HttpStatus.OK);
+    }
+
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
+    @ApiOperation(value = "해당 사용자의 좋아요한 아트워크 전체 조회", notes = "해당 사용자가 좋아요한 아트워크 전체를 조회합니다. 좋아요한 시간순으ㅉ 정렬합니다. \n 정렬 : ASC 오름차순, DESC 내림차순")
+    @GetMapping("/member/{username}/likes")
+    public ResponseEntity getUserLikeArtworks(
+            @PathVariable String username,
+            @PositiveOrZero @RequestParam(defaultValue = "0") int page,
+            @PositiveOrZero @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "DESC", required = false) String sortDirection
+    ) {
+        String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+        if (!SecurityUtil.isAdmin() && !loginUsername.equals(username)) {
+            throw new RuntimeException("본인의 좋아요 목록만 조회 가능합니다.");
+        }
+        ArtworkLikeMemberPageDTO memberLikes = artworkService.getUserLikeArtworks(page, size, sortDirection, username);
+        return new ResponseEntity(memberLikes, HttpStatus.OK);
+    }
+
 }

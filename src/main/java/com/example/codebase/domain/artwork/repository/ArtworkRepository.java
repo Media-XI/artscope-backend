@@ -20,7 +20,7 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
     Page<Artwork> findAllByMember_Username(Pageable pageable, String username);
 
     // 최근 일주일내 조회수 수가 많은 순으로 N개 가져온다
-    @Query("select a from Artwork a where a.visible = true and a.createdTime between ?1 and ?2 order by a.view desc")
+    @Query("select a from Artwork a where a.visible = true and a.createdTime between ?1 and ?2 order by a.views desc")
     List<Artwork> findTopByPopular(LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable);
 
 
