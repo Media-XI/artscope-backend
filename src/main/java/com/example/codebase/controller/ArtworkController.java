@@ -195,4 +195,17 @@ public class ArtworkController {
         return new ResponseEntity(memberLikes, HttpStatus.OK);
     }
 
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
+    @ApiOperation(value = "해당 아트워크의 좋아요 표시한 사용자들 조회", notes = "해당 아트워크의 좋아요 표시한 사용자들을 조회합니다.")
+    @GetMapping("/{id}/likes")
+    public ResponseEntity getArtworkLikeMembers(
+            @PathVariable Long id,
+            @PositiveOrZero @RequestParam(defaultValue = "0") int page,
+            @PositiveOrZero @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "DESC", required = false) String sortDirection
+    ) {
+        ArtworkLikeMembersPageDTO likeMembers = artworkService.getArtworkLikeMembers(id, page, size, sortDirection);
+        return new ResponseEntity(likeMembers, HttpStatus.OK);
+    }
+
 }

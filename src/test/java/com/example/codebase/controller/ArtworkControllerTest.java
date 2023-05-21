@@ -715,4 +715,27 @@ class ArtworkControllerTest {
                 .andExpect(status().isOk());
 
     }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("아트워크 좋아요한 사용자들 조회 시")
+    @Test
+    public void 해당_아트워크_좋아요_전체_조회() throws Exception {
+        Artwork artwork1 = createOrLoadArtwork(1, true);
+        String username = artwork1.getMember().getUsername();
+
+        // 좋아요 발생
+        mockMvc.perform(
+                        post(String.format("/api/artworks/%d/like", artwork1.getId()))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        // 좋아요 표시한 사용자들 조회
+        mockMvc.perform(
+                        get(String.format("/api/artworks/%d/likes", artwork1.getId()))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+    }
 }

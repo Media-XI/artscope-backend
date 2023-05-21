@@ -190,4 +190,18 @@ public class ArtworkService {
 
         return ArtworkLikeMemberPageDTO.of(dtos, pageInfo);
     }
+
+    public ArtworkLikeMembersPageDTO getArtworkLikeMembers(Long id, int page, int size, String sortDirection) {
+Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "likedTime");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        Page<ArtworkLikeMember> artworkLikeMembers = artworkLikeMemberRepository.findAllByArtworkId(id, pageRequest);
+        PageInfo pageInfo = PageInfo.of(page, size, artworkLikeMembers.getTotalPages(), artworkLikeMembers.getTotalElements());
+
+        List<String> usernames = artworkLikeMembers.stream()
+                .map(artworkLikeMember -> artworkLikeMember.getMember().getUsername())
+                .collect(Collectors.toList());
+
+        return ArtworkLikeMembersPageDTO.from(usernames, artworkLikeMembers.getTotalElements(), pageInfo);
+    }
 }
