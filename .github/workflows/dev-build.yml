@@ -101,6 +101,8 @@ jobs:
       - name: Update Kubernetes resource
         run: |
           ls -al
+          cd apps
+          ls -al
           cd apps/art-be/overlays/dev
           kustomize edit set image ${{ env.IMAGE_NAME }}:${{ secrets.MAJOR }}.${{ secrets.MINOR }}
           cat kustomization.yaml
