@@ -11,7 +11,7 @@ env:
 
 jobs:
 
-  kustomize-cd:
+  kubernetes-resource-update:
     name: Kubernetes resource update
     runs-on: ubuntu-latest
     needs: build-dockerized-development
