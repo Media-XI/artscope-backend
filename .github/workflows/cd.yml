@@ -14,9 +14,7 @@ jobs:
   kustomize-cd:
     name: Kubernetes resource update
     runs-on: ubuntu-latest
-    needs: [
-      build-dockerized-development
-    ]
+    needs: build-dockerized-development
 
     steps:
       - name: Setup Kustomize
