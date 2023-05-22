@@ -105,9 +105,16 @@ public class ArtworkController {
             @PositiveOrZero @RequestParam(defaultValue = "0") int page,
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
+
+        if (SecurityUtil.getCurrentUsername().isPresent()) {
+            String username = SecurityUtil.getCurrentUsername().get();
+            return new ResponseEntity(artworkService.getAllArtwork(page, size, sortDirection, username), HttpStatus.OK);
+        }
+
         ArtworksResponseDTO responseDTO = artworkService.getAllArtwork(page, size, sortDirection);
         return new ResponseEntity(responseDTO, HttpStatus.OK);
     }
+
 
     @ApiOperation(value = "ID로 아트워크 조회", notes = "해당 ID의 아트워크를 조회합니다.")
     @GetMapping("/{id}")
@@ -195,7 +202,6 @@ public class ArtworkController {
         return new ResponseEntity(memberLikes, HttpStatus.OK);
     }
 
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @ApiOperation(value = "해당 아트워크의 좋아요 표시한 사용자들 조회", notes = "해당 아트워크의 좋아요 표시한 사용자들을 조회합니다.")
     @GetMapping("/{id}/likes")
     public ResponseEntity getArtworkLikeMembers(
