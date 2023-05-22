@@ -96,13 +96,9 @@ jobs:
           repository: inje-megabrain/megabrain-infra-apps
           ref: apps/art-be
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
-          path: apps/art-be
 
       - name: Update Kubernetes resource
         run: |
-          ls -al
-          cd apps/art-be
-          ls -al
           cd apps/art-be/overlays/dev
           kustomize edit set image ${{ env.IMAGE_NAME }}:${{ secrets.MAJOR }}.${{ secrets.MINOR }}
           cat kustomization.yaml
