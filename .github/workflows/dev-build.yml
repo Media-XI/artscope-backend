@@ -100,7 +100,7 @@ jobs:
       - name: Update Kubernetes resource
         run: |
           cd apps/art-be/overlays/dev
-          kustomize edit set image ${{ env.IMAGE_NAME }}:${{ secrets.MAJOR }}.${{ secrets.MINOR }}
+          kustomize edit set image ${{ env.IMAGE_NAME }}:${{ secrets.MAJOR }}.${{ secrets.MINOR }}.dev
           cat kustomization.yaml
 
       - name: Commit and push changes
