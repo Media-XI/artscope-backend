@@ -1,0 +1,36 @@
+name: CD
+
+env:
+  IMAGE_NAME: shonn/art-be
+
+deploy:
+  runs-on: ubuntu-latest
+  needs: [
+    build-dockerized-development
+  ]
+
+  steps:
+    - name: Setup Kustomize
+      uses: imranismail/setup-kustomize@v1
+
+    - name: Checkout kustomize repo
+      uses: actions/checkout@v2
+      with:
+        repository: inje-megabrain/megabrain-infra-apps
+        ref: apps/art-be
+        token: ${{ secrets.REPO_ACCESS_TOKEN }}
+        path: apps/art-be
+
+    - name: Update Kubernetes resource
+      run: |
+        cd apps/art-be/overlays/dev
+        kustomize edit set image ${{ env.IMAGE_NAME }}:${{ secrets.MAJOR }}.${{ secrets.MINOR }}
+        cat kustomization.yaml
+
+    - name: Commit and push changes
+      run: |
+        cd apps/art-be
+        git config --global user.name "Hoon9901"
+        git config --global user.email "shonn.dev@gmail.com"
+        git commit -am "Update k8s image"
+        git push -u origin apps/art-be
