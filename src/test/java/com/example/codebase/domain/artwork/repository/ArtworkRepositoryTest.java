@@ -3,6 +3,8 @@ package com.example.codebase.domain.artwork.repository;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.blog.entity.Post;
 import com.example.codebase.domain.blog.repository.PostRepository;
+import com.example.codebase.domain.member.entity.Member;
+import com.example.codebase.domain.member.repository.MemberRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -77,5 +79,4 @@ class ArtworkRepositoryTest {
         assertThat(topByPopular.get(0).getTitle()).isEqualTo("title");
         assertThat(topByPopular.get(0).getViews()).isEqualTo(10);
     }
-
 }

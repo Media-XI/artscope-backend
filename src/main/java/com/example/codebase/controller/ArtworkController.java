@@ -106,7 +106,7 @@ public class ArtworkController {
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
 
-        if (SecurityUtil.getCurrentUsername().isPresent()) {
+        if (SecurityUtil.getCurrentUsername().isPresent() && !SecurityUtil.isAnonymous()) {
             String username = SecurityUtil.getCurrentUsername().get();
             return new ResponseEntity(artworkService.getAllArtwork(page, size, sortDirection, username), HttpStatus.OK);
         }

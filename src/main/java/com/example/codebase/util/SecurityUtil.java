@@ -36,6 +36,18 @@ public class SecurityUtil {
         return Optional.ofNullable(username);
     }
 
+    public static boolean isAnonymous() {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null) {
+            log.debug("Security Context에 인증 정보 없습니다.");
+            return true;
+        }
+
+        return authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ANONYMOUS"));
+    }
+
     public static Optional<Set<AuthorityDto>> getCurrentUserRoles() {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

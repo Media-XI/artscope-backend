@@ -2,10 +2,7 @@ package com.example.codebase.domain.artwork.service;
 
 import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.artwork.dto.*;
-import com.example.codebase.domain.artwork.entity.Artwork;
-import com.example.codebase.domain.artwork.entity.ArtworkLikeMember;
-import com.example.codebase.domain.artwork.entity.ArtworkLikeMemberId;
-import com.example.codebase.domain.artwork.entity.ArtworkMedia;
+import com.example.codebase.domain.artwork.entity.*;
 import com.example.codebase.domain.artwork.repository.ArtworkLikeMemberRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkMediaRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
@@ -157,12 +154,11 @@ public class ArtworkService {
 
         Optional<ArtworkLikeMember> likeMemberOptional = artworkLikeMemberRepository.findById(new ArtworkLikeMemberId(member.getId(), artwork.getId()));
         String status = "좋아요";
-        if(likeMemberOptional.isPresent()){
+        if (likeMemberOptional.isPresent()) {
             // 좋아요 해제
             artworkLikeMemberRepository.delete(likeMemberOptional.get());
             status = "좋아요 취소";
-        }
-        else {
+        } else {
             // 좋아요 추가
             ArtworkLikeMember artworkLikeMember = ArtworkLikeMember.of(artwork, member);
             artworkLikeMemberRepository.save(artworkLikeMember);
@@ -192,7 +188,7 @@ public class ArtworkService {
     }
 
     public ArtworkLikeMembersPageDTO getArtworkLikeMembers(Long id, int page, int size, String sortDirection) {
-Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "likedTime");
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "likedTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
         Page<ArtworkLikeMember> artworkLikeMembers = artworkLikeMemberRepository.findAllByArtworkId(id, pageRequest);
@@ -203,5 +199,22 @@ Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "likedTime");
                 .collect(Collectors.toList());
 
         return ArtworkLikeMembersPageDTO.from(usernames, artworkLikeMembers.getTotalElements(), pageInfo);
+    }
+
+    public ArtworkWithLikePageDTO getAllArtwork(int page, int size, String sortDirection, String username) {
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        Page<ArtworkWithIsLike> artworks = artworkRepository.findAllByUserLiked(member, pageRequest);
+        PageInfo pageInfo = PageInfo.of(page, size, artworks.getTotalPages(), artworks.getTotalElements());
+
+        List<ArtworkWithIsLikeResponseDTO> dtos = artworks.stream()
+                .map(ArtworkWithIsLikeResponseDTO::from)
+                .collect(Collectors.toList());
+
+        return ArtworkWithLikePageDTO.of(dtos, pageInfo);
     }
 }
