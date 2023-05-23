@@ -762,6 +762,23 @@ class ArtworkControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @DisplayName("비회원이 전체 아트워크 조회 시 좋아요 여부와 함께 조회")
+    @Test
+    public void 비회원_좋아요_여부_와_전체_아트워크 () throws Exception {
+        Artwork artwork1 = createOrLoadArtwork(1, true);
+        Artwork artwork2 = createOrLoadArtwork(2, true);
+
+        String username = artwork1.getMember().getUsername();
+
+        // 좋아요 표시한 사용자들 조회
+        mockMvc.perform(
+                        get(String.format("/api/artworks"))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("단일 아트워크 조회 시 좋아요 여부와 함께 조회")
     @Test
