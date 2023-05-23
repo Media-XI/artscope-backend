@@ -31,6 +31,8 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
     List<Artwork> findTopByPopular(LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable);
 
 
-
-
+    @Query("SELECT a AS artwork, CASE WHEN a = alm.artwork THEN true ELSE false END as isLike " +
+            "FROM Artwork a LEFT JOIN ArtworkLikeMember alm ON a = alm.artwork AND alm.member = :member " +
+            "WHERE a.id = :id and a.visible = true")
+    Optional<ArtworkWithIsLike> findArtworkWithIsLikeById(Long id, Member member);
 }

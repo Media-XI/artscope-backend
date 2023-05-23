@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Builder
 public class ArtworkResponseDTO {
+
     private Long id;
 
     private String title;
@@ -28,7 +29,9 @@ public class ArtworkResponseDTO {
 
     private Integer likes;
 
-    private String member;
+    private String authorUsername;
+
+    private String authorName;
 
     private ArtworkMediaResponseDTO thumbnail;
 
@@ -67,7 +70,8 @@ public class ArtworkResponseDTO {
                 .description(artwork.getDescription())
                 .views(artwork.getViews())
                 .likes(artwork.getLikes())
-                .member(artwork.getMember().getUsername())
+                .authorName(artwork.getMember().getName())
+                .authorUsername(artwork.getMember().getUsername())
                 .thumbnail(thumbnail)
                 .artworkMedias(artworkMediaResponseDTOS)
                 .createdTime(artwork.getCreatedTime())

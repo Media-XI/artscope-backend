@@ -19,4 +19,12 @@ public class ArtworkWithIsLikeResponseDTO {
         artworkWithIsLikeResponseDTO.setIsLike(artworkWithIsLike.getIsLike());
         return artworkWithIsLikeResponseDTO;
     }
+
+    public static ArtworkWithIsLikeResponseDTO from(Artwork artwork) {
+        ArtworkWithIsLikeResponseDTO artworkWithIsLikeResponseDTO = new ArtworkWithIsLikeResponseDTO();
+        artworkWithIsLikeResponseDTO.setArtwork(ArtworkResponseDTO.from(artwork));
+        artworkWithIsLikeResponseDTO.setIsLike(false);
+        return artworkWithIsLikeResponseDTO;
+    }
+
 }

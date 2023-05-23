@@ -61,27 +61,28 @@ public class ArtworkService {
         return ArtworkResponseDTO.from(saveArtwork);
     }
 
-    public ArtworksResponseDTO getAllArtwork(int page, int size, String sortDirection) {
+    public ArtworkWithLikePageDTO getAllArtwork(int page, int size, String sortDirection) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
         Page<Artwork> artworksPage = artworkRepository.findAll(pageRequest);
 
         PageInfo pageInfo = PageInfo.of(page, size, artworksPage.getTotalPages(), artworksPage.getTotalElements());
-        List<ArtworkResponseDTO> dtos = artworksPage.stream()
-                .map(ArtworkResponseDTO::from)
+        List<ArtworkWithIsLikeResponseDTO> dtos = artworksPage.stream()
+                .map(ArtworkWithIsLikeResponseDTO::from)
                 .collect(Collectors.toList());
-        return ArtworksResponseDTO.of(dtos, pageInfo);
+
+        return ArtworkWithLikePageDTO.of(dtos, pageInfo);
     }
 
     @Transactional
-    public ArtworkResponseDTO getArtwork(Long id) {
+    public ArtworkWithIsLikeResponseDTO getArtwork(Long id) {
         Artwork artwork = artworkRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
 
         artwork.increaseView(); // 조회수 증가
 
-        return ArtworkResponseDTO.from(artwork);
+        return ArtworkWithIsLikeResponseDTO.from(artwork);
     }
 
     @Transactional
@@ -216,5 +217,15 @@ public class ArtworkService {
                 .collect(Collectors.toList());
 
         return ArtworkWithLikePageDTO.of(dtos, pageInfo);
+    }
+
+    public ArtworkWithIsLikeResponseDTO getArtwork(Long id, String username) {
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+
+        ArtworkWithIsLike artwork = artworkRepository.findArtworkWithIsLikeById(id, member)
+                .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
+
+        return ArtworkWithIsLikeResponseDTO.from(artwork);
     }
 }

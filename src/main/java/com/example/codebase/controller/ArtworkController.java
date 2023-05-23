@@ -1,6 +1,7 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.artwork.dto.*;
+import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.service.ArtworkService;
 import com.example.codebase.s3.S3Service;
 import com.example.codebase.util.FileUtil;
@@ -108,18 +109,26 @@ public class ArtworkController {
 
         if (SecurityUtil.getCurrentUsername().isPresent() && !SecurityUtil.isAnonymous()) {
             String username = SecurityUtil.getCurrentUsername().get();
-            return new ResponseEntity(artworkService.getAllArtwork(page, size, sortDirection, username), HttpStatus.OK);
+            ArtworkWithLikePageDTO artworkPages = artworkService.getAllArtwork(page, size, sortDirection, username);
+            return new ResponseEntity(artworkPages, HttpStatus.OK);
         }
 
-        ArtworksResponseDTO responseDTO = artworkService.getAllArtwork(page, size, sortDirection);
-        return new ResponseEntity(responseDTO, HttpStatus.OK);
+        ArtworkWithLikePageDTO artworkPages = artworkService.getAllArtwork(page, size, sortDirection);
+        return new ResponseEntity(artworkPages, HttpStatus.OK);
     }
 
 
     @ApiOperation(value = "ID로 아트워크 조회", notes = "해당 ID의 아트워크를 조회합니다.")
     @GetMapping("/{id}")
     public ResponseEntity getArtwork(@PathVariable Long id) {
-        ArtworkResponseDTO artwork = artworkService.getArtwork(id);
+
+        if (SecurityUtil.getCurrentUsername().isPresent() && !SecurityUtil.isAnonymous()) {
+            String username = SecurityUtil.getCurrentUsername().get();
+            ArtworkWithIsLikeResponseDTO artwork = artworkService.getArtwork(id, username);
+            return new ResponseEntity(artwork, HttpStatus.OK);
+        }
+
+        ArtworkWithIsLikeResponseDTO artwork = artworkService.getArtwork(id);
         return new ResponseEntity(artwork, HttpStatus.OK);
     }
 
