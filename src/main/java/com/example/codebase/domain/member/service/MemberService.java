@@ -111,7 +111,12 @@ public class MemberService {
     @Transactional
     public Member createOAuthMember(OAuthAttributes oAuthAttributes) {
         // TODO: 이메일 중복 체크
-        if (memberRepository.findByUsername(oAuthAttributes.getName()).isPresent()) {
+
+        if (isExistEmail(oAuthAttributes.getEmail())) {
+            throw new ExistsEmailException();
+        }
+
+        if (isExistUsername(oAuthAttributes.getName())) {
             throw new ExistMemberException();
         }
 
