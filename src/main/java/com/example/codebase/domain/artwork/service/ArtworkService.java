@@ -228,4 +228,14 @@ public class ArtworkService {
 
         return ArtworkWithIsLikeResponseDTO.from(artwork);
     }
+
+    public Boolean getLoginUserArtworkIsLiked(Long id, String loginUsername) {
+        Member member = memberRepository.findByUsername(loginUsername)
+                .orElseThrow(NotFoundMemberException::new);
+
+        Optional<ArtworkLikeMember> byArtworkIdAndMember = artworkLikeMemberRepository.findByArtworkIdAndMember(id, member);
+
+        return byArtworkIdAndMember.isPresent();
+
+    }
 }

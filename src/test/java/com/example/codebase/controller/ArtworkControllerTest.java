@@ -684,11 +684,11 @@ class ArtworkControllerTest {
                         post(String.format("/api/artworks/%d/like", artwork.getId()))
                 )
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("해당 사용자의 좋아요를 누른 아트워크 전체 조회 시")
+    @DisplayName("해당 사용자의 좋아요 여부와 함께 아트워크 전체 조회 시")
     @Test
     public void 사용자_좋아요_아트워크_전체_조회() throws Exception {
         Artwork artwork1 = createOrLoadArtwork(1, true);
@@ -714,6 +714,37 @@ class ArtworkControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("로그인한 사용자의 좋아요 여부와 함께 아트워크 전체 조회 시")
+    @Test
+    public void 로그인사용자_좋아요_아트워크_전체_조회() throws Exception {
+        Artwork artwork1 = createOrLoadArtwork(1, true);
+        Artwork artwork2 = createOrLoadArtwork(2, true);
+        Artwork artwork3 = createOrLoadArtwork(3, true);
+
+        String username = artwork1.getMember().getUsername();
+
+        // 좋아요 발생
+        mockMvc.perform(
+                        post(String.format("/api/artworks/%d/like", artwork1.getId()))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        mockMvc.perform(
+                        post(String.format("/api/artworks/%d/like", artwork2.getId()))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        // 로그인한 사용자의 좋아요 여부와 함께 아트워크 전체 조회
+        mockMvc.perform(
+                        get(String.format("/api/artworks/likes", username))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -800,6 +831,37 @@ class ArtworkControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("특정 아트워크 조회 시 로그인한 사용자의 좋아요 여부와 함께 조회")
+    @Test
+    public void 로그인사용자의_좋아요_여부_와_특정_아트워크 () throws Exception {
+        Artwork artwork1 = createOrLoadArtwork(1, true);
+        Artwork artwork2 = createOrLoadArtwork(2, true);
+
+        String username = artwork1.getMember().getUsername();
+
+        // 좋아요 발생
+        mockMvc.perform(
+                        post(String.format("/api/artworks/%d/like", artwork1.getId()))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        // 특정 아트워크 좋아요 여부
+        mockMvc.perform(
+                        get(String.format("/api/artworks/%d/member/likes", artwork1.getId()))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        mockMvc.perform(
+                        get(String.format("/api/artworks/%d/member/likes", artwork2.getId()))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
     }
 
     @DisplayName("비회원이 단일 아트워크 조회 시 좋아요 여부와 함께 조회")

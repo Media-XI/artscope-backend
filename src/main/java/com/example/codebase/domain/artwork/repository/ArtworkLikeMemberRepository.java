@@ -1,7 +1,9 @@
 package com.example.codebase.domain.artwork.repository;
 
+import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkLikeMember;
 import com.example.codebase.domain.artwork.entity.ArtworkLikeMemberId;
+import com.example.codebase.domain.member.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +19,8 @@ public interface ArtworkLikeMemberRepository extends JpaRepository<ArtworkLikeMe
     Integer getLike(Long artworkId);
 
     Integer countByArtworkId(Long id);
+
+    Optional<ArtworkLikeMember> findByArtworkIdAndMember(Long artworkId, Member member);
 
     Page<ArtworkLikeMember> findAllByMemberId(UUID id, Pageable pageable);
 
