@@ -8,10 +8,16 @@ spring:
       - flyway
       - oauth
       - s3
+      - mail
 
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
 
 logging:
   config: classpath:log/log4j2-${spring.profiles.active}.xml
