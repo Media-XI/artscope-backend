@@ -17,17 +17,14 @@ public class AuthService {
         this.redisUtil = redisUtil;
     }
 
-    public void authenticateMail(String email, String code) {
-        String cachedCode = redisUtil.getData(email)
+    public void authenticateMail(String code) {
+        String email = redisUtil.getData(code)
                 .orElseThrow(() -> new IllegalArgumentException("인증번호가 만료되었습니다."));
+        redisUtil.deleteData(code);
 
-        if (cachedCode.equals(code)) {
-            redisUtil.deleteData(email);
+        // Email로 조회하고 Member 갱신
 
             // TODO : 이메일 인증되었음 회원가입 완료
             // TODO: ROLE_GUEST 삭제하고 ROLE_USER 추가
-        } else {
-            throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
-        }
     }
 }

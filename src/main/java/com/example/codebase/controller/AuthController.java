@@ -60,10 +60,9 @@ public class AuthController {
     @PreAuthorize("permitAll()")
     @GetMapping("/mail/authenticate")
     public ResponseEntity authenticateMailLink(
-            @RequestParam String email,
             @RequestParam String code) {
         // TODO 이메일 인증 링크를 통해 인증을 진행합니다.
-        authService.authenticateMail(email, code);
+        authService.authenticateMail(code);
         return new ResponseEntity("이메일 인증되었습니다.", HttpStatus.OK);
     }
 }

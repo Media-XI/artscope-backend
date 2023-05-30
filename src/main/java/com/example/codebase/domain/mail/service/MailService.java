@@ -31,7 +31,7 @@ public class MailService {
             mimeMessageHelper.setSubject("[ArtScope] 이메일 인증번호");
 
             UUID code = UUID.randomUUID();
-            redisUtil.setDataAndExpire(email, String.valueOf(code), 60 * 1000 * 5);
+            redisUtil.setDataAndExpire(String.valueOf(code), email, 60 * 1000 * 5);
 
             StringBuilder sb = new StringBuilder();
 
@@ -42,8 +42,10 @@ public class MailService {
             sb.append("<h3>아래의 링크를 접속해주세요. </3>");
             sb.append("<h3>인증링크: ");
             sb.append("<a href=\"");
-            sb.append(CODE_SERVER + "?email=" + email + "&code=" + code.toString());
-            sb.append("\">인증하기</a></h3>");
+            sb.append(CODE_SERVER + "?code=" + code.toString());
+            sb.append("\">");
+            sb.append(CODE_SERVER + "?code=" + code.toString());
+            sb.append("</a></h3>");
             sb.append("<h3>인증링크는 5분간 유효합니다.</h3>");
 
             mimeMessageHelper.setText(sb.toString(), true);
