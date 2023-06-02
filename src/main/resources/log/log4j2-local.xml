@@ -16,12 +16,12 @@
             <PatternLayout disableAnsi="false" pattern="%d${LOG_DATEFORMAT_PATTERN} ${LOG_REQUEST_ID_PATTERN} %highlight${LOG_LEVEL_PATTERN}"/>
         </Console>
 
-        <Socket name="socket" host="${env:LOGSTASH_HOST_NAME:-localhost}" port="${env:LOGSTASH_HOST_PORT:-50000}" reconnectionDelayMillis="5000">
-            <JsonLayout compact="true" eventEol="true" properties="true" >
-                <KeyValuePair key="app_name" value="art-dev-backend" />
-            </JsonLayout>
-            <PatternLayout pattern="${LOGSTASH_PATTERN}" />
-        </Socket>
+<!--        <Socket name="socket" host="${env:LOGSTASH_HOST_NAME:-localhost}" port="${env:LOGSTASH_HOST_PORT:-50000}" reconnectionDelayMillis="5000">-->
+<!--            <JsonLayout compact="true" eventEol="true" properties="true" >-->
+<!--                <KeyValuePair key="app_name" value="art-dev-backend" />-->
+<!--            </JsonLayout>-->
+<!--            <PatternLayout pattern="${LOGSTASH_PATTERN}" />-->
+<!--        </Socket>-->
 
         <!-- FileAppender -->
         <RollingFile name="file_appender"

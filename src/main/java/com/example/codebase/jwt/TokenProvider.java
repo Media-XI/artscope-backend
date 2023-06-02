@@ -138,7 +138,7 @@ public class TokenProvider implements InitializingBean {
         String refreshToken = createRefreshToken(authentication);
 
         // Redis에 Refresh Token 캐싱
-        redisUtil.setDataAndExpire(authentication.getName() + "_token", refreshToken, getRefreshTokenValidityInSeconds());
+        redisUtil.setDataAndExpire(authentication.getName() + "_token", refreshToken, refreshTokenValidityInMilliseconds);
 
         TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
         tokenResponseDTO.setAccessToken(accessToken);
@@ -155,7 +155,7 @@ public class TokenProvider implements InitializingBean {
         String refreshToken = createRefreshToken(authentication);
 
         // Redis에 Refresh Token 캐싱
-        redisUtil.setDataAndExpire(authentication.getName() + "_token", refreshToken, getRefreshTokenValidityInSeconds());
+        redisUtil.setDataAndExpire(authentication.getName() + "_token", refreshToken, refreshTokenValidityInMilliseconds);
 
         TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
         tokenResponseDTO.setAccessToken(accessToken);
@@ -190,7 +190,7 @@ public class TokenProvider implements InitializingBean {
         String newRefreshToken = createRefreshToken(find);
 
         // Redis에 Refresh Token 캐싱
-        redisUtil.setDataAndExpire(find.getUsername() + "_token", newRefreshToken, refreshTokenValidityInMilliseconds * 1000);
+        redisUtil.setDataAndExpire(find.getUsername() + "_token", newRefreshToken, refreshTokenValidityInMilliseconds);
 
         TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
         tokenResponseDTO.setAccessToken(newAccessToken);

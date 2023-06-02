@@ -25,9 +25,9 @@ public class RedisUtil {
     }
 
     // 유효시간 동안 Data 저장
-    public void setDataAndExpire(String key, String value, long duration) { // 유효시간은 밀리세컨드 단위
+    public void setDataAndExpire(String key, String value, long durationMilliS) { // 유효시간은 밀리세컨드 단위
         ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-        Duration expireDuration = Duration.ofMillis(duration);
+        Duration expireDuration = Duration.ofMillis(durationMilliS);
         valueOperations.set(key, value, expireDuration);
     }
 

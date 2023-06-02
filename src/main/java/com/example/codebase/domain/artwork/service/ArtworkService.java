@@ -2,8 +2,8 @@ package com.example.codebase.domain.artwork.service;
 
 import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.artwork.dto.*;
-import com.example.codebase.domain.artwork.entity.Artwork;
-import com.example.codebase.domain.artwork.entity.ArtworkMedia;
+import com.example.codebase.domain.artwork.entity.*;
+import com.example.codebase.domain.artwork.repository.ArtworkLikeMemberRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkMediaRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.member.entity.Member;
@@ -20,19 +20,22 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class ArtworkService {
     private final ArtworkRepository artworkRepository;
     private final ArtworkMediaRepository artworkMediaRepository;
+    private final ArtworkLikeMemberRepository artworkLikeMemberRepository;
     private final S3Service s3Service;
     private final MemberRepository memberRepository;
 
     @Autowired
-    public ArtworkService(ArtworkRepository artworkRepository, ArtworkMediaRepository artworkMediaRepository, S3Service s3Service, MemberRepository memberRepository) {
+    public ArtworkService(ArtworkRepository artworkRepository, ArtworkMediaRepository artworkMediaRepository, ArtworkLikeMemberRepository artworkLikeMemberRepository, S3Service s3Service, MemberRepository memberRepository) {
         this.artworkRepository = artworkRepository;
         this.artworkMediaRepository = artworkMediaRepository;
+        this.artworkLikeMemberRepository = artworkLikeMemberRepository;
         this.s3Service = s3Service;
         this.memberRepository = memberRepository;
     }
@@ -58,27 +61,28 @@ public class ArtworkService {
         return ArtworkResponseDTO.from(saveArtwork);
     }
 
-    public ArtworksResponseDTO getAllArtwork(int page, int size, String sortDirection) {
+    public ArtworkWithLikePageDTO getAllArtwork(int page, int size, String sortDirection) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
         Page<Artwork> artworksPage = artworkRepository.findAll(pageRequest);
 
         PageInfo pageInfo = PageInfo.of(page, size, artworksPage.getTotalPages(), artworksPage.getTotalElements());
-        List<ArtworkResponseDTO> dtos = artworksPage.stream()
-                .map(ArtworkResponseDTO::from)
+        List<ArtworkWithIsLikeResponseDTO> dtos = artworksPage.stream()
+                .map(ArtworkWithIsLikeResponseDTO::from)
                 .collect(Collectors.toList());
-        return ArtworksResponseDTO.of(dtos, pageInfo);
+
+        return ArtworkWithLikePageDTO.of(dtos, pageInfo);
     }
 
     @Transactional
-    public ArtworkResponseDTO getArtwork(Long id) {
+    public ArtworkWithIsLikeResponseDTO getArtwork(Long id) {
         Artwork artwork = artworkRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
 
         artwork.increaseView(); // 조회수 증가
 
-        return ArtworkResponseDTO.from(artwork);
+        return ArtworkWithIsLikeResponseDTO.from(artwork);
     }
 
     @Transactional
@@ -139,5 +143,99 @@ public class ArtworkService {
                 .collect(Collectors.toList());
 
         return ArtworksResponseDTO.of(dtos, pageInfo);
+    }
+
+    @Transactional
+    public ArtworkLikeResponseDTO likeArtwork(Long id, String username) {
+        Artwork artwork = artworkRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
+
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+
+        Optional<ArtworkLikeMember> likeMemberOptional = artworkLikeMemberRepository.findById(new ArtworkLikeMemberId(member.getId(), artwork.getId()));
+        String status = "좋아요";
+        if (likeMemberOptional.isPresent()) {
+            // 좋아요 해제
+            artworkLikeMemberRepository.delete(likeMemberOptional.get());
+            status = "좋아요 취소";
+        } else {
+            // 좋아요 추가
+            ArtworkLikeMember artworkLikeMember = ArtworkLikeMember.of(artwork, member);
+            artworkLikeMemberRepository.save(artworkLikeMember);
+        }
+
+        Integer Likes = artworkLikeMemberRepository.countByArtworkId(artwork.getId());
+        artwork.setLikes(Likes);
+
+        return ArtworkLikeResponseDTO.from(artwork, !likeMemberOptional.isPresent(), status);
+    }
+
+    public ArtworkLikeMemberPageDTO getUserLikeArtworks(int page, int size, String sortDirection, String username) {
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "likedTime");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        Page<ArtworkLikeMember> memberLikeArtworks = artworkLikeMemberRepository.findAllByMemberId(member.getId(), pageRequest);
+        PageInfo pageInfo = PageInfo.of(page, size, memberLikeArtworks.getTotalPages(), memberLikeArtworks.getTotalElements());
+
+        List<ArtworkLikeMemberResponseDTO> dtos = memberLikeArtworks.stream()
+                .map(ArtworkLikeMemberResponseDTO::from)
+                .collect(Collectors.toList());
+
+        return ArtworkLikeMemberPageDTO.of(dtos, pageInfo);
+    }
+
+    public ArtworkLikeMembersPageDTO getArtworkLikeMembers(Long id, int page, int size, String sortDirection) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "likedTime");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        Page<ArtworkLikeMember> artworkLikeMembers = artworkLikeMemberRepository.findAllByArtworkId(id, pageRequest);
+        PageInfo pageInfo = PageInfo.of(page, size, artworkLikeMembers.getTotalPages(), artworkLikeMembers.getTotalElements());
+
+        List<String> usernames = artworkLikeMembers.stream()
+                .map(artworkLikeMember -> artworkLikeMember.getMember().getUsername())
+                .collect(Collectors.toList());
+
+        return ArtworkLikeMembersPageDTO.from(usernames, artworkLikeMembers.getTotalElements(), pageInfo);
+    }
+
+    public ArtworkWithLikePageDTO getAllArtwork(int page, int size, String sortDirection, String username) {
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        Page<ArtworkWithIsLike> artworks = artworkRepository.findAllByUserLiked(member, pageRequest);
+        PageInfo pageInfo = PageInfo.of(page, size, artworks.getTotalPages(), artworks.getTotalElements());
+
+        List<ArtworkWithIsLikeResponseDTO> dtos = artworks.stream()
+                .map(ArtworkWithIsLikeResponseDTO::from)
+                .collect(Collectors.toList());
+
+        return ArtworkWithLikePageDTO.of(dtos, pageInfo);
+    }
+
+    public ArtworkWithIsLikeResponseDTO getArtwork(Long id, String username) {
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+
+        ArtworkWithIsLike artwork = artworkRepository.findArtworkWithIsLikeById(id, member)
+                .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
+
+        return ArtworkWithIsLikeResponseDTO.from(artwork);
+    }
+
+    public Boolean getLoginUserArtworkIsLiked(Long id, String loginUsername) {
+        Member member = memberRepository.findByUsername(loginUsername)
+                .orElseThrow(NotFoundMemberException::new);
+
+        Optional<ArtworkLikeMember> byArtworkIdAndMember = artworkLikeMemberRepository.findByArtworkIdAndMember(id, member);
+
+        return byArtworkIdAndMember.isPresent();
+
     }
 }

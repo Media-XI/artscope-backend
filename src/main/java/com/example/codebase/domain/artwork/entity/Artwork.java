@@ -16,6 +16,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,8 +44,12 @@ public class Artwork {
     private String description;
 
     @Builder.Default
-    @Column(name = "view", columnDefinition = "integer default 0")
-    private Integer view = 0;
+    @Column(name = "views", columnDefinition = "integer default 0")
+    private Integer views = 0;
+
+    @Builder.Default
+    @Column(name = "likes", columnDefinition = "integer default 0")
+    private Integer likes = 0;
 
     @Column(name = "visible")
     private boolean visible;
@@ -66,6 +71,10 @@ public class Artwork {
     @Builder.Default
     @OneToMany(mappedBy = "artwork", cascade = CascadeType.ALL)
     private List<ArtworkMedia> artworkMedia = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "artwork", cascade = CascadeType.ALL)
+    private List<ArtworkLikeMember> artworkLikeMembers = new ArrayList<>();
 
     public static Artwork of (ArtworkCreateDTO dto, Member member) {
         String tempTags = "";
@@ -113,6 +122,10 @@ public class Artwork {
     }
 
     public void increaseView() {
-        this.view++;
+        this.views++;
+    }
+
+    public void setLikes(Integer likes) {
+        this.likes = likes;
     }
 }
