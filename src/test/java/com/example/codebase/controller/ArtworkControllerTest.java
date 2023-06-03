@@ -815,6 +815,7 @@ class ArtworkControllerTest {
     @Test
     public void 좋아요_여부_와_단일_아트워크 () throws Exception {
         Artwork artwork1 = createOrLoadArtwork(1, true);
+        Artwork artwork2 = createOrLoadArtwork(2, true);
 
         String username = artwork1.getMember().getUsername();
 
@@ -825,12 +826,20 @@ class ArtworkControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        // 좋아요 표시한 사용자들 조회
+        // 좋아요 표시한 아트워크
         mockMvc.perform(
                         get(String.format("/api/artworks/%d", artwork1.getId()))
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
+
+        // 좋아요 안한 표시한 아트워크
+        mockMvc.perform(
+                        get(String.format("/api/artworks/%d", artwork2.getId()))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")

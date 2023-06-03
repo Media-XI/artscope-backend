@@ -122,13 +122,8 @@ public class ArtworkController {
     @GetMapping("/{id}")
     public ResponseEntity getArtwork(@PathVariable Long id) {
 
-        if (SecurityUtil.getCurrentUsername().isPresent() && !SecurityUtil.isAnonymous()) {
-            String username = SecurityUtil.getCurrentUsername().get();
-            ArtworkWithIsLikeResponseDTO artwork = artworkService.getArtwork(id, username);
-            return new ResponseEntity(artwork, HttpStatus.OK);
-        }
-
-        ArtworkWithIsLikeResponseDTO artwork = artworkService.getArtwork(id);
+        Optional<String> username = SecurityUtil.getCurrentUsername();
+        ArtworkWithIsLikeResponseDTO artwork = artworkService.getArtwork(id, username);
         return new ResponseEntity(artwork, HttpStatus.OK);
     }
 

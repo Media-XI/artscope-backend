@@ -76,13 +76,16 @@ public class ArtworkService {
     }
 
     @Transactional
-    public ArtworkWithIsLikeResponseDTO getArtwork(Long id) {
+    public ArtworkWithIsLikeResponseDTO getArtwork(Long id, Optional<String> username) {
+        boolean existLike = false;
+        if (username.isPresent()) {
+            existLike = artworkLikeMemberRepository.existsByArtwork_IdAndMember_Username(id, username.get());
+        }
         Artwork artwork = artworkRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
-
         artwork.increaseView(); // 조회수 증가
 
-        return ArtworkWithIsLikeResponseDTO.from(artwork);
+        return ArtworkWithIsLikeResponseDTO.from(artwork, existLike);
     }
 
     @Transactional
@@ -217,16 +220,6 @@ public class ArtworkService {
                 .collect(Collectors.toList());
 
         return ArtworkWithLikePageDTO.of(dtos, pageInfo);
-    }
-
-    public ArtworkWithIsLikeResponseDTO getArtwork(Long id, String username) {
-        Member member = memberRepository.findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
-
-        ArtworkWithIsLike artwork = artworkRepository.findArtworkWithIsLikeById(id, member)
-                .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
-
-        return ArtworkWithIsLikeResponseDTO.from(artwork);
     }
 
     public Boolean getLoginUserArtworkIsLiked(Long id, String loginUsername) {

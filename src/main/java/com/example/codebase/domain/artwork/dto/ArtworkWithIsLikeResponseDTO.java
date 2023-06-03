@@ -27,4 +27,10 @@ public class ArtworkWithIsLikeResponseDTO {
         return artworkWithIsLikeResponseDTO;
     }
 
+    public static ArtworkWithIsLikeResponseDTO from(Artwork artwork, boolean existLike) {
+        ArtworkWithIsLikeResponseDTO artworkWithIsLikeResponseDTO = new ArtworkWithIsLikeResponseDTO();
+        artworkWithIsLikeResponseDTO.setArtwork(ArtworkResponseDTO.from(artwork));
+        artworkWithIsLikeResponseDTO.setIsLike(existLike);
+        return artworkWithIsLikeResponseDTO;
+    }
 }

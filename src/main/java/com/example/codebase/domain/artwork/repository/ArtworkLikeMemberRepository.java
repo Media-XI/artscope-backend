@@ -25,4 +25,6 @@ public interface ArtworkLikeMemberRepository extends JpaRepository<ArtworkLikeMe
     Page<ArtworkLikeMember> findAllByMemberId(UUID id, Pageable pageable);
 
     Page<ArtworkLikeMember> findAllByArtworkId(Long id, Pageable pageable);
+
+    boolean existsByArtwork_IdAndMember_Username(Long id, String s);
 }
