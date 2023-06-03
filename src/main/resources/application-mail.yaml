@@ -13,3 +13,27 @@ spring:
           starttls:
             enable: true # Use STARTTLS
             required: true # Use STARTTLS
+
+mail:
+  callback.url: http://localhost:3000/user/email-confirm
+
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - dev
+
+mail:
+  callback.url: https://dev.artscope.kr/user/email-confirm
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile:
+        - prod
+
+mail:
+  callback.url: https://artscope.kr/user/email-confirm

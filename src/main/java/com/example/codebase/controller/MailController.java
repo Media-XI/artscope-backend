@@ -19,14 +19,10 @@ public class MailController {
 
     @ApiOperation(value = "이메일 인증링크 전송 API", notes = "해당 메일을 인증하기 위해 인증링크를 전송합니다.")
     @PreAuthorize("permitAll()")
-    @PostMapping()
+    @PostMapping("/authenticate")
     public ResponseEntity authenticateMail(@RequestParam String email) {
         mailService.sendMail(email);
-        // TODO 가입 후 이메일 인증으로 변경
-        // TODO 이메일 인증 후에는 로그인이 가능하도록 변경 -> 무분별한 인증 전송을 방지하기 위해
-        return new ResponseEntity("", HttpStatus.OK);
+        return new ResponseEntity("인증링크가 전송되었습니다.", HttpStatus.OK);
     }
-
-
 
 }
