@@ -136,7 +136,7 @@ public class TokenProvider implements InitializingBean {
         // Authorities 중 ROLE_GUEST 권한이 있으면 함수 종료
         for (GrantedAuthority grantedAuthority : authentication.getAuthorities()) {
             if (grantedAuthority.getAuthority().equals("ROLE_GUEST")) {
-                throw new InvalidJwtTokenException("이메일 인증을 ");
+                throw new InvalidJwtTokenException("이메일 인증을 완료해주세요.");
             }
         }
 

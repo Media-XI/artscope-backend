@@ -21,7 +21,7 @@ public class MailService {
     private final MemberRepository memberRepository;
 
     @Value("${mail.callback.url")
-    private final String MAIL_CALLBACK = "https://artscope.kr/user/email-confirm";
+    private String MAIL_CALLBACK;
 
     @Autowired
     public MailService(JavaMailSender javaMailSender, RedisUtil redisUtil, MemberRepository memberRepository) {

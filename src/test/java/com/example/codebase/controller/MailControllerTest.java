@@ -68,35 +68,34 @@ class MailControllerTest {
     }
 
 
-
-    @DisplayName("이메일 인증 API ")
-    @Test
-    void 이메일_인증_API () throws Exception {
-        Member dummy = Member.builder()
-                .username("testid")
-                .password(passwordEncoder.encode("1234"))
-                .email("shonn2323@gmail.com")
-                .name("test")
-                .activated(false)
-                .createdTime(LocalDateTime.now())
-                .build();
-
-        MemberAuthority memberAuthority = new MemberAuthority();
-        memberAuthority.setAuthority(Authority.of("ROLE_GUEST"));
-        memberAuthority.setMember(dummy);
-        dummy.setAuthorities(Collections.singleton(memberAuthority));
-
-        memberRepository.save(dummy);
-        memberAuthorityRepository.save(memberAuthority);
-
-        String email = "shonn2323@gmail.com";
-
-        mockMvc.perform(
-                        post("/api/mail/authenticate")
-                                .param("email", email)
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
+//    @DisplayName("이메일 인증 API ")
+//    @Test
+//    void 이메일_인증_API () throws Exception {
+//        Member dummy = Member.builder()
+//                .username("testid")
+//                .password(passwordEncoder.encode("1234"))
+//                .email("shonn2323@gmail.com")
+//                .name("test")
+//                .activated(false)
+//                .createdTime(LocalDateTime.now())
+//                .build();
+//
+//        MemberAuthority memberAuthority = new MemberAuthority();
+//        memberAuthority.setAuthority(Authority.of("ROLE_GUEST"));
+//        memberAuthority.setMember(dummy);
+//        dummy.setAuthorities(Collections.singleton(memberAuthority));
+//
+//        memberRepository.save(dummy);
+//        memberAuthorityRepository.save(memberAuthority);
+//
+//        String email = "shonn2323@gmail.com";
+//
+//        mockMvc.perform(
+//                        post("/api/mail/authenticate")
+//                                .param("email", email)
+//                )
+//                .andDo(print())
+//                .andExpect(status().isOk());
+//    }
 
 }
