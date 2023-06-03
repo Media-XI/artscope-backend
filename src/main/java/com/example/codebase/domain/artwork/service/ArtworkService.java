@@ -61,10 +61,23 @@ public class ArtworkService {
         return ArtworkResponseDTO.from(saveArtwork);
     }
 
-    public ArtworkWithLikePageDTO getAllArtwork(int page, int size, String sortDirection) {
+    public ArtworkWithLikePageDTO getAllArtwork(int page, int size, String sortDirection, Optional<String> username) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
+        if (username.isPresent()) {
+            Member member = memberRepository.findByUsername(username.get())
+                    .orElseThrow(NotFoundMemberException::new);
+
+            Page<ArtworkWithIsLike> artworksWithIsLikePage = artworkRepository.findAllMemeWIthIsLikeByIdAndMember(member, pageRequest);
+            PageInfo pageInfo = PageInfo.of(page, size, artworksWithIsLikePage.getTotalPages(), artworksWithIsLikePage.getTotalElements());
+
+            List<ArtworkWithIsLikeResponseDTO> dtos = artworksWithIsLikePage.stream()
+                    .map(ArtworkWithIsLikeResponseDTO::from)
+                    .collect(Collectors.toList());
+
+            return ArtworkWithLikePageDTO.of(dtos, pageInfo);
+        }
         Page<Artwork> artworksPage = artworkRepository.findAll(pageRequest);
 
         PageInfo pageInfo = PageInfo.of(page, size, artworksPage.getTotalPages(), artworksPage.getTotalElements());
@@ -203,23 +216,6 @@ public class ArtworkService {
                 .collect(Collectors.toList());
 
         return ArtworkLikeMembersPageDTO.from(usernames, artworkLikeMembers.getTotalElements(), pageInfo);
-    }
-
-    public ArtworkWithLikePageDTO getAllArtwork(int page, int size, String sortDirection, String username) {
-        Member member = memberRepository.findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
-
-        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
-        PageRequest pageRequest = PageRequest.of(page, size, sort);
-
-        Page<ArtworkWithIsLike> artworks = artworkRepository.findAllByUserLiked(member, pageRequest);
-        PageInfo pageInfo = PageInfo.of(page, size, artworks.getTotalPages(), artworks.getTotalElements());
-
-        List<ArtworkWithIsLikeResponseDTO> dtos = artworks.stream()
-                .map(ArtworkWithIsLikeResponseDTO::from)
-                .collect(Collectors.toList());
-
-        return ArtworkWithLikePageDTO.of(dtos, pageInfo);
     }
 
     public Boolean getLoginUserArtworkIsLiked(Long id, String loginUsername) {

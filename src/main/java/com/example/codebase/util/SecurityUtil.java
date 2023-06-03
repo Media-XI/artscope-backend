@@ -20,7 +20,7 @@ public class SecurityUtil {
     public static Optional<String> getCurrentUsername() {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null) {
+        if (authentication == null || isAnonymous()) {
             log.debug("Security Context에 인증 정보 없습니다.");
             return Optional.empty();
         }

@@ -30,9 +30,14 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
     @Query("select a from Artwork a where a.visible = true and a.createdTime between ?1 and ?2 order by a.views desc")
     List<Artwork> findTopByPopular(LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable);
 
-
     @Query("SELECT a AS artwork, CASE WHEN a = alm.artwork THEN true ELSE false END as isLike " +
             "FROM Artwork a LEFT JOIN ArtworkLikeMember alm ON a = alm.artwork AND alm.member = :member " +
             "WHERE a.id = :id and a.visible = true")
     Optional<ArtworkWithIsLike> findArtworkWithIsLikeById(Long id, Member member);
+
+    @Query("SELECT a AS artwork, CASE WHEN alm.member = :member THEN true ELSE false END as isLike " +
+            "FROM Artwork a LEFT JOIN ArtworkLikeMember alm ON a = alm.artwork AND alm.member = :member ")
+    Page<ArtworkWithIsLike> findAllMemeWIthIsLikeByIdAndMember(Member member, Pageable pageable);
+
+
 }

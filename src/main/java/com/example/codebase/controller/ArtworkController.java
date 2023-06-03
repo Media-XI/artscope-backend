@@ -107,13 +107,8 @@ public class ArtworkController {
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
 
-        if (SecurityUtil.getCurrentUsername().isPresent() && !SecurityUtil.isAnonymous()) {
-            String username = SecurityUtil.getCurrentUsername().get();
-            ArtworkWithLikePageDTO artworkPages = artworkService.getAllArtwork(page, size, sortDirection, username);
-            return new ResponseEntity(artworkPages, HttpStatus.OK);
-        }
-
-        ArtworkWithLikePageDTO artworkPages = artworkService.getAllArtwork(page, size, sortDirection);
+        Optional<String> username = SecurityUtil.getCurrentUsername();
+        ArtworkWithLikePageDTO artworkPages = artworkService.getAllArtwork(page, size, sortDirection, username);
         return new ResponseEntity(artworkPages, HttpStatus.OK);
     }
 
