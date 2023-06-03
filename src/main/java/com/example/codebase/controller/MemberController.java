@@ -174,7 +174,7 @@ public class MemberController {
                                          @Valid @RequestParam UsernameDTO newUsername) {
         String currentUsername = SecurityUtil.getCurrentUsername()
                 .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
-        if (!SecurityUtil.isAdmin() && !currentUsername.equals(username)) {
+        if (!SecurityUtil.isAdmin() && !currentUsername.equals(username)) { // 관리자가 아니고, 본인의 아이디가 아닐 경우
             throw new RuntimeException("본인의 정보만 수정할 수 있습니다.");
         }
 
@@ -182,4 +182,21 @@ public class MemberController {
         return new ResponseEntity(member, HttpStatus.OK);
     }
 
+
+    @ApiOperation(value = "비밀번호 변경", notes = "[로그인 사용자] 비밀번호 변경")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PutMapping("/{username}/password")
+    public ResponseEntity updatePassword(@PathVariable String username,
+                                         @NotBlank @RequestParam(value = "newPassword") String newPassword) {
+        String currentUsername = SecurityUtil.getCurrentUsername()
+                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+
+        if (!SecurityUtil.isAdmin() && !currentUsername.equals(username)) {
+            throw new RuntimeException("본인의 정보만 수정할 수 있습니다.");
+        }
+
+        memberService.updatePassword(username, newPassword);
+        return new ResponseEntity("비밀번호가 변경되었습니다.", HttpStatus.OK);
+
+    }
 }

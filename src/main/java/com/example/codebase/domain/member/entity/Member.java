@@ -165,4 +165,12 @@ public class Member {
     public void updateUsername(String newUsername) {
         this.username = newUsername;
     }
+
+    public void updateActivated(boolean activated) {
+        this.activated = activated;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 }
