@@ -20,7 +20,7 @@ public class MailService {
 
     private final MemberRepository memberRepository;
 
-    @Value("${mail.callback.url")
+    @Value("${mail.callback.url}")
     private String MAIL_CALLBACK;
 
     @Autowired
