@@ -4,6 +4,7 @@ import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkWithIsLike;
 import com.example.codebase.domain.member.entity.Member;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -39,5 +40,10 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
             "FROM Artwork a LEFT JOIN ArtworkLikeMember alm ON a = alm.artwork AND alm.member = :member ")
     Page<ArtworkWithIsLike> findAllMemeWIthIsLikeByIdAndMember(Member member, Pageable pageable);
 
+
+    @Query("SELECT a " +
+            "FROM Artwork a LEFT JOIN Member m ON a.member.id = m.id " +
+            "WHERE a.visible = true AND (a.title LIKE %:keyword% OR a.tags LIKE %:keyword% OR m.name LIKE %:keyword%)")
+    Page<Artwork> findAllByKeywordContaining(String keyword, Pageable pageable);
 
 }

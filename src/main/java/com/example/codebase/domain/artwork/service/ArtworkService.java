@@ -227,4 +227,18 @@ public class ArtworkService {
         return byArtworkIdAndMember.isPresent();
 
     }
+
+    public ArtworksResponseDTO searchArtworks(String keyword, int page, int size, String sortDirection) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        Page<Artwork> artworks = artworkRepository.findAllByKeywordContaining(keyword, pageRequest);
+        PageInfo pageInfo = PageInfo.of(page, size, artworks.getTotalPages(), artworks.getTotalElements());
+
+        List<ArtworkResponseDTO> dtos = artworks.stream()
+                .map(ArtworkResponseDTO::from)
+                .collect(Collectors.toList());
+
+        return ArtworksResponseDTO.of(dtos, pageInfo);
+    }
 }

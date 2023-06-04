@@ -6,6 +6,7 @@ import com.example.codebase.domain.artwork.service.ArtworkService;
 import com.example.codebase.s3.S3Service;
 import com.example.codebase.util.FileUtil;
 import com.example.codebase.util.SecurityUtil;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -241,4 +242,15 @@ public class ArtworkController {
         return new ResponseEntity(loginUserArtworkIsLike, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "아트워크 검색 API", notes = "아트워크를 검색합니다. 검색 키워드: 작품명, 작가명, 태그명")
+    @GetMapping("/search")
+    public ResponseEntity searchArtworks(
+            @RequestParam String keyword,
+            @PositiveOrZero @RequestParam(defaultValue = "0") int page,
+            @PositiveOrZero @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "DESC", required = false) String sortDirection
+    ) {
+        ArtworksResponseDTO artworks = artworkService.searchArtworks(keyword, page, size, sortDirection);
+        return new ResponseEntity(artworks, HttpStatus.OK);
+    }
 }
