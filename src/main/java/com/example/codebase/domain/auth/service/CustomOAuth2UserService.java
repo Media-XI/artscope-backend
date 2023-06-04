@@ -27,14 +27,12 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
-    private MemberRepository memberRepository;
-    private MemberAuthorityRepository memberAuthorityRepository;
-    private MemberService memberService;
+    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     @Autowired
-    public CustomOAuth2UserService(MemberRepository memberRepository, MemberAuthorityRepository memberAuthorityRepository, PasswordEncoder passwordEncoder, MemberService memberService) {
+    public CustomOAuth2UserService(MemberRepository memberRepository, MemberService memberService) {
         this.memberRepository = memberRepository;
-        this.memberAuthorityRepository = memberAuthorityRepository;
         this.memberService = memberService;
     }
 
