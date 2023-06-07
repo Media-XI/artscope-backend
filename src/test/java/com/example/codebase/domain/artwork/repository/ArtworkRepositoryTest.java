@@ -113,8 +113,13 @@ class ArtworkRepositoryTest {
         artworkRepository.saveAll(List.of(artwork1, artwork2, artwork3));
 
         // when
-        Page<Artwork> all = artworkRepository.findAllByKeywordContaining("유진", PageRequest.of(0, 2));
-        Page<Artwork> all2 = artworkRepository.findAllByKeywordContaining("공백이이렇게", PageRequest.of(0, 1));
+        String keyword = " 유 진 ";
+        String keyword2 = "공 백이 이 렇게";
+        String replace = keyword.trim().replace(" ", "");
+        String replace2 = keyword2.replace(" ", "");
+
+        Page<Artwork> all = artworkRepository.findAllByKeywordContaining(replace, PageRequest.of(0, 2));
+        Page<Artwork> all2 = artworkRepository.findAllByKeywordContaining(replace2, PageRequest.of(0, 1));
 
         // then
         assertThat(all.getSize()).isEqualTo(2);
