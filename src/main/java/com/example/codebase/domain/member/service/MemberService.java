@@ -110,13 +110,14 @@ public class MemberService {
 
     @Transactional
     public Member createOAuthMember(OAuthAttributes oAuthAttributes) {
+        if (isExistUsername(oAuthAttributes.getOAuthProviderId())) {
+            throw new ExistMemberException();
+        }
+
         if (isExistEmail(oAuthAttributes.getEmail())) {
             throw new ExistsEmailException();
         }
 
-        if (isExistUsername(oAuthAttributes.getName())) {
-            throw new ExistMemberException();
-        }
 
         // New Save
         Authority authority = new Authority();

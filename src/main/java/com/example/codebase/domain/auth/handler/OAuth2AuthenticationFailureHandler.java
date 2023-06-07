@@ -1,5 +1,7 @@
 package com.example.codebase.domain.auth.handler;
 
+import com.example.codebase.controller.dto.RestResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
@@ -13,7 +15,12 @@ import java.io.IOException;
 public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+        ObjectMapper mapper = new ObjectMapper();
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        response.getWriter().write("OAuth2 Authentication failed");
+        response.setContentType("application/json;charset=UTF-8");
+
+        RestResponse restResponse = new RestResponse(false, exception.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
+
+        response.getWriter().write(mapper.writeValueAsString(restResponse));
     }
 }
