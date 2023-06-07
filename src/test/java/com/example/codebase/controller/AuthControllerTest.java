@@ -10,6 +10,7 @@ import com.example.codebase.domain.member.entity.MemberAuthority;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.jwt.TokenProvider;
+import com.example.codebase.util.RedisUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,6 +37,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -64,6 +66,9 @@ class AuthControllerTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private RedisUtil redisUtil;
+
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
@@ -75,6 +80,10 @@ class AuthControllerTest {
     }
 
     public Member createOrLoadMember() {
+        return createOrLoadMember(true);
+    }
+
+    public Member createOrLoadMember(boolean activated) {
         Optional<Member> testMember = memberRepository.findByUsername("testid");
         if (testMember.isPresent()) {
             return testMember.get();
@@ -85,7 +94,7 @@ class AuthControllerTest {
                 .password(passwordEncoder.encode("1234"))
                 .email("email")
                 .name("test")
-                .activated(true)
+                .activated(activated)
                 .createdTime(LocalDateTime.now())
                 .build();
 
@@ -153,6 +162,23 @@ class AuthControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @DisplayName("사용자 이메일 코드 입력 시 ")
+    @Test
+    public void 이메일_인증_시 () throws Exception {
+        Member member = createOrLoadMember(false);
+
+        String code = "test";
+        redisUtil.setDataAndExpire(code, member.getEmail(), 60 * 5 * 1000);
+
+        mockMvc.perform(
+                        get("/api/mail/authenticate")
+                                .param("code", code)
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
     }
 
 }

@@ -330,8 +330,8 @@ class MemberControllerTest {
         mockMvc.perform(
                         get(String.format("/api/members/username/%s", member.getUsername()))
                 )
-                .andExpect(status().isBadRequest())
-                .andDo(print());
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
@@ -345,8 +345,8 @@ class MemberControllerTest {
         mockMvc.perform(
                         put(String.format("/api/members/artist/%s?status=%s", "testid1", status))
                 )
-                .andExpect(status().isOk())
-                .andDo(print());
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
@@ -360,8 +360,8 @@ class MemberControllerTest {
         mockMvc.perform(
                         put(String.format("/api/members/artist/%s?status=%s", "testid1", status))
                 )
-                .andExpect(status().isBadRequest())
-                .andDo(print());
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
     @WithMockCustomUser(username = "testid1", role = "USER")
@@ -373,8 +373,8 @@ class MemberControllerTest {
         mockMvc.perform(
                         put(String.format("/api/members/%s/username?newUsername=%s", loadMember.getUsername(), "newid"))
                 )
-                .andExpect(status().isOk())
-                .andDo(print());
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "testid1", role = "USER")
@@ -387,8 +387,8 @@ class MemberControllerTest {
         mockMvc.perform(
                         put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(), loadMember2.getUsername()))
                 )
-                .andExpect(status().isBadRequest())
-                .andDo(print());
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
     @WithMockCustomUser(username = "testid1", role = "USER")
@@ -401,21 +401,36 @@ class MemberControllerTest {
         mockMvc.perform(
                         put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(), "1"))
                 )
-                .andExpect(status().isBadRequest())
-                .andDo(print());
+                .andDo(print())
+                .andExpect(status().isBadRequest());
 
         mockMvc.perform(
                         put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(), "한글"))
                 )
-                .andExpect(status().isBadRequest())
-                .andDo(print());
+                .andDo(print())
+                .andExpect(status().isBadRequest());
 
         mockMvc.perform(
                         put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(), "asdasdasdsadasdasdasdsa"))
                 )
-                .andExpect(status().isBadRequest())
-                .andDo(print());
-
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
+
+
+    @WithMockCustomUser(username = "testid1", role = "USER")
+    @DisplayName("비밀번호 변경 시")
+    @Test
+    void 비밀번호_변경 () throws Exception {
+        Member loadMember = createOrLoadMember();
+
+        mockMvc.perform(
+                        put(String.format("/api/members/%s/password", loadMember.getUsername()))
+                                .param("newPassword", "newpassword123!")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
 
 }

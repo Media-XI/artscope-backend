@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -27,14 +28,12 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
-    private MemberRepository memberRepository;
-    private MemberAuthorityRepository memberAuthorityRepository;
-    private MemberService memberService;
+    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     @Autowired
-    public CustomOAuth2UserService(MemberRepository memberRepository, MemberAuthorityRepository memberAuthorityRepository, PasswordEncoder passwordEncoder, MemberService memberService) {
+    public CustomOAuth2UserService(MemberRepository memberRepository, MemberService memberService) {
         this.memberRepository = memberRepository;
-        this.memberAuthorityRepository = memberAuthorityRepository;
         this.memberService = memberService;
     }
 
@@ -50,20 +49,24 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         OAuthAttributes oAuthAttributes = OAuthAttributes.
                 of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
 
-        Member member = saveOrUpdate(oAuthAttributes);
+        try {
+            Member member = saveOrUpdate(oAuthAttributes);
 
-        List<SimpleGrantedAuthority> simpleGrantedAuthorityList = new ArrayList<>();
-        for (MemberAuthority memberAuthority : member.getAuthorities()) {
-            simpleGrantedAuthorityList.add(new SimpleGrantedAuthority(memberAuthority.getAuthority().getAuthorityName()));
+            List<SimpleGrantedAuthority> simpleGrantedAuthorityList = new ArrayList<>();
+            for (MemberAuthority memberAuthority : member.getAuthorities()) {
+                simpleGrantedAuthorityList.add(new SimpleGrantedAuthority(memberAuthority.getAuthority().getAuthorityName()));
+            }
+
+            return new DefaultOAuth2User(simpleGrantedAuthorityList,
+                    oAuthAttributes.getAttributes(),
+                    oAuthAttributes.getNameAttributeKey());
+        } catch (RuntimeException e) {
+            throw new OAuth2AuthenticationException(new OAuth2Error("oauth2_runtime_error"), e.getMessage());
         }
-
-        return new DefaultOAuth2User(simpleGrantedAuthorityList,
-                oAuthAttributes.getAttributes(),
-                oAuthAttributes.getNameAttributeKey());
     }
 
     private Member saveOrUpdate(OAuthAttributes oAuthAttributes) {
-        Optional<Member> find = memberRepository.findByOauthProviderIdOrEmail(oAuthAttributes.getOAuthProviderId(), oAuthAttributes.getEmail());
+        Optional<Member> find = memberRepository.findByOauthProviderId(oAuthAttributes.getOAuthProviderId());
 
         if (find.isPresent()) { // Update
             Member presentMember = find.get();

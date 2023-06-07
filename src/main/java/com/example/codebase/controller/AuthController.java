@@ -52,7 +52,7 @@ public class AuthController {
         return new ResponseEntity(responseDTO, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "이메일 인증 링크 API", notes = "해당 메일 인증")
+    @ApiOperation(value = "이메일 인증확인 API", notes = "인증코드를 기반으로 이메일 인증 처리")
     @ApiResponses({
             @ApiResponse(code = 200, message = "이메일 인증 성공"),
             @ApiResponse(code = 400, message = "이메일 인증 실패")
@@ -61,7 +61,6 @@ public class AuthController {
     @GetMapping("/mail/authenticate")
     public ResponseEntity authenticateMailLink(
             @RequestParam String code) {
-        // TODO 이메일 인증 링크를 통해 인증을 진행합니다.
         authService.authenticateMail(code);
         return new ResponseEntity("이메일 인증되었습니다.", HttpStatus.OK);
     }

@@ -61,10 +61,23 @@ public class ArtworkService {
         return ArtworkResponseDTO.from(saveArtwork);
     }
 
-    public ArtworkWithLikePageDTO getAllArtwork(int page, int size, String sortDirection) {
+    public ArtworkWithLikePageDTO getAllArtwork(int page, int size, String sortDirection, Optional<String> username) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
+        if (username.isPresent()) {
+            Member member = memberRepository.findByUsername(username.get())
+                    .orElseThrow(NotFoundMemberException::new);
+
+            Page<ArtworkWithIsLike> artworksWithIsLikePage = artworkRepository.findAllMemeWIthIsLikeByIdAndMember(member, pageRequest);
+            PageInfo pageInfo = PageInfo.of(page, size, artworksWithIsLikePage.getTotalPages(), artworksWithIsLikePage.getTotalElements());
+
+            List<ArtworkWithIsLikeResponseDTO> dtos = artworksWithIsLikePage.stream()
+                    .map(ArtworkWithIsLikeResponseDTO::from)
+                    .collect(Collectors.toList());
+
+            return ArtworkWithLikePageDTO.of(dtos, pageInfo);
+        }
         Page<Artwork> artworksPage = artworkRepository.findAll(pageRequest);
 
         PageInfo pageInfo = PageInfo.of(page, size, artworksPage.getTotalPages(), artworksPage.getTotalElements());
@@ -76,13 +89,16 @@ public class ArtworkService {
     }
 
     @Transactional
-    public ArtworkWithIsLikeResponseDTO getArtwork(Long id) {
+    public ArtworkWithIsLikeResponseDTO getArtwork(Long id, Optional<String> username) {
+        boolean existLike = false;
+        if (username.isPresent()) {
+            existLike = artworkLikeMemberRepository.existsByArtwork_IdAndMember_Username(id, username.get());
+        }
         Artwork artwork = artworkRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
-
         artwork.increaseView(); // 조회수 증가
 
-        return ArtworkWithIsLikeResponseDTO.from(artwork);
+        return ArtworkWithIsLikeResponseDTO.from(artwork, existLike);
     }
 
     @Transactional
@@ -202,33 +218,6 @@ public class ArtworkService {
         return ArtworkLikeMembersPageDTO.from(usernames, artworkLikeMembers.getTotalElements(), pageInfo);
     }
 
-    public ArtworkWithLikePageDTO getAllArtwork(int page, int size, String sortDirection, String username) {
-        Member member = memberRepository.findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
-
-        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
-        PageRequest pageRequest = PageRequest.of(page, size, sort);
-
-        Page<ArtworkWithIsLike> artworks = artworkRepository.findAllByUserLiked(member, pageRequest);
-        PageInfo pageInfo = PageInfo.of(page, size, artworks.getTotalPages(), artworks.getTotalElements());
-
-        List<ArtworkWithIsLikeResponseDTO> dtos = artworks.stream()
-                .map(ArtworkWithIsLikeResponseDTO::from)
-                .collect(Collectors.toList());
-
-        return ArtworkWithLikePageDTO.of(dtos, pageInfo);
-    }
-
-    public ArtworkWithIsLikeResponseDTO getArtwork(Long id, String username) {
-        Member member = memberRepository.findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
-
-        ArtworkWithIsLike artwork = artworkRepository.findArtworkWithIsLikeById(id, member)
-                .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
-
-        return ArtworkWithIsLikeResponseDTO.from(artwork);
-    }
-
     public Boolean getLoginUserArtworkIsLiked(Long id, String loginUsername) {
         Member member = memberRepository.findByUsername(loginUsername)
                 .orElseThrow(NotFoundMemberException::new);
@@ -237,5 +226,19 @@ public class ArtworkService {
 
         return byArtworkIdAndMember.isPresent();
 
+    }
+
+    public ArtworksResponseDTO searchArtworks(String keyword, int page, int size, String sortDirection) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        Page<Artwork> artworks = artworkRepository.findAllByKeywordContaining(keyword, pageRequest);
+        PageInfo pageInfo = PageInfo.of(page, size, artworks.getTotalPages(), artworks.getTotalElements());
+
+        List<ArtworkResponseDTO> dtos = artworks.stream()
+                .map(ArtworkResponseDTO::from)
+                .collect(Collectors.toList());
+
+        return ArtworksResponseDTO.of(dtos, pageInfo);
     }
 }

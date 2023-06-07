@@ -46,7 +46,7 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDTO createMember(CreateMemberDTO member) {
-        if (memberRepository.findByUsername(member.getUsername()).isPresent()) {
+        if (memberRepository.existsByUsername(member.getUsername())) {
             throw new ExistMemberException();
         }
 
@@ -55,7 +55,7 @@ public class MemberService {
         }
 
         Authority authority = Authority.builder()
-                .authorityName("ROLE_USER")
+                .authorityName("ROLE_GUEST")
                 .build();
 
         Member newMember = Member.builder()
@@ -64,7 +64,7 @@ public class MemberService {
                 .name(member.getName())
                 .email(member.getEmail())
                 .createdTime(LocalDateTime.now())
-                .activated(true)
+                .activated(false)
                 .build();
 
         MemberAuthority memberAuthority = MemberAuthority.builder()
@@ -110,15 +110,14 @@ public class MemberService {
 
     @Transactional
     public Member createOAuthMember(OAuthAttributes oAuthAttributes) {
-        // TODO: 이메일 중복 체크
+        if (isExistUsername(oAuthAttributes.getOAuthProviderId())) {
+            throw new ExistMemberException();
+        }
 
         if (isExistEmail(oAuthAttributes.getEmail())) {
             throw new ExistsEmailException();
         }
 
-        if (isExistUsername(oAuthAttributes.getName())) {
-            throw new ExistMemberException();
-        }
 
         // New Save
         Authority authority = new Authority();
@@ -249,5 +248,14 @@ public class MemberService {
         member.updateUsername(newUsername);
 
         return MemberResponseDTO.from(member);
+    }
+
+    @Transactional
+    public void updatePassword(String username, String password) {
+        Member member = memberRepository
+                .findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+
+        member.updatePassword(passwordEncoder.encode(password));
     }
 }
