@@ -250,7 +250,8 @@ public class ArtworkController {
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "DESC", required = false) String sortDirection
     ) {
-        ArtworksResponseDTO artworks = artworkService.searchArtworks(keyword, page, size, sortDirection);
+        String formatKeyword = keyword.trim().replace(" ", ""); // 공백 제거
+        ArtworksResponseDTO artworks = artworkService.searchArtworks(formatKeyword, page, size, sortDirection);
         return new ResponseEntity(artworks, HttpStatus.OK);
     }
 }
