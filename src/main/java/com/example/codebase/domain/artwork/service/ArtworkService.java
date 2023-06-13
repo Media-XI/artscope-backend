@@ -147,11 +147,11 @@ public class ArtworkService {
         return ArtworkResponseDTO.from(artwork);
     }
 
-    public ArtworksResponseDTO getUserArtworks(int page, int size, String sortDirection, String username) {
+    public ArtworksResponseDTO getUserArtworks(int page, int size, String sortDirection, String username, boolean isAuthor) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
-        Page<Artwork> artworks = artworkRepository.findAllByMember_Username(pageRequest, username);
+        Page<Artwork> artworks = artworkRepository.findAllByMember_UsernameAndVisible(pageRequest, username, !isAuthor);
         PageInfo pageInfo = PageInfo.of(page, size, artworks.getTotalPages(), artworks.getTotalElements());
 
         List<ArtworkResponseDTO> dtos = artworks.stream()

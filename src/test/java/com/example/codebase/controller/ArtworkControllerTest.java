@@ -915,6 +915,20 @@ class ArtworkControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
-
     }
+
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("비공개 아트워크를 내 프로필 API로 조회 시 ")
+    @Test
+    public void 비공개_아트워크_내_프로필조회 () throws Exception {
+        Artwork artwork = createOrLoadArtwork(1, false);
+
+        mockMvc.perform(
+                        get(String.format("/api/artworks/member/%s", artwork.getMember().getUsername()))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
 }
