@@ -174,7 +174,7 @@ public class ArtworkController {
             @RequestParam(defaultValue = "DESC", required = false) String sortDirection
     ) {
         String loginUsername = SecurityUtil.getCurrentUsername()
-                .orElse(null);
+                .orElse("");
         boolean isAuthor = false;
         if (loginUsername.equals(username)) {
             isAuthor = true;
