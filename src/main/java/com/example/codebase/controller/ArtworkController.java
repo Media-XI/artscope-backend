@@ -168,11 +168,19 @@ public class ArtworkController {
     @ApiOperation(value = "사용자의 아트워크 조회", notes = "사용자의 아트워크를 조회합니다.")
     @GetMapping("/member/{username}")
     public ResponseEntity getUserArtworks(
+            @PathVariable String username,
             @PositiveOrZero @RequestParam(defaultValue = "0") int page,
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "DESC", required = false) String sortDirection,
-            @PathVariable String username) {
-        ArtworksResponseDTO artworks = artworkService.getUserArtworks(page, size, sortDirection, username);
+            @RequestParam(defaultValue = "DESC", required = false) String sortDirection
+    ) {
+        String loginUsername = SecurityUtil.getCurrentUsername()
+                .orElse(null);
+        boolean isAuthor = false;
+        if (loginUsername.equals(username)) {
+            isAuthor = true;
+        }
+
+        ArtworksResponseDTO artworks = artworkService.getUserArtworks(page, size, sortDirection, username, isAuthor);
         return new ResponseEntity(artworks, HttpStatus.OK);
     }
 
