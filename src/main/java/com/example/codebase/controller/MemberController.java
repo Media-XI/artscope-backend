@@ -197,6 +197,13 @@ public class MemberController {
 
         memberService.updatePassword(username, newPassword);
         return new ResponseEntity("비밀번호가 변경되었습니다.", HttpStatus.OK);
+    }
 
+    @ApiOperation(value = "관리자 권한 부여", notes = "[관리자] 해당 사용자 관리자 권한 부여")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @PutMapping("/{username}/admin")
+    public ResponseEntity updateAdmin(@PathVariable String username) {
+        MemberResponseDTO member = memberService.updateAdmin(username);
+        return new ResponseEntity(member, HttpStatus.OK);
     }
 }
