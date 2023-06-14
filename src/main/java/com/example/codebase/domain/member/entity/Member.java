@@ -160,17 +160,21 @@ public class Member {
 
     public void updateArtistStatus(String status) {
         this.artistStatus = ArtistStatus.create(status);
+        this.updatedTime = LocalDateTime.now();
     }
 
     public void updateUsername(String newUsername) {
         this.username = newUsername;
+        this.updatedTime = LocalDateTime.now();
     }
 
     public void updateActivated(boolean activated) {
         this.activated = activated;
+        this.updatedTime = LocalDateTime.now();
     }
 
     public void updatePassword(String password) {
         this.password = password;
+        this.updatedTime = LocalDateTime.now();
     }
 }

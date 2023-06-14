@@ -39,8 +39,8 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
     Optional<ArtworkWithIsLike> findArtworkWithIsLikeById(Long id, Member member);
 
     @Query("SELECT a AS artwork, CASE WHEN alm.member = :member THEN true ELSE false END as isLike " +
-            "FROM Artwork a LEFT JOIN ArtworkLikeMember alm ON a = alm.artwork AND alm.member = :member ")
-    Page<ArtworkWithIsLike> findAllMemeWIthIsLikeByIdAndMember(Member member, Pageable pageable);
+            "FROM Artwork a LEFT JOIN ArtworkLikeMember alm ON a = alm.artwork AND alm.member = :member WHERE a.visible = true")
+    Page<ArtworkWithIsLike> findAllMemeWIthIsLikeByIdAndMemberAndVisible(Member member, Pageable pageable);
 
 
     @Query("SELECT a " +
