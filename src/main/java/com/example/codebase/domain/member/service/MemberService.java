@@ -258,4 +258,18 @@ public class MemberService {
 
         member.updatePassword(passwordEncoder.encode(password));
     }
+
+    @Transactional
+    public MemberResponseDTO updateAdmin(String username) {
+        Member member = memberRepository
+                .findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+
+        MemberAuthority memberAuthority = new MemberAuthority();
+        memberAuthority.setAuthority(Authority.of("ROLE_ADMIN"));
+        memberAuthority.setMember(member);
+        memberAuthorityRepository.save(memberAuthority);
+
+        return MemberResponseDTO.from(member);
+    }
 }
