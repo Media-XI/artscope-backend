@@ -76,7 +76,7 @@ public class ArtworkService {
                 artworksWithIsLikePage = artworkRepository.findAllMemeWIthIsLikeByIdAndMember(member, pageRequest);
             }
             else {
-                artworksWithIsLikePage = artworkRepository.findAllMemeWIthIsLikeByIdAndMemberAndVisible(member, false, pageRequest);
+                artworksWithIsLikePage = artworkRepository.findAllMemeWIthIsLikeByIdAndMemberAndVisible(member, true, pageRequest);
             }
 
             PageInfo pageInfo = PageInfo.of(page, size, artworksWithIsLikePage.getTotalPages(), artworksWithIsLikePage.getTotalElements());
