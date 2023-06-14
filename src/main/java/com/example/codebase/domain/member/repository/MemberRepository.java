@@ -20,6 +20,12 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
      */
     Optional<Member> findOneWithAuthoritiesByUsername(String username);
     Optional<Member> findByUsername(String username);
+
+    @Query(" SELECT m " +
+            " FROM Member m " +
+            " WHERE m.username = ?1 OR m.oauthProviderId = ?1")
+    Optional<Member> findByUsernameOrOauthProviderId(String username);
+
     Optional<Member> findByOauthProviderId(String oauthProviderId);
     Optional<Member> findByOauthProviderIdAndEmail(String oauthProviderId, String email);
 

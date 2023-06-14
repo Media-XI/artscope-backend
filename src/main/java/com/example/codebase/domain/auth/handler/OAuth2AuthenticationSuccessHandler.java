@@ -40,13 +40,13 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         try {
-            String authorizationCode = request.getParameter("code");
+//            String authorizationCode = request.getParameter("code");
+//            log.info("authorizationCode: " + authorizationCode);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             TokenResponseDTO token = tokenProvider.generateToken(authentication);
 
-            log.info("authorizationCode: " + authorizationCode);
-            log.info("우리가 발급한 refreshToken: " + token.getRefreshToken());
+//            log.info("우리가 발급한 refreshToken: " + token.getRefreshToken());
 
             if (authentication.getAuthorities().contains("ROLE_GUEST") ){ // 최초 가입한 사람 -> ROLE_GUEST
                 response.addHeader(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + token.getRefreshToken());

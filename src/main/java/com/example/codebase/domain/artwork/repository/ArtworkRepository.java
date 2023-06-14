@@ -27,6 +27,8 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
 
     Page<Artwork> findAllByMember_Username(Pageable pageable, String username);
 
+    Page<Artwork> findAllByMember_UsernameAndVisible(Pageable pageable, String username, boolean visible);
+
     // 최근 일주일내 조회수 수가 많은 순으로 N개 가져온다
     @Query("select a from Artwork a where a.visible = true and a.createdTime between ?1 and ?2 order by a.views desc")
     List<Artwork> findTopByPopular(LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable);
@@ -37,7 +39,11 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
     Optional<ArtworkWithIsLike> findArtworkWithIsLikeById(Long id, Member member);
 
     @Query("SELECT a AS artwork, CASE WHEN alm.member = :member THEN true ELSE false END as isLike " +
-            "FROM Artwork a LEFT JOIN ArtworkLikeMember alm ON a = alm.artwork AND alm.member = :member ")
+            "FROM Artwork a LEFT JOIN ArtworkLikeMember alm ON a = alm.artwork AND alm.member = :member WHERE a.visible = :visible")
+    Page<ArtworkWithIsLike> findAllMemeWIthIsLikeByIdAndMemberAndVisible(Member member, Boolean visible, Pageable pageable);
+
+    @Query("SELECT a AS artwork, CASE WHEN alm.member = :member THEN true ELSE false END as isLike " +
+            "FROM Artwork a LEFT JOIN ArtworkLikeMember alm ON a = alm.artwork AND alm.member = :member")
     Page<ArtworkWithIsLike> findAllMemeWIthIsLikeByIdAndMember(Member member, Pageable pageable);
 
 

@@ -12,6 +12,7 @@ import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.exception.NotAccessException;
 import com.example.codebase.exception.NotFoundException;
 import com.example.codebase.s3.S3Service;
+import com.example.codebase.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -68,8 +69,16 @@ public class ArtworkService {
         if (username.isPresent()) {
             Member member = memberRepository.findByUsername(username.get())
                     .orElseThrow(NotFoundMemberException::new);
+            Page<ArtworkWithIsLike> artworksWithIsLikePage;
 
-            Page<ArtworkWithIsLike> artworksWithIsLikePage = artworkRepository.findAllMemeWIthIsLikeByIdAndMember(member, pageRequest);
+            if (SecurityUtil.isAdmin()) {
+                // 관리자면 공개여부와 상관없이 전체 조회
+                artworksWithIsLikePage = artworkRepository.findAllMemeWIthIsLikeByIdAndMember(member, pageRequest);
+            }
+            else {
+                artworksWithIsLikePage = artworkRepository.findAllMemeWIthIsLikeByIdAndMemberAndVisible(member, true, pageRequest);
+            }
+
             PageInfo pageInfo = PageInfo.of(page, size, artworksWithIsLikePage.getTotalPages(), artworksWithIsLikePage.getTotalElements());
 
             List<ArtworkWithIsLikeResponseDTO> dtos = artworksWithIsLikePage.stream()
@@ -147,11 +156,11 @@ public class ArtworkService {
         return ArtworkResponseDTO.from(artwork);
     }
 
-    public ArtworksResponseDTO getUserArtworks(int page, int size, String sortDirection, String username) {
+    public ArtworksResponseDTO getUserArtworks(int page, int size, String sortDirection, String username, boolean isAuthor) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
-        Page<Artwork> artworks = artworkRepository.findAllByMember_Username(pageRequest, username);
+        Page<Artwork> artworks = artworkRepository.findAllByMember_UsernameAndVisible(pageRequest, username, !isAuthor);
         PageInfo pageInfo = PageInfo.of(page, size, artworks.getTotalPages(), artworks.getTotalElements());
 
         List<ArtworkResponseDTO> dtos = artworks.stream()
