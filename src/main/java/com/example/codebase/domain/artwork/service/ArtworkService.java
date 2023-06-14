@@ -69,7 +69,7 @@ public class ArtworkService {
             Member member = memberRepository.findByUsername(username.get())
                     .orElseThrow(NotFoundMemberException::new);
 
-            Page<ArtworkWithIsLike> artworksWithIsLikePage = artworkRepository.findAllMemeWIthIsLikeByIdAndMember(member, pageRequest);
+            Page<ArtworkWithIsLike> artworksWithIsLikePage = artworkRepository.findAllMemeWIthIsLikeByIdAndMemberAndVisible(member, pageRequest);
             PageInfo pageInfo = PageInfo.of(page, size, artworksWithIsLikePage.getTotalPages(), artworksWithIsLikePage.getTotalElements());
 
             List<ArtworkWithIsLikeResponseDTO> dtos = artworksWithIsLikePage.stream()
