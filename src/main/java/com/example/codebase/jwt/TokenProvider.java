@@ -116,7 +116,7 @@ public class TokenProvider implements InitializingBean {
 
 
     public Authentication getAuthentication(String token) {
-        Claims claims = getClaims(token);            // Token 값
+        Claims claims = getClaims(token); // Token 값
 
         Collection<? extends GrantedAuthority> authorities = Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
                 .map(SimpleGrantedAuthority::new)
@@ -190,7 +190,7 @@ public class TokenProvider implements InitializingBean {
             throw new InvalidJwtTokenException("요청에 담긴 토큰과 서버의 토큰이 일치하지 않습니다");
         }
 
-        Member find = memberRepository.findByUsername(usernameFromToken).orElseThrow(
+        Member find = memberRepository.findByUsernameOrOauthProviderId(usernameFromToken).orElseThrow(
                 () -> new NotFoundException("존재하지 않는 회원입니다")
         );
 
@@ -216,6 +216,16 @@ public class TokenProvider implements InitializingBean {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    public boolean isRefreshType(String token) {
+        Claims claims = getClaims(token);
+
+        if (!claims.containsKey("typ")) {
+            return false;
+        }
+
+        return claims.get("typ").equals("refresh");
     }
 
     public boolean validateToken(String token) {

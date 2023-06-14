@@ -52,6 +52,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         try {
             Member member = saveOrUpdate(oAuthAttributes);
 
+
+
             List<SimpleGrantedAuthority> simpleGrantedAuthorityList = new ArrayList<>();
             for (MemberAuthority memberAuthority : member.getAuthorities()) {
                 simpleGrantedAuthorityList.add(new SimpleGrantedAuthority(memberAuthority.getAuthority().getAuthorityName()));
