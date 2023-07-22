@@ -1,0 +1,19 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/ubuntu/deploy/
+    overwrite: yes
+
+permissions:
+  - object: /home/ubuntu/deploy/
+    pattern: "**"
+    owner: ubuntu
+    group: ubuntu
+    mode: 777
+
+hooks:
+  ApplicationStart:
+    - location: scripts/start.sh
+      timeout: 60
+      runas: ubuntu

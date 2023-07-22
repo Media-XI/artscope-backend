@@ -14,6 +14,9 @@ env:
   DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
   DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
   JASYPT_ENCRYPTOR_PASSWORD: ${{ secrets.JASYPT_ENCRYPTOR_PASSWORD }}
+  AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
+  AWS_CODE_DEPLOY_NAME: artscope-codedeploy
+  AWS_CODE_DEPLOY_GROUP: artscope-codedeploy-group
 
 jobs:
 
@@ -69,6 +72,37 @@ jobs:
       - name: Push to ${{ env.REGISTRY }}
         run: docker push ${{ env.IMAGE_NAME }}:${{ secrets.MAJOR }}.${{ secrets.MINOR }}
 
+      # Docker 이미지 이름을 image.txt 파일에 쓰기
+      - name: Write Docker image name to file
+        run: echo "${{ env.IMAGE_NAME }}:${{ secrets.MAJOR }}.${{ secrets.MINOR }}" > image.txt
+
+      # AWS 설정
+      - name: AWS Configure
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ap-northeast-2
+
+      # AWS S3로 Docker 이미지 파일 업로드
+      - name: Upload to AWS S3
+        run: |
+          aws deploy push \
+            --application-name ${{ env.AWS_CODE_DEPLOY_NAME }} \
+            --s3-location s3://$AWS_S3_BUCKET_NAME/image.zip \
+            --source image.txt
+
+      # AWS로 배포 요청
+      - name: Delpoy to AWS EC2
+        run: |
+          aws deploy create-deployment \
+            --application-name ${{ env.AWS_CODE_DEPLOY_NAME }} \
+            --deployment-config-name CodeDeployDefault.OneAtATime \
+            --deployment-group-name ${{ env.AWS_CODE_DEPLOY_GROUP }} \
+            --description "Deploy artscope" \
+            --s3-location bucket=$AWS_S3_BUCKET_NAME,key=image.zip,bundleType=zip
+
+      # 다음 버전으로 업데이트
       - name: Autoincrement a new minor version
         run: |
           echo "NEW_MINOR_VERSION=$((${{ secrets.MINOR }}+1))" >> $GITHUB_ENV
