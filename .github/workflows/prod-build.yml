@@ -92,7 +92,7 @@ jobs:
         run: |
           aws deploy push \
             --application-name ${{ env.AWS_CODE_DEPLOY_NAME }} \
-            --s3-location s3://$AWS_S3_BUCKET_NAME/deploy.zip \
+            --s3-location s3://${{ env.AWS_S3_BUCKET_NAME }}/deploy.zip \
             --source deploy.zip
           
 
