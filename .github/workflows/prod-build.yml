@@ -76,8 +76,8 @@ jobs:
       - name: Write Docker image name to file
         run: echo "${{ env.IMAGE_NAME }}:${{ secrets.MAJOR }}.${{ secrets.MINOR }}" > image.txt
 
-      - name: Create deploy.zip
-        run: zip -r deploy.zip appspec.yml image.txt scripts
+      - name: Create zip file for AWS CodeDeploy
+        run: zip -r ${{ env.AWS_CODE_DEPLOY_NAME }}.zip appspec.yml image.txt scripts
 
       # AWS 설정
       - name: AWS Configure
@@ -92,8 +92,8 @@ jobs:
         run: |
           aws deploy push \
             --application-name ${{ env.AWS_CODE_DEPLOY_NAME }} \
-            --s3-location s3://${{ env.AWS_S3_BUCKET_NAME }}/deploy.zip \
-            --source deploy.zip
+            --s3-location s3://${{ env.AWS_S3_BUCKET_NAME }}/${{ env.AWS_CODE_DEPLOY_NAME }} \
+            --source ${{ env.AWS_CODE_DEPLOY_NAME }}.zip
           
 
       # AWS로 배포 요청
