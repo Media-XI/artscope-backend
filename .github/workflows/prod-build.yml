@@ -76,6 +76,9 @@ jobs:
       - name: Write Docker image name to file
         run: echo "${{ env.IMAGE_NAME }}:${{ secrets.MAJOR }}.${{ secrets.MINOR }}" > image.txt
 
+      - name: Create deploy.zip
+        run: zip -r deploy.zip appspec.yml image.txt scripts
+
       # AWS 설정
       - name: AWS Configure
         uses: aws-actions/configure-aws-credentials@v1
@@ -90,8 +93,7 @@ jobs:
           aws deploy push \
             --application-name ${{ env.AWS_CODE_DEPLOY_NAME }} \
             --s3-location s3://$AWS_S3_BUCKET_NAME/deploy.zip \
-            --ignore-hidden-files \
-            --source .
+            --source deploy.zip
           
 
       # AWS로 배포 요청
