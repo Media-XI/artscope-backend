@@ -77,7 +77,7 @@ jobs:
         run: echo "${{ env.IMAGE_NAME }}:${{ secrets.MAJOR }}.${{ secrets.MINOR }}" > image.txt
 
       - name: Create zip file for AWS CodeDeploy
-        run: zip -r ${{ env.AWS_CODE_DEPLOY_NAME }}.zip appspec.yml image.txt scripts
+        run: mkdir ${{ env.AWS_CODE_DEPLOY_NAME }} && cp -r appspec.yml image.txt scripts ${{ env.AWS_CODE_DEPLOY_NAME }}
 
       # AWS 설정
       - name: AWS Configure
@@ -93,7 +93,8 @@ jobs:
           aws deploy push \
             --application-name ${{ env.AWS_CODE_DEPLOY_NAME }} \
             --s3-location s3://${{ env.AWS_S3_BUCKET_NAME }}/${{ env.AWS_CODE_DEPLOY_NAME }} \
-            --source ${{ env.AWS_CODE_DEPLOY_NAME }}.zip
+            --ignore-hidden-files \
+            --source ${{ env.AWS_CODE_DEPLOY_NAME }}
           
 
       # AWS로 배포 요청
