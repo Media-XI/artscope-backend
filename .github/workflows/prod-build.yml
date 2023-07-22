@@ -87,7 +87,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: ap-northeast-2
 
-      # AWS S3로 Docker 이미지 파일 업로드
+      # AWS S3로 배포 파일 업로드
       - name: Upload to AWS S3
         run: |
           aws deploy push \
@@ -95,9 +95,8 @@ jobs:
             --s3-location s3://${{ env.AWS_S3_BUCKET_NAME }}/${{ env.AWS_CODE_DEPLOY_NAME }}.zip \
             --ignore-hidden-files \
             --source ${{ env.AWS_CODE_DEPLOY_NAME }}
-          
 
-      # AWS로 배포 요청
+      # AWS EC2 CodeDeploy 배포 요청
       - name: Delpoy to AWS EC2
         run: |
           aws deploy create-deployment \
