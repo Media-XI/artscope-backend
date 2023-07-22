@@ -90,7 +90,7 @@ jobs:
           aws deploy push \
             --application-name ${{ env.AWS_CODE_DEPLOY_NAME }} \
             --s3-location s3://$AWS_S3_BUCKET_NAME/image.zip \
-            --source image.txt
+            --source image.txt, appspec.yml, scripts
 
       # AWS로 배포 요청
       - name: Delpoy to AWS EC2
