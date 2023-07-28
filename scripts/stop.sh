@@ -1,7 +1,7 @@
 CONTAINER_NAME=art-backend
 
-# 도커 컨테이너가 있는지 확인
-RUNNING_CONTAINER_ID=$(docker ps -q --filter "name=$CONTAINER_NAME")
+# 도커 컨테이너가 있는지 확인 (-a 옵션으로 정지된 컨테이너도 확인)
+RUNNING_CONTAINER_ID=$(docker ps -aq --filter "name=$CONTAINER_NAME")
 echo "실행중인 컨테이너 ID: $RUNNING_CONTAINER_ID"
 
 #
