@@ -17,11 +17,12 @@ services:
       - ${CONTAINER_ENV_PATH}
     volumes:
       - logs_data:/logs
-      - ./pinpoint/profiles:/pinpoint-agent/profiles:rw
+      - /home/ubuntu/art-be/pinpoint/profiles:/pinpoint-agent/profiles:rw
       - pinpoint-volumes:/pinpoint-agent
     depends_on:
       - redis
       - pinpoint-agent
+      - filebeat
 
   pinpoint-agent:
     container_name: art-pinpoint-agent
@@ -46,8 +47,6 @@ services:
       - logs_data:/logs
     ports:
       - 5044:5044
-    depends_on:
-      - art-be
 
 volumes:
   logs_data:
