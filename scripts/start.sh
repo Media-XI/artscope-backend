@@ -13,7 +13,7 @@ services:
     image: ${IMAGE_NAME}
     ports:
       - 18080:8080
-    env-file:
+    env_file:
       - ${CONTAINER_ENV_PATH}
     volumes:
       - logs_data:/logs
