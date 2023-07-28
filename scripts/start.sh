@@ -24,6 +24,7 @@ services:
       - pinpoint-agent
 
   pinpoint-agent:
+    container_name: art-pinpoint-agent
     image: pinpointdocker/pinpoint-agent:2.5.2
     volumes:
       - pinpoint-volumes:/pinpoint-agent
