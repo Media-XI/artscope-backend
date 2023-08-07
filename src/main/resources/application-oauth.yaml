@@ -12,7 +12,7 @@ spring:
               # - openid # OIDC 인증 활성화
 
 app:
-  oauth2-redirect-uri: http://localhost:3000//user/auth2-success
+  oauth2-redirect-uri: http://localhost:3000/user/auth2-success
   fail-redirect-uri: http://localhost:3000/user/auth2-failure
 
 ---
@@ -23,7 +23,7 @@ spring:
         - dev
 
 app:
-  oauth2-redirect-uri: https://dev.artscope.kr//user/auth2-success
+  oauth2-redirect-uri: https://dev.artscope.kr/user/auth2-success
   fail-redirect-uri: https://dev.artscope.kr/user/auth2-failure
 
 ---
@@ -34,5 +34,5 @@ spring:
         - prod
 
 app:
-  oauth2-redirect-uri: https://artscope.kr/oauth2/redirect
-  fail-redirect-uri: https://artscope.kr/oauth2/redirect
+  oauth2-redirect-uri: https://artscope.kr/user/auth2-success
+  fail-redirect-uri: https://artscope.kr/user/auth2-failure
