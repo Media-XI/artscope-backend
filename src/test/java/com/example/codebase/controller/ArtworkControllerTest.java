@@ -180,8 +180,7 @@ class ArtworkControllerTest {
     }
 
     private byte[] createImageFile() throws IOException {
-        File file = resourceLoader.getResource("classpath:test/img.jpg").getFile();
-        return Files.readAllBytes(file.toPath());
+        return "test".getBytes();
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
