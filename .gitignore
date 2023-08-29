@@ -38,3 +38,5 @@ out/
 .vscode/
 
 http_call.http
+
+docker-compose.yaml
