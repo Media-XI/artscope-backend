@@ -1,7 +1,7 @@
-package com.example.codebase.domain.blog.entity;
+package com.example.codebase.domain.post.entity;
 
-import com.example.codebase.domain.blog.dto.PostCreateDTO;
-import com.example.codebase.domain.blog.dto.PostUpdateDTO;
+import com.example.codebase.domain.post.dto.PostCreateDTO;
+import com.example.codebase.domain.post.dto.PostUpdateDTO;
 import com.example.codebase.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

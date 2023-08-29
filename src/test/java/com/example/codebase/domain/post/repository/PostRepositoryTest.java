@@ -1,6 +1,6 @@
-package com.example.codebase.domain.blog.repository;
+package com.example.codebase.domain.post.repository;
 
-import com.example.codebase.domain.blog.entity.Post;
+import com.example.codebase.domain.post.entity.Post;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +11,6 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.*;
 
 

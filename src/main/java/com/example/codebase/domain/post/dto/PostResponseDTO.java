@@ -1,6 +1,6 @@
-package com.example.codebase.domain.blog.dto;
+package com.example.codebase.domain.post.dto;
 
-import com.example.codebase.domain.blog.entity.Post;
+import com.example.codebase.domain.post.entity.Post;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 

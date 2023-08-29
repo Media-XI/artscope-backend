@@ -1,12 +1,11 @@
 package com.example.codebase.controller;
 
-import com.example.codebase.domain.blog.dto.PostCreateDTO;
-import com.example.codebase.domain.blog.dto.PostResponseDTO;
-import com.example.codebase.domain.blog.dto.PostUpdateDTO;
-import com.example.codebase.domain.blog.dto.PostsResponseDTO;
-import com.example.codebase.domain.blog.service.PostService;
+import com.example.codebase.domain.post.dto.PostCreateDTO;
+import com.example.codebase.domain.post.dto.PostResponseDTO;
+import com.example.codebase.domain.post.dto.PostUpdateDTO;
+import com.example.codebase.domain.post.dto.PostsResponseDTO;
+import com.example.codebase.domain.post.service.PostService;
 import com.example.codebase.util.SecurityUtil;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

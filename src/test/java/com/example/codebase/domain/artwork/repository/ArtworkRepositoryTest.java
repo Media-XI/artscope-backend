@@ -1,22 +1,13 @@
 package com.example.codebase.domain.artwork.repository;
 
 import com.example.codebase.domain.artwork.entity.Artwork;
-import com.example.codebase.domain.blog.entity.Post;
-import com.example.codebase.domain.blog.repository.PostRepository;
-import com.example.codebase.domain.member.entity.Member;
-import com.example.codebase.domain.member.repository.MemberRepository;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.assertj.core.api.Assertions.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

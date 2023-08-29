@@ -1,6 +1,6 @@
-package com.example.codebase.domain.blog.repository;
+package com.example.codebase.domain.post.repository;
 
-import com.example.codebase.domain.blog.entity.Post;
+import com.example.codebase.domain.post.entity.Post;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

@@ -1,15 +1,13 @@
-package com.example.codebase.domain.blog.service;
+package com.example.codebase.domain.post.service;
 
 
 import com.example.codebase.controller.dto.PageInfo;
-import com.example.codebase.domain.artwork.dto.ArtworkResponseDTO;
-import com.example.codebase.domain.artwork.entity.Artwork;
-import com.example.codebase.domain.blog.dto.PostCreateDTO;
-import com.example.codebase.domain.blog.dto.PostResponseDTO;
-import com.example.codebase.domain.blog.dto.PostUpdateDTO;
-import com.example.codebase.domain.blog.dto.PostsResponseDTO;
-import com.example.codebase.domain.blog.entity.Post;
-import com.example.codebase.domain.blog.repository.PostRepository;
+import com.example.codebase.domain.post.dto.PostCreateDTO;
+import com.example.codebase.domain.post.dto.PostResponseDTO;
+import com.example.codebase.domain.post.dto.PostUpdateDTO;
+import com.example.codebase.domain.post.dto.PostsResponseDTO;
+import com.example.codebase.domain.post.entity.Post;
+import com.example.codebase.domain.post.repository.PostRepository;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberRepository;

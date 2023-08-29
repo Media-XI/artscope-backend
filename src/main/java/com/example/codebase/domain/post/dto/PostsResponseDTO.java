@@ -1,4 +1,4 @@
-package com.example.codebase.domain.blog.dto;
+package com.example.codebase.domain.post.dto;
 
 import com.example.codebase.controller.dto.PageInfo;
 import lombok.Getter;
