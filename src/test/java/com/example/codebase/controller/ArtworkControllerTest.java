@@ -180,7 +180,7 @@ class ArtworkControllerTest {
     }
 
     private byte[] createImageFile() throws IOException {
-        File file = resourceLoader.getResource("classpath:test/img.jpg").getFile();
+        File file = resourceLoader.getResource("classpath:test/img.jpg").getFile(); // TODO : 테스트용 이미지 파일
         return Files.readAllBytes(file.toPath());
     }
 
