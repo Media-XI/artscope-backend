@@ -2,7 +2,7 @@ spring:
   datasource:
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
     username: ENC(Kt7o5icqv0HbyhvK8lkkq5NLvsd+w2sgInF6GV9woNY=)
-    password: ENC(z7B56UwL9fSZHUhmjlcUoSaaKBQ5kpJ0fjnuhbVZLdo=)
+    password: ENC(gF/Q/TCMbDIvlP43z8ZBmQXO9+4E6u3RY8NZDQSMLSI=)
     url: jdbc:log4jdbc:mysql://localhost:13307/art?allowPublicKeyRetrieval=true&useSSL=false
   jpa:
     database: mysql
