@@ -36,44 +36,44 @@ public class FeedService {
 
     @Transactional()
     public FeedResponseDto createFeed(int page, int size) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdTime");
-        PageRequest pageRequest = PageRequest.of(page, size / 3, sort);
-
         List<FeedItemResponseDto> feedItems = new ArrayList<>();
         int totalPages = 0;
         int totalElements = 0;
 
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdTime");
+        PageRequest pageRequest = PageRequest.of(page, size / 3, sort);
+
         // 아트워크 조회
         Page<Artwork> artworks = artworkRepository.findAll(pageRequest);
-        List<FeedItemResponseDto> artworkItems = artworks
-                .stream()
-                .map(artwork -> FeedItemResponseDto.from(artwork))
-                .collect(Collectors.toList());
         totalElements += artworks.getTotalElements();
         totalPages += artworks.getTotalPages();
 
+        List<FeedItemResponseDto> artworkItems = artworks
+                .stream()
+                .map(FeedItemResponseDto::from)
+                .collect(Collectors.toList());
         feedItems.addAll(artworkItems);
 
         // Post 조회
         Page<Post> posts = postRepository.findAll(pageRequest);
-        List<FeedItemResponseDto> postItems = posts
-                .stream()
-                .map(post -> FeedItemResponseDto.from(post))
-                .collect(Collectors.toList());
         totalElements += posts.getTotalElements();
         totalPages += posts.getTotalPages();
 
+        List<FeedItemResponseDto> postItems = posts
+                .stream()
+                .map(FeedItemResponseDto::from)
+                .collect(Collectors.toList());
         feedItems.addAll(postItems);
 
         // 전시 조회
         Page<Exhibition> exhibitions = exhibitionRepository.findAll(pageRequest);
-        List<FeedItemResponseDto> exhibitionItems = exhibitions
-                .stream()
-                .map(exhibition -> FeedItemResponseDto.from(exhibition))
-                .collect(Collectors.toList());
         totalElements += exhibitions.getTotalElements();
         totalPages += exhibitions.getTotalPages();
 
+        List<FeedItemResponseDto> exhibitionItems = exhibitions
+                .stream()
+                .map(FeedItemResponseDto::from)
+                .collect(Collectors.toList());
         feedItems.addAll(exhibitionItems);
 
         PageInfo pageInfo = PageInfo.of(page, size, totalPages / 3, totalElements);

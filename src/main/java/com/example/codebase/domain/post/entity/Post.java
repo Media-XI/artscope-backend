@@ -41,7 +41,7 @@ public class Post {
     private LocalDateTime updatedTime;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "author_id")
     private Member author;
 
     public static Post of(PostCreateDTO postCreateDTO, Member author) {
