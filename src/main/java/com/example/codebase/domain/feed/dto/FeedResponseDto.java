@@ -15,11 +15,18 @@ public class FeedResponseDto {
 
     private PageInfo pageInfo;
 
+    private boolean hasNext;
+
 
     public static FeedResponseDto of(List<FeedItemResponseDto> feedItems, PageInfo pageInfo) {
         FeedResponseDto feedResponseDto = new FeedResponseDto();
         feedResponseDto.setFeedItems(feedItems);
         feedResponseDto.setPageInfo(pageInfo);
+
+        boolean hasNext = (pageInfo.getSize() * 3L) * pageInfo.getPage() < pageInfo.getTotalElements();
+
+        feedResponseDto.setHasNext(hasNext);
+
         return feedResponseDto;
     }
 
