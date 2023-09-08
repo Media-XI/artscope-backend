@@ -27,6 +27,7 @@ public class FeedService {
     private final ArtworkRepository artworkRepository;
     private final PostRepository postRepository;
     private final ExhibitionRepository exhibitionRepository;
+
     @Autowired
     public FeedService(ArtworkRepository artworkRepository, PostRepository postRepository, ExhibitionRepository exhibitionRepository) {
         this.artworkRepository = artworkRepository;
@@ -40,8 +41,8 @@ public class FeedService {
         int totalPages = 0;
         int totalElements = 0;
 
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdTime");
-        PageRequest pageRequest = PageRequest.of(page, size / 3, sort);
+        Sort sort = Sort.by("createdTime").descending();
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
 
         // 아트워크 조회
         Page<Artwork> artworks = artworkRepository.findAll(pageRequest);
@@ -75,6 +76,9 @@ public class FeedService {
                 .map(FeedItemResponseDto::from)
                 .collect(Collectors.toList());
         feedItems.addAll(exhibitionItems);
+
+        // application sort
+        feedItems.sort((o1, o2) -> o2.getCreatedTime().compareTo(o1.getCreatedTime()));
 
         PageInfo pageInfo = PageInfo.of(page, size, totalPages / 3, totalElements);
         return FeedResponseDto.of(feedItems, pageInfo);

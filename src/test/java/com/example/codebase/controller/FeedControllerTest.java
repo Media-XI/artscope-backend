@@ -193,16 +193,67 @@ class FeedControllerTest {
 
         // 아트워크 생성 및 저장
         createOrLoadArtwork(1, true, 1);
+        createOrLoadArtwork(2, true, 1);
+        createOrLoadArtwork(3, true, 1);
+        createOrLoadArtwork(4, true, 1);
+        createOrLoadArtwork(5, true, 1);
+        createOrLoadArtwork(6, true, 1);
+        createOrLoadArtwork(7, true, 1);
+        createOrLoadArtwork(8, true, 1);
+        createOrLoadArtwork(9, true, 1);
+        createOrLoadArtwork(10, true, 1);
 
         // Post 생성 및 저장
+        createPost();
+        createPost();
+        createPost();
+        createPost();
+        createPost();
+        createPost();
+        createPost();
+        createPost();
+        createPost();
+        createPost();
         createPost();
 
         // 전시 생성 및 저장
         createOrLoadExhibition(1);
+        createOrLoadExhibition(2);
+        createOrLoadExhibition(3);
+        createOrLoadExhibition(4);
 
         mockMvc.perform(
                         post("/api/feed")
-                                .param("page", "0")
+                                .param("page", "1")
+                                .param("size", "10")
+                )
+                .andExpect(status().isCreated())
+                .andDo(print());
+    }
+
+    @DisplayName("피드 생성 시 일부 데이터 없을 떄 ")
+    @Test
+    public void createFeed_일부데이터없이() throws Exception {
+
+        // 아트워크 생성 및 저장
+        createOrLoadArtwork(1, true, 1);
+        createOrLoadArtwork(2, true, 1);
+        createOrLoadArtwork(3, true, 1);
+        createOrLoadArtwork(4, true, 1);
+        createOrLoadArtwork(5, true, 1);
+        createOrLoadArtwork(6, true, 1);
+        createOrLoadArtwork(7, true, 1);
+        createOrLoadArtwork(8, true, 1);
+        createOrLoadArtwork(9, true, 1);
+        createOrLoadArtwork(10, true, 1);
+
+        // Post 생성 및 저장
+        createPost();
+        createPost();
+
+        mockMvc.perform(
+                        post("/api/feed")
+                                .param("page", "1")
                                 .param("size", "10")
                 )
                 .andExpect(status().isCreated())
@@ -231,6 +282,28 @@ class FeedControllerTest {
     @DisplayName("피드 생성 시 전체 데이터가 없다면 ")
     @Test
     public void createFeed3() throws Exception {
+
+        mockMvc.perform(
+                        post("/api/feed")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isCreated())
+                .andDo(print());
+    }
+
+    @DisplayName("피드 조회 시 page가 0이면 에러 발생")
+    @Test
+    public void createFeed4() throws Exception {
+
+        // 아트워크 생성 및 저장
+        createOrLoadArtwork(1, true, 1);
+
+        // Post 생성 및 저장
+        createPost();
+
+        // 전시 생성 및 저장
+        createOrLoadExhibition(1);
 
         mockMvc.perform(
                         post("/api/feed")
