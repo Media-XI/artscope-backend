@@ -23,7 +23,7 @@ public class FeedResponseDto {
         feedResponseDto.setFeedItems(feedItems);
         feedResponseDto.setPageInfo(pageInfo);
 
-        boolean hasNext = (pageInfo.getSize() * 3L) * pageInfo.getPage() < pageInfo.getTotalElements();
+        boolean hasNext = (pageInfo.getSize() + (pageInfo.getPage() * 30)) < pageInfo.getTotalElements();
 
         feedResponseDto.setHasNext(hasNext);
 
