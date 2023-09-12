@@ -27,7 +27,7 @@ public class PostController {
     }
 
     @ApiOperation(value = "게시글 생성", notes = "[관리자 접근] 게시글을 생성합니다.")
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity createPost(@RequestBody PostCreateDTO postCreateDTO) {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
@@ -56,8 +56,8 @@ public class PostController {
     }
 
 
-    @ApiOperation(value = "게시글 수정", notes = "[관리자 접근] 게시글을 수정합니다.")
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
+    @ApiOperation(value = "게시글 수정", notes = "[로그인] 게시글을 수정합니다.")
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/{postId}")
     public ResponseEntity updatePost(@PathVariable Long postId, @RequestBody PostUpdateDTO postUpdateDTO) {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
@@ -67,8 +67,8 @@ public class PostController {
         return new ResponseEntity(post, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "게시글 삭제", notes = "[관리자 접근] 게시글을 삭제합니다.")
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
+    @ApiOperation(value = "게시글 삭제", notes = "[로그인] 게시글을 삭제합니다.")
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{postId}")
     public ResponseEntity deletePost(@PathVariable Long postId) {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
