@@ -32,7 +32,7 @@ public class FeedItemResponseDto {
 
     private List<String> mediaUrls;
 
-    private String authorId;
+    private String authorUsername;
 
     private String authorName;
 
@@ -61,7 +61,7 @@ public class FeedItemResponseDto {
                 .map(artworkMedia -> artworkMedia.getMediaUrl())
                 .collect(Collectors.toList());
         String authorName = artwork.getMember().getName();
-        String authorId = artwork.getMember().getId().toString();
+        String authorUsername = artwork.getMember().getUsername().toString();
         String authorDescription = artwork.getMember().getIntroduction();
         String authorProfileImageUrl = artwork.getMember().getPicture();
         List<String> tags = Arrays.stream(artwork.getTags().split(","))
@@ -74,7 +74,7 @@ public class FeedItemResponseDto {
                 .content(artwork.getDescription())
                 .thumbnailUrl(thumbnailUrl)
                 .authorName(authorName)
-                .authorId(authorId)
+                .authorUsername(authorUsername)
                 .authorDescription(authorDescription)
                 .authorProfileImageUrl(authorProfileImageUrl)
                 .tags(tags)
