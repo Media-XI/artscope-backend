@@ -93,7 +93,7 @@ public class FeedItemResponseDto {
         FeedItemResponseDto dto = FeedItemResponseDto.builder()
                 .id(post.getId())
                 .type(FeedType.post)
-                .title(post.getTitle())
+                .title(null)
                 .content(post.getContent())
                 .authorName(post.getAuthor().getName())
                 .authorUsername(post.getAuthor().getUsername().toString())
