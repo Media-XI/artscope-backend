@@ -29,10 +29,9 @@ public class FeedController {
     @ApiOperation(value = "피드 생성", notes = "[ALL] 피드를 생성합니다.")
     @PostMapping
     public ResponseEntity createFeed(
-            @PositiveOrZero @RequestParam(defaultValue = "0") int page,
-            @PositiveOrZero @RequestParam(defaultValue = "10") int size
+            @PositiveOrZero @RequestParam(defaultValue = "0") int page
             ) {
-        FeedResponseDto dto = feedService.createFeed(page, size);
+        FeedResponseDto dto = feedService.createFeed(page, 10);
 
         return new ResponseEntity(dto, HttpStatus.CREATED);
     }

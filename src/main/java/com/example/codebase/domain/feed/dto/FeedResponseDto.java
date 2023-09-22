@@ -13,20 +13,13 @@ public class FeedResponseDto {
 
     private List<FeedItemResponseDto> feedItems;
 
-    private PageInfo pageInfo;
-
     private boolean hasNext;
 
 
-    public static FeedResponseDto of(List<FeedItemResponseDto> feedItems, PageInfo pageInfo) {
+    public static FeedResponseDto of(List<FeedItemResponseDto> feedItems, boolean hasNext) {
         FeedResponseDto feedResponseDto = new FeedResponseDto();
         feedResponseDto.setFeedItems(feedItems);
-        feedResponseDto.setPageInfo(pageInfo);
-
-        boolean hasNext = (pageInfo.getSize() + (pageInfo.getPage() * 30)) < pageInfo.getTotalElements();
-
         feedResponseDto.setHasNext(hasNext);
-
         return feedResponseDto;
     }
 

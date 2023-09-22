@@ -38,16 +38,12 @@ public class FeedService {
     @Transactional()
     public FeedResponseDto createFeed(int page, int size) {
         List<FeedItemResponseDto> feedItems = new ArrayList<>();
-        int totalPages = 0;
-        int totalElements = 0;
 
         Sort sort = Sort.by("createdTime").descending();
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
         // 아트워크 조회
         Page<Artwork> artworks = artworkRepository.findAll(pageRequest);
-        totalElements += artworks.getTotalElements();
-        totalPages += artworks.getTotalPages();
 
         List<FeedItemResponseDto> artworkItems = artworks
                 .stream()
@@ -57,8 +53,6 @@ public class FeedService {
 
         // Post 조회
         Page<Post> posts = postRepository.findAll(pageRequest);
-        totalElements += posts.getTotalElements();
-        totalPages += posts.getTotalPages();
 
         List<FeedItemResponseDto> postItems = posts
                 .stream()
@@ -68,8 +62,6 @@ public class FeedService {
 
         // 전시 조회
         Page<Exhibition> exhibitions = exhibitionRepository.findAll(pageRequest);
-        totalElements += exhibitions.getTotalElements();
-        totalPages += exhibitions.getTotalPages();
 
         List<FeedItemResponseDto> exhibitionItems = exhibitions
                 .stream()
@@ -80,7 +72,7 @@ public class FeedService {
         // application sort
         feedItems.sort((o1, o2) -> o2.getCreatedTime().compareTo(o1.getCreatedTime()));
 
-        PageInfo pageInfo = PageInfo.of(page, size, totalPages / 3, totalElements);
-        return FeedResponseDto.of(feedItems, pageInfo);
+        boolean hasNext = artworks.hasNext() || posts.hasNext() || exhibitions.hasNext();
+        return FeedResponseDto.of(feedItems,hasNext);
     }
 }
