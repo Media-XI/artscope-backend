@@ -118,12 +118,11 @@ public class MemberService {
             throw new ExistsEmailException();
         }
 
-
         // New Save
         Authority authority = new Authority();
         authority.setAuthorityName("ROLE_USER");
 
-        Member newMember = oAuthAttributes.toEntity(passwordEncoder);
+        Member newMember = Member.from(passwordEncoder, oAuthAttributes);
         MemberAuthority memberAuthority = MemberAuthority.builder()
                 .authority(authority)
                 .member(newMember)
