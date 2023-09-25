@@ -2,6 +2,7 @@ package com.example.codebase.domain.member.entity;
 
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkLikeMember;
+import com.example.codebase.domain.auth.OAuthAttributes;
 import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
 import com.example.codebase.domain.member.dto.UpdateMemberDTO;
 import com.example.codebase.domain.member.entity.oauth2.oAuthProvider;
@@ -9,6 +10,7 @@ import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -109,6 +111,34 @@ public class Member {
                 .collect(Collectors.toList()));
     }
 
+    public static Member from(PasswordEncoder passwordEncoder, OAuthAttributes oAuthAttributes) {
+        String username = generateUniqueUsername();
+
+        return Member.builder()
+                .username(username)
+                .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                .name(oAuthAttributes.getName())
+                .email(oAuthAttributes.getEmail())
+                .picture(oAuthAttributes.getPicture())
+                .oauthProvider(oAuthAttributes.getRegistrationId())
+                .oauthProviderId(oAuthAttributes.getOAuthProviderId())
+                .createdTime(LocalDateTime.now())
+                .activated(true)
+                .build();
+    }
+
+    private static String generateUniqueUsername() {
+        // UUID 생성
+        UUID uuid = UUID.randomUUID();
+
+        // UUID를 문자열로 변환하고 "-"를 제거하여 username 생성
+        String username = uuid.toString().replace("-", "");
+
+        // "@"를 앞에 추가
+        username = username.substring(0, 10); // 예시로 10자리만 사용
+        return "user-" + username;
+    }
+
     public Member update(String name, String picture) {
         this.name = name;
         this.picture = picture;
@@ -118,8 +148,7 @@ public class Member {
 
     public Member update(UpdateMemberDTO dto) {
         if (dto.getUsername() != null) {
-            this.username = dto.getUsername();
-        }
+            this.username = dto.getUsername();        }
         if (dto.getName() != null) {
             this.name = dto.getName();
         }
