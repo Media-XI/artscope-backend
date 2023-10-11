@@ -10,7 +10,6 @@ import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class PostWithLikesResponseDTO extends PostResponseDTO {
 
     List<PostLikeMemberDTO> likeMembers;
