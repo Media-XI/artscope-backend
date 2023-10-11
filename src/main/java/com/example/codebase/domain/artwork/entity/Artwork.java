@@ -3,7 +3,6 @@ package com.example.codebase.domain.artwork.entity;
 import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkUpdateDTO;
-import com.example.codebase.domain.exhibition_artwork.entity.ExhibitionArtwork;
 import com.example.codebase.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
