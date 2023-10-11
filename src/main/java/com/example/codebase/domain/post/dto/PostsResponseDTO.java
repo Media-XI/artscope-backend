@@ -11,8 +11,8 @@ import java.util.List;
 public class PostsResponseDTO {
 
     List<PostResponseDTO> posts;
-    PageInfo pageInfo;
 
+    PageInfo pageInfo;
 
     public static PostsResponseDTO of(List<PostResponseDTO> dtos, PageInfo pageInfo) {
         PostsResponseDTO responseDTO = new PostsResponseDTO();

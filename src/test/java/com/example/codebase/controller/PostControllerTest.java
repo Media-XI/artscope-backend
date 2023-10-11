@@ -82,7 +82,7 @@ class PostControllerTest {
         Member dummy = Member.builder()
                 .username(username)
                 .password(passwordEncoder.encode("1234"))
-                .email("email")
+                .email("emailasdf")
                 .name("test")
                 .activated(true)
                 .createdTime(LocalDateTime.now())
@@ -94,7 +94,6 @@ class PostControllerTest {
         dummy.setAuthorities(Collections.singleton(memberAuthority));
 
         Member save = memberRepository.save(dummy);
-        memberAuthorityRepository.save(memberAuthority);
         return save;
     }
 
@@ -102,7 +101,6 @@ class PostControllerTest {
         Member loadMember = createOrLoadMember("admin", "ROLE_ADMIN");
 
         Post post = Post.builder()
-                .title("title")
                 .content("content")
                 .author(loadMember)
                 .createdTime(LocalDateTime.now())
@@ -115,7 +113,6 @@ class PostControllerTest {
 
         for (int i = 0; i < size; i++) {
             Post post = Post.builder()
-                    .title("제목" + i)
                     .content("내용" + i)
                     .author(loadMember)
                     .createdTime(LocalDateTime.now())
@@ -132,12 +129,11 @@ class PostControllerTest {
         createOrLoadMember("admin", "ROLE_ADMIN");
         // given
         PostCreateDTO postCreateDTO = PostCreateDTO.builder()
-                .title("제목")
                 .content("내용")
                 .build();
 
         mockMvc.perform(
-                        post("/api/post")
+                        post("/api/posts")
                                 .contentType("application/json")
                                 .content(objectMapper.writeValueAsString(postCreateDTO))
                 )
@@ -153,7 +149,7 @@ class PostControllerTest {
 
         // when
         mockMvc.perform(
-                        get("/api/post?page=0&size=20")
+                        get("/api/posts?page=0&size=20")
                 )
                 .andDo(print())
                 .andExpect(status().isOk()); // then
@@ -166,12 +162,11 @@ class PostControllerTest {
         Post post = createPost();
 
         PostUpdateDTO dto = PostUpdateDTO.builder()
-                .title("제목 수정")
                 .content("내용 수정")
                 .build();
 
         mockMvc.perform(
-                        put("/api/post/" + post.getId())
+                        put("/api/posts/" + post.getId())
                                 .contentType("application/json")
                                 .content(objectMapper.writeValueAsString(dto))
                 )
@@ -186,11 +181,45 @@ class PostControllerTest {
         Post post = createPost();
 
         mockMvc.perform(
-                        delete("/api/post/" + post.getId())
+                        delete("/api/posts/" + post.getId())
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("포스트 좋아요 시")
+    @Test
+    void 포스트_좋아요 () throws Exception {
+        Post post = createPost();
 
+        mockMvc.perform(
+                        post("/api/posts/" + post.getId() + "/like")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("포스트 전체 조회 시 좋아요 여부와 함께")
+    @Test
+    void 포스트_전체_조회_좋아요여부 () throws Exception {
+        Post post = createPost();
+        createPost();
+        createPost();
+        createPost();
+
+        mockMvc.perform(
+                        post("/api/posts/" + post.getId() + "/like")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        mockMvc.perform(
+                        get("/api/posts?page=0&size=20")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+    }
 }

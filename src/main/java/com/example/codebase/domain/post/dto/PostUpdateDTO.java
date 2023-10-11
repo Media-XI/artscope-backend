@@ -9,8 +9,6 @@ import lombok.*;
 @Builder
 public class PostUpdateDTO {
 
-    private String title;
-
     private String content;
 }
 

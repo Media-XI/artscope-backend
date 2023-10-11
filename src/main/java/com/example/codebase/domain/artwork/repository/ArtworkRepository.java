@@ -21,7 +21,7 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
     @Query("SELECT a AS artwork, CASE WHEN a = alm.artwork THEN true ELSE false END as isLike " +
             "FROM Artwork a LEFT JOIN ArtworkLikeMember alm ON a = alm.artwork AND alm.member = :member " +
             "WHERE a.visible = true")
-    Page<ArtworkWithIsLike> findAllByUserLiked(Member member, Pageable pageable);
+    Page<ArtworkWithIsLike> findAllWithIsLiked(Member member, Pageable pageable);
 
     Optional<Artwork> findByIdAndMember_Username(Long id, String username);
 
@@ -40,11 +40,11 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
 
     @Query("SELECT a AS artwork, CASE WHEN alm.member = :member THEN true ELSE false END as isLike " +
             "FROM Artwork a LEFT JOIN ArtworkLikeMember alm ON a = alm.artwork AND alm.member = :member WHERE a.visible = :visible")
-    Page<ArtworkWithIsLike> findAllMemeWIthIsLikeByIdAndMemberAndVisible(Member member, Boolean visible, Pageable pageable);
+    Page<ArtworkWithIsLike> findAllWithIsLikeByMemberAndVisible(Member member, Boolean visible, Pageable pageable);
 
     @Query("SELECT a AS artwork, CASE WHEN alm.member = :member THEN true ELSE false END as isLike " +
             "FROM Artwork a LEFT JOIN ArtworkLikeMember alm ON a = alm.artwork AND alm.member = :member")
-    Page<ArtworkWithIsLike> findAllMemeWIthIsLikeByIdAndMember(Member member, Pageable pageable);
+    Page<ArtworkWithIsLike> findAllWithIsLikeByMember(Member member, Pageable pageable);
 
 
     @Query("SELECT a " +
