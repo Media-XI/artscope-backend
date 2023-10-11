@@ -7,7 +7,10 @@
 
 name: Spring Boot Test by Gradle
 
-on: [ workflow_call ]
+on:
+  workflow_call:
+    secrets:
+      - JASYPT_ENCRYPTOR_PASSWORD
 
 jobs:
   test:
@@ -18,9 +21,6 @@ jobs:
         image: redis
         ports:
           - 16379:6379
-
-    environment:
-      JASYPT_ENCRYPTOR_PASSWORD: ${{ secrets.JASYPT_ENCRYPTOR_PASSWORD }}
 
     steps:
       - uses: actions/checkout@v3
@@ -45,7 +45,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Test with Gradle
-        run: ./gradlew --info test -DJASYPT_ENCRYPTOR_PASSWORD=$JASYPT_ENCRYPTOR_PASSWORD
+        run: ./gradlew --info test -DJASYPT_ENCRYPTOR_PASSWORD=${{ secrets.JASYPT_ENCRYPTOR_PASSWORD }}
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
