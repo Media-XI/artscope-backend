@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ "develop" ]
   workflow_run:
-    workflows: ["test"]
+    workflows: ["Spring Boot Test by Gradle"]
     types:
       - completed
 
