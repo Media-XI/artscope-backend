@@ -23,6 +23,7 @@ jobs:
   build-dockerized-development:
     name: Build Dockerized Development
     runs-on: ubuntu-latest
+    needs: test
 
     services:
       redis:
