@@ -220,6 +220,38 @@ class PostControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
 
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("포스트 상세 조회 시")
+    @Test
+    void 포스트_상세_조회 () throws Exception {
+        Post post = createPost();
+
+        mockMvc.perform(
+                        get("/api/posts/" + post.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("좋아요한 포스트 상세 조회 시")
+    @Test
+    void 좋아요_포스트_상세_조회 () throws Exception {
+        Post post = createPost();
+
+        mockMvc.perform(
+                        post("/api/posts/" + post.getId() + "/like")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        mockMvc.perform(
+                        get("/api/posts/" + post.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }

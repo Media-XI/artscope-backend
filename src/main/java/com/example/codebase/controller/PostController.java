@@ -54,7 +54,7 @@ public class PostController {
         return new ResponseEntity(posts, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "게시글 상세 조회", notes = "[페이지네이션] 해당 ID의 게시글을 조회합니다.")
+    @ApiOperation(value = "게시글 상세 조회", notes = "[모두] 해당 ID의 게시글을 조회합니다.")
     @GetMapping("/{postId}")
     public ResponseEntity getPost(@PathVariable Long postId) {
 

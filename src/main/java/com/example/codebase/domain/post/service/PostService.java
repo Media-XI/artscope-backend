@@ -133,7 +133,7 @@ public class PostService {
         }
         else {
             PostLikeMember newLike = PostLikeMember.of(post, member);
-            postLikeMemberRepository.save(newLike);
+            post.addLikeMember(newLike);
         }
 
         Integer likeCount = postLikeMemberRepository.countByPostId(post.getId());
