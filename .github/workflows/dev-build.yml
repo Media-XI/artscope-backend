@@ -5,6 +5,10 @@ on:
     branches: [ "develop" ]
   pull_request:
     branches: [ "develop" ]
+  workflow_run:
+    workflows: ["test"]
+    types:
+      - completed
 
 env:
   # Use docker.io for Docker Hub if empty
