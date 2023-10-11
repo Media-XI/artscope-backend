@@ -97,7 +97,7 @@ public class FeedService {
 
         List<FeedItemResponseDto> artworkItems = artworks
                 .stream()
-                .map((artwork) -> FeedItemResponseDto.of(artwork.getArtwork(), artwork.getIsLike()))
+                .map(FeedItemResponseDto::from)
                 .collect(Collectors.toList());
         feedItems.addAll(artworkItems);
 

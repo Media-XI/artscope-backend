@@ -2,6 +2,8 @@ package com.example.codebase.domain.feed.dto;
 
 
 import com.example.codebase.domain.artwork.entity.Artwork;
+import com.example.codebase.domain.artwork.entity.ArtworkMedia;
+import com.example.codebase.domain.artwork.entity.ArtworkWithIsLike;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
 import com.example.codebase.domain.post.entity.Post;
 import com.example.codebase.domain.post.entity.PostWithIsLiked;
@@ -62,7 +64,7 @@ public class FeedItemResponseDto {
     public static FeedItemResponseDto from(Artwork artwork) {
         String thumbnailUrl = artwork.getArtworkMedia().get(0).getMediaUrl();
         List<String> mediaUrls = artwork.getArtworkMedia().stream()
-                .map(artworkMedia -> artworkMedia.getMediaUrl())
+                .map(ArtworkMedia::getMediaUrl)
                 .collect(Collectors.toList());
         String authorName = artwork.getMember().getName();
         String authorUsername = artwork.getMember().getUsername().toString();
@@ -134,7 +136,7 @@ public class FeedItemResponseDto {
                 .title(exhibition.getTitle())
                 .content(exhibition.getDescription())
                 .authorName(exhibition.getMember().getName())
-                .authorUsername(exhibition.getMember().getUsername().toString())
+                .authorUsername(exhibition.getMember().getUsername())
                 .authorDescription(exhibition.getMember().getIntroduction())
                 .authorProfileImageUrl(exhibition.getMember().getPicture())
                 .tags(null)
@@ -149,4 +151,9 @@ public class FeedItemResponseDto {
         return dto;
     }
 
+    public static FeedItemResponseDto from(ArtworkWithIsLike artworkWithIsLike) {
+        FeedItemResponseDto dto = from(artworkWithIsLike.getArtwork());
+        dto.setIsLiked(artworkWithIsLike.getIsLike());
+        return dto;
+    }
 }
