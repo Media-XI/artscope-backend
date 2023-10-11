@@ -68,11 +68,11 @@ public class PostService {
         Member member = memberRepository.findByUsername(loginUsername)
                 .orElseThrow(NotFoundMemberException::new);
 
-        Page<PostWithIsLiked> posts = postRepository.findAllPostWithIsLikedByMemberId(member, pageRequest);
-        PageInfo pageInfo = PageInfo.of(page, size, posts.getTotalPages(), posts.getTotalElements());
+        Page<PostWithIsLiked> postPages = postRepository.findAllWithIsLiked(member, pageRequest);
+        PageInfo pageInfo = PageInfo.of(page, size, postPages.getTotalPages(), postPages.getTotalElements());
 
-        List<PostResponseDTO> dtos = posts.stream()
-                .map(post -> PostResponseDTO.of(post.getPost(), post.getIsLiked()))
+        List<PostResponseDTO> dtos = postPages.stream()
+                .map(PostResponseDTO::from)
                 .collect(Collectors.toList());
         return PostsResponseDTO.of(dtos, pageInfo);
     }

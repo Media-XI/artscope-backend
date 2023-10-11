@@ -16,7 +16,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("select p from Post p where p.createdTime between ?1 and ?2 order by p.views desc")
     List<Post> findTopByPopular(LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable);
 
-    @Query("SELECT p AS Post, CASE WHEN pm.member = :member THEN true ELSE false END as isLiked " +
+    @Query("SELECT p AS post, CASE WHEN pm.member = :member THEN true ELSE false END as isLiked " +
             "FROM Post p LEFT JOIN PostLikeMember pm ON p = pm.post AND pm.member = :member")
-    Page<PostWithIsLiked> findAllPostWithIsLikedByMemberId(Member member, Pageable pageable);
+    Page<PostWithIsLiked> findAllWithIsLiked(Member member, Pageable pageable);
 }

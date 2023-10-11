@@ -1,6 +1,7 @@
 package com.example.codebase.domain.post.dto;
 
 import com.example.codebase.domain.post.entity.Post;
+import com.example.codebase.domain.post.entity.PostWithIsLiked;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
@@ -54,20 +55,15 @@ public class PostResponseDTO {
                 .build();
     }
 
-    public static PostResponseDTO of(Post post, Boolean isLiked) {
-        return PostResponseDTO.builder()
-                .id(post.getId())
-                .content(post.getContent())
-                .views(post.getViews())
-                .likes(post.getLikes())
-                .isLiked(isLiked)
-                .authorUsername(post.getAuthor().getUsername())
-                .authorName(post.getAuthor().getName())
-                .authorDescription(post.getAuthor().getIntroduction()) // TODO : introduction이 맞는지 확인
-                .authorProfileImageUrl(post.getAuthor().getPicture())
-                .createdTime(post.getCreatedTime())
-                .updatedTime(post.getUpdatedTime())
-                .build();
+    public static PostResponseDTO from(PostWithIsLiked post) {
+        PostResponseDTO dto = from(post.getPost());
+        dto.setIsLiked(post.getIsLiked());
+        return dto;
     }
 
+    public static PostResponseDTO of (Post post, Boolean isLiked) {
+        PostResponseDTO dto = from(post);
+        dto.setIsLiked(isLiked);
+        return dto;
+    }
 }
