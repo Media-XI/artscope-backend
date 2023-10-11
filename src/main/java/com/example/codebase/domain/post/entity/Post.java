@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "post")
@@ -24,15 +26,16 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "title", nullable = false)
-    private String title;
-
     @Column(name="content", columnDefinition = "TEXT", nullable = false)
     private String content;
 
     @Builder.Default
-    @Column(name = "view", columnDefinition = "integer default 0", nullable = false)
-    private Integer view = 0;
+    @Column(name = "views", columnDefinition = "integer default 0", nullable = false)
+    private Integer views = 0;
+
+    @Builder.Default
+    @Column(name = "likes", nullable = false)
+    private Integer likes = 0;
 
     @Column(name = "created_time")
     private LocalDateTime createdTime;
@@ -43,6 +46,10 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "author_id")
     private Member author;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<PostLikeMember> postLikeMembers = new ArrayList<>();
 
     public static Post of(PostCreateDTO postCreateDTO, Member author) {
         return Post.builder()
@@ -58,6 +65,14 @@ public class Post {
     }
 
     public void incressView() {
-        this.view++;
+        this.views++;
+    }
+
+    public void setLikes(Integer likes) {
+        this.likes = likes;
+    }
+
+    public void addLikeMember(PostLikeMember postLikeMember) {
+        this.postLikeMembers.add(postLikeMember);
     }
 }

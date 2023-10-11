@@ -13,35 +13,61 @@ import java.time.LocalDateTime;
 @Builder
 public class PostResponseDTO {
 
-    private String title;
+    protected Long id;
 
-    private String content;
+    protected String content;
 
-    private String author;
+    protected Integer views;
+
+    protected Integer likes;
+
+    @Builder.Default
+    protected Boolean isLiked = false;
+
+    protected String authorUsername;
+
+    protected String authorName;
+
+    protected String authorDescription;
+
+    protected String authorProfileImageUrl;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime createdTime;
+    protected LocalDateTime createdTime;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime updatedTime;
+    protected LocalDateTime updatedTime;
 
-    public static PostResponseDTO of(Post newPost) {
-        return PostResponseDTO.builder()
-                .title(newPost.getTitle())
-                .content(newPost.getContent())
-                .author(newPost.getAuthor().getUsername())
-                .createdTime(newPost.getCreatedTime())
-                .updatedTime(newPost.getUpdatedTime())
-                .build();
-    }
 
     public static PostResponseDTO from(Post post) {
         return PostResponseDTO.builder()
-                .title(post.getTitle())
+                .id(post.getId())
                 .content(post.getContent())
-                .author(post.getAuthor().getUsername())
+                .views(post.getViews())
+                .likes(post.getLikes())
+                .authorUsername(post.getAuthor().getUsername())
+                .authorName(post.getAuthor().getName())
+                .authorDescription(post.getAuthor().getIntroduction()) // TODO : introduction이 맞는지 확인
+                .authorProfileImageUrl(post.getAuthor().getPicture())
                 .createdTime(post.getCreatedTime())
                 .updatedTime(post.getUpdatedTime())
                 .build();
     }
+
+    public static PostResponseDTO of(Post post, Boolean isLiked) {
+        return PostResponseDTO.builder()
+                .id(post.getId())
+                .content(post.getContent())
+                .views(post.getViews())
+                .likes(post.getLikes())
+                .isLiked(isLiked)
+                .authorUsername(post.getAuthor().getUsername())
+                .authorName(post.getAuthor().getName())
+                .authorDescription(post.getAuthor().getIntroduction()) // TODO : introduction이 맞는지 확인
+                .authorProfileImageUrl(post.getAuthor().getPicture())
+                .createdTime(post.getCreatedTime())
+                .updatedTime(post.getUpdatedTime())
+                .build();
+    }
+
 }
