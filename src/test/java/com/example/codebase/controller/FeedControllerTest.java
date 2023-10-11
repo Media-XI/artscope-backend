@@ -153,7 +153,6 @@ class FeedControllerTest {
         Member loadMember = createOrLoadMember();
 
         Post post = Post.builder()
-                .title("title")
                 .content("content")
                 .author(loadMember)
                 .createdTime(LocalDateTime.now())
