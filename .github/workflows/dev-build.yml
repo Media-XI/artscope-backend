@@ -16,7 +16,6 @@ env:
   JASYPT_ENCRYPTOR_PASSWORD: ${{ secrets.JASYPT_ENCRYPTOR_PASSWORD }}
 
 jobs:
-
   test:
     uses: ./.github/workflows/test.yaml
 

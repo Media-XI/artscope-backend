@@ -10,7 +10,8 @@ name: Spring Boot Test by Gradle
 on:
   workflow_call:
     secrets:
-      - JASYPT_ENCRYPTOR_PASSWORD
+      JASYPT_ENCRYPTOR_PASSWORD:
+        required: true
 
 jobs:
   test:
