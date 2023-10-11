@@ -46,7 +46,6 @@ public class Post {
 
     public static Post of(PostCreateDTO postCreateDTO, Member author) {
         return Post.builder()
-                .title(postCreateDTO.getTitle())
                 .content(postCreateDTO.getContent())
                 .author(author)
                 .createdTime(LocalDateTime.now())
@@ -54,7 +53,6 @@ public class Post {
     }
 
     public void update(PostUpdateDTO postUpdateDTO) {
-        this.title = postUpdateDTO.getTitle();
         this.content = postUpdateDTO.getContent();
         this.updatedTime = LocalDateTime.now();
     }
