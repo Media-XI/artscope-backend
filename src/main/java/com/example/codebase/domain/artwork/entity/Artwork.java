@@ -3,7 +3,6 @@ package com.example.codebase.domain.artwork.entity;
 import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkUpdateDTO;
-import com.example.codebase.domain.exhibition_artwork.entity.ExhibitionArtwork;
 import com.example.codebase.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -66,10 +65,6 @@ public class Artwork {
 
     @Builder.Default
     @OneToMany(mappedBy = "artwork", cascade = CascadeType.ALL)
-    private List<ExhibitionArtwork> exhibitionArtworks = new ArrayList<>();
-
-    @Builder.Default
-    @OneToMany(mappedBy = "artwork", cascade = CascadeType.ALL)
     private List<ArtworkMedia> artworkMedia = new ArrayList<>();
 
     @Builder.Default
@@ -95,10 +90,6 @@ public class Artwork {
 
     public void addArtworkMedia(ArtworkMedia artworkMedia) {
         this.artworkMedia.add(artworkMedia);
-    }
-
-    public void addExhibitionArtwork(ExhibitionArtwork exhibitionArtwork) {
-        this.exhibitionArtworks.add(exhibitionArtwork);
     }
 
     public void update(ArtworkUpdateDTO dto) {

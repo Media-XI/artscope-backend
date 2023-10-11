@@ -1,7 +1,6 @@
 package com.example.codebase.domain.exhibition.entity;
 
 import com.example.codebase.domain.exhibition.dto.CreateExhibitionDTO;
-import com.example.codebase.domain.exhibition_artwork.entity.ExhibitionArtwork;
 import com.example.codebase.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
