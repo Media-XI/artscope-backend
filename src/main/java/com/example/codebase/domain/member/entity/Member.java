@@ -108,7 +108,7 @@ public class Member {
     }
 
     public static Member from(PasswordEncoder passwordEncoder, OAuthAttributes oAuthAttributes) {
-        String username = generateUniqueUsername();
+        String username = generateUniqueUsernameLikeYT();
 
         return Member.builder()
                 .username(username)
@@ -133,6 +133,26 @@ public class Member {
         // "@"를 앞에 추가
         username = username.substring(0, 10); // 예시로 10자리만 사용
         return "user-" + username;
+    }
+
+    private static String generateUniqueUsernameLikeYT() {
+        StringBuilder username = new StringBuilder("user-");
+
+        // code :  영소문자1 + 영소문자2 + 숫자 = 26 * 26 * 9 = 6084
+        // code1 + code2 + code3 + 영소문자 = 6084 * 6084 * 6084 * 26 = 5,855,189,618,304 경우의 수 (5조)
+        for (int i = 0; i <  3; i++) {
+            char alphabet1 = (char) ((Math.random() * 26) + 97);
+            char alphabet2 = (char) ((Math.random() * 26) + 97);
+            int number = (int) ((Math.random() * 9) + 1);
+
+            username.append(alphabet1);
+            username.append(alphabet2);
+            username.append(number);
+        }
+        char last = (char) ((Math.random() * 26) + 97);
+        username.append(last);
+
+        return username.toString();
     }
 
     public Member update(String name, String picture) {
