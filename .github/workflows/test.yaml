@@ -13,6 +13,9 @@ on:
       JASYPT_ENCRYPTOR_PASSWORD:
         required: true
 
+env:
+  JASYPT_ENCRYPTOR_PASSWORD: ${{ secrets.JASYPT_ENCRYPTOR_PASSWORD }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
