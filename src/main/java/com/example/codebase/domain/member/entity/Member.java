@@ -6,6 +6,8 @@ import com.example.codebase.domain.auth.OAuthAttributes;
 import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
 import com.example.codebase.domain.member.dto.UpdateMemberDTO;
 import com.example.codebase.domain.member.entity.oauth2.oAuthProvider;
+import com.example.codebase.domain.post.entity.Post;
+import com.example.codebase.domain.post.entity.PostLikeMember;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -89,6 +91,9 @@ public class Member {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<ArtworkLikeMember> artworkLike;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<Post> posts;
 
     public void setAuthorities(Set<MemberAuthority> authorities) {
         this.authorities = authorities;
@@ -203,4 +208,13 @@ public class Member {
         this.password = password;
         this.updatedTime = LocalDateTime.now();
     }
+
+    public void addPost(Post post) {
+        this.posts.add(post);
+    }
+
+    public void addArtwork(Artwork artwork) {
+        this.artworks.add(artwork);
+    }
+
 }

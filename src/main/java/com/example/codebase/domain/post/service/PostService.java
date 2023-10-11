@@ -43,7 +43,8 @@ public class PostService {
         Member author = memberRepository.findByUsername(loginUsername).orElseThrow(NotFoundMemberException::new);
 
         Post newPost = Post.of(postCreateDTO, author);
-        postRepository.save(newPost);
+        author.addPost(newPost);
+
         return PostResponseDTO.from(newPost);
     }
 

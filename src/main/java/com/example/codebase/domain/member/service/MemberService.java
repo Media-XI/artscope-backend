@@ -130,7 +130,6 @@ public class MemberService {
         newMember.setAuthorities(Collections.singleton(memberAuthority));
 
         Member save = memberRepository.save(newMember);
-        memberAuthorityRepository.save(memberAuthority);
         return save;
     }
 
@@ -194,6 +193,7 @@ public class MemberService {
             s3Service.deleteObject(member.getPicture());
         }
 
+        // 미디어 파일 삭제
         if (Optional.ofNullable(member.getArtworks()).isPresent()) {
             deleteMemberAllArtworkMedias(member.getArtworks());
         }
@@ -264,10 +264,11 @@ public class MemberService {
                 .findByUsername(username)
                 .orElseThrow(NotFoundMemberException::new);
 
-        MemberAuthority memberAuthority = new MemberAuthority();
-        memberAuthority.setAuthority(Authority.of("ROLE_ADMIN"));
-        memberAuthority.setMember(member);
-        memberAuthorityRepository.save(memberAuthority);
+        MemberAuthority adminAuthority = new MemberAuthority();
+        adminAuthority.setAuthority(Authority.of("ROLE_ADMIN"));
+        adminAuthority.setMember(member);
+
+        member.addAuthority(adminAuthority);
 
         return MemberResponseDTO.from(member);
     }

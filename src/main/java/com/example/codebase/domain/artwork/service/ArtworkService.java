@@ -63,6 +63,7 @@ public class ArtworkService {
             artwork.addArtworkMedia(media);
         }
 
+        member.addArtwork(artwork);
         Artwork saveArtwork = artworkRepository.save(artwork);
         return ArtworkResponseDTO.from(saveArtwork);
     }
@@ -193,7 +194,7 @@ public class ArtworkService {
         } else {
             // 좋아요 추가
             ArtworkLikeMember artworkLikeMember = ArtworkLikeMember.of(artwork, member);
-            artworkLikeMemberRepository.save(artworkLikeMember);
+            artwork.addArtworkLikeMember(artworkLikeMember);
         }
 
         Integer Likes = artworkLikeMemberRepository.countByArtworkId(artwork.getId());

@@ -92,6 +92,10 @@ public class Artwork {
         this.artworkMedia.add(artworkMedia);
     }
 
+    public void addArtworkLikeMember(ArtworkLikeMember artworkLikeMember) {
+        this.artworkLikeMembers.add(artworkLikeMember);
+    }
+
     public void update(ArtworkUpdateDTO dto) {
         this.title = dto.getTitle();
         if (Optional.ofNullable(dto.getTags()).isPresent()) {
