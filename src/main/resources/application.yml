@@ -18,6 +18,10 @@ server:
   servlet:
     encoding:
       charset: UTF-8
+  tomcat:
+    remote-ip-header: x-forwarded-for # nginx proxy
+    protocol-header: x-forwarded-proto # nginx proxy
+  use-forward-headers: true # nginx proxy
 
 logging:
   config: classpath:log/log4j2-${spring.profiles.active}.xml
