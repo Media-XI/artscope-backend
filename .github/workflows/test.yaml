@@ -7,14 +7,10 @@
 
 name: Spring Boot Test by Gradle
 
-on: [workflow_call]
-
-env:
-  JASYPT_ENCRYPTOR_PASSWORD: ${{ secrets.JASYPT_ENCRYPTOR_PASSWORD }}
+on: [ workflow_call ]
 
 jobs:
   test:
-
     runs-on: ubuntu-latest
 
     services:
@@ -22,6 +18,9 @@ jobs:
         image: redis
         ports:
           - 16379:6379
+
+    environment:
+      JASYPT_ENCRYPTOR_PASSWORD: ${{ secrets.JASYPT_ENCRYPTOR_PASSWORD }}
 
     steps:
       - uses: actions/checkout@v3
