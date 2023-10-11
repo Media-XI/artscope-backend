@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.Optional;
 
-@RequestMapping("/api/post")
+@RequestMapping("/api/posts")
 @RestController
 public class PostController {
 
@@ -100,8 +100,9 @@ public class PostController {
     public ResponseEntity likePost(@PathVariable Long postId) {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
-        postService.likePost(postId, loginUsername);
+        PostResponseDTO likedPost = postService.likePost(postId, loginUsername);
 
-        return new ResponseEntity("게시글 좋아요 완료", HttpStatus.OK);
+        return new ResponseEntity(likedPost, HttpStatus.OK);
     }
+
 }

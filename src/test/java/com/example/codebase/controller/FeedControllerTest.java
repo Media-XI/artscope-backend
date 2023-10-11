@@ -5,6 +5,7 @@ import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
 import com.example.codebase.domain.artwork.entity.ArtworkMediaType;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
+import com.example.codebase.domain.auth.WithMockCustomUser;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
 import com.example.codebase.domain.exhibition.entity.ExhibitionMedia;
 import com.example.codebase.domain.exhibition.entity.ExhibtionMediaType;
@@ -223,8 +224,7 @@ class FeedControllerTest {
 
         mockMvc.perform(
                         post("/api/feed")
-                                .param("page", "1")
-                                .param("size", "10")
+                                .param("page", "0")
                 )
                 .andExpect(status().isCreated())
                 .andDo(print());
@@ -253,7 +253,6 @@ class FeedControllerTest {
         mockMvc.perform(
                         post("/api/feed")
                                 .param("page", "1")
-                                .param("size", "10")
                 )
                 .andExpect(status().isCreated())
                 .andDo(print());
@@ -272,7 +271,6 @@ class FeedControllerTest {
         mockMvc.perform(
                         post("/api/feed")
                                 .param("page", "0")
-                                .param("size", "10")
                 )
                 .andExpect(status().isCreated())
                 .andDo(print());
@@ -285,7 +283,6 @@ class FeedControllerTest {
         mockMvc.perform(
                         post("/api/feed")
                                 .param("page", "0")
-                                .param("size", "10")
                 )
                 .andExpect(status().isCreated())
                 .andDo(print());
@@ -307,9 +304,41 @@ class FeedControllerTest {
         mockMvc.perform(
                         post("/api/feed")
                                 .param("page", "0")
-                                .param("size", "10")
                 )
                 .andExpect(status().isCreated())
                 .andDo(print());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("일부 포스트, 아트워크 좋아요 여부에 따른 피드 조회")
+    @Test
+    public void createFeed5() throws Exception {
+        Artwork artwork = createOrLoadArtwork(1, true, 1);
+        createOrLoadArtwork(2, true, 1);
+
+        // Post 생성 및 저장
+        Post post = createPost();
+        createPost();
+
+        createOrLoadExhibition(1);
+
+        mockMvc.perform(
+                        post("/api/posts/" + post.getId() + "/like")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        mockMvc.perform(
+                        post("/api/artworks/" + artwork.getId() + "/like")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        mockMvc.perform(
+                        post("/api/feed")
+                                .param("page", "0")
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
     }
 }

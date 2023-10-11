@@ -78,10 +78,10 @@ public class ArtworkService {
 
             if (SecurityUtil.isAdmin()) {
                 // 관리자면 공개여부와 상관없이 전체 조회
-                artworksWithIsLikePage = artworkRepository.findAllMemeWIthIsLikeByIdAndMember(member, pageRequest);
+                artworksWithIsLikePage = artworkRepository.findAllWithIsLikeByMember(member, pageRequest);
             }
             else {
-                artworksWithIsLikePage = artworkRepository.findAllMemeWIthIsLikeByIdAndMemberAndVisible(member, true, pageRequest);
+                artworksWithIsLikePage = artworkRepository.findAllWithIsLikeByMemberAndVisible(member, true, pageRequest);
             }
 
             PageInfo pageInfo = PageInfo.of(page, size, artworksWithIsLikePage.getTotalPages(), artworksWithIsLikePage.getTotalElements());
@@ -92,6 +92,7 @@ public class ArtworkService {
 
             return ArtworkWithLikePageDTO.of(dtos, pageInfo);
         }
+
         Page<Artwork> artworksPage = artworkRepository.findAll(pageRequest);
 
         PageInfo pageInfo = PageInfo.of(page, size, artworksPage.getTotalPages(), artworksPage.getTotalElements());

@@ -4,6 +4,7 @@ package com.example.codebase.domain.feed.dto;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
 import com.example.codebase.domain.post.entity.Post;
+import com.example.codebase.domain.post.entity.PostWithIsLiked;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
@@ -48,6 +49,9 @@ public class FeedItemResponseDto {
 
     private Integer likes;
 
+    @Builder.Default
+    private Boolean isLiked = false;
+
     private Integer comments;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
@@ -89,6 +93,12 @@ public class FeedItemResponseDto {
         return dto;
     }
 
+    public static FeedItemResponseDto of(Artwork artwork, Boolean isLiked) {
+        FeedItemResponseDto dto = from(artwork);
+        dto.setIsLiked(isLiked);
+        return dto;
+    }
+
     public static FeedItemResponseDto from(Post post) {
         FeedItemResponseDto dto = FeedItemResponseDto.builder()
                 .id(post.getId())
@@ -108,6 +118,12 @@ public class FeedItemResponseDto {
                 .createdTime(post.getCreatedTime())
                 .updatedTime(post.getUpdatedTime())
                 .build();
+        return dto;
+    }
+
+    public static FeedItemResponseDto from (PostWithIsLiked postWithIsLiked) {
+        FeedItemResponseDto dto = from(postWithIsLiked.getPost());
+        dto.setIsLiked(postWithIsLiked.getIsLiked());
         return dto;
     }
 
@@ -132,4 +148,5 @@ public class FeedItemResponseDto {
                 .build();
         return dto;
     }
+
 }
