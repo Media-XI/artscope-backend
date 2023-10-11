@@ -91,7 +91,7 @@ class PostControllerTest {
         MemberAuthority memberAuthority = new MemberAuthority();
         memberAuthority.setAuthority(Authority.of(role));
         memberAuthority.setMember(dummy);
-        dummy.setAuthorities(Collections.singleton(memberAuthority));
+        dummy.addAuthority(memberAuthority);
 
         Member save = memberRepository.save(dummy);
         return save;

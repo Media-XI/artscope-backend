@@ -16,9 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
@@ -83,21 +81,17 @@ public class Member {
     @Column(name = "artist_status")
     private ArtistStatus artistStatus = ArtistStatus.NONE;
 
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private Set<MemberAuthority> authorities;
+    private Set<MemberAuthority> authorities = new HashSet<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<Artwork> artworks;
+    private List<Artwork> artworks = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<ArtworkLikeMember> artworkLike;
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<Post> posts;
-
-    public void setAuthorities(Set<MemberAuthority> authorities) {
-        this.authorities = authorities;
-    }
+    @Builder.Default
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    private List<Post> posts = new ArrayList<>();
 
     public void setPassword(String password) {
         this.password = password;

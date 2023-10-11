@@ -71,11 +71,9 @@ public class MemberService {
                 .authority(authority)
                 .member(newMember)
                 .build();
-        newMember.setAuthorities(Collections.singleton(memberAuthority));
+        newMember.addAuthority(memberAuthority);
 
         Member save = memberRepository.save(newMember);
-        memberAuthorityRepository.save(memberAuthority);
-
         return MemberResponseDTO.from(save);
     }
 
@@ -94,16 +92,17 @@ public class MemberService {
                 .activated(true)
                 .build();
 
-        Set<MemberAuthority> memberAuthority = new HashSet<>();
-        memberAuthority.add(MemberAuthority.builder()
+        MemberAuthority userAuthority = MemberAuthority.builder()
                 .authority(Authority.of("ROLE_USER"))
                 .member(newMember)
-                .build());
-        memberAuthority.add(MemberAuthority.builder()
+                .build();
+        newMember.addAuthority(userAuthority);
+
+        MemberAuthority adminAuthority = MemberAuthority.builder()
                 .authority(Authority.of("ROLE_ADMIN"))
                 .member(newMember)
-                .build());
-        newMember.setAuthorities(memberAuthority);
+                .build();
+        newMember.addAuthority(adminAuthority);
 
         return MemberResponseDTO.from(memberRepository.save(newMember));
     }
@@ -127,7 +126,7 @@ public class MemberService {
                 .authority(authority)
                 .member(newMember)
                 .build();
-        newMember.setAuthorities(Collections.singleton(memberAuthority));
+        newMember.addAuthority(memberAuthority);
 
         Member save = memberRepository.save(newMember);
         return save;

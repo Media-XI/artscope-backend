@@ -122,7 +122,7 @@ class MemberControllerTest {
         MemberAuthority memberAuthority = new MemberAuthority();
         memberAuthority.setAuthority(Authority.of("ROLE_USER"));
         memberAuthority.setMember(dummy);
-        dummy.setAuthorities(Collections.singleton(memberAuthority));
+        dummy.addAuthority(memberAuthority);
 
         return memberRepository.save(dummy);
     }
