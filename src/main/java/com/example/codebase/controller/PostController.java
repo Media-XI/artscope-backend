@@ -105,4 +105,15 @@ public class PostController {
         return new ResponseEntity(likedPost, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "해당 게시글 댓글 생성", notes = "[로그인] 댓글 생성")
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/{postId}/comments")
+    public ResponseEntity commentPost(@PathVariable Long postId, @RequestBody PostCreateDTO postCreateDTO) {
+        String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+
+        PostResponseDTO commentedPost = postService.commentPost(postId, loginUsername, postCreateDTO);
+
+        return new ResponseEntity(commentedPost, HttpStatus.CREATED);
+    }
+
 }

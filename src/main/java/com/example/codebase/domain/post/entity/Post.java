@@ -37,6 +37,10 @@ public class Post {
     @Column(name = "likes", nullable = false)
     private Integer likes = 0;
 
+    @Builder.Default
+    @Column(name = "comments")
+    private Integer comments = 0;
+
     @Column(name = "created_time")
     private LocalDateTime createdTime;
 
@@ -46,6 +50,14 @@ public class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
     private Member author;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_post_id")
+    private Post parentPost;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "parentPost", cascade = CascadeType.ALL)
+    private List<Post> childrenPosts = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
@@ -75,4 +87,11 @@ public class Post {
     public void addLikeMember(PostLikeMember postLikeMember) {
         this.postLikeMembers.add(postLikeMember);
     }
+
+    public void addChildPost(Post child) {
+        child.parentPost = this;
+        this.childrenPosts.add(child);
+        this.comments++;
+    }
+
 }

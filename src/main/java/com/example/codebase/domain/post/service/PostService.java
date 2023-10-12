@@ -1,8 +1,8 @@
 package com.example.codebase.domain.post.service;
 
 
+import com.amazonaws.services.s3.internal.crypto.AdjustedRangeInputStream;
 import com.example.codebase.controller.dto.PageInfo;
-import com.example.codebase.domain.artwork.dto.ArtworkLikeResponseDTO;
 import com.example.codebase.domain.post.dto.*;
 import com.example.codebase.domain.post.entity.Post;
 import com.example.codebase.domain.post.entity.PostLikeMember;
@@ -20,13 +20,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class PostService {
-
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final PostLikeMemberRepository postLikeMemberRepository;
@@ -105,9 +105,12 @@ public class PostService {
                 .map((PostLikeMember likeMember) -> PostLikeMemberDTO.of(likeMember.getMember(), likeMember.getLikedTime()))
                 .collect(Collectors.toList());
 
-        return PostWithLikesResponseDTO.of(post, postLikeMemberDtos);
+        List<PostResponseDTO> comments = getComments(post);
+
+        return PostWithLikesResponseDTO.create(post, comments, postLikeMemberDtos);
     }
 
+    // 로그인 유저는 좋아요 여부도 함께 표시
     public PostWithLikesResponseDTO getPost(String loginUsername, Long postId) {
         PostWithLikesResponseDTO post = getPost(postId);
 
@@ -116,6 +119,8 @@ public class PostService {
 
         postLikeMemberRepository.findById(PostLikeMemberIds.of(member, post.getId()))
                 .ifPresent((PostLikeMember likeMember) -> post.setIsLiked(true));
+
+        // 댓글 추가
 
         return post;
     }
@@ -141,5 +146,28 @@ public class PostService {
         post.setLikes(likeCount);
 
         return PostResponseDTO.of(post, true);
+    }
+
+    @Transactional
+    public PostResponseDTO commentPost(Long postId, String loginUsername, PostCreateDTO postCreateDTO) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("존재하지 않는 게시글입니다."));
+
+        Member commentAuthor = memberRepository.findByUsername(loginUsername)
+                .orElseThrow(NotFoundMemberException::new);
+
+        Post newComment = Post.of(postCreateDTO, commentAuthor);
+        post.addChildPost(newComment);
+
+        postRepository.save(post); // child persist
+
+        List<PostResponseDTO> commentPosts = getComments(post); // 새롭게 추가된 댓글 + 기존 댓글 조회
+        return PostResponseDTO.of(post, commentPosts);
+    }
+
+    private List<PostResponseDTO> getComments(Post post) {
+        return post.getChildrenPosts()
+                .stream()
+                .map(PostResponseDTO::from)
+                .collect(Collectors.toList());
     }
 }
