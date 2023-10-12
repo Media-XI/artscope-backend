@@ -19,12 +19,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import scala.xml.pull.ExceptionEvent;
 
 import javax.transaction.Transactional;
 
@@ -105,6 +107,26 @@ class PostControllerTest {
                 .author(loadMember)
                 .createdTime(LocalDateTime.now())
                 .build();
+        return postRepository.save(post);
+    }
+
+    // 댓글있는 게시글 생성
+    public Post createPostWithComment(int commentSize) {
+        Member loadMember = createOrLoadMember("admin", "ROLE_ADMIN");
+
+        Post post = Post.builder()
+                .content("content")
+                .author(loadMember)
+                .createdTime(LocalDateTime.now())
+                .build();
+
+        for (int i = 1; i <= commentSize; i++) {
+            Post comment = Post.of(PostCreateDTO.builder()
+                    .content("댓글" + i)
+                    .build(), loadMember);
+            post.addChildPost(comment);
+        }
+
         return postRepository.save(post);
     }
 
@@ -190,7 +212,7 @@ class PostControllerTest {
     @WithMockCustomUser(username = "admin", role = "ADMIN")
     @DisplayName("포스트 좋아요 시")
     @Test
-    void 포스트_좋아요 () throws Exception {
+    void 포스트_좋아요() throws Exception {
         Post post = createPost();
 
         mockMvc.perform(
@@ -203,7 +225,7 @@ class PostControllerTest {
     @WithMockCustomUser(username = "admin", role = "ADMIN")
     @DisplayName("포스트 전체 조회 시 좋아요 여부와 함께")
     @Test
-    void 포스트_전체_조회_좋아요여부 () throws Exception {
+    void 포스트_전체_조회_좋아요여부() throws Exception {
         Post post = createPost();
         createPost();
         createPost();
@@ -225,7 +247,7 @@ class PostControllerTest {
     @WithMockCustomUser(username = "admin", role = "ADMIN")
     @DisplayName("포스트 상세 조회 시")
     @Test
-    void 포스트_상세_조회 () throws Exception {
+    void 포스트_상세_조회() throws Exception {
         Post post = createPost();
 
         mockMvc.perform(
@@ -239,7 +261,7 @@ class PostControllerTest {
     @WithMockCustomUser(username = "admin", role = "ADMIN")
     @DisplayName("좋아요한 포스트 상세 조회 시")
     @Test
-    void 좋아요_포스트_상세_조회 () throws Exception {
+    void 좋아요_포스트_상세_조회() throws Exception {
         Post post = createPost();
 
         mockMvc.perform(
@@ -247,6 +269,37 @@ class PostControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
+
+        mockMvc.perform(
+                        get("/api/posts/" + post.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("해당 게시글 댓글 생성")
+    @Test
+    void 댓글_생성() throws Exception {
+        Post post = createPost();
+        PostCreateDTO newCommentDto1 = PostCreateDTO.builder()
+                .content("댓글1")
+                .build();
+
+        mockMvc.perform(
+                        post("/api/posts/" + post.getId() + "/comments")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(newCommentDto1))
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("댓글 여러개가 있는 게시글 상세 조회 시")
+    @Test
+    void 댓글달린_게시글_상세조회 () throws Exception {
+        Post post = createPostWithComment(3);
 
         mockMvc.perform(
                         get("/api/posts/" + post.getId())
