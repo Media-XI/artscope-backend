@@ -165,7 +165,7 @@ public class PostService {
     }
 
     private List<PostResponseDTO> getComments(Post post) {
-        return post.getChildrenPosts()
+        return post.getChildPosts()
                 .stream()
                 .map(PostResponseDTO::from)
                 .collect(Collectors.toList());
