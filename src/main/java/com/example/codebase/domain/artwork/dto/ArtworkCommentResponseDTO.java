@@ -7,6 +7,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -36,18 +37,18 @@ public class ArtworkCommentResponseDTO {
     private LocalDateTime updatedTime;
 
     public static ArtworkCommentResponseDTO from(ArtworkComment artworkComment) {
-        // TODO : NPE 방지 (상위 댓글은 ParentID가 없음)
-        ArtworkComment parentComment = artworkComment.getParentComment() == null ? artworkComment : artworkComment.getParentComment();
-        Long parentCommentId = parentComment.getId() == null ? null : parentComment.getId();
+        Long parentId = Optional.ofNullable(artworkComment.getParentComment())
+                .map(ArtworkComment::getId)
+                .orElse(null);
 
         return ArtworkCommentResponseDTO.builder()
                 .id(artworkComment.getId())
                 .content(artworkComment.getContent())
-                .authorUsername(artworkComment.getMember().getUsername())
-                .authorName(artworkComment.getMember().getName())
-                .authorDescription(artworkComment.getMember().getIntroduction())
-                .authorProfileImageUrl(artworkComment.getMember().getPicture())
-                .parentCommentId(parentCommentId)
+                .authorUsername(artworkComment.getAuthor().getUsername())
+                .authorName(artworkComment.getAuthor().getName())
+                .authorDescription(artworkComment.getAuthor().getIntroduction())
+                .authorProfileImageUrl(artworkComment.getAuthor().getPicture())
+                .parentCommentId(parentId)
                 .createdTime(artworkComment.getCreatedTime())
                 .updatedTime(artworkComment.getUpdatedTime())
                 .build();
