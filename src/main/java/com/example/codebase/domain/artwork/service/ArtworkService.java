@@ -20,9 +20,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
@@ -220,6 +220,7 @@ public class ArtworkService {
         return ArtworkLikeMemberPageDTO.of(dtos, pageInfo);
     }
 
+    @Transactional(readOnly = true)
     public ArtworkLikeMembersPageDTO getArtworkLikeMembers(Long id, int page, int size, String sortDirection) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "likedTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
@@ -244,6 +245,7 @@ public class ArtworkService {
 
     }
 
+    @Transactional(readOnly = true)
     public ArtworksResponseDTO searchArtworks(String keyword, int page, int size, String sortDirection) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
@@ -256,5 +258,28 @@ public class ArtworkService {
                 .collect(Collectors.toList());
 
         return ArtworksResponseDTO.of(dtos, pageInfo);
+    }
+
+    @Transactional
+    public ArtworkResponseDTO commentArtwork(Long artworkId, String loginUsername, ArtworkCommentCreateDTO commentCreateDTO) {
+        Artwork artwork = artworkRepository.findById(artworkId)
+                .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
+
+        Member member = memberRepository.findByUsername(loginUsername)
+                .orElseThrow(NotFoundMemberException::new);
+
+        ArtworkComment artworkComment = ArtworkComment.of(commentCreateDTO, artwork, member);
+        artwork.addArtworkComment(artworkComment);
+
+        artworkRepository.save(artwork);
+
+        List<ArtworkCommentResponseDTO> comments = getComments(artwork);
+        return ArtworkResponseDTO.of(artwork, comments);
+    }
+
+    private List<ArtworkCommentResponseDTO> getComments(Artwork artwork) {
+        return artwork.getArtworkComments().stream()
+                .map(ArtworkCommentResponseDTO::from)
+                .collect(Collectors.toList());
     }
 }

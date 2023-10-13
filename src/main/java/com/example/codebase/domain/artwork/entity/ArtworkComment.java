@@ -1,5 +1,6 @@
 package com.example.codebase.domain.artwork.entity;
 
+import com.example.codebase.domain.artwork.dto.ArtworkCommentCreateDTO;
 import com.example.codebase.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,6 +49,15 @@ public class ArtworkComment {
 
     @Column(name = "updated_time")
     private LocalDateTime updatedTime;
+
+    public static ArtworkComment of(ArtworkCommentCreateDTO commentCreateDTO, Artwork artwork, Member member) {
+        return ArtworkComment.builder()
+                .content(commentCreateDTO.getContent())
+                .artwork(artwork)
+                .member(member)
+                .createdTime(LocalDateTime.now())
+                .build();
+    }
 
     public void addChildComment(ArtworkComment childComment) {
         this.childComments.add(childComment);

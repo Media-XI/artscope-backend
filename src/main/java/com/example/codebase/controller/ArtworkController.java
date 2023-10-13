@@ -225,4 +225,16 @@ public class ArtworkController {
         ArtworksResponseDTO artworks = artworkService.searchArtworks(formatKeyword, page, size, sortDirection);
         return new ResponseEntity(artworks, HttpStatus.OK);
     }
+
+    @ApiOperation(value = "아트워크 댓글 생성", notes = "[로그인] 해당 아트워크에 댓글을 추가합니다.")
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/{id}/comments")
+    public ResponseEntity commentArtwork(@PathVariable Long id, @RequestBody ArtworkCommentCreateDTO commentCreateDTO) {
+        String loginUsername = SecurityUtil.getCurrentUsername()
+                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+
+        ArtworkResponseDTO comment = artworkService.commentArtwork(id, loginUsername, commentCreateDTO);
+
+        return new ResponseEntity(comment, HttpStatus.CREATED);
+    }
 }

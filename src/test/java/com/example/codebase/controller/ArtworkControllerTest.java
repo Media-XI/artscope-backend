@@ -2,6 +2,7 @@ package com.example.codebase.controller;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.example.codebase.config.S3MockConfig;
+import com.example.codebase.domain.artwork.dto.ArtworkCommentCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkUpdateDTO;
@@ -942,6 +943,24 @@ class ArtworkControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("아트워크 댓글 생성 시")
+    @Test
+    public void 아트워크_댓글_생성_시 () throws Exception {
+        Artwork artwork = createOrLoadArtwork();
+        ArtworkCommentCreateDTO commentCreateDTO = new ArtworkCommentCreateDTO();
+        commentCreateDTO.setContent("댓글 내용");
+
+        mockMvc.perform(
+                post("/api/artworks/" + artwork.getId() + "/comments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(commentCreateDTO))
+        )
+                .andDo(print())
+                .andExpect(status().isCreated());
+
     }
 
 }
