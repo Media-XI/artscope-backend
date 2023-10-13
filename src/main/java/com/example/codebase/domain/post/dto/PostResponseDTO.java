@@ -5,8 +5,10 @@ import com.example.codebase.domain.post.entity.PostWithIsLiked;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -47,9 +49,9 @@ public class PostResponseDTO {
     protected List<PostResponseDTO> commentPosts;
 
     public static PostResponseDTO from(Post post) {
-        // TODO: NPE 방지 (상위 글은 ParentId가 없음)
-        Post parentPost = post.getParentPost() == null ? post : post.getParentPost();
-        Long parentId = parentPost.getId() == null ? null : parentPost.getId();
+        Long parentId = Optional.ofNullable(post.getParentPost())
+                .map(Post::getId)
+                .orElse(null);
 
         return PostResponseDTO.builder()
                 .id(post.getId())
