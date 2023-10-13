@@ -341,4 +341,20 @@ class FeedControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated());
     }
+
+    @DisplayName("피드 조회 시 리포스트는 부모 ID를 가진다")
+    @Test
+    public void repost_parent_id() throws Exception {
+        Post post = createPost();
+        post.addChildPost(createPost());
+
+        postRepository.save(post);
+
+        mockMvc.perform(
+                        post("/api/feed")
+                                .param("page", "0")
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
+    }
 }
