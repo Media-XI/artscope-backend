@@ -30,4 +30,10 @@ public class TestController {
     public String user() {
         return "user!";
     }
+
+    @ApiOperation(value = "커밋 테스트", notes = "커밋 테스트")
+    @GetMapping("/commit")
+    public String commitTest() {
+        return "commit test!";
+    }
 }
