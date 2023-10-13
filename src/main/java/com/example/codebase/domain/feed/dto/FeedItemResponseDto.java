@@ -51,10 +51,12 @@ public class FeedItemResponseDto {
 
     private Integer likes;
 
+    private Integer comments;
+
     @Builder.Default
     private Boolean isLiked = false;
 
-    private Integer comments;
+    private Long parentPostId;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdTime;
@@ -87,8 +89,8 @@ public class FeedItemResponseDto {
                 .categoryId(FeedType.artwork.name())
                 .views(artwork.getViews())
                 .likes(artwork.getLikes())
+                .comments(artwork.getComments())
                 .mediaUrls(mediaUrls)
-                .comments(0)
                 .createdTime(artwork.getCreatedTime())
                 .updatedTime(artwork.getUpdatedTime())
                 .build();
@@ -115,8 +117,9 @@ public class FeedItemResponseDto {
                 .categoryId(FeedType.post.name())
                 .views(post.getViews())
                 .likes(post.getLikes())
+                .comments(post.getComments())
                 .mediaUrls(null)
-                .comments(0)
+                .parentPostId(post.getParentPostId())
                 .createdTime(post.getCreatedTime())
                 .updatedTime(post.getUpdatedTime())
                 .build();

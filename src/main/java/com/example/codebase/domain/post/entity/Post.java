@@ -12,6 +12,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Table(name = "post")
@@ -92,6 +93,12 @@ public class Post {
         child.parentPost = this;
         this.childPosts.add(child);
         this.comments++;
+    }
+
+    public Long getParentPostId() {
+        return Optional.ofNullable(this.parentPost)
+                .map(Post::getId)
+                .orElse(null);
     }
 
 }
