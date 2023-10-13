@@ -13,6 +13,7 @@ import com.example.codebase.domain.post.repository.PostRepository;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberRepository;
+import lombok.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -45,6 +46,7 @@ public class PostService {
         Post newPost = Post.of(postCreateDTO, author);
         author.addPost(newPost);
 
+        postRepository.save(newPost);
         return PostResponseDTO.from(newPost);
     }
 
@@ -106,7 +108,6 @@ public class PostService {
                 .collect(Collectors.toList());
 
         List<PostResponseDTO> comments = getComments(post);
-
         return PostWithLikesResponseDTO.create(post, comments, postLikeMemberDtos);
     }
 
@@ -155,9 +156,9 @@ public class PostService {
                 .orElseThrow(NotFoundMemberException::new);
 
         Post newComment = Post.of(postCreateDTO, commentAuthor);
-        post.addChildPost(newComment);
+        postRepository.save(newComment);// child persist (중복 DTO 방지)
 
-        postRepository.save(post); // child persist
+        post.addChildPost(newComment);
 
         List<PostResponseDTO> commentPosts = getComments(post); // 새롭게 추가된 댓글 + 기존 댓글 조회
         return PostResponseDTO.of(post, commentPosts);

@@ -327,6 +327,38 @@ class PostControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isNoContent());
+    }
 
+    @DisplayName("하위 댓글 상세 조회 시")
+    @Test
+    void 하위댓글_상세_조회 () throws Exception {
+        Post post = createPostWithComment(3);
+        Post childPost = post.getChildPosts().get(0);
+
+        mockMvc.perform(
+                        get("/api/posts/" + childPost.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("게시글 대댓글 생성")
+    @Test
+    void 대댓글_생성() throws Exception {
+        Post post = createPostWithComment(1);
+        Post childPost = post.getChildPosts().get(0);
+
+        PostCreateDTO newCommentDto1 = PostCreateDTO.builder()
+                .content("대댓글1")
+                .build();
+
+        mockMvc.perform(
+                        post("/api/posts/" + childPost.getId() + "/comments")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(newCommentDto1))
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
     }
 }

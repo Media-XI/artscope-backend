@@ -4,6 +4,7 @@ import com.example.codebase.domain.post.entity.Post;
 import lombok.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,6 +18,10 @@ public class PostWithLikesResponseDTO extends PostResponseDTO {
     }
 
     public static PostWithLikesResponseDTO create (Post post, List<PostLikeMemberDTO> likeMembers) {
+        Long parentId = Optional.ofNullable(post.getParentPost())
+                .map(Post::getId)
+                .orElse(null);
+
         PostWithLikesResponseDTO dto = new PostWithLikesResponseDTO();
         dto.setId(post.getId());
         dto.setContent(post.getContent());
@@ -29,6 +34,7 @@ public class PostWithLikesResponseDTO extends PostResponseDTO {
         dto.setAuthorProfileImageUrl(post.getAuthor().getPicture());
         dto.setCreatedTime(post.getCreatedTime());
         dto.setUpdatedTime(post.getUpdatedTime());
+        dto.setParentPostId(parentId);
         dto.setLikeMembers(likeMembers);
         return dto;
     }
