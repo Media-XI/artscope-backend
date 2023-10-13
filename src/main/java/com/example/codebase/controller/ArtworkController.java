@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -236,5 +237,34 @@ public class ArtworkController {
         ArtworkResponseDTO comment = artworkService.commentArtwork(id, loginUsername, commentCreateDTO);
 
         return new ResponseEntity(comment, HttpStatus.CREATED);
+    }
+
+//    @ApiOperation(value = "아트워크 대댓글 생성", notes = "[로그인] 해당 아트워크 댓글에 대댓글을 추가합니다.")
+//    @PreAuthorize("isAuthenticated()")
+//    @PostMapping("/{id}/comments/{commentId}/comments")
+//    public ResponseEntity addChildComment(@PathVariable Long id,
+//                                            @PathVariable Long commentId,
+//                                            @RequestBody ArtworkCommentCreateDTO commentCreateDTO) {
+//        String loginUsername = SecurityUtil.getCurrentUsername()
+//                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+//
+//        ArtworkResponseDTO comment = artworkService.addChildComment(id, commentId, loginUsername, commentCreateDTO);
+//
+//        return new ResponseEntity(comment, HttpStatus.CREATED);
+//    }
+
+
+    @ApiOperation(value = "아트워크 댓글 삭제", notes = "[로그인, 작성자] 해당 아트워크 댓글을 삭제합니다.")
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{id}/comments/{commentId}")
+    public ResponseEntity deleteArtworkComment(
+            @PathVariable Long id,
+            @PathVariable Long commentId) {
+        String loginUsername = SecurityUtil.getCurrentUsername()
+                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+
+        artworkService.deleteArtworkComment(id, commentId, loginUsername);
+
+        return new ResponseEntity("댓글이 삭제되었습니다.", HttpStatus.NO_CONTENT);
     }
 }

@@ -34,7 +34,7 @@ public class ArtworkComment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
-    private Member member;
+    private Member author;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
@@ -54,7 +54,7 @@ public class ArtworkComment {
         return ArtworkComment.builder()
                 .content(commentCreateDTO.getContent())
                 .artwork(artwork)
-                .member(member)
+                .author(member)
                 .createdTime(LocalDateTime.now())
                 .build();
     }

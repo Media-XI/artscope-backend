@@ -136,4 +136,9 @@ public class Artwork {
     public void setLikes(Integer likes) {
         this.likes = likes;
     }
+
+    public void removeArtworkComment(ArtworkComment comment) {
+        this.artworkComments.remove(comment);
+        this.comments--;
+    }
 }

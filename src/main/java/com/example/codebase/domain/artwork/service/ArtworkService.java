@@ -3,8 +3,8 @@ package com.example.codebase.domain.artwork.service;
 import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.artwork.dto.*;
 import com.example.codebase.domain.artwork.entity.*;
+import com.example.codebase.domain.artwork.repository.ArtworkCommentRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkLikeMemberRepository;
-import com.example.codebase.domain.artwork.repository.ArtworkMediaRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
@@ -12,19 +12,14 @@ import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.exception.NotAccessException;
 import com.example.codebase.exception.NotFoundException;
 import com.example.codebase.s3.S3Service;
-import com.example.codebase.util.FileUtil;
 import com.example.codebase.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,15 +27,15 @@ import java.util.stream.Collectors;
 @Service
 public class ArtworkService {
     private final ArtworkRepository artworkRepository;
-    private final ArtworkMediaRepository artworkMediaRepository;
+    private final ArtworkCommentRepository artworkCommentRepository;
     private final ArtworkLikeMemberRepository artworkLikeMemberRepository;
     private final S3Service s3Service;
     private final MemberRepository memberRepository;
 
     @Autowired
-    public ArtworkService(ArtworkRepository artworkRepository, ArtworkMediaRepository artworkMediaRepository, ArtworkLikeMemberRepository artworkLikeMemberRepository, S3Service s3Service, MemberRepository memberRepository) {
+    public ArtworkService(ArtworkRepository artworkRepository, ArtworkCommentRepository artworkCommentRepository, ArtworkLikeMemberRepository artworkLikeMemberRepository, S3Service s3Service, MemberRepository memberRepository) {
         this.artworkRepository = artworkRepository;
-        this.artworkMediaRepository = artworkMediaRepository;
+        this.artworkCommentRepository = artworkCommentRepository;
         this.artworkLikeMemberRepository = artworkLikeMemberRepository;
         this.s3Service = s3Service;
         this.memberRepository = memberRepository;
@@ -107,14 +102,18 @@ public class ArtworkService {
     @Transactional
     public ArtworkWithIsLikeResponseDTO getArtwork(Long id, Optional<String> username) {
         boolean existLike = false;
+        // 사용자 좋아요 여부에 따른 해당 아트워크 좋아요 조회
         if (username.isPresent()) {
             existLike = artworkLikeMemberRepository.existsByArtwork_IdAndMember_Username(id, username.get());
         }
         Artwork artwork = artworkRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
+
         artwork.increaseView(); // 조회수 증가
 
-        return ArtworkWithIsLikeResponseDTO.from(artwork, existLike);
+        // 달린 댓글 추가
+        List<ArtworkCommentResponseDTO> comments = getComments(artwork);
+        return ArtworkWithIsLikeResponseDTO.from(artwork, comments, existLike);
     }
 
     @Transactional
@@ -282,4 +281,53 @@ public class ArtworkService {
                 .map(ArtworkCommentResponseDTO::from)
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public void deleteArtworkComment(Long artworkId, Long commentId, String loginUsername) {
+        ArtworkComment comment = artworkCommentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException("해당 댓글을 찾을 수 없습니다."));
+
+        Member member = memberRepository.findByUsername(loginUsername)
+                .orElseThrow(NotFoundMemberException::new);
+
+        if (!comment.getAuthor().equals(member)) {
+            throw new NotAccessException("해당 댓글의 작성자가 아닙니다.");
+        }
+
+        Artwork artwork = comment.getArtwork();
+
+        if (!artwork.getId().equals(artworkId)) {
+            throw new NotFoundException("해당 작품을 찾을 수 없습니다.");
+        }
+
+        artwork.removeArtworkComment(comment);
+        artworkRepository.save(artwork);
+    }
+
+//    @Transactional
+//    public ArtworkResponseDTO addChildComment(Long artworkId, Long commentId, String loginUsername, ArtworkCommentCreateDTO commentCreateDTO) {
+//        ArtworkComment parentComment = artworkCommentRepository.findById(commentId)
+//                .orElseThrow(() -> new NotFoundException("해당 댓글을 찾을 수 없습니다."));
+//
+//        Artwork artwork = parentComment.getArtwork();
+//        if (!artwork.getId().equals(artworkId)) {
+//            throw new NotFoundException("해당 작품을 찾을 수 없습니다.");
+//        }
+//
+//        Member member = memberRepository.findByUsername(loginUsername)
+//                .orElseThrow(NotFoundMemberException::new);
+//
+//        ArtworkComment childComment = ArtworkComment.of(commentCreateDTO, artwork, member);
+//        parentComment.addChildComment(childComment);
+//
+//        List<ArtworkCommentResponseDTO> comments = getComments(parentComment);
+//        return ArtworkResponseDTO.of(artwork, comments);
+//    }
+//
+//    private List<ArtworkCommentResponseDTO> getComments(ArtworkComment parentComment) {
+//        return parentComment.getChildComments().stream()
+//                .map(ArtworkCommentResponseDTO::from)
+//                .collect(Collectors.toList());
+//    }
+
 }
