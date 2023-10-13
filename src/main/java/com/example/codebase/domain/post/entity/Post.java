@@ -57,7 +57,7 @@ public class Post {
 
     @Builder.Default
     @OneToMany(mappedBy = "parentPost", cascade = CascadeType.ALL)
-    private List<Post> childrenPosts = new ArrayList<>();
+    private List<Post> childPosts = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
@@ -90,7 +90,7 @@ public class Post {
 
     public void addChildPost(Post child) {
         child.parentPost = this;
-        this.childrenPosts.add(child);
+        this.childPosts.add(child);
         this.comments++;
     }
 

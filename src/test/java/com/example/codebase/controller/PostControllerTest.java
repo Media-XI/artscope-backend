@@ -121,9 +121,11 @@ class PostControllerTest {
                 .build();
 
         for (int i = 1; i <= commentSize; i++) {
-            Post comment = Post.of(PostCreateDTO.builder()
+            Post comment = Post .builder()
                     .content("댓글" + i)
-                    .build(), loadMember);
+                    .author(loadMember)
+                    .createdTime(LocalDateTime.now().plusMinutes(i))
+                    .build();
             post.addChildPost(comment);
         }
 
@@ -306,5 +308,25 @@ class PostControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("포스트 좋아요 두번 시")
+    @Test
+    void 포스트_두번_좋아요() throws Exception {
+        Post post = createPost();
+
+        mockMvc.perform(
+                        post("/api/posts/" + post.getId() + "/like")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        mockMvc.perform(
+                        post("/api/posts/" + post.getId() + "/like")
+                )
+                .andDo(print())
+                .andExpect(status().isNoContent());
+
     }
 }

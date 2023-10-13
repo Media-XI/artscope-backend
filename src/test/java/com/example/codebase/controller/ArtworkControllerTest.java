@@ -2,12 +2,15 @@ package com.example.codebase.controller;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.example.codebase.config.S3MockConfig;
+import com.example.codebase.domain.artwork.dto.ArtworkCommentCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkUpdateDTO;
 import com.example.codebase.domain.artwork.entity.Artwork;
+import com.example.codebase.domain.artwork.entity.ArtworkComment;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
 import com.example.codebase.domain.artwork.entity.ArtworkMediaType;
+import com.example.codebase.domain.artwork.repository.ArtworkCommentRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.auth.WithMockCustomUser;
 import com.example.codebase.domain.member.entity.Authority;
@@ -176,6 +179,22 @@ class ArtworkControllerTest {
                 .build();
 
         return artworkRepository.save(dummy);
+    }
+
+    public Artwork createArtworkWithComment(int commentSize) throws IOException {
+        Artwork artwork = createOrLoadArtwork();
+
+        for (int i = 0; i < commentSize; i++) {
+            ArtworkComment artworkComment = ArtworkComment.builder()
+                    .artwork(artwork)
+                    .author(createOrLoadMember())
+                    .content("댓글 내용" + i)
+                    .createdTime(LocalDateTime.now().plusMinutes(i))
+                    .build();
+            artwork.addArtworkComment(artworkComment);
+        }
+        artworkRepository.save(artwork);
+        return artwork;
     }
 
     private byte[] createImageFile() throws IOException {
@@ -944,4 +963,47 @@ class ArtworkControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("아트워크 댓글 생성 시")
+    @Test
+    public void 아트워크_댓글_생성_시 () throws Exception {
+        Artwork artwork = createOrLoadArtwork();
+        ArtworkCommentCreateDTO commentCreateDTO = new ArtworkCommentCreateDTO();
+        commentCreateDTO.setContent("댓글 내용");
+
+        mockMvc.perform(
+                post("/api/artworks/" + artwork.getId() + "/comments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(commentCreateDTO))
+        )
+                .andDo(print())
+                .andExpect(status().isCreated());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("아트워크 댓글 삭제 시")
+    @Test
+    public void 아트워크_댓글_삭제_시 () throws Exception {
+        Artwork artwork = createArtworkWithComment(5);
+        Long commentId = artwork.getArtworkComments().get(0).getId();
+
+        mockMvc.perform(
+                        delete("/api/artworks/" + artwork.getId() + "/comments/" + commentId)
+                )
+                .andDo(print())
+                .andExpect(status().isNoContent());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("아트워크 상세 조회 시 댓글도 같이 조회 된다")
+    @Test
+    public void 아트워크_상세조회_댓글 () throws Exception {
+        Artwork artwork = createArtworkWithComment(5);
+
+        mockMvc.perform(
+                        get("/api/artworks/" + artwork.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
 }

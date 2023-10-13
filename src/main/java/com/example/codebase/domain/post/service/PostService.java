@@ -120,8 +120,6 @@ public class PostService {
         postLikeMemberRepository.findById(PostLikeMemberIds.of(member, post.getId()))
                 .ifPresent((PostLikeMember likeMember) -> post.setIsLiked(true));
 
-        // 댓글 추가
-
         return post;
     }
 
@@ -134,7 +132,8 @@ public class PostService {
 
         Optional<PostLikeMember> likeMember = postLikeMemberRepository.findById(PostLikeMemberIds.of(member, post));
 
-        if (likeMember.isPresent()) {
+        boolean isLiked = likeMember.isPresent();
+        if (isLiked) {
             postLikeMemberRepository.delete(likeMember.get());
         }
         else {
@@ -145,7 +144,7 @@ public class PostService {
         Integer likeCount = postLikeMemberRepository.countByPostId(post.getId());
         post.setLikes(likeCount);
 
-        return PostResponseDTO.of(post, true);
+        return PostResponseDTO.of(post, !isLiked);
     }
 
     @Transactional
@@ -165,7 +164,7 @@ public class PostService {
     }
 
     private List<PostResponseDTO> getComments(Post post) {
-        return post.getChildrenPosts()
+        return post.getChildPosts()
                 .stream()
                 .map(PostResponseDTO::from)
                 .collect(Collectors.toList());

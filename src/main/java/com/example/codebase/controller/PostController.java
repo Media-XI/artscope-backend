@@ -102,6 +102,10 @@ public class PostController {
 
         PostResponseDTO likedPost = postService.likePost(postId, loginUsername);
 
+        if (!likedPost.getIsLiked()) {
+            return new ResponseEntity(likedPost, HttpStatus.NO_CONTENT);
+        }
+
         return new ResponseEntity(likedPost, HttpStatus.OK);
     }
 

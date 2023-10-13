@@ -29,6 +29,8 @@ public class ArtworkResponseDTO {
 
     private Integer likes;
 
+    private Integer comments;
+
     private String authorUsername;
 
     private String authorName;
@@ -36,6 +38,8 @@ public class ArtworkResponseDTO {
     private ArtworkMediaResponseDTO thumbnail;
 
     private List<ArtworkMediaResponseDTO> artworkMedias;
+
+    private List<ArtworkCommentResponseDTO> artworkComments;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdTime;
@@ -70,6 +74,7 @@ public class ArtworkResponseDTO {
                 .description(artwork.getDescription())
                 .views(artwork.getViews())
                 .likes(artwork.getLikes())
+                .comments(artwork.getComments())
                 .authorName(artwork.getMember().getName())
                 .authorUsername(artwork.getMember().getUsername())
                 .thumbnail(thumbnail)
@@ -77,5 +82,11 @@ public class ArtworkResponseDTO {
                 .createdTime(artwork.getCreatedTime())
                 .updatedTime(artwork.getUpdatedTime())
                 .build();
+    }
+
+    public static ArtworkResponseDTO of(Artwork artwork, List<ArtworkCommentResponseDTO> artworkComments) {
+        ArtworkResponseDTO artworkResponseDTO = from(artwork);
+        artworkResponseDTO.setArtworkComments(artworkComments);
+        return artworkResponseDTO;
     }
 }
