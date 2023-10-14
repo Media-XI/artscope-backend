@@ -302,6 +302,7 @@ public class ArtworkService {
 
         artwork.removeArtworkComment(comment);
         artworkRepository.save(artwork);
+        artworkCommentRepository.remove(comment);
     }
 
 //    @Transactional
