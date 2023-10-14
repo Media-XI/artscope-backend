@@ -268,7 +268,7 @@ public class ArtworkService {
                 .orElseThrow(NotFoundMemberException::new);
 
         ArtworkComment artworkComment = ArtworkComment.of(commentCreateDTO, artwork, member);
-        artworkRepository.save(artworkComment);
+        artworkCommentRepository.save(artworkComment);
         
         artwork.addArtworkComment(artworkComment);
 
