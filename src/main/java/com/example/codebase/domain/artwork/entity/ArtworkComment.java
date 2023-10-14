@@ -56,6 +56,7 @@ public class ArtworkComment {
                 .artwork(artwork)
                 .author(member)
                 .createdTime(LocalDateTime.now())
+                .updatedTime(LocalDateTime.now())
                 .build();
     }
 
