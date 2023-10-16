@@ -152,6 +152,10 @@ public class PostService {
     public PostResponseDTO commentPost(Long postId, String loginUsername, PostCreateDTO postCreateDTO) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("존재하지 않는 게시글입니다."));
 
+        if (post.getParentPost() != null && post.getParentPost().getParentPostId() != null) {
+            throw new RuntimeException("답글을 더 이상 달 수 없습니다. (해당 글을 언급해서 달 수 있습니다.)");
+        }
+
         Member commentAuthor = memberRepository.findByUsername(loginUsername)
                 .orElseThrow(NotFoundMemberException::new);
 
