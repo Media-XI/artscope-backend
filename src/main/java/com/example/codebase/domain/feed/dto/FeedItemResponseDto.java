@@ -58,6 +58,8 @@ public class FeedItemResponseDto {
 
     private Long parentPostId;
 
+    private String postMentionUsername;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdTime;
 
@@ -120,6 +122,7 @@ public class FeedItemResponseDto {
                 .comments(post.getComments())
                 .mediaUrls(null)
                 .parentPostId(post.getParentPostId())
+                .postMentionUsername(post.getMentionUsername())
                 .createdTime(post.getCreatedTime())
                 .updatedTime(post.getUpdatedTime())
                 .build();

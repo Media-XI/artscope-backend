@@ -361,4 +361,26 @@ class PostControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated());
     }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("게시글 언급 대댓글 생성")
+    @Test
+    void 언급_대댓글_생성() throws Exception {
+        Post post = createPostWithComment(1);
+        Post childPost = post.getChildPosts().get(0);
+
+        PostCreateDTO newCommentDto1 = PostCreateDTO.builder()
+                .content("대댓글1")
+                .mentionUsername("admin")
+                .build();
+
+        mockMvc.perform(
+                        post("/api/posts/" + childPost.getId() + "/comments")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(newCommentDto1))
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+    }
 }

@@ -27,6 +27,8 @@ public class PostResponseDTO {
 
     protected Integer comments;
 
+    protected String mentionUsername;
+
     @Builder.Default
     protected Boolean isLiked = false;
 
@@ -53,12 +55,16 @@ public class PostResponseDTO {
                 .map(Post::getId)
                 .orElse(null);
 
+        String mentionUsername = Optional.ofNullable(post.getMentionUsername())
+                .orElse(null);
+
         return PostResponseDTO.builder()
                 .id(post.getId())
                 .content(post.getContent())
                 .views(post.getViews())
                 .likes(post.getLikes())
                 .comments(post.getComments())
+                .mentionUsername(mentionUsername)
                 .parentPostId(parentId)
                 .authorUsername(post.getAuthor().getUsername())
                 .authorName(post.getAuthor().getName())
