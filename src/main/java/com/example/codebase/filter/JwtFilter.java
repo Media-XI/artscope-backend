@@ -16,6 +16,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Optional;
 
 @Slf4j
 public class JwtFilter extends GenericFilterBean {
@@ -52,10 +53,18 @@ public class JwtFilter extends GenericFilterBean {
 
         if (bearerToken == null) {
             Cookie[] cookies = request.getCookies();
+            if (cookies == null) {
+                return null;
+            }
+
             Cookie acceeTokenCookie = Arrays.stream(cookies)
                     .filter(cookie -> cookie.getName().equals("access-token"))
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("accessToken이 Cookie에 없습니다."));
+                    .orElse(null);
+
+            if (acceeTokenCookie == null) {
+                return null;
+            }
             bearerToken = acceeTokenCookie.getValue();
         }
 
