@@ -363,6 +363,34 @@ class PostControllerTest {
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("해당 댓글의 대댓글 생성 시")
+    @Test
+    void 댓글의_대댓글_생성() throws Exception {
+        Post post = createPostWithComment(1);
+        Post comment = post.getChildPosts().get(0);
+        Post commentChild = Post.builder()
+                .content("대댓글1")
+                .author(comment.getAuthor())
+                .createdTime(LocalDateTime.now())
+                .build();
+        postRepository.save(commentChild);
+        comment.addChildPost(commentChild);
+
+        PostCreateDTO newCommentDto1 = PostCreateDTO.builder()
+                .content("대댓글1")
+                .build();
+
+        mockMvc.perform(
+                        post("/api/posts/" + commentChild.getId() + "/comments")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(newCommentDto1))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
     @DisplayName("게시글 언급 대댓글 생성")
     @Test
     void 언급_대댓글_생성() throws Exception {
