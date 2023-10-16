@@ -108,4 +108,8 @@ public class Post {
                 .orElse(null);
     }
 
+    public void removeChildPost(Post post) {
+        this.childPosts.remove(post);
+        this.comments = this.childPosts.size();
+    }
 }

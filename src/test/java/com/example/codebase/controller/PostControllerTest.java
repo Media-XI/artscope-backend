@@ -363,6 +363,28 @@ class PostControllerTest {
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("게시글 대댓글 삭제 시")
+    @Test
+    void 대댓글_삭제 () throws Exception {
+        Post post = createPostWithComment(10);
+        Post childPost = post.getChildPosts().get(0);
+
+
+        mockMvc.perform(
+                        delete("/api/posts/" + childPost.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        mockMvc.perform(
+                        get("/api/posts/" + post.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
     @DisplayName("해당 댓글의 대댓글 생성 시")
     @Test
     void 댓글의_대댓글_생성() throws Exception {
@@ -409,6 +431,5 @@ class PostControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isCreated());
-
     }
 }

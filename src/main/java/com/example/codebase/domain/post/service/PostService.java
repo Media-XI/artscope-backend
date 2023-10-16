@@ -94,6 +94,8 @@ public class PostService {
         // TODO: 동일 작성자 검증 추가
         Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("존재하지 않는 게시글입니다."));
 
+        post.getParentPost().removeChildPost(post);
+
         postRepository.delete(post);
     }
 
