@@ -42,6 +42,9 @@ public class Post {
     @Column(name = "comments")
     private Integer comments = 0;
 
+    @Column(name = "mention_username")
+    private String mentionUsername;
+
     @Column(name = "created_time")
     private LocalDateTime createdTime;
 
@@ -65,8 +68,12 @@ public class Post {
     private List<PostLikeMember> postLikeMembers = new ArrayList<>();
 
     public static Post of(PostCreateDTO postCreateDTO, Member author) {
+        String mentionUsername = Optional.ofNullable(postCreateDTO.getMentionUsername())
+                .orElse(null);
+
         return Post.builder()
                 .content(postCreateDTO.getContent())
+                .mentionUsername(mentionUsername)
                 .author(author)
                 .createdTime(LocalDateTime.now())
                 .build();
@@ -92,7 +99,7 @@ public class Post {
     public void addChildPost(Post child) {
         child.parentPost = this;
         this.childPosts.add(child);
-        this.comments++;
+        this.comments = this.childPosts.size();
     }
 
     public Long getParentPostId() {

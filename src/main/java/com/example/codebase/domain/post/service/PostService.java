@@ -156,12 +156,26 @@ public class PostService {
                 .orElseThrow(NotFoundMemberException::new);
 
         Post newComment = Post.of(postCreateDTO, commentAuthor);
-        postRepository.save(newComment);// child persist (중복 DTO 방지)
+        postRepository.save(newComment); // child persist (중복 DTO 방지)
 
-        post.addChildPost(newComment);
+        if (newComment.getMentionUsername() != null) {
+            List<PostResponseDTO> commentPosts = getParentPostComment(post, newComment);
+            return PostResponseDTO.of(post, commentPosts);
+        }
 
-        List<PostResponseDTO> commentPosts = getComments(post); // 새롭게 추가된 댓글 + 기존 댓글 조회
+        List<PostResponseDTO> commentPosts = getPostComment(post, newComment);
         return PostResponseDTO.of(post, commentPosts);
+    }
+
+    private List<PostResponseDTO> getParentPostComment(Post parent, Post comment) {
+        Post topParent = parent.getParentPost();
+        topParent.addChildPost(comment);
+        return getComments(topParent);
+    }
+
+    private List<PostResponseDTO> getPostComment(Post parent, Post comment) {
+        parent.addChildPost(comment);
+        return getComments(parent);
     }
 
     private List<PostResponseDTO> getComments(Post post) {
