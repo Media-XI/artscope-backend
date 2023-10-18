@@ -1,0 +1,3 @@
+ALTER TABLE post
+    ADD COLUMN comments INT DEFAULT 0;
+
