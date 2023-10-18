@@ -15,6 +15,7 @@ public class PostWithLikesResponseDTO extends PostResponseDTO {
     private List<PostLikeMemberDTO> likeMembers;
 
     public static PostWithLikesResponseDTO create(Post post, List<PostLikeMemberDTO> likeMembers) {
+        PostResponseDTO postDto = PostResponseDTO.from(post);
 
         PostWithLikesResponseDTO dto = new PostWithLikesResponseDTO();
         dto.setId(post.getId());
@@ -29,11 +30,12 @@ public class PostWithLikesResponseDTO extends PostResponseDTO {
         dto.setCreatedTime(post.getCreatedTime());
         dto.setUpdatedTime(post.getUpdatedTime());
         dto.setLikeMembers(likeMembers);
+        dto.setCommentPosts(postDto.getCommentPosts());
         return dto;
     }
 
 //    public static PostWithLikesResponseDTO create(Post post, List<PostResponseDTO> comments, List<PostLikeMemberDTO> postLikeMemberDtos) {
-//        PostWithLikesResponseDTO dto = create(post, postLikeMemberDtos);
+//        PostWithLikesResponseDTO dto = create(post);
 //        dto.setCommentPosts(comments);
 //        return dto;
 //    }
