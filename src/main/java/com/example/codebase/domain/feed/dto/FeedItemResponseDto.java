@@ -54,10 +54,6 @@ public class FeedItemResponseDto {
     @Builder.Default
     private Boolean isLiked = false;
 
-//    private Long parentPostId;
-//
-//    private String postMentionUsername;
-
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdTime;
 
