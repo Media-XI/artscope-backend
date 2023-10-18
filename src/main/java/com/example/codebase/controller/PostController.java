@@ -1,6 +1,5 @@
 package com.example.codebase.controller;
 
-import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.post.dto.*;
 import com.example.codebase.domain.post.service.PostService;
 import com.example.codebase.util.SecurityUtil;
@@ -44,10 +43,9 @@ public class PostController {
         Optional<String> loginUsername = SecurityUtil.getCurrentUsername();
 
         PostsResponseDTO posts;
-        if(loginUsername.isPresent()){
+        if (loginUsername.isPresent()) {
             posts = postService.getPosts(loginUsername.get(), page, size, sortDirection);
-        }
-        else {
+        } else {
             posts = postService.getPosts(page, size, sortDirection);
         }
 
@@ -61,10 +59,9 @@ public class PostController {
         Optional<String> loginUsername = SecurityUtil.getCurrentUsername();
 
         PostWithLikesResponseDTO post;
-        if(loginUsername.isPresent()){
+        if (loginUsername.isPresent()) {
             post = postService.getPost(loginUsername.get(), postId);
-        }
-        else {
+        } else {
             post = postService.getPost(postId);
         }
 
@@ -109,15 +106,36 @@ public class PostController {
         return new ResponseEntity(likedPost, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "해당 게시글 댓글 생성", notes = "[로그인] 댓글 생성")
+    @ApiOperation(value = "댓글 생성", notes = "[로그인] 댓글을 생성합니다.")
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{postId}/comments")
-    public ResponseEntity commentPost(@PathVariable Long postId, @RequestBody PostCreateDTO postCreateDTO) {
+    public ResponseEntity createComment(@PathVariable Long postId, @RequestBody PostCommentCreateDTO commentCreateDTO) {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
-        PostResponseDTO commentedPost = postService.commentPost(postId, loginUsername, postCreateDTO);
+        PostResponseDTO post = postService.createComment(postId, commentCreateDTO, loginUsername);
 
-        return new ResponseEntity(commentedPost, HttpStatus.CREATED);
+        return new ResponseEntity(post, HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "댓글 수정", notes = "[로그인] 댓글을 수정합니다.")
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/comments/{commentId}")
+    public ResponseEntity updateComment(@PathVariable Long commentId, @RequestBody PostCommentUpdateDTO commentUpdateDTO) {
+        String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+
+        PostResponseDTO post = postService.updateComment(commentId, commentUpdateDTO, loginUsername);
+
+        return new ResponseEntity(post, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "댓글 삭제", notes = "[로그인] 댓글을 삭제합니다.")
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity deleteComment(@PathVariable Long commentId) {
+        String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+
+        postService.deleteComment(commentId, loginUsername);
+
+        return new ResponseEntity("댓글이 삭제되었습니다.", HttpStatus.OK);
+    }
 }

@@ -5,10 +5,9 @@ import com.example.codebase.domain.post.entity.PostWithIsLiked;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -46,33 +45,24 @@ public class PostResponseDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     protected LocalDateTime updatedTime;
 
-    protected Long parentPostId;
-
-    protected List<PostResponseDTO> commentPosts;
+    protected List<PostCommentResponseDTO> commentPosts;
 
     public static PostResponseDTO from(Post post) {
-        Long parentId = Optional.ofNullable(post.getParentPost())
-                .map(Post::getId)
-                .orElse(null);
 
-        String mentionUsername = Optional.ofNullable(post.getMentionUsername())
-                .orElse(null);
+        PostResponseDTO response = PostResponseDTO.builder().id(post.getId()).content(post.getContent()).views(post.getViews()).likes(post.getLikes()).comments(post.getComments()).authorUsername(post.getAuthor().getUsername()).authorName(post.getAuthor().getName()).authorDescription(post.getAuthor().getIntroduction()) // TODO : introduction이 맞는지 확인
+                .authorProfileImageUrl(post.getAuthor().getPicture()).createdTime(post.getCreatedTime()).updatedTime(post.getUpdatedTime()).build();
 
-        return PostResponseDTO.builder()
-                .id(post.getId())
-                .content(post.getContent())
-                .views(post.getViews())
-                .likes(post.getLikes())
-                .comments(post.getComments())
-                .mentionUsername(mentionUsername)
-                .parentPostId(parentId)
-                .authorUsername(post.getAuthor().getUsername())
-                .authorName(post.getAuthor().getName())
-                .authorDescription(post.getAuthor().getIntroduction()) // TODO : introduction이 맞는지 확인
-                .authorProfileImageUrl(post.getAuthor().getPicture())
-                .createdTime(post.getCreatedTime())
-                .updatedTime(post.getUpdatedTime())
-                .build();
+        if (post.getPostComment() != null) {
+            List<PostCommentResponseDTO> commentResponse = post.getPostComment().stream()
+                    .filter(comment -> comment.getParent() == null)
+                    .filter(comment -> comment.getChildComments() != null)
+                    .map(PostCommentResponseDTO::from)
+                    .collect(Collectors.toList());
+
+            response.setCommentPosts(commentResponse);
+        }
+
+        return response;
     }
 
     public static PostResponseDTO from(PostWithIsLiked post) {
@@ -81,15 +71,9 @@ public class PostResponseDTO {
         return dto;
     }
 
-    public static PostResponseDTO of (Post post, Boolean isLiked) {
+    public static PostResponseDTO of(Post post, Boolean isLiked) {
         PostResponseDTO dto = from(post);
         dto.setIsLiked(isLiked);
-        return dto;
-    }
-
-    public static PostResponseDTO of (Post post, List<PostResponseDTO> commentPosts) {
-        PostResponseDTO dto = from(post);
-        dto.setCommentPosts(commentPosts);
         return dto;
     }
 }
