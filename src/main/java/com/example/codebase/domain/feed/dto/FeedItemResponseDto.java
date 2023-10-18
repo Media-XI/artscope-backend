@@ -10,11 +10,9 @@ import com.example.codebase.domain.post.entity.PostWithIsLiked;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Getter
@@ -56,15 +54,16 @@ public class FeedItemResponseDto {
     @Builder.Default
     private Boolean isLiked = false;
 
-    private Long parentPostId;
-
-    private String postMentionUsername;
+//    private Long parentPostId;
+//
+//    private String postMentionUsername;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdTime;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedTime;
+
     public static FeedItemResponseDto from(Artwork artwork) {
         String thumbnailUrl = artwork.getArtworkMedia().get(0).getMediaUrl();
         List<String> mediaUrls = artwork.getArtworkMedia().stream()
@@ -121,15 +120,13 @@ public class FeedItemResponseDto {
                 .likes(post.getLikes())
                 .comments(post.getComments())
                 .mediaUrls(null)
-                .parentPostId(post.getParentPostId())
-                .postMentionUsername(post.getMentionUsername())
                 .createdTime(post.getCreatedTime())
                 .updatedTime(post.getUpdatedTime())
                 .build();
         return dto;
     }
 
-    public static FeedItemResponseDto from (PostWithIsLiked postWithIsLiked) {
+    public static FeedItemResponseDto from(PostWithIsLiked postWithIsLiked) {
         FeedItemResponseDto dto = from(postWithIsLiked.getPost());
         dto.setIsLiked(postWithIsLiked.getIsLiked());
         return dto;
