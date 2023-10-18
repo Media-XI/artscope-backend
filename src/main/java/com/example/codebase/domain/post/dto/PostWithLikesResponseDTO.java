@@ -1,10 +1,11 @@
 package com.example.codebase.domain.post.dto;
 
 import com.example.codebase.domain.post.entity.Post;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.Optional;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,14 +14,8 @@ public class PostWithLikesResponseDTO extends PostResponseDTO {
 
     private List<PostLikeMemberDTO> likeMembers;
 
-    public void setLikeMembers(List<PostLikeMemberDTO> likeMembers) {
-        this.likeMembers = likeMembers;
-    }
-
-    public static PostWithLikesResponseDTO create (Post post, List<PostLikeMemberDTO> likeMembers) {
-        Long parentId = Optional.ofNullable(post.getParentPost())
-                .map(Post::getId)
-                .orElse(null);
+    public static PostWithLikesResponseDTO create(Post post, List<PostLikeMemberDTO> likeMembers) {
+        PostResponseDTO postDto = PostResponseDTO.from(post);
 
         PostWithLikesResponseDTO dto = new PostWithLikesResponseDTO();
         dto.setId(post.getId());
@@ -34,14 +29,18 @@ public class PostWithLikesResponseDTO extends PostResponseDTO {
         dto.setAuthorProfileImageUrl(post.getAuthor().getPicture());
         dto.setCreatedTime(post.getCreatedTime());
         dto.setUpdatedTime(post.getUpdatedTime());
-        dto.setParentPostId(parentId);
         dto.setLikeMembers(likeMembers);
+        dto.setCommentPosts(postDto.getCommentPosts());
         return dto;
     }
 
-    public static PostWithLikesResponseDTO create(Post post, List<PostResponseDTO> comments, List<PostLikeMemberDTO> postLikeMemberDtos) {
-        PostWithLikesResponseDTO dto = create(post, postLikeMemberDtos);
-        dto.setCommentPosts(comments);
-        return dto;
+//    public static PostWithLikesResponseDTO create(Post post, List<PostResponseDTO> comments, List<PostLikeMemberDTO> postLikeMemberDtos) {
+//        PostWithLikesResponseDTO dto = create(post);
+//        dto.setCommentPosts(comments);
+//        return dto;
+//    }
+
+    public void setLikeMembers(List<PostLikeMemberDTO> likeMembers) {
+        this.likeMembers = likeMembers;
     }
 }

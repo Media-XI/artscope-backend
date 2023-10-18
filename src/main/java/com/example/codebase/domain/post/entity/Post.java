@@ -1,8 +1,8 @@
 package com.example.codebase.domain.post.entity;
 
+import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.post.dto.PostCreateDTO;
 import com.example.codebase.domain.post.dto.PostUpdateDTO;
-import com.example.codebase.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +12,6 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Entity
 @Table(name = "post")
@@ -27,7 +26,7 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="content", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
 
     @Builder.Default
@@ -39,11 +38,8 @@ public class Post {
     private Integer likes = 0;
 
     @Builder.Default
-    @Column(name = "comments")
+    @Column(name = "comments", nullable = false)
     private Integer comments = 0;
-
-    @Column(name = "mention_username")
-    private String mentionUsername;
 
     @Column(name = "created_time")
     private LocalDateTime createdTime;
@@ -55,25 +51,17 @@ public class Post {
     @JoinColumn(name = "author_id")
     private Member author;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_post_id")
-    private Post parentPost;
-
-    @Builder.Default
-    @OneToMany(mappedBy = "parentPost", cascade = CascadeType.ALL)
-    private List<Post> childPosts = new ArrayList<>();
-
     @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PostLikeMember> postLikeMembers = new ArrayList<>();
 
-    public static Post of(PostCreateDTO postCreateDTO, Member author) {
-        String mentionUsername = Optional.ofNullable(postCreateDTO.getMentionUsername())
-                .orElse(null);
+    @Builder.Default
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<PostComment> postComment = new ArrayList<>();
 
+    public static Post of(PostCreateDTO postCreateDTO, Member author) {
         return Post.builder()
                 .content(postCreateDTO.getContent())
-                .mentionUsername(mentionUsername)
                 .author(author)
                 .createdTime(LocalDateTime.now())
                 .build();
@@ -96,20 +84,9 @@ public class Post {
         this.postLikeMembers.add(postLikeMember);
     }
 
-    public void addChildPost(Post child) {
-        child.parentPost = this;
-        this.childPosts.add(child);
-        this.comments = this.childPosts.size();
+    public void addComment(PostComment postComment) {
+        this.postComment.add(postComment);
+        this.comments += 1;
     }
 
-    public Long getParentPostId() {
-        return Optional.ofNullable(this.parentPost)
-                .map(Post::getId)
-                .orElse(null);
-    }
-
-    public void removeChildPost(Post post) {
-        this.childPosts.remove(post);
-        this.comments = this.childPosts.size();
-    }
 }
