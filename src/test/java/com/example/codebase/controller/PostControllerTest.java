@@ -1,15 +1,17 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.auth.WithMockCustomUser;
-import com.example.codebase.domain.post.dto.PostCreateDTO;
-import com.example.codebase.domain.post.dto.PostUpdateDTO;
-import com.example.codebase.domain.post.entity.Post;
-import com.example.codebase.domain.post.repository.PostRepository;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
+import com.example.codebase.domain.post.dto.PostCommentCreateDTO;
+import com.example.codebase.domain.post.dto.PostCreateDTO;
+import com.example.codebase.domain.post.dto.PostUpdateDTO;
+import com.example.codebase.domain.post.entity.Post;
+import com.example.codebase.domain.post.entity.PostComment;
+import com.example.codebase.domain.post.repository.PostRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,12 +28,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import scala.xml.pull.ExceptionEvent;
 
 import javax.transaction.Transactional;
-
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Optional;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -121,14 +120,11 @@ class PostControllerTest {
                 .build();
 
         for (int i = 1; i <= commentSize; i++) {
-            Post comment = Post .builder()
+            PostComment comment = PostComment.of(post, PostCommentCreateDTO.builder()
                     .content("댓글" + i)
-                    .author(loadMember)
-                    .createdTime(LocalDateTime.now().plusMinutes(i))
-                    .build();
-            post.addChildPost(comment);
+                    .build(), loadMember);
+            post.addComment(comment);
         }
-
         return postRepository.save(post);
     }
 
@@ -280,27 +276,9 @@ class PostControllerTest {
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
-    @DisplayName("해당 게시글 댓글 생성")
-    @Test
-    void 댓글_생성() throws Exception {
-        Post post = createPost();
-        PostCreateDTO newCommentDto1 = PostCreateDTO.builder()
-                .content("댓글1")
-                .build();
-
-        mockMvc.perform(
-                        post("/api/posts/" + post.getId() + "/comments")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(newCommentDto1))
-                )
-                .andDo(print())
-                .andExpect(status().isCreated());
-    }
-
-    @WithMockCustomUser(username = "admin", role = "ADMIN")
     @DisplayName("댓글 여러개가 있는 게시글 상세 조회 시")
     @Test
-    void 댓글달린_게시글_상세조회 () throws Exception {
+    void 댓글달린_게시글_상세조회() throws Exception {
         Post post = createPostWithComment(3);
 
         mockMvc.perform(
@@ -329,107 +307,88 @@ class PostControllerTest {
                 .andExpect(status().isNoContent());
     }
 
-    @DisplayName("하위 댓글 상세 조회 시")
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("게시글에 댓글 생성 시")
     @Test
-    void 하위댓글_상세_조회 () throws Exception {
-        Post post = createPostWithComment(3);
-        Post childPost = post.getChildPosts().get(0);
+    void 게시글_댓글_생성() throws Exception {
+        Post post = createPost();
+
+        PostCommentCreateDTO dto = PostCommentCreateDTO.builder()
+                .content("댓글")
+                .build();
 
         mockMvc.perform(
-                        get("/api/posts/" + childPost.getId())
+                        post("/api/posts/" + post.getId() + "/comments")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
                 )
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
-    @DisplayName("게시글 대댓글 생성")
+    @DisplayName("댓글에 대댓글 생성")
     @Test
     void 대댓글_생성() throws Exception {
-        Post post = createPostWithComment(1);
-        Post childPost = post.getChildPosts().get(0);
+        Post post = createPost();
 
-        PostCreateDTO newCommentDto1 = PostCreateDTO.builder()
-                .content("대댓글1")
+        PostCommentCreateDTO dto1 = PostCommentCreateDTO.builder()
+                .content("댓글1")
                 .build();
 
         mockMvc.perform(
-                        post("/api/posts/" + childPost.getId() + "/comments")
+                        post("/api/posts/" + post.getId() + "/comments")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(newCommentDto1))
+                                .content(objectMapper.writeValueAsString(dto1))
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        PostCommentCreateDTO dto2 = PostCommentCreateDTO.builder()
+                .content("댓글2")
+                .parentCommentId(1L)
+                .build();
+
+        mockMvc.perform(
+                        post("/api/posts/" + post.getId() + "/comments")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto2))
                 )
                 .andDo(print())
                 .andExpect(status().isCreated());
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
-    @DisplayName("게시글 대댓글 삭제 시")
+    @DisplayName("게시물에 댓글을 수정할시")
     @Test
-    void 대댓글_삭제 () throws Exception {
-        Post post = createPostWithComment(10);
-        Post childPost = post.getChildPosts().get(0);
+    void 게시글_댓글_수정() throws Exception {
+        Post post = createPostWithComment(1);
+        PostComment comment = post.getPostComment().get(0);
 
+        PostUpdateDTO dto = PostUpdateDTO.builder()
+                .content("수정한댓글")
+                .build();
 
         mockMvc.perform(
-                        delete("/api/posts/" + childPost.getId())
+                        put("/api/posts/comments/" + comment.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("게시물에 댓글을 삭제할시")
+    @Test
+    void 게시물_댓글_삭제() throws Exception {
+        Post post = createPostWithComment(1);
+        PostComment comment = post.getPostComment().get(0);
 
         mockMvc.perform(
-                        get("/api/posts/" + post.getId())
+                        delete("/api/posts/comments/" + comment.getId())
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
-
-    }
-
-    @WithMockCustomUser(username = "admin", role = "ADMIN")
-    @DisplayName("해당 댓글의 대댓글 생성 시")
-    @Test
-    void 댓글의_대댓글_생성() throws Exception {
-        Post post = createPostWithComment(1);
-        Post comment = post.getChildPosts().get(0);
-        Post commentChild = Post.builder()
-                .content("대댓글1")
-                .author(comment.getAuthor())
-                .createdTime(LocalDateTime.now())
-                .build();
-        postRepository.save(commentChild);
-        comment.addChildPost(commentChild);
-
-        PostCreateDTO newCommentDto1 = PostCreateDTO.builder()
-                .content("대댓글1")
-                .build();
-
-        mockMvc.perform(
-                        post("/api/posts/" + commentChild.getId() + "/comments")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(newCommentDto1))
-                )
-                .andDo(print())
-                .andExpect(status().isBadRequest());
-    }
-
-
-    @WithMockCustomUser(username = "admin", role = "ADMIN")
-    @DisplayName("게시글 언급 대댓글 생성")
-    @Test
-    void 언급_대댓글_생성() throws Exception {
-        Post post = createPostWithComment(1);
-        Post childPost = post.getChildPosts().get(0);
-
-        PostCreateDTO newCommentDto1 = PostCreateDTO.builder()
-                .content("대댓글1")
-                .mentionUsername("admin")
-                .build();
-
-        mockMvc.perform(
-                        post("/api/posts/" + childPost.getId() + "/comments")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(newCommentDto1))
-                )
-                .andDo(print())
-                .andExpect(status().isCreated());
     }
 }
