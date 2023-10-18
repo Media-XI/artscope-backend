@@ -44,6 +44,7 @@ public class PostComment {
     @JoinColumn(name = "parent_id")
     private PostComment parent;
 
+    @Builder.Default
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostComment> childComments = new ArrayList<>();
 
