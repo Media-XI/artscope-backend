@@ -392,6 +392,12 @@ class PostControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isCreated());
+
+        mockMvc.perform(
+                        post("/api/feed")
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
