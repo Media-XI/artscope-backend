@@ -1,8 +1,11 @@
 package com.example.codebase.domain.auth.handler;
 
+import static com.example.codebase.util.SecurityUtil.getCookieAccessTokenValue;
+
 import com.example.codebase.domain.auth.dto.TokenResponseDTO;
 import com.example.codebase.filter.JwtFilter;
 import com.example.codebase.jwt.TokenProvider;
+import javax.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,6 +53,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
             if (authentication.getAuthorities().contains("ROLE_GUEST") ){ // 최초 가입한 사람 -> ROLE_GUEST
                 response.addHeader(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + token.getRefreshToken());
+                response.addCookie(new Cookie("access-token", getCookieAccessTokenValue(token)));
                 response.sendRedirect("oauth2/sign-up"); // 프론트의 회원가입 추가 정보 입력 폼으로 리다이렉트
             }
             else {
