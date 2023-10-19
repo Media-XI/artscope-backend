@@ -140,10 +140,10 @@ public class PostService {
 
         PostComment newComment = PostComment.of(post, commentCreateDTO, author);
 
-        if (commentCreateDTO.getParentCommentId() != null) {
+        if(Optional.ofNullable(commentCreateDTO.getParentCommentId()).isPresent()) {
             PostComment parentComment = postCommentRepository.findById(commentCreateDTO.getParentCommentId()).orElseThrow(() -> new RuntimeException("존재하지 않는 댓글입니다."));
 
-            newComment.addMentionUsername(parentComment.getAuthor().getUsername());
+            newComment.setMentionUsername(parentComment.getAuthor().getUsername());
             newComment.addParent(parentComment);
         }
 

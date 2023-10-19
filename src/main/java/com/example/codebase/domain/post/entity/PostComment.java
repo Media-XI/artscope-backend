@@ -14,7 +14,6 @@ import java.util.List;
 @Table(name = "post_comment")
 @Builder
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostComment {
@@ -40,7 +39,7 @@ public class PostComment {
     @JoinColumn(name = "author_id")
     private Member author;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private PostComment parent;
 
@@ -62,10 +61,10 @@ public class PostComment {
 
     public void addComment(PostComment child) {
         this.childComments.add(child);
-        this.comments += 1;
+        this.comments = this.childComments.size();
     }
 
-    public void addMentionUsername(String mentionUsername) {
+    public void setMentionUsername(String mentionUsername) {
         this.mentionUsername = mentionUsername;
     }
 

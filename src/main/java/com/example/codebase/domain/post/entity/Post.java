@@ -86,7 +86,7 @@ public class Post {
 
     public void addComment(PostComment postComment) {
         this.postComment.add(postComment);
-        this.comments += 1;
+        this.comments = this.postComment.size();
     }
 
 }
