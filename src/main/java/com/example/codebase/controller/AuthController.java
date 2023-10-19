@@ -1,5 +1,7 @@
 package com.example.codebase.controller;
 
+import static com.example.codebase.util.SecurityUtil.getCookieAccessTokenValue;
+
 import com.example.codebase.domain.auth.dto.LoginDTO;
 import com.example.codebase.domain.auth.dto.TokenResponseDTO;
 import com.example.codebase.domain.auth.service.AuthService;
@@ -33,7 +35,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity login(@Valid @RequestBody LoginDTO loginDTO) {
         TokenResponseDTO responseDTO = tokenProvider.generateToken(loginDTO);
-        return new ResponseEntity(responseDTO, HttpStatus.OK);
+
+        // Set Cookie
+        return ResponseEntity.ok()
+                .header("Set-Cookie", getCookieAccessTokenValue(responseDTO))
+                .body(responseDTO);
     }
 
     @ApiOperation(value = "로그아웃", notes = "해당 사용자의 리프레시 토큰을 서버에서 삭제합니다.")
@@ -49,7 +55,9 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity refresh(@RequestBody String refreshToken) {
         TokenResponseDTO responseDTO = tokenProvider.regenerateToken(refreshToken);
-        return new ResponseEntity(responseDTO, HttpStatus.OK);
+        return ResponseEntity.ok()
+                .header("Set-Cookie", getCookieAccessTokenValue(responseDTO))
+                .body(responseDTO);
     }
 
     @ApiOperation(value = "이메일 인증확인 API", notes = "인증코드를 기반으로 이메일 인증 처리")
