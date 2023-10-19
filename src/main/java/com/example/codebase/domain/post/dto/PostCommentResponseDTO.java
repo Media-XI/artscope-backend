@@ -19,8 +19,6 @@ public class PostCommentResponseDTO {
 
   protected String content;
 
-  protected Integer likes;
-
   protected Integer comments;
 
   protected String mentionUsername;
