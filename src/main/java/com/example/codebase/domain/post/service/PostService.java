@@ -169,20 +169,20 @@ public class PostService {
       Long perentId = parentCommentId.get();
       PostComment parentComment =
           postCommentRepository
-              .findById(perentId)
-              .orElseThrow(() -> new RuntimeException("존재하지 않는 댓글입니다."));
+              .findByIdAndPost(perentId, post)
+              .orElseThrow(() -> new RuntimeException("존재하지 않는 댓글이거나 해당 게시글에 속해있지 않습니다."));
 
       // 2차 대댓글 일 시
       if (parentComment.getParent() == null) {
         newComment.setParent(parentComment);
         parentComment.addComment(newComment);
-        postCommentRepository.save(parentComment);
+        postCommentRepository.save(newComment);
       } else {
         // 3차 대댓글 일 시
         newComment.setMentionUsername(parentComment.getAuthor().getUsername());
         newComment.setParent(parentComment.getParent());
         parentComment.getParent().addComment(newComment);
-        postCommentRepository.save(parentComment.getParent());
+        postCommentRepository.save(newComment);
       }
     }
     else {
