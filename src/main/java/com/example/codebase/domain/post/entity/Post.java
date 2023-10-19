@@ -89,6 +89,11 @@ public class Post {
         this.comments = this.postComment.size();
     }
 
+    public int getComments() {
+        int comments = this.comments + getAllLevelTwoCommentSize();
+        return comments;
+    }
+
     public int getAllLevelTwoCommentSize() {
         int commentSize = 0;
         for (PostComment postComment : this.postComment) {
