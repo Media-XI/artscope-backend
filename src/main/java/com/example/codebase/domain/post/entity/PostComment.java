@@ -61,6 +61,7 @@ public class PostComment {
 
     public void addComment(PostComment child) {
         this.childComments.add(child);
+        child.setPost(this.post);
         this.comments = this.childComments.size();
     }
 
@@ -68,8 +69,12 @@ public class PostComment {
         this.mentionUsername = mentionUsername;
     }
 
-    public void addParent(PostComment parent) {
+    public void setParent(PostComment parent) {
         this.parent = parent;
+    }
+
+    public void setPost(Post post) {
+        this.post = post;
     }
 
     public void update(PostCommentUpdateDTO commentUpdateDTO) {

@@ -11,6 +11,7 @@ import com.example.codebase.domain.post.dto.PostCreateDTO;
 import com.example.codebase.domain.post.dto.PostUpdateDTO;
 import com.example.codebase.domain.post.entity.Post;
 import com.example.codebase.domain.post.entity.PostComment;
+import com.example.codebase.domain.post.repository.PostCommentRepository;
 import com.example.codebase.domain.post.repository.PostRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +61,8 @@ class PostControllerTest {
 
     @Autowired
     private PostRepository postRepository;
+
+  @Autowired private PostCommentRepository commentRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -353,6 +356,39 @@ class PostControllerTest {
                         post("/api/posts/" + post.getId() + "/comments")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto2))
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("멘션 대댓글 (3차) 생성")
+    @Test
+    void 멘션_대댓글_생성() throws Exception {
+        Post post = createPostWithComment(5);
+        PostComment level1 = post.getPostComment().get(0);
+
+        PostComment level2 = PostComment.of(post, PostCommentCreateDTO.builder()
+                .content("2차 대댓글입니다.")
+                .build(), level1.getAuthor());
+        level2.setParent(level1);
+        commentRepository.save(level2);
+
+        level1.addComment(level2);
+
+        commentRepository.save(level1);
+
+        postRepository.save(post);
+
+        PostCommentCreateDTO dto = PostCommentCreateDTO.builder()
+                .content("3차 대댓글입니다.")
+                .parentCommentId(level2.getId())
+                .build();
+
+        mockMvc.perform(
+                        post("/api/posts/" + post.getId() + "/comments")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
                 )
                 .andDo(print())
                 .andExpect(status().isCreated());
