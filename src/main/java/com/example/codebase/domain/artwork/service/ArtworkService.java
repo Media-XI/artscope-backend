@@ -268,9 +268,8 @@ public class ArtworkService {
                 .orElseThrow(NotFoundMemberException::new);
 
         ArtworkComment artworkComment = ArtworkComment.of(commentCreateDTO, artwork, member);
+        artwork.addArtworkComment(artworkComment);
         artworkCommentRepository.save(artworkComment);
-        
-        //artwork.addArtworkComment(artworkComment);
 
         List<ArtworkCommentResponseDTO> comments = getComments(artwork);
         return ArtworkResponseDTO.of(artwork, comments);
@@ -301,8 +300,8 @@ public class ArtworkService {
         }
 
         artwork.removeArtworkComment(comment);
-        artworkRepository.save(artwork);
         artworkCommentRepository.delete(comment);
+        artworkRepository.save(artwork);
     }
 
 //    @Transactional
