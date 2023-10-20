@@ -105,8 +105,8 @@ public class Artwork {
     }
 
     public void addArtworkComment(ArtworkComment artworkComment) {
-        this.artworkComments.add(artworkComment);
-        this.comments++;
+        artworkComments.add(artworkComment);
+        comments = this.artworkComments.size();
     }
 
     public void update(ArtworkUpdateDTO dto) {

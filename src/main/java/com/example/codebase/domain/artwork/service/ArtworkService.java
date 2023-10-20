@@ -269,6 +269,8 @@ public class ArtworkService {
 
         ArtworkComment artworkComment = ArtworkComment.of(commentCreateDTO, artwork, member);
         artworkCommentRepository.save(artworkComment);
+
+        artwork.addArtworkComment(artworkComment);
         
         //artwork.addArtworkComment(artworkComment);
 
