@@ -227,8 +227,9 @@ public class PostService {
         }
 
         Post post = comment.getPost();
-        int comments = postCommentRepository.countByPost(post);
-        post.removeComment(comment, comments);
+        post.removeComment(comment);
+
+        postRepository.save(post);
 
         return PostResponseDTO.from(post);
     }
