@@ -34,5 +34,5 @@ spring:
         - prod
 
 app:
-  oauth2-redirect-uri: https://artscope.kr/user/auth2-success
-  fail-redirect-uri: https://artscope.kr/user/auth2-failure
+  oauth2-redirect-uri: https://artscope.kr/user/auth2/success
+  fail-redirect-uri: https://artscope.kr/user/auth2/failure
