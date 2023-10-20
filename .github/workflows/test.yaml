@@ -9,7 +9,7 @@ name: Spring Boot Test by Gradle
 
 on:
   pull_request:
-    branches: [ "develop" ]
+    branches: [ "develop", "main" ]
   workflow_call:
     secrets:
       JASYPT_ENCRYPTOR_PASSWORD:
