@@ -14,33 +14,33 @@ public class ArtworkWithIsLikeResponseDTO {
 
     ArtworkResponseDTO artwork;
 
-    Boolean isLike;
+    Boolean isLiked;
 
     public static ArtworkWithIsLikeResponseDTO from(ArtworkWithIsLike artworkWithIsLike) {
         ArtworkWithIsLikeResponseDTO artworkWithIsLikeResponseDTO = new ArtworkWithIsLikeResponseDTO();
         artworkWithIsLikeResponseDTO.setArtwork(ArtworkResponseDTO.from(artworkWithIsLike.getArtwork()));
-        artworkWithIsLikeResponseDTO.setIsLike(artworkWithIsLike.getIsLike());
+        artworkWithIsLikeResponseDTO.setIsLiked(artworkWithIsLike.getIsLike());
         return artworkWithIsLikeResponseDTO;
     }
 
     public static ArtworkWithIsLikeResponseDTO from(Artwork artwork) {
         ArtworkWithIsLikeResponseDTO artworkWithIsLikeResponseDTO = new ArtworkWithIsLikeResponseDTO();
         artworkWithIsLikeResponseDTO.setArtwork(ArtworkResponseDTO.from(artwork));
-        artworkWithIsLikeResponseDTO.setIsLike(false);
+        artworkWithIsLikeResponseDTO.setIsLiked(false);
         return artworkWithIsLikeResponseDTO;
     }
 
     public static ArtworkWithIsLikeResponseDTO from(Artwork artwork, boolean existLike) {
         ArtworkWithIsLikeResponseDTO artworkWithIsLikeResponseDTO = new ArtworkWithIsLikeResponseDTO();
         artworkWithIsLikeResponseDTO.setArtwork(ArtworkResponseDTO.from(artwork));
-        artworkWithIsLikeResponseDTO.setIsLike(existLike);
+        artworkWithIsLikeResponseDTO.setIsLiked(existLike);
         return artworkWithIsLikeResponseDTO;
     }
 
     public static ArtworkWithIsLikeResponseDTO from(Artwork artwork, List<ArtworkCommentResponseDTO> comments, boolean existLike) {
         ArtworkWithIsLikeResponseDTO artworkWithIsLikeResponseDTO = new ArtworkWithIsLikeResponseDTO();
         artworkWithIsLikeResponseDTO.setArtwork(ArtworkResponseDTO.of(artwork, comments));
-        artworkWithIsLikeResponseDTO.setIsLike(existLike);
+        artworkWithIsLikeResponseDTO.setIsLiked(existLike);
         return artworkWithIsLikeResponseDTO;
     }
 }
