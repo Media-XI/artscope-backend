@@ -134,8 +134,8 @@ public class PostController {
     public ResponseEntity deleteComment(@PathVariable Long commentId) {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
-        postService.deleteComment(commentId, loginUsername);
+        PostResponseDTO dto = postService.deleteComment(commentId, loginUsername);
 
-        return new ResponseEntity("댓글이 삭제되었습니다.", HttpStatus.OK);
+        return new ResponseEntity(dto, HttpStatus.OK);
     }
 }
