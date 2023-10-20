@@ -72,17 +72,4 @@ public class OAuthAttributes {
                 .build();
     }
 
-    public Member toEntity(PasswordEncoder passwordEncoder) {
-        return Member.builder()
-                .username(oAuthProviderId)
-                .password(passwordEncoder.encode(UUID.randomUUID().toString()))
-                .name(name)
-                .email(email)
-                .picture(picture)
-                .oauthProvider(registrationId)
-                .oauthProviderId(oAuthProviderId)
-                .createdTime(LocalDateTime.now())
-                .activated(true)
-                .build();
-    }
 }

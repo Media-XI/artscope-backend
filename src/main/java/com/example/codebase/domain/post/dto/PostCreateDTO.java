@@ -9,8 +9,6 @@ import lombok.*;
 @NoArgsConstructor
 public class PostCreateDTO {
 
-    private String title;
-
     private String content;
 
 }

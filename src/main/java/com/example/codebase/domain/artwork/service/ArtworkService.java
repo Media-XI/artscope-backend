@@ -3,8 +3,8 @@ package com.example.codebase.domain.artwork.service;
 import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.artwork.dto.*;
 import com.example.codebase.domain.artwork.entity.*;
+import com.example.codebase.domain.artwork.repository.ArtworkCommentRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkLikeMemberRepository;
-import com.example.codebase.domain.artwork.repository.ArtworkMediaRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
@@ -18,8 +18,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,15 +27,15 @@ import java.util.stream.Collectors;
 @Service
 public class ArtworkService {
     private final ArtworkRepository artworkRepository;
-    private final ArtworkMediaRepository artworkMediaRepository;
+    private final ArtworkCommentRepository artworkCommentRepository;
     private final ArtworkLikeMemberRepository artworkLikeMemberRepository;
     private final S3Service s3Service;
     private final MemberRepository memberRepository;
 
     @Autowired
-    public ArtworkService(ArtworkRepository artworkRepository, ArtworkMediaRepository artworkMediaRepository, ArtworkLikeMemberRepository artworkLikeMemberRepository, S3Service s3Service, MemberRepository memberRepository) {
+    public ArtworkService(ArtworkRepository artworkRepository, ArtworkCommentRepository artworkCommentRepository, ArtworkLikeMemberRepository artworkLikeMemberRepository, S3Service s3Service, MemberRepository memberRepository) {
         this.artworkRepository = artworkRepository;
-        this.artworkMediaRepository = artworkMediaRepository;
+        this.artworkCommentRepository = artworkCommentRepository;
         this.artworkLikeMemberRepository = artworkLikeMemberRepository;
         this.s3Service = s3Service;
         this.memberRepository = memberRepository;
@@ -58,6 +58,7 @@ public class ArtworkService {
             artwork.addArtworkMedia(media);
         }
 
+        member.addArtwork(artwork);
         Artwork saveArtwork = artworkRepository.save(artwork);
         return ArtworkResponseDTO.from(saveArtwork);
     }
@@ -73,10 +74,10 @@ public class ArtworkService {
 
             if (SecurityUtil.isAdmin()) {
                 // 관리자면 공개여부와 상관없이 전체 조회
-                artworksWithIsLikePage = artworkRepository.findAllMemeWIthIsLikeByIdAndMember(member, pageRequest);
+                artworksWithIsLikePage = artworkRepository.findAllWithIsLikeByMember(member, pageRequest);
             }
             else {
-                artworksWithIsLikePage = artworkRepository.findAllMemeWIthIsLikeByIdAndMemberAndVisible(member, true, pageRequest);
+                artworksWithIsLikePage = artworkRepository.findAllWithIsLikeByMemberAndVisible(member, true, pageRequest);
             }
 
             PageInfo pageInfo = PageInfo.of(page, size, artworksWithIsLikePage.getTotalPages(), artworksWithIsLikePage.getTotalElements());
@@ -87,6 +88,7 @@ public class ArtworkService {
 
             return ArtworkWithLikePageDTO.of(dtos, pageInfo);
         }
+
         Page<Artwork> artworksPage = artworkRepository.findAll(pageRequest);
 
         PageInfo pageInfo = PageInfo.of(page, size, artworksPage.getTotalPages(), artworksPage.getTotalElements());
@@ -100,14 +102,18 @@ public class ArtworkService {
     @Transactional
     public ArtworkWithIsLikeResponseDTO getArtwork(Long id, Optional<String> username) {
         boolean existLike = false;
+        // 사용자 좋아요 여부에 따른 해당 아트워크 좋아요 조회
         if (username.isPresent()) {
             existLike = artworkLikeMemberRepository.existsByArtwork_IdAndMember_Username(id, username.get());
         }
         Artwork artwork = artworkRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
+
         artwork.increaseView(); // 조회수 증가
 
-        return ArtworkWithIsLikeResponseDTO.from(artwork, existLike);
+        // 달린 댓글 추가
+        List<ArtworkCommentResponseDTO> comments = getComments(artwork);
+        return ArtworkWithIsLikeResponseDTO.from(artwork, comments, existLike);
     }
 
     @Transactional
@@ -187,7 +193,7 @@ public class ArtworkService {
         } else {
             // 좋아요 추가
             ArtworkLikeMember artworkLikeMember = ArtworkLikeMember.of(artwork, member);
-            artworkLikeMemberRepository.save(artworkLikeMember);
+            artwork.addArtworkLikeMember(artworkLikeMember);
         }
 
         Integer Likes = artworkLikeMemberRepository.countByArtworkId(artwork.getId());
@@ -213,6 +219,7 @@ public class ArtworkService {
         return ArtworkLikeMemberPageDTO.of(dtos, pageInfo);
     }
 
+    @Transactional(readOnly = true)
     public ArtworkLikeMembersPageDTO getArtworkLikeMembers(Long id, int page, int size, String sortDirection) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "likedTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
@@ -237,6 +244,7 @@ public class ArtworkService {
 
     }
 
+    @Transactional(readOnly = true)
     public ArtworksResponseDTO searchArtworks(String keyword, int page, int size, String sortDirection) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
@@ -250,4 +258,76 @@ public class ArtworkService {
 
         return ArtworksResponseDTO.of(dtos, pageInfo);
     }
+
+    @Transactional
+    public ArtworkResponseDTO commentArtwork(Long artworkId, String loginUsername, ArtworkCommentCreateDTO commentCreateDTO) {
+        Artwork artwork = artworkRepository.findById(artworkId)
+                .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
+
+        Member member = memberRepository.findByUsername(loginUsername)
+                .orElseThrow(NotFoundMemberException::new);
+
+        ArtworkComment artworkComment = ArtworkComment.of(commentCreateDTO, artwork, member);
+        artwork.addArtworkComment(artworkComment);
+        artworkCommentRepository.save(artworkComment);
+
+        List<ArtworkCommentResponseDTO> comments = getComments(artwork);
+        return ArtworkResponseDTO.of(artwork, comments);
+    }
+
+    private List<ArtworkCommentResponseDTO> getComments(Artwork artwork) {
+        return artwork.getArtworkComments().stream()
+                .map(ArtworkCommentResponseDTO::from)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteArtworkComment(Long artworkId, Long commentId, String loginUsername) {
+        ArtworkComment comment = artworkCommentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException("해당 댓글을 찾을 수 없습니다."));
+
+        Member member = memberRepository.findByUsername(loginUsername)
+                .orElseThrow(NotFoundMemberException::new);
+
+        if (!comment.getAuthor().equals(member)) {
+            throw new NotAccessException("해당 댓글의 작성자가 아닙니다.");
+        }
+
+        Artwork artwork = comment.getArtwork();
+
+        if (!artwork.getId().equals(artworkId)) {
+            throw new NotFoundException("해당 작품을 찾을 수 없습니다.");
+        }
+
+        artwork.removeArtworkComment(comment);
+        artworkCommentRepository.delete(comment);
+        artworkRepository.save(artwork);
+    }
+
+//    @Transactional
+//    public ArtworkResponseDTO addChildComment(Long artworkId, Long commentId, String loginUsername, ArtworkCommentCreateDTO commentCreateDTO) {
+//        ArtworkComment parentComment = artworkCommentRepository.findById(commentId)
+//                .orElseThrow(() -> new NotFoundException("해당 댓글을 찾을 수 없습니다."));
+//
+//        Artwork artwork = parentComment.getArtwork();
+//        if (!artwork.getId().equals(artworkId)) {
+//            throw new NotFoundException("해당 작품을 찾을 수 없습니다.");
+//        }
+//
+//        Member member = memberRepository.findByUsername(loginUsername)
+//                .orElseThrow(NotFoundMemberException::new);
+//
+//        ArtworkComment childComment = ArtworkComment.of(commentCreateDTO, artwork, member);
+//        parentComment.addChildComment(childComment);
+//
+//        List<ArtworkCommentResponseDTO> comments = getComments(parentComment);
+//        return ArtworkResponseDTO.of(artwork, comments);
+//    }
+//
+//    private List<ArtworkCommentResponseDTO> getComments(ArtworkComment parentComment) {
+//        return parentComment.getChildComments().stream()
+//                .map(ArtworkCommentResponseDTO::from)
+//                .collect(Collectors.toList());
+//    }
+
 }

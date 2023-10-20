@@ -71,11 +71,9 @@ public class MemberService {
                 .authority(authority)
                 .member(newMember)
                 .build();
-        newMember.setAuthorities(Collections.singleton(memberAuthority));
+        newMember.addAuthority(memberAuthority);
 
         Member save = memberRepository.save(newMember);
-        memberAuthorityRepository.save(memberAuthority);
-
         return MemberResponseDTO.from(save);
     }
 
@@ -94,16 +92,17 @@ public class MemberService {
                 .activated(true)
                 .build();
 
-        Set<MemberAuthority> memberAuthority = new HashSet<>();
-        memberAuthority.add(MemberAuthority.builder()
+        MemberAuthority userAuthority = MemberAuthority.builder()
                 .authority(Authority.of("ROLE_USER"))
                 .member(newMember)
-                .build());
-        memberAuthority.add(MemberAuthority.builder()
+                .build();
+        newMember.addAuthority(userAuthority);
+
+        MemberAuthority adminAuthority = MemberAuthority.builder()
                 .authority(Authority.of("ROLE_ADMIN"))
                 .member(newMember)
-                .build());
-        newMember.setAuthorities(memberAuthority);
+                .build();
+        newMember.addAuthority(adminAuthority);
 
         return MemberResponseDTO.from(memberRepository.save(newMember));
     }
@@ -118,20 +117,18 @@ public class MemberService {
             throw new ExistsEmailException();
         }
 
-
         // New Save
         Authority authority = new Authority();
         authority.setAuthorityName("ROLE_USER");
 
-        Member newMember = oAuthAttributes.toEntity(passwordEncoder);
+        Member newMember = Member.from(passwordEncoder, oAuthAttributes);
         MemberAuthority memberAuthority = MemberAuthority.builder()
                 .authority(authority)
                 .member(newMember)
                 .build();
-        newMember.setAuthorities(Collections.singleton(memberAuthority));
+        newMember.addAuthority(memberAuthority);
 
         Member save = memberRepository.save(newMember);
-        memberAuthorityRepository.save(memberAuthority);
         return save;
     }
 
@@ -195,6 +192,7 @@ public class MemberService {
             s3Service.deleteObject(member.getPicture());
         }
 
+        // 미디어 파일 삭제
         if (Optional.ofNullable(member.getArtworks()).isPresent()) {
             deleteMemberAllArtworkMedias(member.getArtworks());
         }
@@ -265,10 +263,11 @@ public class MemberService {
                 .findByUsername(username)
                 .orElseThrow(NotFoundMemberException::new);
 
-        MemberAuthority memberAuthority = new MemberAuthority();
-        memberAuthority.setAuthority(Authority.of("ROLE_ADMIN"));
-        memberAuthority.setMember(member);
-        memberAuthorityRepository.save(memberAuthority);
+        MemberAuthority adminAuthority = new MemberAuthority();
+        adminAuthority.setAuthority(Authority.of("ROLE_ADMIN"));
+        adminAuthority.setMember(member);
+
+        member.addAuthority(adminAuthority);
 
         return MemberResponseDTO.from(member);
     }

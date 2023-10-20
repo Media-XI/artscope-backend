@@ -12,8 +12,11 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
 
 @Slf4j
 public class JwtFilter extends GenericFilterBean {
@@ -47,9 +50,31 @@ public class JwtFilter extends GenericFilterBean {
 
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+
+        if (bearerToken == null) {
+            Cookie[] cookies = request.getCookies();
+            if (cookies == null) {
+                return null;
+            }
+
+            Cookie acceeTokenCookie = Arrays.stream(cookies)
+                    .filter(cookie -> cookie.getName().equals("access-token"))
+                    .findFirst()
+                    .orElse(null);
+
+            if (acceeTokenCookie == null) {
+                return null;
+            }
+            bearerToken = acceeTokenCookie.getValue();
+        }
+
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
+        else if (StringUtils.hasText(bearerToken)) {
+            return bearerToken;
+        }
+
         return null;
     }
 }

@@ -3,16 +3,19 @@ package com.example.codebase.controller;
 import com.example.codebase.domain.artwork.dto.*;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.service.ArtworkService;
+import com.example.codebase.domain.image.service.ImageService;
 import com.example.codebase.s3.S3Service;
 import com.example.codebase.util.FileUtil;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +24,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -32,14 +36,12 @@ public class ArtworkController {
 
     private final ArtworkService artworkService;
 
-    private final S3Service s3Service;
+    private final ImageService imageService;
 
-    @Value("${app.file-count}")
-    private String fileCount;
-
-    public ArtworkController(ArtworkService artworkService, S3Service s3Service) {
+    @Autowired
+    public ArtworkController(ArtworkService artworkService, ImageService imageService) {
         this.artworkService = artworkService;
-        this.s3Service = s3Service;
+        this.imageService = imageService;
     }
 
     @ApiOperation(value = "아트워크 생성", notes = "[USER] 아트워크를 생성합니다.")
@@ -51,55 +53,17 @@ public class ArtworkController {
             @RequestPart(value = "thumbnailFile") MultipartFile thumbnailFile
     ) throws Exception {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
-        if (mediaFiles.size() > Integer.valueOf(fileCount)) {
-            throw new RuntimeException("파일은 최대 " + fileCount + "개까지 업로드 가능합니다.");
-        }
-
-        if (mediaFiles.size() == 0) {
-            throw new RuntimeException("파일을 업로드 해주세요.");
-        }
-
         if (Optional.ofNullable(dto.getTags()).isPresent() && dto.getTags().size() > 5) {
             throw new RuntimeException("태그는 최대 5개까지 등록 가능합니다.");
         }
 
-        if (!dto.getThumbnail().getMediaType().equals("image") && FileUtil.validateImageFile(thumbnailFile.getInputStream())) {
-            throw new RuntimeException("썸네일은 이미지 파일만 업로드 가능합니다.");
-        } else {
-            // 썸네일 파일 이미지 사이즈 구하기
-            BufferedImage bufferedImage = FileUtil.getBufferedImage(thumbnailFile.getInputStream());
-            dto.getThumbnail().setImageSize(bufferedImage);
-            // 썸네일 업로드
-            String savedUrl = s3Service.saveUploadFile(thumbnailFile);
-            dto.getThumbnail().setMediaUrl(savedUrl);
-        }
-
-        for (int i = 0; i < dto.getMedias().size(); i++) {
-            ArtworkMediaCreateDTO mediaDto = dto.getMedias().get(i);
-
-            if (mediaDto.getMediaType().equals("url")) {
-                String youtubeUrl = new String(mediaFiles.get(i).getBytes(), "UTF-8");
-
-                if (!youtubeUrl.matches("^(https?\\:\\/\\/)?(www\\.)?(youtube\\.com|youtu\\.?be)\\/.+$")) {
-                    throw new RuntimeException("유튜브 링크 형식이 올바르지 않습니다. ex) https://www.youtube.com/watch?v=XXXXXXXXXXX 또는 https://youtu.be/XXXXXXXXXXX");
-                }
-
-                mediaDto.setMediaUrl(youtubeUrl);
-            } else {
-                // 이미지 파일이면 원본 이미지의 사이즈를 구합니다.
-                if (mediaDto.getMediaType().equals("image")) {
-                    BufferedImage bufferedImage = FileUtil.getBufferedImage(mediaFiles.get(i).getInputStream());
-                    mediaDto.setImageSize(bufferedImage);
-                }
-                // 파일 업로드
-                String savedUrl = s3Service.saveUploadFile(mediaFiles.get(i));
-                mediaDto.setMediaUrl(savedUrl);
-            }
-        }
+        imageService.mediasUpload(dto, mediaFiles);
+        imageService.thumbnailUpload(dto.getThumbnail(), thumbnailFile);
 
         ArtworkResponseDTO artwork = artworkService.createArtwork(dto, username);
         return new ResponseEntity(artwork, HttpStatus.CREATED);
     }
+
 
     @ApiOperation(value = "아트워크 전체 조회", notes = "아트워크 전체 조회합니다. \n 정렬 : ASC 오름차순, DESC 내림차순")
     @GetMapping
@@ -261,5 +225,46 @@ public class ArtworkController {
         String formatKeyword = keyword.trim().replace(" ", ""); // 공백 제거
         ArtworksResponseDTO artworks = artworkService.searchArtworks(formatKeyword, page, size, sortDirection);
         return new ResponseEntity(artworks, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "아트워크 댓글 생성", notes = "[로그인] 해당 아트워크에 댓글을 추가합니다.")
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/{id}/comments")
+    public ResponseEntity commentArtwork(@PathVariable Long id, @RequestBody ArtworkCommentCreateDTO commentCreateDTO) {
+        String loginUsername = SecurityUtil.getCurrentUsername()
+                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+
+        ArtworkResponseDTO comment = artworkService.commentArtwork(id, loginUsername, commentCreateDTO);
+
+        return new ResponseEntity(comment, HttpStatus.CREATED);
+    }
+
+//    @ApiOperation(value = "아트워크 대댓글 생성", notes = "[로그인] 해당 아트워크 댓글에 대댓글을 추가합니다.")
+//    @PreAuthorize("isAuthenticated()")
+//    @PostMapping("/{id}/comments/{commentId}/comments")
+//    public ResponseEntity addChildComment(@PathVariable Long id,
+//                                            @PathVariable Long commentId,
+//                                            @RequestBody ArtworkCommentCreateDTO commentCreateDTO) {
+//        String loginUsername = SecurityUtil.getCurrentUsername()
+//                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+//
+//        ArtworkResponseDTO comment = artworkService.addChildComment(id, commentId, loginUsername, commentCreateDTO);
+//
+//        return new ResponseEntity(comment, HttpStatus.CREATED);
+//    }
+
+
+    @ApiOperation(value = "아트워크 댓글 삭제", notes = "[로그인, 작성자] 해당 아트워크 댓글을 삭제합니다.")
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{id}/comments/{commentId}")
+    public ResponseEntity deleteArtworkComment(
+            @PathVariable Long id,
+            @PathVariable Long commentId) {
+        String loginUsername = SecurityUtil.getCurrentUsername()
+                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+
+        artworkService.deleteArtworkComment(id, commentId, loginUsername);
+
+        return new ResponseEntity("댓글이 삭제되었습니다.", HttpStatus.NO_CONTENT);
     }
 }

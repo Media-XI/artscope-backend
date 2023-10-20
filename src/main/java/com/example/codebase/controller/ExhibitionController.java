@@ -3,8 +3,6 @@ package com.example.codebase.controller;
 import com.example.codebase.domain.exhibition.dto.CreateExhibitionDTO;
 import com.example.codebase.domain.exhibition.dto.ResponseExhibitionDTO;
 import com.example.codebase.domain.exhibition.service.ExhibitionService;
-import com.example.codebase.domain.exhibition_artwork.dto.ExhibitionArtworkResponseDTO;
-import com.example.codebase.domain.exhibition_artwork.dto.ExhibitionArtworksResponseDTO;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

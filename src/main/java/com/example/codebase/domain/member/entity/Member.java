@@ -2,26 +2,25 @@ package com.example.codebase.domain.member.entity;
 
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkLikeMember;
+import com.example.codebase.domain.auth.OAuthAttributes;
 import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
 import com.example.codebase.domain.member.dto.UpdateMemberDTO;
 import com.example.codebase.domain.member.entity.oauth2.oAuthProvider;
+import com.example.codebase.domain.post.entity.Post;
+import com.example.codebase.domain.post.entity.PostLikeMember;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "member", indexes = {
-        @Index(name = "idx_member_username", columnList = "username"),
-        @Index(name = "idx_member_email", columnList = "email")
-})
+@Table(name = "member")
 @Getter
 @Builder
 @AllArgsConstructor
@@ -82,18 +81,17 @@ public class Member {
     @Column(name = "artist_status")
     private ArtistStatus artistStatus = ArtistStatus.NONE;
 
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private Set<MemberAuthority> authorities;
+    private Set<MemberAuthority> authorities = new HashSet<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<Artwork> artworks;
+    private List<Artwork> artworks = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<ArtworkLikeMember> artworkLike;
-
-    public void setAuthorities(Set<MemberAuthority> authorities) {
-        this.authorities = authorities;
-    }
+    @Builder.Default
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    private List<Post> posts = new ArrayList<>();
 
     public void setPassword(String password) {
         this.password = password;
@@ -109,6 +107,54 @@ public class Member {
                 .collect(Collectors.toList()));
     }
 
+    public static Member from(PasswordEncoder passwordEncoder, OAuthAttributes oAuthAttributes) {
+        String username = generateUniqueUsernameLikeYT();
+
+        return Member.builder()
+                .username(username)
+                .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                .name(oAuthAttributes.getName())
+                .email(oAuthAttributes.getEmail())
+                .picture(oAuthAttributes.getPicture())
+                .oauthProvider(oAuthAttributes.getRegistrationId())
+                .oauthProviderId(oAuthAttributes.getOAuthProviderId())
+                .createdTime(LocalDateTime.now())
+                .activated(true)
+                .build();
+    }
+
+    private static String generateUniqueUsername() {
+        // UUID 생성
+        UUID uuid = UUID.randomUUID();
+
+        // UUID를 문자열로 변환하고 "-"를 제거하여 username 생성
+        String username = uuid.toString().replace("-", "");
+
+        // "@"를 앞에 추가
+        username = username.substring(0, 10); // 예시로 10자리만 사용
+        return "user-" + username;
+    }
+
+    private static String generateUniqueUsernameLikeYT() {
+        StringBuilder username = new StringBuilder("user-");
+
+        // code :  영소문자1 + 영소문자2 + 숫자 = 26 * 26 * 9 = 6084
+        // code1 + code2 + code3 + 영소문자 = 6084 * 6084 * 6084 * 26 = 5,855,189,618,304 경우의 수 (5조)
+        for (int i = 0; i <  3; i++) {
+            char alphabet1 = (char) ((Math.random() * 26) + 97);
+            char alphabet2 = (char) ((Math.random() * 26) + 97);
+            int number = (int) ((Math.random() * 9) + 1);
+
+            username.append(alphabet1);
+            username.append(alphabet2);
+            username.append(number);
+        }
+        char last = (char) ((Math.random() * 26) + 97);
+        username.append(last);
+
+        return username.toString();
+    }
+
     public Member update(String name, String picture) {
         this.name = name;
         this.picture = picture;
@@ -118,8 +164,7 @@ public class Member {
 
     public Member update(UpdateMemberDTO dto) {
         if (dto.getUsername() != null) {
-            this.username = dto.getUsername();
-        }
+            this.username = dto.getUsername();        }
         if (dto.getName() != null) {
             this.name = dto.getName();
         }
@@ -177,4 +222,13 @@ public class Member {
         this.password = password;
         this.updatedTime = LocalDateTime.now();
     }
+
+    public void addPost(Post post) {
+        this.posts.add(post);
+    }
+
+    public void addArtwork(Artwork artwork) {
+        this.artworks.add(artwork);
+    }
+
 }

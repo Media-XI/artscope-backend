@@ -3,7 +3,6 @@ package com.example.codebase.domain.artwork.entity;
 import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkUpdateDTO;
-import com.example.codebase.domain.exhibition_artwork.entity.ExhibitionArtwork;
 import com.example.codebase.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -51,6 +50,10 @@ public class Artwork {
     @Column(name = "likes", columnDefinition = "integer default 0")
     private Integer likes = 0;
 
+    @Builder.Default
+    @Column(name = "comments")
+    private Integer comments = 0;
+
     @Column(name = "visible")
     private boolean visible;
 
@@ -66,15 +69,15 @@ public class Artwork {
 
     @Builder.Default
     @OneToMany(mappedBy = "artwork", cascade = CascadeType.ALL)
-    private List<ExhibitionArtwork> exhibitionArtworks = new ArrayList<>();
-
-    @Builder.Default
-    @OneToMany(mappedBy = "artwork", cascade = CascadeType.ALL)
     private List<ArtworkMedia> artworkMedia = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "artwork", cascade = CascadeType.ALL)
     private List<ArtworkLikeMember> artworkLikeMembers = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "artwork", cascade = CascadeType.ALL)
+    private List<ArtworkComment> artworkComments = new ArrayList<>();
 
     public static Artwork of (ArtworkCreateDTO dto, Member member) {
         String tempTags = "";
@@ -97,8 +100,13 @@ public class Artwork {
         this.artworkMedia.add(artworkMedia);
     }
 
-    public void addExhibitionArtwork(ExhibitionArtwork exhibitionArtwork) {
-        this.exhibitionArtworks.add(exhibitionArtwork);
+    public void addArtworkLikeMember(ArtworkLikeMember artworkLikeMember) {
+        this.artworkLikeMembers.add(artworkLikeMember);
+    }
+
+    public void addArtworkComment(ArtworkComment artworkComment) {
+        artworkComments.add(artworkComment);
+        comments = artworkComments.size();
     }
 
     public void update(ArtworkUpdateDTO dto) {
@@ -127,5 +135,10 @@ public class Artwork {
 
     public void setLikes(Integer likes) {
         this.likes = likes;
+    }
+
+    public void removeArtworkComment(ArtworkComment comment) {
+        artworkComments.remove(comment);
+        comments = artworkComments.size();
     }
 }

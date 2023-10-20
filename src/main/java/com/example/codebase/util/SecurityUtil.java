@@ -1,6 +1,7 @@
 package com.example.codebase.util;
 
 
+import com.example.codebase.domain.auth.dto.TokenResponseDTO;
 import com.example.codebase.domain.member.dto.AuthorityDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -82,6 +83,16 @@ public class SecurityUtil {
      */
     public static Boolean isAdminOrSameUser(String username){
         return isAdmin() || isSameUser(username, getCurrentUsername().get()) ? true : false;
+    }
+
+    public static String getCookieAccessTokenValue(TokenResponseDTO tokenDto) {
+        StringBuilder sb = new StringBuilder("access-token=");
+        // TODO : Domain 설정
+        sb.append(tokenDto.getAccessToken());
+        sb.append("; Path=/; Max-Age=");
+        sb.append(tokenDto.getExpiresIn());
+        sb.append("; HttpOnly; Secure");
+        return sb.toString();
     }
 
 }

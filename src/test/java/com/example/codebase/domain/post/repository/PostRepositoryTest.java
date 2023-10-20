@@ -26,31 +26,27 @@ class PostRepositoryTest {
     void testFindTopByPopular() throws Exception{
         // given
         Post pos1 = Post.builder()
-                .title("title")
                 .content("description")
-                .view(10)
+                .views(10)
                 .createdTime(LocalDateTime.now())
                 .build();
 
         Post pos2 = Post.builder()
-                .title("title1")
                 .content("description1")
                 .createdTime(LocalDateTime.now().minusDays(1))
-                .view(5)
+                .views(5)
                 .build();
 
         Post pos3 = Post.builder()
-                .title("title2")
                 .content("description2")
                 .createdTime(LocalDateTime.now().minusDays(2))
-                .view(1)
+                .views(1)
                 .build();
 
         Post pos4 = Post.builder()
-                .title("title3")
                 .content("description3")
                 .createdTime(LocalDateTime.now().minusDays(8))
-                .view(100)
+                .views(100)
                 .build();
         postRepository.saveAll(List.of(pos1, pos2, pos3, pos4));
 
@@ -60,9 +56,9 @@ class PostRepositoryTest {
 
         // then
         assertThat(posts.size()).isEqualTo(3);
-        assertThat(posts.get(0).getView()).isEqualTo(10);
-        assertThat(posts.get(1).getView()).isEqualTo(5);
-        assertThat(posts.get(2).getView()).isEqualTo(1);
+        assertThat(posts.get(0).getViews()).isEqualTo(10);
+        assertThat(posts.get(1).getViews()).isEqualTo(5);
+        assertThat(posts.get(2).getViews()).isEqualTo(1);
 
 
     }

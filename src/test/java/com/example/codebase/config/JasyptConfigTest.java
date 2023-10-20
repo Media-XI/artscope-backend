@@ -9,6 +9,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -17,8 +19,7 @@ import javax.swing.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ArtBackendApplication.class)
+@SpringBootTest
 @ActiveProfiles("test")
 class JasyptConfigTest {
 
@@ -36,7 +37,7 @@ class JasyptConfigTest {
     @DisplayName("Jasypt 복호화")
     @Test
     void decrypt() {
-        String text = "ENC(z7B56UwL9fSZHUhmjlcUoSaaKBQ5kpJ0fjnuhbVZLdo=)";
+        String text = "XaueZq0cG2GamiRn8Z/Gs6nudz2XghjQvRO0cKIRSeE=";
         System.out.println(String.format("%s", stringEncryptor.decrypt(text)));
     }
 

@@ -100,10 +100,9 @@ class ExhibitionControllerTest {
         MemberAuthority memberAuthority = new MemberAuthority();
         memberAuthority.setAuthority(Authority.of("ROLE_USER"));
         memberAuthority.setMember(dummy);
-        dummy.setAuthorities(Collections.singleton(memberAuthority));
+        dummy.addAuthority(memberAuthority);
 
         Member save = memberRepository.save(dummy);
-        // memberAuthorityRepository.save(memberAuthority);
         return save;
     }
 

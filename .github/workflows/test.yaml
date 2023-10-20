@@ -8,17 +8,18 @@
 name: Spring Boot Test by Gradle
 
 on:
-  push:
-    branches: [ main, develop ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ "develop" ]
+  workflow_call:
+    secrets:
+      JASYPT_ENCRYPTOR_PASSWORD:
+        required: true
 
 env:
   JASYPT_ENCRYPTOR_PASSWORD: ${{ secrets.JASYPT_ENCRYPTOR_PASSWORD }}
 
 jobs:
   test:
-
     runs-on: ubuntu-latest
 
     services:
@@ -50,7 +51,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Test with Gradle
-        run: ./gradlew --info test -DJASYPT_ENCRYPTOR_PASSWORD=$JASYPT_ENCRYPTOR_PASSWORD
+        run: ./gradlew --info test -DJASYPT_ENCRYPTOR_PASSWORD=${{ secrets.JASYPT_ENCRYPTOR_PASSWORD }}
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
