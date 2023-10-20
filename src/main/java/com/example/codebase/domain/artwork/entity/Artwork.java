@@ -106,7 +106,7 @@ public class Artwork {
 
     public void addArtworkComment(ArtworkComment artworkComment) {
         artworkComments.add(artworkComment);
-        comments = this.artworkComments.size();
+        comments = artworkComments.size();
     }
 
     public void update(ArtworkUpdateDTO dto) {
@@ -138,7 +138,7 @@ public class Artwork {
     }
 
     public void removeArtworkComment(ArtworkComment comment) {
-        this.artworkComments.remove(comment);
-        this.comments--;
+        artworkComments.remove(comment);
+        comments = artworkComments.size();
     }
 }
