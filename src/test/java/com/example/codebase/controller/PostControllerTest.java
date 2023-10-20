@@ -433,5 +433,10 @@ class PostControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
+        mockMvc.perform(
+                        get("/api/posts/" + post.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }
