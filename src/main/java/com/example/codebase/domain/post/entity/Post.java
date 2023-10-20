@@ -102,4 +102,8 @@ public class Post {
         return commentSize;
     }
 
+    public void removeComment(PostComment comment, int size) {
+        this.postComment.remove(comment);
+        this.comments = size - 1;
+    }
 }

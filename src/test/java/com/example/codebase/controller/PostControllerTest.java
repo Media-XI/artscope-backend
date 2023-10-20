@@ -424,7 +424,7 @@ class PostControllerTest {
     @DisplayName("게시물에 댓글을 삭제할시")
     @Test
     void 게시물_댓글_삭제() throws Exception {
-        Post post = createPostWithComment(1);
+        Post post = createPostWithComment(2);
         PostComment comment = post.getPostComment().get(0);
 
         mockMvc.perform(
@@ -432,5 +432,6 @@ class PostControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
+
     }
 }

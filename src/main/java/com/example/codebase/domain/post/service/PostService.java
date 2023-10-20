@@ -213,7 +213,7 @@ public class PostService {
     }
 
     @Transactional
-    public void deleteComment(Long commentId, String loginUsername) {
+    public PostResponseDTO deleteComment(Long commentId, String loginUsername) {
         PostComment comment =
                 postCommentRepository
                         .findById(commentId)
@@ -226,6 +226,10 @@ public class PostService {
             throw new RuntimeException("댓글 작성자만 삭제할 수 있습니다.");
         }
 
-        postCommentRepository.delete(comment);
+        Post post = comment.getPost();
+        int comments = postCommentRepository.countByPost(post);
+        post.removeComment(comment, comments);
+
+        return PostResponseDTO.from(post);
     }
 }
