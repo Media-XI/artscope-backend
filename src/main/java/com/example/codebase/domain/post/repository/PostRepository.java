@@ -23,6 +23,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("select p from Post p LEFT JOIN PostLikeMember plm ON p.id = plm.post.id " +
             "where plm.likedTime > ?1 " +
             "group by p.id " +
-            "order by p.likes desc LIMIT 10")
+            "order by p.likes desc")
     List<Post> findTop10LikedPostByWeek(LocalDateTime startDateTime);
 }

@@ -137,6 +137,7 @@ public class FeedService {
         List<PostResponseDTO> likePosts = postRepository.findTop10LikedPostByWeek(week)
                 .stream()
                 .map(PostResponseDTO::from)
+                .limit(10)
                 .collect(Collectors.toList());
 
         return likePosts;
@@ -149,6 +150,7 @@ public class FeedService {
         List<ArtworkResponseDTO> likePosts = artworkRepository.findTop10LikedArtworkByWeek(week)
                 .stream()
                 .map(ArtworkResponseDTO::from)
+                .limit(10)
                 .collect(Collectors.toList());
 
         return likePosts;

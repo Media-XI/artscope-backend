@@ -55,7 +55,7 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
     @Query("SELECT a FROM Artwork a LEFT JOIN ArtworkLikeMember alm ON a.id = alm.artwork.id " +
             "where alm.likedTime > ?1 " +
             "group by a.id " +
-            "order by a.likes desc LIMIT 10")
+            "order by a.likes desc")
     List<Artwork> findTop10LikedArtworkByWeek(LocalDateTime startDateTime);
 
 }
