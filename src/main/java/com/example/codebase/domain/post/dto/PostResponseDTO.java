@@ -53,7 +53,7 @@ public class PostResponseDTO {
             .content(post.getContent())
             .views(post.getViews())
             .likes(post.getLikes())
-            .comments(post.getComments() + post.getAllLevelTwoCommentSize())
+            .comments(post.getComments())
             .authorUsername(post.getAuthor().getUsername())
             .authorName(post.getAuthor().getName())
             .authorDescription(post.getAuthor().getIntroduction()) // TODO : introduction이 맞는지 확인

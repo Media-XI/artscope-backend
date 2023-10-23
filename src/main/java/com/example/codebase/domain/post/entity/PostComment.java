@@ -50,19 +50,12 @@ public class PostComment {
     private LocalDateTime createdTime;
     private LocalDateTime updatedTime;
 
-    public static PostComment of(Post post, PostCommentCreateDTO commentCreateDTO, Member author) {
+    public static PostComment of(PostCommentCreateDTO commentCreateDTO, Member author) {
         return PostComment.builder()
                 .content(commentCreateDTO.getContent())
-                .post(post)
                 .author(author)
                 .createdTime(LocalDateTime.now())
                 .build();
-    }
-
-    public void addComment(PostComment child) {
-        this.childComments.add(child);
-        child.setPost(this.post);
-        this.comments = this.childComments.size();
     }
 
     public void setMentionUsername(String mentionUsername) {
@@ -70,15 +63,38 @@ public class PostComment {
     }
 
     public void setParent(PostComment parent) {
+        if (this.parent != null) {
+            this.parent.childComments.remove(this);
+        }
         this.parent = parent;
+        this.parent.childComments.add(this);
+        this.parent.comments = this.parent.childComments.size();
     }
 
     public void setPost(Post post) {
+        if (this.post != null) {
+            this.post.getPostComment().remove(this);
+        }
         this.post = post;
+        post.addComment(this);
     }
 
     public void update(PostCommentUpdateDTO commentUpdateDTO) {
         this.content = commentUpdateDTO.getContent();
         this.updatedTime = LocalDateTime.now();
+    }
+
+    public void fireRemove() {
+        post.removeComment(this);
+        this.post = null;
+
+        if (parent != null) {
+            parent.childComments.remove(this);
+            parent.comments = parent.childComments.size();
+            this.parent = null;
+        }
+
+        this.author = null;
+        // TODO : 자식 대댓글 까지는 cascade 삭제.
     }
 }
