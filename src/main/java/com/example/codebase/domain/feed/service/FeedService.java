@@ -1,5 +1,6 @@
 package com.example.codebase.domain.feed.service;
 
+import com.example.codebase.domain.artwork.dto.ArtworkResponseDTO;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkWithIsLike;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
@@ -10,9 +11,11 @@ import com.example.codebase.domain.feed.dto.FeedResponseDto;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberRepository;
+import com.example.codebase.domain.post.dto.PostResponseDTO;
 import com.example.codebase.domain.post.entity.Post;
 import com.example.codebase.domain.post.entity.PostWithIsLiked;
 import com.example.codebase.domain.post.repository.PostRepository;
+import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,7 +37,8 @@ public class FeedService {
     private final MemberRepository memberRepository;
 
     @Autowired
-    public FeedService(ArtworkRepository artworkRepository, PostRepository postRepository, ExhibitionRepository exhibitionRepository, MemberRepository memberRepository) {
+    public FeedService(ArtworkRepository artworkRepository, PostRepository postRepository,
+                       ExhibitionRepository exhibitionRepository, MemberRepository memberRepository) {
         this.artworkRepository = artworkRepository;
         this.postRepository = postRepository;
         this.exhibitionRepository = exhibitionRepository;
@@ -79,7 +83,7 @@ public class FeedService {
         feedItems.sort((o1, o2) -> o2.getCreatedTime().compareTo(o1.getCreatedTime()));
 
         boolean hasNext = artworks.hasNext() || posts.hasNext() || exhibitions.hasNext();
-        return FeedResponseDto.of(feedItems,hasNext);
+        return FeedResponseDto.of(feedItems, hasNext);
     }
 
     @Transactional(readOnly = true)
@@ -123,6 +127,32 @@ public class FeedService {
         feedItems.sort((o1, o2) -> o2.getCreatedTime().compareTo(o1.getCreatedTime()));
 
         boolean hasNext = artworks.hasNext() || posts.hasNext() || exhibitions.hasNext();
-        return FeedResponseDto.of(feedItems,hasNext);
+        return FeedResponseDto.of(feedItems, hasNext);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PostResponseDTO> getPostLikeRankWeek() {
+
+        LocalDateTime week = LocalDateTime.now().minusWeeks(1);
+        List<PostResponseDTO> likePosts = postRepository.findTop10LikedPostByWeek(week)
+                .stream()
+                .map(PostResponseDTO::from)
+                .limit(10)
+                .collect(Collectors.toList());
+
+        return likePosts;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ArtworkResponseDTO> getArtworkLikeRankWeek() {
+
+        LocalDateTime week = LocalDateTime.now().minusWeeks(1);
+        List<ArtworkResponseDTO> likePosts = artworkRepository.findTop10LikedArtworkByWeek(week)
+                .stream()
+                .map(ArtworkResponseDTO::from)
+                .limit(10)
+                .collect(Collectors.toList());
+
+        return likePosts;
     }
 }

@@ -52,4 +52,10 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
             "WHERE a.visible = true AND (replace(a.title, ' ', '') LIKE %:keyword% OR a.tags LIKE %:keyword% OR replace(m.name, ' ', '') LIKE %:keyword% OR a.description LIKE %:keyword%)")
     Page<Artwork> findAllByKeywordContaining(String keyword, Pageable pageable);
 
+    @Query("SELECT a FROM Artwork a LEFT JOIN ArtworkLikeMember alm ON a.id = alm.artwork.id " +
+            "where alm.likedTime > ?1 " +
+            "group by a.id " +
+            "order by a.likes desc")
+    List<Artwork> findTop10LikedArtworkByWeek(LocalDateTime startDateTime);
+
 }

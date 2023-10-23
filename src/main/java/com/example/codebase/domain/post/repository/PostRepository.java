@@ -19,4 +19,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p AS post, CASE WHEN pm.member = :member THEN true ELSE false END as isLiked " +
             "FROM Post p LEFT JOIN PostLikeMember pm ON p = pm.post AND pm.member = :member")
     Page<PostWithIsLiked> findAllWithIsLiked(Member member, Pageable pageable);
+
+    @Query("select p from Post p LEFT JOIN PostLikeMember plm ON p.id = plm.post.id " +
+            "where plm.likedTime > ?1 " +
+            "group by p.id " +
+            "order by p.likes desc")
+    List<Post> findTop10LikedPostByWeek(LocalDateTime startDateTime);
 }
