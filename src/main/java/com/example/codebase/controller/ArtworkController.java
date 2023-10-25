@@ -81,7 +81,6 @@ public class ArtworkController {
     @ApiOperation(value = "ID로 아트워크 조회", notes = "해당 ID의 아트워크를 조회합니다.")
     @GetMapping("/{id}")
     public ResponseEntity getArtwork(@PathVariable Long id) {
-
         Optional<String> username = SecurityUtil.getCurrentUsername();
         ArtworkWithIsLikeResponseDTO artwork = artworkService.getArtwork(id, username);
         return new ResponseEntity(artwork, HttpStatus.OK);
