@@ -1,7 +1,5 @@
 package com.example.codebase.domain.post.service;
 
-import static com.example.codebase.domain.feed.dto.FeedType.post;
-
 import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
@@ -82,20 +80,27 @@ public class PostService {
   }
 
   @Transactional
-  public PostResponseDTO updatePost(Long postId, PostUpdateDTO postUpdateDTO) {
-    // TODO: 동일 작성자 검증 추가
+  public PostResponseDTO updatePost(Long postId, PostUpdateDTO postUpdateDTO, String loginUsername) {
     Post post =
         postRepository.findById(postId).orElseThrow(() -> new RuntimeException("존재하지 않는 게시글입니다."));
+
+    if (!post.getAuthor().getUsername().equals(loginUsername)) {
+        throw new RuntimeException("게시글 작성자만 수정할 수 있습니다.");
+    }
 
     post.update(postUpdateDTO);
     return PostResponseDTO.from(post);
   }
 
   @Transactional
-  public void deletePost(Long postId) {
+  public void deletePost(Long postId, String loginUsername) {
     // TODO: 동일 작성자 검증 추가
     Post post =
         postRepository.findById(postId).orElseThrow(() -> new RuntimeException("존재하지 않는 게시글입니다."));
+
+    if (!post.getAuthor().getUsername().equals(loginUsername)) {
+      throw new RuntimeException("게시글 작성자만 삭제할 수 있습니다.");
+    }
 
     postRepository.delete(post);
   }

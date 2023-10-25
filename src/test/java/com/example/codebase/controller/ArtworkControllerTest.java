@@ -1021,4 +1021,31 @@ class ArtworkControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
     }
+
+    @WithMockCustomUser(username = "testuser", role = "USER")
+    @DisplayName("나만 보기가 설정된 다른 사용자의 아트워크를 조회 시 ")
+    @Test
+    public void 나만보기_다른_아트워크() throws Exception {
+        Artwork artwork = createOrLoadArtwork(1, false);
+
+        mockMvc.perform(
+                        get("/api/artworks/" + artwork.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("나만 보기가 설정된 본인 아트워크를 조회 시 ")
+    @Test
+    public void 나만보기_아트워크() throws Exception {
+        Artwork artwork = createOrLoadArtwork(1, false);
+
+        mockMvc.perform(
+                        get("/api/artworks/" + artwork.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
 }

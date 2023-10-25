@@ -200,6 +200,26 @@ class PostControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @WithMockCustomUser(username = "testid", role = "ADMIN")
+    @DisplayName("본인이 작성하지 않은 포스트 수정 시")
+    @Test
+    void 작성자가_아닌_포스트_수정() throws Exception {
+        Post post = createPost();
+
+        PostUpdateDTO dto = PostUpdateDTO.builder()
+                .content("내용 수정")
+                .build();
+
+        mockMvc.perform(
+                        put("/api/posts/" + post.getId())
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+
     @WithMockCustomUser(username = "admin", role = "ADMIN")
     @DisplayName("포스트 삭제 시")
     @Test
@@ -211,6 +231,19 @@ class PostControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "ADMIN")
+    @DisplayName("본인이 작성하지 않은 포스트 삭제 시")
+    @Test
+    void 작성자가_아닌_포스트_삭제() throws Exception {
+        Post post = createPost();
+
+        mockMvc.perform(
+                        delete("/api/posts/" + post.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
