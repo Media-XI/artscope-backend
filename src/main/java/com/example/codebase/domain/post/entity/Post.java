@@ -89,17 +89,12 @@ public class Post {
         this.comments = this.postComment.size();
     }
 
-    public int getComments() {
-        int comments = this.comments + getAllLevelTwoCommentSize();
-        return comments;
+    public List<PostComment> getPostComment() {
+        return this.postComment;
     }
 
-    public int getAllLevelTwoCommentSize() {
-        int commentSize = 0;
-        for (PostComment postComment : this.postComment) {
-            commentSize += postComment.getComments();
-        }
-        return commentSize;
+    public void removeComment(PostComment comment) {
+        this.postComment.remove(comment);
+        this.comments = postComment.size() - comment.getComments();
     }
-
 }

@@ -121,14 +121,17 @@ class PostControllerTest {
                 .author(loadMember)
                 .createdTime(LocalDateTime.now())
                 .build();
+        postRepository.save(post);
 
         for (int i = 1; i <= commentSize; i++) {
-            PostComment comment = PostComment.of(post, PostCommentCreateDTO.builder()
+            PostComment comment = PostComment.of(PostCommentCreateDTO.builder()
                     .content("댓글" + i)
                     .build(), loadMember);
-            post.addComment(comment);
+            comment.setPost(post);
+            commentRepository.save(comment);
         }
-        return postRepository.save(post);
+
+        return post;
     }
 
     public void createPosts(int size) {
@@ -197,6 +200,26 @@ class PostControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @WithMockCustomUser(username = "testid", role = "ADMIN")
+    @DisplayName("본인이 작성하지 않은 포스트 수정 시")
+    @Test
+    void 작성자가_아닌_포스트_수정() throws Exception {
+        Post post = createPost();
+
+        PostUpdateDTO dto = PostUpdateDTO.builder()
+                .content("내용 수정")
+                .build();
+
+        mockMvc.perform(
+                        put("/api/posts/" + post.getId())
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+
     @WithMockCustomUser(username = "admin", role = "ADMIN")
     @DisplayName("포스트 삭제 시")
     @Test
@@ -208,6 +231,19 @@ class PostControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "ADMIN")
+    @DisplayName("본인이 작성하지 않은 포스트 삭제 시")
+    @Test
+    void 작성자가_아닌_포스트_삭제() throws Exception {
+        Post post = createPost();
+
+        mockMvc.perform(
+                        delete("/api/posts/" + post.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
@@ -365,21 +401,17 @@ class PostControllerTest {
     @DisplayName("멘션 대댓글 (3차) 생성")
     @Test
     void 멘션_대댓글_생성() throws Exception {
+        // given
         Post post = createPostWithComment(5);
         PostComment level1 = post.getPostComment().get(0);
-
-        PostComment level2 = PostComment.of(post, PostCommentCreateDTO.builder()
+        PostComment level2 = PostComment.of(PostCommentCreateDTO.builder()
                 .content("2차 대댓글입니다.")
                 .build(), level1.getAuthor());
         level2.setParent(level1);
+        level2.setPost(post);
         commentRepository.save(level2);
 
-        level1.addComment(level2);
-
-        commentRepository.save(level1);
-
-        postRepository.save(post);
-
+        // when
         PostCommentCreateDTO dto = PostCommentCreateDTO.builder()
                 .content("3차 대댓글입니다.")
                 .parentCommentId(level2.getId())
@@ -391,13 +423,7 @@ class PostControllerTest {
                                 .content(objectMapper.writeValueAsString(dto))
                 )
                 .andDo(print())
-                .andExpect(status().isCreated());
-
-        mockMvc.perform(
-                        post("/api/feed")
-                )
-                .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated()); // then
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
@@ -424,7 +450,7 @@ class PostControllerTest {
     @DisplayName("게시물에 댓글을 삭제할시")
     @Test
     void 게시물_댓글_삭제() throws Exception {
-        Post post = createPostWithComment(1);
+        Post post = createPostWithComment(2);
         PostComment comment = post.getPostComment().get(0);
 
         mockMvc.perform(
@@ -432,5 +458,41 @@ class PostControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
+
+        mockMvc.perform(
+                        get("/api/posts/" + post.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("멘션 대댓글 (3차) 삭제 시 ")
+    @Test
+    void 멘션_대댓글_삭제() throws Exception {
+        // given
+        Post post = createPostWithComment(5);
+        PostComment level1 = post.getPostComment().get(0);
+        PostComment level2 = PostComment.of(PostCommentCreateDTO.builder()
+                .content("2차 대댓글입니다.")
+                .build(), level1.getAuthor());
+        level2.setParent(level1);
+        level2.setPost(post);
+        commentRepository.save(level2);
+
+        PostComment level3 = PostComment.of(PostCommentCreateDTO.builder()
+                .content("3차 (멘션) 대댓글입니다.")
+                .build(), level1.getAuthor());
+        level3.setParent(level2.getParent());
+        level3.setPost(post);
+        level3.setMentionUsername(level2.getAuthor().getUsername());
+        commentRepository.save(level3);
+
+        mockMvc.perform(
+                        delete("/api/posts/comments/" + level1.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
     }
 }

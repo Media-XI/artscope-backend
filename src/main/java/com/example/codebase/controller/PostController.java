@@ -75,7 +75,7 @@ public class PostController {
     public ResponseEntity updatePost(@PathVariable Long postId, @RequestBody PostUpdateDTO postUpdateDTO) {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
-        PostResponseDTO post = postService.updatePost(postId, postUpdateDTO);
+        PostResponseDTO post = postService.updatePost(postId, postUpdateDTO, loginUsername);
 
         return new ResponseEntity(post, HttpStatus.OK);
     }
@@ -86,7 +86,7 @@ public class PostController {
     public ResponseEntity deletePost(@PathVariable Long postId) {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
-        postService.deletePost(postId);
+        postService.deletePost(postId, loginUsername);
 
         return new ResponseEntity("게시글 삭제되었습니다.", HttpStatus.OK);
     }
@@ -134,8 +134,8 @@ public class PostController {
     public ResponseEntity deleteComment(@PathVariable Long commentId) {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
-        postService.deleteComment(commentId, loginUsername);
+        PostResponseDTO dto = postService.deleteComment(commentId, loginUsername);
 
-        return new ResponseEntity("댓글이 삭제되었습니다.", HttpStatus.OK);
+        return new ResponseEntity(dto, HttpStatus.OK);
     }
 }

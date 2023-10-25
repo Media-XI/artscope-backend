@@ -103,11 +103,16 @@ public class ArtworkService {
     public ArtworkWithIsLikeResponseDTO getArtwork(Long id, Optional<String> username) {
         boolean existLike = false;
         // 사용자 좋아요 여부에 따른 해당 아트워크 좋아요 조회
-        if (username.isPresent()) {
-            existLike = artworkLikeMemberRepository.existsByArtwork_IdAndMember_Username(id, username.get());
-        }
         Artwork artwork = artworkRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
+
+        if (username.isPresent()) {
+            existLike = artworkLikeMemberRepository.existsByArtwork_IdAndMember_Username(id, username.get());
+
+            if (!artwork.isVisible() && !artwork.getMember().getUsername().equals(username.get())) {
+                throw new NotFoundException("해당 작품을 찾을 수 없습니다.");
+            }
+        }
 
         artwork.increaseView(); // 조회수 증가
 
