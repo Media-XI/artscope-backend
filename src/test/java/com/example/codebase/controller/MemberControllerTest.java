@@ -432,5 +432,23 @@ class MemberControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @DisplayName("유효하지 않은 이메일로 가입 시")
+    @Test
+    void non_email_create_mebmer () throws Exception {
+        CreateMemberDTO dto = new CreateMemberDTO();
+        dto.setEmail("qwer@gmailcom");
+        dto.setName("test1");
+        dto.setUsername("test213");
+        dto.setPassword("1234");
+
+        mockMvc.perform(
+                        post("/api/members")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
 
 }
