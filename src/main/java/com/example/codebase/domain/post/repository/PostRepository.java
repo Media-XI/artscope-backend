@@ -4,6 +4,7 @@ import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.post.entity.Post;
 import com.example.codebase.domain.post.entity.PostWithIsLiked;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -25,4 +26,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "group by p.id " +
             "order by p.likes desc")
     List<Post> findTop10LikedPostByWeek(LocalDateTime startDateTime);
+
+    @Query("SELECT p FROM Post p WHERE p.content LIKE %?1%")
+    Page<Post> findAllByKeywordContaining(String keyword, PageRequest pageRequest);
 }
