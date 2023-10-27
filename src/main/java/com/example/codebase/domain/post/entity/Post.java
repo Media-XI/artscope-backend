@@ -3,15 +3,24 @@ package com.example.codebase.domain.post.entity;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.post.dto.PostCreateDTO;
 import com.example.codebase.domain.post.dto.PostUpdateDTO;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "post")
@@ -59,6 +68,10 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PostComment> postComment = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<PostMedia> postMedias = new ArrayList<>();
+
     public static Post of(PostCreateDTO postCreateDTO, Member author) {
         return Post.builder()
                 .content(postCreateDTO.getContent())
@@ -96,5 +109,13 @@ public class Post {
     public void removeComment(PostComment comment) {
         this.postComment.remove(comment);
         this.comments = postComment.size() - comment.getComments();
+    }
+
+    public void addMedia(PostMedia postMedia) {
+        this.postMedias.add(postMedia);
+    }
+
+    public void removeMedia(PostMedia postMedia) {
+        this.postMedias.remove(postMedia);
     }
 }

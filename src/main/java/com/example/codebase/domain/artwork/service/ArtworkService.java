@@ -1,8 +1,25 @@
 package com.example.codebase.domain.artwork.service;
 
 import com.example.codebase.controller.dto.PageInfo;
-import com.example.codebase.domain.artwork.dto.*;
-import com.example.codebase.domain.artwork.entity.*;
+import com.example.codebase.domain.artwork.dto.ArtworkCommentCreateDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkCommentResponseDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkLikeMemberPageDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkLikeMemberResponseDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkLikeMembersPageDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkLikeResponseDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkResponseDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkUpdateDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkWithIsLikeResponseDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkWithLikePageDTO;
+import com.example.codebase.domain.artwork.dto.ArtworksResponseDTO;
+import com.example.codebase.domain.artwork.entity.Artwork;
+import com.example.codebase.domain.artwork.entity.ArtworkComment;
+import com.example.codebase.domain.artwork.entity.ArtworkLikeMember;
+import com.example.codebase.domain.artwork.entity.ArtworkLikeMemberId;
+import com.example.codebase.domain.artwork.entity.ArtworkMedia;
+import com.example.codebase.domain.artwork.entity.ArtworkWithIsLike;
 import com.example.codebase.domain.artwork.repository.ArtworkCommentRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkLikeMemberRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
@@ -13,16 +30,15 @@ import com.example.codebase.exception.NotAccessException;
 import com.example.codebase.exception.NotFoundException;
 import com.example.codebase.s3.S3Service;
 import com.example.codebase.util.SecurityUtil;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ArtworkService {
@@ -33,7 +49,9 @@ public class ArtworkService {
     private final MemberRepository memberRepository;
 
     @Autowired
-    public ArtworkService(ArtworkRepository artworkRepository, ArtworkCommentRepository artworkCommentRepository, ArtworkLikeMemberRepository artworkLikeMemberRepository, S3Service s3Service, MemberRepository memberRepository) {
+    public ArtworkService(ArtworkRepository artworkRepository, ArtworkCommentRepository artworkCommentRepository,
+                          ArtworkLikeMemberRepository artworkLikeMemberRepository, S3Service s3Service,
+                          MemberRepository memberRepository) {
         this.artworkRepository = artworkRepository;
         this.artworkCommentRepository = artworkCommentRepository;
         this.artworkLikeMemberRepository = artworkLikeMemberRepository;
@@ -75,12 +93,13 @@ public class ArtworkService {
             if (SecurityUtil.isAdmin()) {
                 // 관리자면 공개여부와 상관없이 전체 조회
                 artworksWithIsLikePage = artworkRepository.findAllWithIsLikeByMember(member, pageRequest);
-            }
-            else {
-                artworksWithIsLikePage = artworkRepository.findAllWithIsLikeByMemberAndVisible(member, true, pageRequest);
+            } else {
+                artworksWithIsLikePage = artworkRepository.findAllWithIsLikeByMemberAndVisible(member, true,
+                        pageRequest);
             }
 
-            PageInfo pageInfo = PageInfo.of(page, size, artworksWithIsLikePage.getTotalPages(), artworksWithIsLikePage.getTotalElements());
+            PageInfo pageInfo = PageInfo.of(page, size, artworksWithIsLikePage.getTotalPages(),
+                    artworksWithIsLikePage.getTotalElements());
 
             List<ArtworkWithIsLikeResponseDTO> dtos = artworksWithIsLikePage.stream()
                     .map(ArtworkWithIsLikeResponseDTO::from)
@@ -141,24 +160,10 @@ public class ArtworkService {
 
         // Artwork의 Artwork Media URL를 가져와서 S3 Object Delete
         List<ArtworkMedia> artworkMedias = artwork.getArtworkMedia();
-        deleteS3Objects(artworkMedias);
+        s3Service.deleteArtworkMediaS3Objects(artworkMedias);
 
         artworkRepository.delete(artwork);
     }
-
-    public void deleteS3Object(List<ArtworkMedia> artworkMedias) {
-        for (ArtworkMedia artworkMedia : artworkMedias) {
-            s3Service.deleteObject(artworkMedia.getMediaUrl());
-        }
-    }
-
-    public void deleteS3Objects(List<ArtworkMedia> artworkMedias) {
-        List<String> urls = artworkMedias.stream()
-                .map(ArtworkMedia::getMediaUrl)
-                .collect(Collectors.toList());
-        s3Service.deleteObjects(urls);
-    }
-
 
     public ArtworkResponseDTO updateArtworkMedia(Long id, Long mediaId, ArtworkMediaCreateDTO dto, String username) {
         Artwork artwork = artworkRepository.findByIdAndMember_Username(id, username)
@@ -167,7 +172,8 @@ public class ArtworkService {
         return ArtworkResponseDTO.from(artwork);
     }
 
-    public ArtworksResponseDTO getUserArtworks(int page, int size, String sortDirection, String username, boolean isAuthor) {
+    public ArtworksResponseDTO getUserArtworks(int page, int size, String sortDirection, String username,
+                                               boolean isAuthor) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
@@ -189,7 +195,8 @@ public class ArtworkService {
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(NotFoundMemberException::new);
 
-        Optional<ArtworkLikeMember> likeMemberOptional = artworkLikeMemberRepository.findById(new ArtworkLikeMemberId(member.getId(), artwork.getId()));
+        Optional<ArtworkLikeMember> likeMemberOptional = artworkLikeMemberRepository.findById(
+                new ArtworkLikeMemberId(member.getId(), artwork.getId()));
         String status = "좋아요";
         if (likeMemberOptional.isPresent()) {
             // 좋아요 해제
@@ -214,8 +221,10 @@ public class ArtworkService {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "likedTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
-        Page<ArtworkLikeMember> memberLikeArtworks = artworkLikeMemberRepository.findAllByMemberId(member.getId(), pageRequest);
-        PageInfo pageInfo = PageInfo.of(page, size, memberLikeArtworks.getTotalPages(), memberLikeArtworks.getTotalElements());
+        Page<ArtworkLikeMember> memberLikeArtworks = artworkLikeMemberRepository.findAllByMemberId(member.getId(),
+                pageRequest);
+        PageInfo pageInfo = PageInfo.of(page, size, memberLikeArtworks.getTotalPages(),
+                memberLikeArtworks.getTotalElements());
 
         List<ArtworkLikeMemberResponseDTO> dtos = memberLikeArtworks.stream()
                 .map(ArtworkLikeMemberResponseDTO::from)
@@ -230,7 +239,8 @@ public class ArtworkService {
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
         Page<ArtworkLikeMember> artworkLikeMembers = artworkLikeMemberRepository.findAllByArtworkId(id, pageRequest);
-        PageInfo pageInfo = PageInfo.of(page, size, artworkLikeMembers.getTotalPages(), artworkLikeMembers.getTotalElements());
+        PageInfo pageInfo = PageInfo.of(page, size, artworkLikeMembers.getTotalPages(),
+                artworkLikeMembers.getTotalElements());
 
         List<String> usernames = artworkLikeMembers.stream()
                 .map(artworkLikeMember -> artworkLikeMember.getMember().getUsername())
@@ -243,7 +253,8 @@ public class ArtworkService {
         Member member = memberRepository.findByUsername(loginUsername)
                 .orElseThrow(NotFoundMemberException::new);
 
-        Optional<ArtworkLikeMember> byArtworkIdAndMember = artworkLikeMemberRepository.findByArtworkIdAndMember(id, member);
+        Optional<ArtworkLikeMember> byArtworkIdAndMember = artworkLikeMemberRepository.findByArtworkIdAndMember(id,
+                member);
 
         return byArtworkIdAndMember.isPresent();
 
@@ -265,7 +276,8 @@ public class ArtworkService {
     }
 
     @Transactional
-    public ArtworkResponseDTO commentArtwork(Long artworkId, String loginUsername, ArtworkCommentCreateDTO commentCreateDTO) {
+    public ArtworkResponseDTO commentArtwork(Long artworkId, String loginUsername,
+                                             ArtworkCommentCreateDTO commentCreateDTO) {
         Artwork artwork = artworkRepository.findById(artworkId)
                 .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
 

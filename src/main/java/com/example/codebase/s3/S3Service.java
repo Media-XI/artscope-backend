@@ -1,17 +1,18 @@
 package com.example.codebase.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.util.IOUtils;
-import com.amazonaws.util.StringUtils;
+import com.example.codebase.domain.artwork.entity.ArtworkMedia;
+import com.example.codebase.domain.post.entity.PostMedia;
 import com.example.codebase.util.FileUtil;
-import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
@@ -20,6 +21,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class S3Service {
@@ -95,4 +105,27 @@ public class S3Service {
         amazonS3Client.deleteObjects(deleteObjectRequest);
     }
 
+    public void deleteS3Object(List<ArtworkMedia> artworkMedias) {
+        for (ArtworkMedia artworkMedia : artworkMedias) {
+            deleteObject(artworkMedia.getMediaUrl());
+        }
+    }
+
+    public void deleteArtworkMediaS3Objects(List<ArtworkMedia> artworkMedias) {
+        List<String> urls = artworkMedias.stream()
+                .map(ArtworkMedia::getMediaUrl)
+                .collect(Collectors.toList());
+        deleteObjects(urls);
+    }
+
+    public void deletePostMediaS3Objects(List<PostMedia> medias) {
+        List<String> urls = medias.stream()
+                .map(PostMedia::getMediaUrl)
+                .collect(Collectors.toList());
+        if (urls.size() > 0) {
+            deleteObjects(urls);
+        }
+
+        // TODO : 연관관계 삭제를 할지 고민
+    }
 }

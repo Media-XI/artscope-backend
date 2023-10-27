@@ -3,6 +3,7 @@ package com.example.codebase.controller;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -16,13 +17,20 @@ import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.domain.post.dto.PostCommentCreateDTO;
 import com.example.codebase.domain.post.dto.PostCreateDTO;
+import com.example.codebase.domain.post.dto.PostMediaCreateDTO;
 import com.example.codebase.domain.post.dto.PostUpdateDTO;
 import com.example.codebase.domain.post.entity.Post;
 import com.example.codebase.domain.post.entity.PostComment;
 import com.example.codebase.domain.post.repository.PostCommentRepository;
 import com.example.codebase.domain.post.repository.PostRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +41,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -66,6 +76,9 @@ class PostControllerTest {
 
     @Autowired
     private PostCommentRepository commentRepository;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -151,6 +164,12 @@ class PostControllerTest {
         }
     }
 
+    private byte[] createMockImageFile() throws IOException {
+        File file = resourceLoader.getResource("classpath:test/img.jpg").getFile(); // TODO : 테스트용 이미지 파일
+        return Files.readAllBytes(file.toPath());
+    }
+
+
     @WithMockCustomUser(username = "admin", role = "ADMIN")
     @DisplayName("포스트 생성 시")
     @Test
@@ -169,6 +188,48 @@ class PostControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated());
     }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("미디어 첨부된 포스트 생성 시")
+    @Test
+    void 미디어_포스트_생성() throws Exception {
+        // given
+        createOrLoadMember("admin", "ROLE_ADMIN");
+
+        PostMediaCreateDTO thumbnailCreateDTO = new PostMediaCreateDTO();
+        thumbnailCreateDTO.setMediaType("image");
+
+        MockMultipartFile thumbnailFile = new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg",
+                createMockImageFile());
+
+        PostMediaCreateDTO mediaCreateDTO = new PostMediaCreateDTO();
+        mediaCreateDTO.setMediaType("image");
+
+        MockMultipartFile mediaFile = new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg",
+                createMockImageFile());
+
+        List<MockMultipartFile> mediaFiles = new ArrayList<>();
+        mediaFiles.add(mediaFile);
+
+        PostCreateDTO dto = PostCreateDTO.builder()
+                .content("내용")
+                .thumbnail(thumbnailCreateDTO)
+                .medias(Collections.singletonList(mediaCreateDTO))
+                .build();
+
+        mockMvc.perform(
+                        multipart("/api/posts")
+                                .file(thumbnailFile)
+                                .file(mediaFiles.get(0))
+                                .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
+                                .contentType("multipart/form-data")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding("UTF-8")
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
+    }
+
 
     @DisplayName("포스트 전체 조회 시")
     @Test

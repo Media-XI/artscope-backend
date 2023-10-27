@@ -1,8 +1,6 @@
 package com.example.codebase.domain.feed.dto;
 
-import com.example.codebase.domain.artwork.entity.ArtworkMediaType;
 import com.fasterxml.jackson.annotation.JsonCreator;
-
 import java.util.stream.Stream;
 
 public enum FeedType {
