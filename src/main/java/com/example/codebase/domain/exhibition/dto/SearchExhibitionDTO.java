@@ -13,18 +13,17 @@ public class SearchExhibitionDTO {
 
   @NotNull
   @DateTimeFormat(pattern = "yyyy-MM-dd")
-  private LocalDate endDate;
+  private LocalDate startDate;
 
   @NotNull
   @DateTimeFormat(pattern = "yyyy-MM-dd")
-  private LocalDate startDate;
+  private LocalDate endDate;
 
   public LocalDateTime getStartDate() {
     return startDate.atStartOfDay();
   }
 
   public LocalDateTime getEndDate() {
-    return endDate.plusDays(1).atStartOfDay();
+    return endDate.atTime(23, 59, 59);
   }
-
 }
