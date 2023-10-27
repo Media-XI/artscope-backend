@@ -18,6 +18,7 @@ import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -219,8 +220,20 @@ class ExhibitionControllerTest {
         createOrLoadExhibition(2);
         createOrLoadExhibition(3);
 
+        LocalDate startDate = LocalDate.of(2023, 12, 1);
+        LocalDate endDate = LocalDate.of(2023, 12, 31);
+
+        int page = 0;
+        int size = 10;
+        String sortDirection = "DESC";
+
         mockMvc.perform(
                         get("/api/exhibitions")
+                                .param("startDate", startDate.toString())
+                                .param("endDate", endDate.toString())
+                                .param("page", String.valueOf(page))
+                                .param("size", String.valueOf(size))
+                                .param("sortDirection", sortDirection)
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
