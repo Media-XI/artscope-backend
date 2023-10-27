@@ -213,7 +213,7 @@ class ExhibitionControllerTest {
                 .andExpect(status().isForbidden());
     }
 
-    @DisplayName("공모전 전체 조회")
+    @DisplayName("공모전 전체 조회 - 성공")
     @Test
     public void test03() throws Exception {
         createOrLoadExhibition(1);
@@ -295,4 +295,58 @@ class ExhibitionControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
     }
+
+    @DisplayName("공모전 전체 조회 - 시작일과 종료일이 같을떄")
+    @Test
+    public void test11() throws Exception {
+        createOrLoadExhibition(1);
+        createOrLoadExhibition(2);
+        createOrLoadExhibition(3);
+
+        LocalDate startDate = LocalDate.of(2023, 12, 1);
+        LocalDate endDate = LocalDate.of(2023, 12, 1);
+
+        int page = 0;
+        int size = 10;
+        String sortDirection = "DESC";
+
+        mockMvc.perform(
+                        get("/api/exhibitions")
+                                .param("startDate", startDate.toString())
+                                .param("endDate", endDate.toString())
+                                .param("page", String.valueOf(page))
+                                .param("size", String.valueOf(size))
+                                .param("sortDirection", sortDirection)
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("공모전 전체 조회 - 시작일이 종료일보다 빠를때")
+    @Test
+    public void test12() throws Exception {
+        createOrLoadExhibition(1);
+        createOrLoadExhibition(2);
+        createOrLoadExhibition(3);
+
+        LocalDate startDate = LocalDate.of(2023, 12, 31);
+        LocalDate endDate = LocalDate.of(2023, 12, 1);
+
+        int page = 0;
+        int size = 10;
+        String sortDirection = "DESC";
+
+        mockMvc.perform(
+                        get("/api/exhibitions")
+                                .param("startDate", startDate.toString())
+                                .param("endDate", endDate.toString())
+                                .param("page", String.valueOf(page))
+                                .param("size", String.valueOf(size))
+                                .param("sortDirection", sortDirection)
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+
 }
