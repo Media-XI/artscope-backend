@@ -63,13 +63,17 @@ public class PostService {
         author.addPost(newPost);
 
         // 썸네일 추가
-        PostMedia thumbnail = PostMedia.from(postCreateDTO.getThumbnail());
-        newPost.addMedia(thumbnail);
+        if (postCreateDTO.getThumbnail() != null) {
+            PostMedia thumbnail = PostMedia.from(postCreateDTO.getThumbnail());
+            newPost.addMedia(thumbnail);
+        }
 
         // 미디어 추가
-        for (PostMediaCreateDTO mediaCreateDTO : postCreateDTO.getMedias()) {
-            PostMedia newMedia = PostMedia.from(mediaCreateDTO);
-            newPost.addMedia(newMedia);
+        if (postCreateDTO.getMedias() != null) {
+            for (PostMediaCreateDTO mediaCreateDTO : postCreateDTO.getMedias()) {
+                PostMedia newMedia = PostMedia.from(mediaCreateDTO);
+                newPost.addMedia(newMedia);
+            }
         }
 
         postRepository.save(newPost);

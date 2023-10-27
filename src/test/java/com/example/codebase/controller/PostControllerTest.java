@@ -181,9 +181,10 @@ class PostControllerTest {
                 .build();
 
         mockMvc.perform(
-                        post("/api/posts")
+                        multipart("/api/posts")
+                                .file(new MockMultipartFile("dto", "", "application/json",
+                                        objectMapper.writeValueAsBytes(postCreateDTO)))
                                 .contentType("multipart/form-data")
-                                .content(objectMapper.writeValueAsString(postCreateDTO))
                 )
                 .andDo(print())
                 .andExpect(status().isCreated());

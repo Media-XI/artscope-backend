@@ -50,7 +50,7 @@ public class PostResponseDTO {
 
     protected List<PostCommentResponseDTO> commentPosts;
 
-    protected List<PostMediaResponseDTO> media;
+    protected List<PostMediaResponseDTO> medias;
 
     public static PostResponseDTO from(Post post) {
         PostResponseDTO response =
@@ -84,7 +84,7 @@ public class PostResponseDTO {
                 post.getPostMedias().stream()
                         .map(PostMediaResponseDTO::from)
                         .collect(Collectors.toList());
-        response.setMedia(mediaResponse);
+        response.setMedias(mediaResponse);
 
         return response;
     }
