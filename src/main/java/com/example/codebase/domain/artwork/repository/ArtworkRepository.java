@@ -47,6 +47,7 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
     Page<ArtworkWithIsLike> findAllWithIsLikeByMember(Member member, Pageable pageable);
 
 
+    // TODO : 검색 쿼리 인덱스 사용하도록 개선 필요
     @Query("SELECT a " +
             "FROM Artwork a LEFT JOIN Member m ON a.member.id = m.id " +
             "WHERE a.visible = true AND (replace(a.title, ' ', '') LIKE %:keyword% OR a.tags LIKE %:keyword% OR replace(m.name, ' ', '') LIKE %:keyword% OR a.description LIKE %:keyword%)")
