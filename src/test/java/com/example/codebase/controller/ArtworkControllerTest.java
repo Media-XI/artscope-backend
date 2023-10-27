@@ -1,5 +1,14 @@
 package com.example.codebase.controller;
 
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.amazonaws.services.s3.AmazonS3;
 import com.example.codebase.config.S3MockConfig;
 import com.example.codebase.domain.artwork.dto.ArtworkCommentCreateDTO;
@@ -9,8 +18,6 @@ import com.example.codebase.domain.artwork.dto.ArtworkUpdateDTO;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkComment;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
-import com.example.codebase.domain.artwork.entity.ArtworkMediaType;
-import com.example.codebase.domain.artwork.repository.ArtworkCommentRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.auth.WithMockCustomUser;
 import com.example.codebase.domain.member.entity.Authority;
@@ -20,13 +27,23 @@ import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.s3.S3Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.findify.s3mock.S3Mock;
-import lombok.With;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.validator.internal.metadata.aggregated.rule.VoidMethodsMustNotBeReturnValueConstrained;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,31 +51,11 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.mock.web.MockPart;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.annotation.Resource;
-import javax.imageio.ImageIO;
-import javax.transaction.Transactional;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.time.LocalDateTime;
-import java.util.*;
-
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Import(S3MockConfig.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -164,7 +161,7 @@ class ArtworkControllerTest {
             String url = s3Service.saveUploadFile(mockMultipartFile);
 
             ArtworkMedia artworkMedia = ArtworkMedia.builder()
-                    .artworkMediaType(ArtworkMediaType.image)
+                    .artworkMediaType(com.example.codebase.domain.media.MediaType.image)
                     .mediaUrl(url)
                     .description("미디어 설명")
                     .build();
@@ -212,11 +209,11 @@ class ArtworkControllerTest {
         createOrLoadMember();
 
         ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
-        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         thumbnailCreateDTO.setDescription("썸네일 설명");
 
         ArtworkMediaCreateDTO mediaCreateDTO = new ArtworkMediaCreateDTO();
-        mediaCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        mediaCreateDTO.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         mediaCreateDTO.setDescription("미디어 설명");
 
         ArtworkCreateDTO dto = new ArtworkCreateDTO();
@@ -256,17 +253,17 @@ class ArtworkControllerTest {
         createOrLoadMember();
 
         ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
-        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         thumbnailCreateDTO.setDescription("썸네일 설명");
 
         List<ArtworkMediaCreateDTO> mediaCreateDTOList = new ArrayList<>();
         ArtworkMediaCreateDTO mediaCreateDTO1 = new ArtworkMediaCreateDTO();
-        mediaCreateDTO1.setMediaType(ArtworkMediaType.url.toString());
+        mediaCreateDTO1.setMediaType(com.example.codebase.domain.media.MediaType.url.toString());
         mediaCreateDTO1.setDescription("url 미디어 설명");
         mediaCreateDTOList.add(mediaCreateDTO1);
 
         ArtworkMediaCreateDTO mediaCreateDTO2 = new ArtworkMediaCreateDTO();
-        mediaCreateDTO2.setMediaType(ArtworkMediaType.image.toString());
+        mediaCreateDTO2.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         mediaCreateDTO2.setDescription("미디어 설명2");
         mediaCreateDTOList.add(mediaCreateDTO2);
 
@@ -311,12 +308,12 @@ class ArtworkControllerTest {
         createOrLoadMember();
 
         ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
-        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         thumbnailCreateDTO.setDescription("썸네일 설명");
 
         List<ArtworkMediaCreateDTO> mediaCreateDTOList = new ArrayList<>();
         ArtworkMediaCreateDTO mediaCreateDTO1 = new ArtworkMediaCreateDTO();
-        mediaCreateDTO1.setMediaType(ArtworkMediaType.url.toString());
+        mediaCreateDTO1.setMediaType(com.example.codebase.domain.media.MediaType.url.toString());
         mediaCreateDTO1.setDescription("url 미디어 설명");
         mediaCreateDTOList.add(mediaCreateDTO1);
 
@@ -357,12 +354,12 @@ class ArtworkControllerTest {
         createOrLoadMember();
 
         ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
-        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         thumbnailCreateDTO.setDescription("썸네일 설명");
 
         List<ArtworkMediaCreateDTO> mediaCreateDTOList = new ArrayList<>();
         ArtworkMediaCreateDTO mediaCreateDTO1 = new ArtworkMediaCreateDTO();
-        mediaCreateDTO1.setMediaType(ArtworkMediaType.url.toString());
+        mediaCreateDTO1.setMediaType(com.example.codebase.domain.media.MediaType.url.toString());
         mediaCreateDTO1.setDescription("url 미디어 설명");
         mediaCreateDTOList.add(mediaCreateDTO1);
 
@@ -405,15 +402,15 @@ class ArtworkControllerTest {
         List<ArtworkMediaCreateDTO> mediaCreateDTOList = new ArrayList<>();
 
         ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
-        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         thumbnailCreateDTO.setDescription("썸네일 설명");
 
         ArtworkMediaCreateDTO mediaCreateDTO1 = new ArtworkMediaCreateDTO();
-        mediaCreateDTO1.setMediaType(ArtworkMediaType.image.toString());
+        mediaCreateDTO1.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         mediaCreateDTO1.setDescription("미디어 설명1");
         mediaCreateDTOList.add(mediaCreateDTO1);
         ArtworkMediaCreateDTO mediaCreateDTO2 = new ArtworkMediaCreateDTO();
-        mediaCreateDTO2.setMediaType(ArtworkMediaType.video.toString());
+        mediaCreateDTO2.setMediaType(com.example.codebase.domain.media.MediaType.video.toString());
         mediaCreateDTO2.setDescription("미디어 설명2");
         mediaCreateDTOList.add(mediaCreateDTO2);
 
@@ -485,7 +482,7 @@ class ArtworkControllerTest {
         createOrLoadMember();
 
         ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
-        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         thumbnailCreateDTO.setDescription("썸네일 설명");
 
         ArtworkMediaCreateDTO mediaCreateDTO = new ArtworkMediaCreateDTO();
@@ -566,7 +563,7 @@ class ArtworkControllerTest {
         Artwork artwork = createOrLoadArtwork();
 
         ArtworkMediaCreateDTO dto = new ArtworkMediaCreateDTO();
-        dto.setMediaType(ArtworkMediaType.image.toString());
+        dto.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         dto.setMediaUrl("수정한 URL");
         dto.setDescription("수정한 설명");
 
@@ -609,11 +606,11 @@ class ArtworkControllerTest {
         createOrLoadMember();
 
         ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
-        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         thumbnailCreateDTO.setDescription("썸네일 설명");
 
         ArtworkMediaCreateDTO mediaCreateDTO = new ArtworkMediaCreateDTO();
-        mediaCreateDTO.setMediaType(ArtworkMediaType.audio.toString());
+        mediaCreateDTO.setMediaType(com.example.codebase.domain.media.MediaType.audio.toString());
         mediaCreateDTO.setDescription("미디어 설명");
 
         ArtworkCreateDTO dto = new ArtworkCreateDTO();

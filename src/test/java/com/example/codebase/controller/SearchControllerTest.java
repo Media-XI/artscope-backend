@@ -7,8 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
-import com.example.codebase.domain.artwork.entity.ArtworkMediaType;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
+import com.example.codebase.domain.media.MediaType;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
@@ -135,7 +135,7 @@ class SearchControllerTest {
             String url = s3Service.saveUploadFile(mockMultipartFile);
 
             ArtworkMedia artworkMedia = ArtworkMedia.builder()
-                    .artworkMediaType(ArtworkMediaType.image)
+                    .artworkMediaType(MediaType.image)
                     .mediaUrl(url)
                     .description("미디어 설명")
                     .build();

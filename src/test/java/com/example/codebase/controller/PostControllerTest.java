@@ -1,5 +1,13 @@
 package com.example.codebase.controller;
 
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.example.codebase.domain.auth.WithMockCustomUser;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
@@ -14,6 +22,9 @@ import com.example.codebase.domain.post.entity.PostComment;
 import com.example.codebase.domain.post.repository.PostCommentRepository;
 import com.example.codebase.domain.post.repository.PostRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,15 +40,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import javax.transaction.Transactional;
-import java.time.LocalDateTime;
-import java.util.Optional;
-
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -62,7 +64,8 @@ class PostControllerTest {
     @Autowired
     private PostRepository postRepository;
 
-  @Autowired private PostCommentRepository commentRepository;
+    @Autowired
+    private PostCommentRepository commentRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -160,7 +163,7 @@ class PostControllerTest {
 
         mockMvc.perform(
                         post("/api/posts")
-                                .contentType("application/json")
+                                .contentType("multipart/form-data")
                                 .content(objectMapper.writeValueAsString(postCreateDTO))
                 )
                 .andDo(print())
