@@ -6,18 +6,14 @@ import com.example.codebase.domain.artwork.entity.ArtworkMedia;
 import com.example.codebase.domain.artwork.entity.ArtworkWithIsLike;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
 import com.example.codebase.domain.post.entity.Post;
-import com.example.codebase.domain.post.entity.PostMedia;
 import com.example.codebase.domain.post.entity.PostWithIsLiked;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Setter
@@ -105,10 +101,6 @@ public class FeedItemResponseDto {
     }
 
     public static FeedItemResponseDto from(Post post) {
-        List<String> mediaUrls = post.getPostMedias().stream()
-                .map(PostMedia::getMediaUrl)
-                .collect(Collectors.toList());
-
         FeedItemResponseDto dto = FeedItemResponseDto.builder()
                 .id(post.getId())
                 .type(FeedType.post)
@@ -123,7 +115,7 @@ public class FeedItemResponseDto {
                 .views(post.getViews())
                 .likes(post.getLikes())
                 .comments(post.getComments())
-                .mediaUrls(mediaUrls)
+                .mediaUrls(null)
                 .createdTime(post.getCreatedTime())
                 .updatedTime(post.getUpdatedTime())
                 .build();
