@@ -220,7 +220,7 @@ class PostControllerTest {
 
         mockMvc.perform(
                         multipart("/api/posts")
-//                                .file(thumbnailFile)
+                                .file(thumbnailFile)
                                 .file(mediaFiles.get(0))
                                 .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
                                 .contentType("multipart/form-data")

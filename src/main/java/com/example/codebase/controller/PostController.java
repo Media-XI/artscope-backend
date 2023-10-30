@@ -60,7 +60,7 @@ public class PostController {
             imageService.mediasUpload(postCreateDTO, mediaFiles);
             imageService.thumbnailUpload(postCreateDTO.getThumbnail(), thumbnailFile);
         } else {
-            if (postCreateDTO.getThumbnail() != null || postCreateDTO.getMedias().size() > 0) {
+            if (postCreateDTO.getThumbnail() != null || postCreateDTO.getMedias() != null) {
                 throw new RuntimeException("미디어 파일 또는 썸네일 파일을 첨부 해주세요");
             }
         }
