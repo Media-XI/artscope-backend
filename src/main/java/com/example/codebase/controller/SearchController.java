@@ -2,7 +2,6 @@ package com.example.codebase.controller;
 
 import com.example.codebase.domain.search.SearchService;
 import com.example.codebase.domain.search.dto.SearchResponseDTO;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import javax.validation.constraints.PositiveOrZero;
 import org.springframework.data.domain.PageRequest;
@@ -34,7 +33,7 @@ public class SearchController {
             @RequestParam(defaultValue = "DESC", required = false) String sortDirection
     ) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
-        PageRequest pageRequest = PageRequest.of(0, 10, sort);
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
 
         SearchResponseDTO dto = searchService.totalSearch(keyword, pageRequest);
 
