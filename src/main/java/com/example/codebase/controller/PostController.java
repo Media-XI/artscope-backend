@@ -56,9 +56,13 @@ public class PostController {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
         // 이미지 파일 업로드
-        if (mediaFiles != null && !thumbnailFile.isEmpty()) {
+        if (mediaFiles != null && thumbnailFile != null) {
             imageService.mediasUpload(postCreateDTO, mediaFiles);
             imageService.thumbnailUpload(postCreateDTO.getThumbnail(), thumbnailFile);
+        } else {
+            if (postCreateDTO.getThumbnail() != null || postCreateDTO.getMedias().size() > 0) {
+                throw new RuntimeException("미디어 파일 또는 썸네일 파일을 첨부 해주세요");
+            }
         }
 
         PostResponseDTO post = postService.createPost(postCreateDTO, loginUsername);
