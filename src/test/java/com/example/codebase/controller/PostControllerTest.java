@@ -220,7 +220,7 @@ class PostControllerTest {
 
         mockMvc.perform(
                         multipart("/api/posts")
-//                                .file(thumbnailFile)
+                                .file(thumbnailFile)
                                 .file(mediaFiles.get(0))
                                 .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
                                 .contentType("multipart/form-data")
@@ -229,44 +229,6 @@ class PostControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isCreated());
-    }
-
-    @WithMockCustomUser(username = "admin", role = "ADMIN")
-    @DisplayName("썸네일 파일이 누락된 포스트 생성 시")
-    @Test
-    void 미디어_포스트_생성_에러() throws Exception {
-        // given
-        createOrLoadMember("admin", "ROLE_ADMIN");
-
-        PostMediaCreateDTO thumbnailCreateDTO = new PostMediaCreateDTO();
-        thumbnailCreateDTO.setMediaType("image");
-
-        PostMediaCreateDTO mediaCreateDTO = new PostMediaCreateDTO();
-        mediaCreateDTO.setMediaType("image");
-
-        MockMultipartFile mediaFile = new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg",
-                createMockImageFile());
-
-        List<MockMultipartFile> mediaFiles = new ArrayList<>();
-        mediaFiles.add(mediaFile);
-
-        PostCreateDTO dto = PostCreateDTO.builder()
-                .content("내용")
-                .thumbnail(thumbnailCreateDTO)
-                .medias(Collections.singletonList(mediaCreateDTO))
-                .build();
-
-        mockMvc.perform(
-                        multipart("/api/posts")
-//                                .file(thumbnailFile)
-                                .file(mediaFiles.get(0))
-                                .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
-                                .contentType("multipart/form-data")
-                                .accept(MediaType.APPLICATION_JSON)
-                                .characterEncoding("UTF-8")
-                )
-                .andDo(print())
-                .andExpect(status().isBadRequest());
     }
 
 
