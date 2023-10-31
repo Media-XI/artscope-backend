@@ -65,14 +65,14 @@ public class PostService {
         // 썸네일 추가
         if (postCreateDTO.getThumbnail() != null) {
             PostMedia thumbnail = PostMedia.from(postCreateDTO.getThumbnail());
-            newPost.addMedia(thumbnail);
+            thumbnail.setPost(newPost);
         }
 
         // 미디어 추가
         if (postCreateDTO.getMedias() != null) {
             for (PostMediaCreateDTO mediaCreateDTO : postCreateDTO.getMedias()) {
                 PostMedia newMedia = PostMedia.from(mediaCreateDTO);
-                newPost.addMedia(newMedia);
+                newMedia.setPost(newPost);
             }
         }
 
