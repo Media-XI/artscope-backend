@@ -46,7 +46,7 @@ dependencies {
 
     // Jackson LocalDateTime Serializer & Deserializer
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.0-rc1'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
     // Env Security
     implementation("com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5")
