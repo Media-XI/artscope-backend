@@ -35,6 +35,7 @@ public class HTMLCharacterEscapes extends CharacterEscapes {
         asciiEscapes['>'] = CharacterEscapes.ESCAPE_CUSTOM;
         asciiEscapes['&'] = CharacterEscapes.ESCAPE_CUSTOM;
         asciiEscapes['('] = CharacterEscapes.ESCAPE_CUSTOM;
+        asciiEscapes['"'] = CharacterEscapes.ESCAPE_CUSTOM;
 
         // XSS 방지 처리 특수 문자 인코딩 값 지정
         translator = new AggregateTranslator(
