@@ -975,6 +975,19 @@ class ArtworkControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @DisplayName("비공개 아트워크 조회 시")
+    @Test
+    public void 비공개_조회_시() throws Exception {
+        Artwork artwork1 = createOrLoadArtwork(1, false);
+
+        mockMvc.perform(
+                        get("/api/artworks/" + artwork1.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("아트워크 댓글 생성 시")
     @Test
