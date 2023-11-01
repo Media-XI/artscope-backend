@@ -154,6 +154,7 @@ class MemberControllerTest {
                 .andDo(print());
     }
 
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
     @DisplayName("관리자 회원가입 API가 작동한다")
     @Test
     void 관리자_가입() throws Exception {
@@ -343,7 +344,7 @@ class MemberControllerTest {
     void 아티스트_승인() throws Exception {
         createOrLoadMember();
 
-        String status = "APPROVED";
+        String status = "ARTIST";
 
         mockMvc.perform(
                         put(String.format("/api/members/artist/%s?status=%s", "testid1", status))
