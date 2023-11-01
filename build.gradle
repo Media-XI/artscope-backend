@@ -40,6 +40,14 @@ dependencies {
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.3'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.3'
 
+    // XSS Protection
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-text
+    implementation 'org.apache.commons:commons-text:1.11.0'
+
+    // Jackson LocalDateTime Serializer & Deserializer
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.0-rc1'
+
     // Env Security
     implementation("com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
