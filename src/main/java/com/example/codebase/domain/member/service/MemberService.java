@@ -2,9 +2,9 @@ package com.example.codebase.domain.member.service;
 
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
-import com.example.codebase.domain.artwork.repository.ArtworkMediaRepository;
 import com.example.codebase.domain.auth.OAuthAttributes;
 import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
+import com.example.codebase.domain.member.dto.CreateCuratorMemberDTO;
 import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.example.codebase.domain.member.dto.MemberResponseDTO;
 import com.example.codebase.domain.member.dto.UpdateMemberDTO;
@@ -17,16 +17,16 @@ import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.s3.S3Service;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.transaction.Transactional;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class MemberService {
@@ -37,7 +37,8 @@ public class MemberService {
     private final S3Service s3Service;
 
     @Autowired
-    public MemberService(PasswordEncoder passwordEncoder, MemberRepository memberRepository, MemberAuthorityRepository memberAuthorityRepository, S3Service s3Service) {
+    public MemberService(PasswordEncoder passwordEncoder, MemberRepository memberRepository,
+                         MemberAuthorityRepository memberAuthorityRepository, S3Service s3Service) {
         this.passwordEncoder = passwordEncoder;
         this.memberRepository = memberRepository;
         this.memberAuthorityRepository = memberAuthorityRepository;
@@ -148,6 +149,16 @@ public class MemberService {
         return MemberResponseDTO.from(member);
     }
 
+    @Transactional
+    public MemberResponseDTO createCurator(CreateCuratorMemberDTO createCuratorMemberDTO) {
+        Member member = memberRepository
+                .findByUsername(createCuratorMemberDTO.getUsername())
+                .orElseThrow(NotFoundMemberException::new);
+        member.setCurator(createCuratorMemberDTO);
+
+        return MemberResponseDTO.from(member);
+    }
+
     public MemberResponseDTO getProfile(String username) {
         Member member = memberRepository
                 .findByUsername(username)
@@ -188,7 +199,8 @@ public class MemberService {
                 .orElseThrow(NotFoundMemberException::new);
 
         // S3 오브젝트 삭제
-        if (Optional.ofNullable(member.getPicture()).isPresent() && member.getPicture().startsWith(s3Service.getDir())) {
+        if (Optional.ofNullable(member.getPicture()).isPresent() && member.getPicture()
+                .startsWith(s3Service.getDir())) {
             s3Service.deleteObject(member.getPicture());
         }
 

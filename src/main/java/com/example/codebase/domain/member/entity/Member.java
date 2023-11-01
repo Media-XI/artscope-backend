@@ -3,6 +3,7 @@ package com.example.codebase.domain.member.entity;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.auth.OAuthAttributes;
 import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
+import com.example.codebase.domain.member.dto.CreateCuratorMemberDTO;
 import com.example.codebase.domain.member.dto.UpdateMemberDTO;
 import com.example.codebase.domain.member.entity.oauth2.oAuthProvider;
 import com.example.codebase.domain.post.entity.Post;
@@ -96,8 +97,8 @@ public class Member {
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(name = "artist_status")
-    private ArtistStatus artistStatus = ArtistStatus.NONE;
+    @Column(name = "role_status")
+    private RoleStatus roleStatus = RoleStatus.NONE;
 
     @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
@@ -218,12 +219,12 @@ public class Member {
         this.websiteUrl = dto.getWebsiteUrl();
         this.introduction = dto.getIntroduction();
         this.history = dto.getHistory();
-        this.artistStatus = ArtistStatus.PENDING;
+        this.roleStatus = RoleStatus.ARTIST_PENDING;
         this.updatedTime = LocalDateTime.now();
     }
 
     public void updateArtistStatus(String status) {
-        this.artistStatus = ArtistStatus.create(status);
+        this.roleStatus = RoleStatus.create(status);
         this.updatedTime = LocalDateTime.now();
     }
 
@@ -250,4 +251,14 @@ public class Member {
         this.artworks.add(artwork);
     }
 
+    public void setCurator(CreateCuratorMemberDTO createCuratorMemberDTO) {
+        this.snsUrl = createCuratorMemberDTO.getSnsUrl();
+        this.websiteUrl = createCuratorMemberDTO.getWebsiteUrl();
+        this.introduction = createCuratorMemberDTO.getIntroduction();
+        this.history = createCuratorMemberDTO.getHistory();
+        this.companyRole = createCuratorMemberDTO.getCompanyRole();
+        this.companyName = createCuratorMemberDTO.getCompanyName();
+        this.roleStatus = RoleStatus.CURATOR_PENDING;
+        this.updatedTime = LocalDateTime.now();
+    }
 }

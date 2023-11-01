@@ -1,29 +1,36 @@
 package com.example.codebase.controller;
 
-import com.example.codebase.domain.member.dto.*;
+import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
+import com.example.codebase.domain.member.dto.CreateCuratorMemberDTO;
+import com.example.codebase.domain.member.dto.CreateMemberDTO;
+import com.example.codebase.domain.member.dto.MemberResponseDTO;
+import com.example.codebase.domain.member.dto.UpdateMemberDTO;
+import com.example.codebase.domain.member.dto.UsernameDTO;
+import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.exception.NotAcceptTypeException;
 import com.example.codebase.util.FileUtil;
 import com.example.codebase.util.SecurityUtil;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import com.example.codebase.domain.member.entity.Member;
-import com.example.codebase.domain.member.service.MemberService;
-import lombok.Getter;
+import java.util.List;
+import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.validation.Valid;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @ApiOperation(value = "회원", notes = "회원 관련 API")
@@ -31,7 +38,7 @@ import java.util.Optional;
 @RequestMapping("/api/members")
 public class MemberController {
 
-    private MemberService memberService;
+    private final MemberService memberService;
 
     @Autowired
     public MemberController(MemberService memberService) {
@@ -46,6 +53,7 @@ public class MemberController {
     }
 
     @ApiOperation(value = "관리자 가입", notes = "관리자 가입을 합니다.")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN')")
     @PostMapping("/admin")
     public ResponseEntity createAdmin(@Valid @RequestBody CreateMemberDTO createMemberDTO) {
         MemberResponseDTO admin = memberService.createAdmin(createMemberDTO);
@@ -54,7 +62,7 @@ public class MemberController {
 
 
     @ApiOperation(value = "아티스트 정보 입력", notes = "[USER] 아티스트 정보를 입력합니다.")
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER') and !hasAnyRole('ROLE_ARTIST', 'ROLE_CURATOR')")
     @PostMapping("/artist")
     public ResponseEntity createArtist(@Valid @RequestBody CreateArtistMemberDTO createArtistMemberDTO) {
         SecurityUtil.getCurrentUsername().ifPresent(createArtistMemberDTO::setUsername);
@@ -62,10 +70,20 @@ public class MemberController {
         return new ResponseEntity(artist, HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "기획자 정보 입력", notes = "[USER] 기획자 정보를 입력합니다.")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER') and !hasAnyRole('ROLE_ARTIST', 'ROLE_CURATOR')")
+    @PostMapping("/curator")
+    public ResponseEntity createCurator(@Valid @RequestBody CreateCuratorMemberDTO createCuratorMemberDTO) {
+        SecurityUtil.getCurrentUsername().ifPresent(createCuratorMemberDTO::setUsername);
+        MemberResponseDTO curator = memberService.createCurator(createCuratorMemberDTO);
+        return new ResponseEntity(curator, HttpStatus.CREATED);
+    }
+
     @ApiOperation(value = "내 정보 수정", notes = "[USER] 내 정보를 수정합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PutMapping("/{uesrname}")
-    public ResponseEntity updateMember(@PathVariable String uesrname, @Valid @RequestBody UpdateMemberDTO updateMemberDTO) {
+    public ResponseEntity updateMember(@PathVariable String uesrname,
+                                       @Valid @RequestBody UpdateMemberDTO updateMemberDTO) {
         String loginUsername = SecurityUtil.getCurrentUsername()
                 .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
