@@ -561,7 +561,7 @@ class ArtworkControllerTest {
                                 .content(objectMapper.writeValueAsString(dto))
                 )
                 .andDo(print())
-                .andExpect(status().isForbidden());
+                .andExpect(status().isBadRequest());
     }
 
     @WithMockCustomUser(username = "user", role = "ADMIN")
