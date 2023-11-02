@@ -3,12 +3,15 @@ package com.example.codebase.domain.artwork.dto;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -35,6 +38,14 @@ public class ArtworkResponseDTO {
 
     private String authorName;
 
+    private String authorProfileImage;
+
+    private String authorIntroduction;
+
+    private String authorCompanyName;
+
+    private String authorCompanyRole;
+
     private ArtworkMediaResponseDTO thumbnail;
 
     private List<ArtworkMediaResponseDTO> artworkMedias;
@@ -60,7 +71,6 @@ public class ArtworkResponseDTO {
                 .map(ArtworkMediaResponseDTO::from)
                 .collect(Collectors.toList());
 
-
         List<String> tags = null;
         if (Optional.ofNullable(artwork.getTags()).isPresent()) {
             String[] split = artwork.getTags().split(",");
@@ -77,6 +87,12 @@ public class ArtworkResponseDTO {
                 .comments(artwork.getComments())
                 .authorName(artwork.getMember().getName())
                 .authorUsername(artwork.getMember().getUsername())
+                .authorIntroduction(artwork.getMember().getIntroduction())
+                .authorProfileImage(artwork.getMember().getPicture() != null ? artwork.getMember().getPicture() : null)
+                .authorCompanyName(
+                        artwork.getMember().getCompanyName() != null ? artwork.getMember().getCompanyName() : null)
+                .authorCompanyRole(
+                        artwork.getMember().getCompanyRole() != null ? artwork.getMember().getCompanyRole() : null)
                 .thumbnail(thumbnail)
                 .artworkMedias(artworkMediaResponseDTOS)
                 .createdTime(artwork.getCreatedTime())

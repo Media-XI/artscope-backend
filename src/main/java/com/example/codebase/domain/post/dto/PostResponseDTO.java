@@ -36,9 +36,13 @@ public class PostResponseDTO {
 
     protected String authorName;
 
-    protected String authorDescription;
+    protected String authorIntroduction;
 
     protected String authorProfileImageUrl;
+
+    protected String authorCompanyRole;
+
+    protected String authorCompanyName;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     protected LocalDateTime createdTime;
@@ -50,7 +54,7 @@ public class PostResponseDTO {
 
     protected List<PostMediaResponseDTO> medias;
 
-    public PostResponseDTO(Post post) {
+    protected PostResponseDTO(Post post) {
         this.id = post.getId();
         this.content = post.getContent();
         this.views = post.getViews();
@@ -58,7 +62,7 @@ public class PostResponseDTO {
         this.comments = post.getComments();
         this.authorUsername = post.getAuthor().getUsername();
         this.authorName = post.getAuthor().getName();
-        this.authorDescription = post.getAuthor().getIntroduction();
+        this.authorIntroduction = post.getAuthor().getIntroduction();
         this.authorProfileImageUrl = post.getAuthor().getPicture();
         this.createdTime = post.getCreatedTime();
         this.updatedTime = post.getUpdatedTime();
@@ -75,6 +79,15 @@ public class PostResponseDTO {
                     .map(PostCommentResponseDTO::from)
                     .collect(Collectors.toList());
         }
+
+        // TODO : 후처리 리팩터링
+        if (post.getAuthor().getCompanyName() != null) {
+            this.authorCompanyName = post.getAuthor().getCompanyName();
+        }
+
+        if (post.getAuthor().getCompanyRole() != null) {
+            this.authorCompanyRole = post.getAuthor().getCompanyRole();
+        }
     }
 
     public static PostResponseDTO from(Post post) {
@@ -87,7 +100,7 @@ public class PostResponseDTO {
                         .comments(post.getComments())
                         .authorUsername(post.getAuthor().getUsername())
                         .authorName(post.getAuthor().getName())
-                        .authorDescription(post.getAuthor().getIntroduction()) // TODO : introduction이 맞는지 확인
+                        .authorIntroduction(post.getAuthor().getIntroduction()) // TODO : introduction이 맞는지 확인
                         .authorProfileImageUrl(post.getAuthor().getPicture())
                         .createdTime(post.getCreatedTime())
                         .updatedTime(post.getUpdatedTime())
@@ -103,6 +116,14 @@ public class PostResponseDTO {
                             .collect(Collectors.toList());
 
             response.setCommentPosts(commentResponse);
+        }
+
+        if (post.getAuthor().getCompanyName() != null) {
+            response.setAuthorCompanyName(post.getAuthor().getCompanyName());
+        }
+
+        if (post.getAuthor().getCompanyRole() != null) {
+            response.setAuthorCompanyRole(post.getAuthor().getCompanyRole());
         }
 
         List<PostMediaResponseDTO> mediaResponse =

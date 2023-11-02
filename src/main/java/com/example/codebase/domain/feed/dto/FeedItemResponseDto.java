@@ -41,9 +41,13 @@ public class FeedItemResponseDto {
 
     private String authorName;
 
-    private String authorDescription;
+    private String authorIntroduction;
 
     private String authorProfileImageUrl;
+
+    private String authorCompanyName;
+
+    private String authorCompanyRole;
 
     private List<String> tags;
 
@@ -84,8 +88,12 @@ public class FeedItemResponseDto {
                 .thumbnailUrl(thumbnailUrl)
                 .authorName(authorName)
                 .authorUsername(authorUsername)
-                .authorDescription(authorDescription)
+                .authorIntroduction(authorDescription)
                 .authorProfileImageUrl(authorProfileImageUrl)
+                .authorCompanyName(
+                        artwork.getMember().getCompanyName() != null ? artwork.getMember().getCompanyName() : null)
+                .authorCompanyRole(
+                        artwork.getMember().getCompanyRole() != null ? artwork.getMember().getCompanyRole() : null)
                 .tags(tags)
                 .categoryId(FeedType.artwork.name())
                 .views(artwork.getViews())
@@ -116,8 +124,12 @@ public class FeedItemResponseDto {
                 .content(post.getContent())
                 .authorName(post.getAuthor().getName())
                 .authorUsername(post.getAuthor().getUsername().toString())
-                .authorDescription(post.getAuthor().getIntroduction())
+                .authorIntroduction(post.getAuthor().getIntroduction())
                 .authorProfileImageUrl(post.getAuthor().getPicture())
+                .authorCompanyName(
+                        post.getAuthor().getCompanyName() != null ? post.getAuthor().getCompanyName() : null)
+                .authorCompanyRole(
+                        post.getAuthor().getCompanyRole() != null ? post.getAuthor().getCompanyRole() : null)
                 .tags(null)
                 .categoryId(FeedType.post.name())
                 .views(post.getViews())
@@ -144,8 +156,14 @@ public class FeedItemResponseDto {
                 .content(exhibition.getDescription())
                 .authorName(exhibition.getMember().getName())
                 .authorUsername(exhibition.getMember().getUsername())
-                .authorDescription(exhibition.getMember().getIntroduction())
+                .authorIntroduction(exhibition.getMember().getIntroduction())
                 .authorProfileImageUrl(exhibition.getMember().getPicture())
+                .authorCompanyName(
+                        exhibition.getMember().getCompanyName() != null ? exhibition.getMember().getCompanyName()
+                                : null)
+                .authorCompanyRole(
+                        exhibition.getMember().getCompanyRole() != null ? exhibition.getMember().getCompanyRole()
+                                : null)
                 .tags(null)
                 .categoryId(FeedType.exhibition.name())
                 .views(0)
