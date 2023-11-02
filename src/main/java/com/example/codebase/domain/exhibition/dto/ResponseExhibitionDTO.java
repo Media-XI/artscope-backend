@@ -1,64 +1,76 @@
 package com.example.codebase.domain.exhibition.dto;
 
-import com.example.codebase.domain.artwork.dto.ArtworkMediaResponseDTO;
+import com.example.codebase.domain.exhibition.entity.EventType;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
-import com.example.codebase.domain.member.dto.MemberResponseDTO;
+import com.example.codebase.domain.exhibition.entity.ExhibitionMedia;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ResponseExhibitionDTO {
-    private Long id;
+  private Long id;
 
-    private String title;
+  private String title;
 
-    private String description;
+  private String author;
 
-    private ExhibitionMediaResponseDTO thumbnail;
+  private String description;
 
-    private String link;
+  private ExhibitionMediaResponseDTO thumbnail;
 
-    // private List<ExhibitionMediaResponseDTO> exhibitionMedias; // TODO: 추후 List 로 한다면 추가
+  private List<ExhibitionMediaResponseDTO> medias;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime startDate;
+  private String link;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime endDate;
+  private EventType eventType;
 
+  private List<ResponseEventScheduleDTO> eventSchedule;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime createdTime;
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+  private LocalDateTime createdTime;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime updatedTime;
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+  private LocalDateTime updatedTime;
 
-    private String author;
+  public static ResponseExhibitionDTO from(Exhibition exhibition) {
+    List<ExhibitionMedia> medias = exhibition.getExhibitionMedias();
 
-    public static ResponseExhibitionDTO from(Exhibition exhibition) {
-        ExhibitionMediaResponseDTO thumbnail = exhibition.getExhibitionMedias().stream()
-                .findFirst()
-                .map(ExhibitionMediaResponseDTO::from)
-                .orElse(null);
+    // 썸네일
+    ExhibitionMediaResponseDTO thumbnail =
+        medias.stream().findFirst().map(ExhibitionMediaResponseDTO::from).orElse(null);
 
-        ResponseExhibitionDTO dto = new ResponseExhibitionDTO();
-        dto.setId(exhibition.getId());
-        dto.setTitle(exhibition.getTitle());
-        dto.setDescription(exhibition.getDescription());
-        dto.setStartDate(exhibition.getStartDate());
-        dto.setLink(exhibition.getLink());
-        dto.setThumbnail(thumbnail);
-        dto.setEndDate(exhibition.getEndDate());
-        dto.setCreatedTime(exhibition.getCreatedTime());
-        dto.setUpdatedTime(exhibition.getUpdatedTime());
-        dto.setAuthor(exhibition.getMember().getUsername());
-        return dto;
-    }
+    // 미디어
+    List<ExhibitionMediaResponseDTO> exhibitionMediaResponseDTOS =
+        medias.stream().skip(1).map(ExhibitionMediaResponseDTO::from).collect(Collectors.toList());
+
+    List<ResponseEventScheduleDTO> eventScheduleDTOS =
+        exhibition.getEventSchedules().stream()
+            .map(ResponseEventScheduleDTO::from)
+            .collect(Collectors.toList());
+
+    return ResponseExhibitionDTO.builder()
+        .id(exhibition.getId())
+        .title(exhibition.getTitle())
+        .author(exhibition.getMember().getName())
+        .description(exhibition.getDescription())
+        .thumbnail(thumbnail)
+        .medias(exhibitionMediaResponseDTOS)
+        .eventSchedule(eventScheduleDTOS)
+        .link(exhibition.getLink())
+        .eventType(exhibition.getType())
+        .createdTime(exhibition.getCreatedTime())
+        .updatedTime(exhibition.getUpdatedTime())
+        .build();
+  }
 }

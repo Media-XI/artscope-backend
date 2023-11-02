@@ -70,12 +70,12 @@ public class PostResponseDTO {
 
         // TODO: 후처리 리팩터링
         if (post.getPostComment() != null) {
-            List<PostCommentResponseDTO> commentResponse =
-                    post.getPostComment().stream()
-                            .filter(comment -> comment.getParent() == null)
-                            .filter(comment -> comment.getChildComments() != null)
-                            .map(PostCommentResponseDTO::from)
-                            .collect(Collectors.toList());
+      List<PostCommentResponseDTO> commentResponse =
+          post.getPostComment().stream()
+              .filter(comment -> comment.getParent() == null)
+              .filter(comment -> comment.getChildComments() != null)
+              .map(PostCommentResponseDTO::from)
+              .collect(Collectors.toList());
 
             response.setCommentPosts(commentResponse);
         }

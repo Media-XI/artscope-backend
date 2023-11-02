@@ -1,28 +1,47 @@
 package com.example.codebase.domain.exhibition.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.example.codebase.domain.exhibition.entity.EventType;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import javax.persistence.Column;
-import java.time.LocalDateTime;
-import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
 public class CreateExhibitionDTO {
-    private String title;
 
-    private String description;
+  @NotBlank(message = "제목은 필수입니다.")
+  private String title;
 
-    private String link;
+  @NotBlank(message = "설명은 필수입니다.")
+  private String description;
 
-    private List<ExhibitionMediaCreateDTO> mediaUrls;
+  @PositiveOrZero(message = "가격은 0원 이상이어야 합니다.")
+  private int price;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime startDate;
+  @NotEmpty(message = "링크는 필수입니다.")
+  @Pattern(regexp = "^(http|https)://.*", message = "웹사이트 주소를 입력해주세요. ")
+  private String link;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime endDate;
+  @NotNull(message = "이벤트 타입은 필수입니다.")
+  private EventType eventType;
+
+  // 스케쥴 생성 DTO
+  private List<CreateEventScheduleDTO> schedule;
+
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  private List<MultipartFile> mediaFiles;
+
+  private List<ExhibitionMediaCreateDTO> medias;
+
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  private MultipartFile thumbnailFile;
+
+  private ExhibitionMediaCreateDTO thumbnail;
 }
