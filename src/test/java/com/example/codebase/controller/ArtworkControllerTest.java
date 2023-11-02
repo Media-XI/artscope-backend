@@ -1006,6 +1006,25 @@ class ArtworkControllerTest {
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("아트워크 댓글 수정 시")
+    @Test
+    public void 아트워크_댓글_수정_시() throws Exception {
+        Artwork artwork = createArtworkWithComment(2);
+        Long commentId = artwork.getArtworkComments().get(0).getId();
+
+        ArtworkCommentCreateDTO commentCreateDTO = new ArtworkCommentCreateDTO();
+        commentCreateDTO.setContent("수정된 댓글 내용");
+
+        mockMvc.perform(
+                        put("/api/artworks/" + artwork.getId() + "/comments/" + commentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(commentCreateDTO))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("아트워크 댓글 삭제 시")
     @Test
     public void 아트워크_댓글_삭제_시() throws Exception {
