@@ -115,25 +115,32 @@ class ArtworkControllerTest {
         s3Mock.stop();
     }
 
+
     public Member createOrLoadMember() {
-        Optional<Member> testMember = memberRepository.findByUsername("testid");
+        return createOrLoadMember("testid", "ROLE_USER");
+    }
+
+    @Transactional
+    public Member createOrLoadMember(String username, String... authorities) {
+        Optional<Member> testMember = memberRepository.findByUsername(username);
         if (testMember.isPresent()) {
             return testMember.get();
         }
 
         Member dummy = Member.builder()
-                .username("testid")
+                .username(username)
                 .password(passwordEncoder.encode("1234"))
-                .email("email")
-                .name("test")
+                .email(username + "@test.com")
+                .name(username)
                 .activated(true)
                 .createdTime(LocalDateTime.now())
                 .build();
 
-        MemberAuthority memberAuthority = new MemberAuthority();
-        memberAuthority.setAuthority(Authority.of("ROLE_USER"));
-        memberAuthority.setMember(dummy);
-        dummy.addAuthority(memberAuthority);
+        for (String authority : authorities) {
+            MemberAuthority memberAuthority = new MemberAuthority();
+            memberAuthority.setAuthority(Authority.of(authority));
+            memberAuthority.setMember(dummy);
+        }
 
         Member save = memberRepository.save(dummy);
         return save;
@@ -181,6 +188,7 @@ class ArtworkControllerTest {
         return artworkRepository.save(dummy);
     }
 
+    @Transactional
     public Artwork createArtworkWithComment(int commentSize) throws IOException {
         Artwork artwork = createOrLoadArtwork();
 
@@ -556,6 +564,27 @@ class ArtworkControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    @WithMockCustomUser(username = "user", role = "ADMIN")
+    @DisplayName("관리자가 아트워크 수정 시")
+    @Test
+    public void 관리자_아트워크_수정() throws Exception {
+        createOrLoadMember("user", "ROLE_ADMIN", "ROLE_USER");
+        Artwork artwork = createOrLoadArtwork();
+
+        ArtworkUpdateDTO dto = new ArtworkUpdateDTO();
+        dto.setTitle("아트워크_수정");
+        dto.setDescription("작품 수정함 설명");
+        dto.setVisible(true);
+
+        mockMvc.perform(
+                        put(String.format("/api/artworks/%d", artwork.getId()))
+                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("아트워크 미디어 수정 시")
     @Test
@@ -644,7 +673,7 @@ class ArtworkControllerTest {
 
 
     @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("일반 사용자 아트워크 삭제")
+    @DisplayName("아트워크 삭제 시")
     @Test
     public void 일반사용자_아트워크_삭제() throws Exception {
         Artwork artwork = createOrLoadArtwork();
@@ -654,6 +683,21 @@ class ArtworkControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "user", role = "USER")
+    @DisplayName("작성자가 아닌데 아트워크 삭제 시")
+    @Test
+    public void 작성자가아닌데_아트워크_삭제() throws Exception {
+        createOrLoadMember("user", "ROLE_USER");
+
+        Artwork artwork = createOrLoadArtwork();
+
+        mockMvc.perform(
+                        delete(String.format("/api/artworks/%d", artwork.getId()))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -1024,6 +1068,47 @@ class ArtworkControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @WithMockCustomUser(username = "user", role = "USER")
+    @DisplayName("작성자가 아닌 아트워크 댓글 수정 시")
+    @Test
+    public void 작성자아닌_아트워크_댓글_수정_시() throws Exception {
+        createOrLoadMember("user", "ROLE_USER");
+        Artwork artwork = createArtworkWithComment(2);
+        Long commentId = artwork.getArtworkComments().get(0).getId();
+
+        ArtworkCommentCreateDTO commentCreateDTO = new ArtworkCommentCreateDTO();
+        commentCreateDTO.setContent("수정된 댓글 내용");
+
+        mockMvc.perform(
+                        put("/api/artworks/" + artwork.getId() + "/comments/" + commentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(commentCreateDTO))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @WithMockCustomUser(username = "user", role = "ADMIN")
+    @DisplayName("관리자가 아트워크 댓글 수정 시")
+    @Test
+    public void 관리자_아트워크_댓글_수정_시() throws Exception {
+        createOrLoadMember("user", "ROLE_ADMIN");
+        Artwork artwork = createArtworkWithComment(2);
+        Long commentId = artwork.getArtworkComments().get(0).getId();
+
+        ArtworkCommentCreateDTO commentCreateDTO = new ArtworkCommentCreateDTO();
+        commentCreateDTO.setContent("수정된 댓글 내용");
+
+        mockMvc.perform(
+                        put("/api/artworks/" + artwork.getId() + "/comments/" + commentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(commentCreateDTO))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("아트워크 댓글 삭제 시")
     @Test
@@ -1037,6 +1122,37 @@ class ArtworkControllerTest {
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
+
+    @WithMockCustomUser(username = "user", role = "USER")
+    @DisplayName("작성자가 아닌데 아트워크 댓글 삭제 시")
+    @Test
+    public void 작성자가아닌_아트워크_댓글_삭제_시() throws Exception {
+        createOrLoadMember("user", "ROLE_USER");
+        Artwork artwork = createArtworkWithComment(5);
+        Long commentId = artwork.getArtworkComments().get(0).getId();
+
+        mockMvc.perform(
+                        delete("/api/artworks/" + artwork.getId() + "/comments/" + commentId)
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @WithMockCustomUser(username = "user", role = "ADMIN")
+    @DisplayName("관리자가 아트워크 댓글 삭제 시")
+    @Test
+    public void 관리자_아트워크_댓글_삭제_시() throws Exception {
+        createOrLoadMember("user", "ROLE_ADMIN");
+        Artwork artwork = createArtworkWithComment(5);
+        Long commentId = artwork.getArtworkComments().get(0).getId();
+
+        mockMvc.perform(
+                        delete("/api/artworks/" + artwork.getId() + "/comments/" + commentId)
+                )
+                .andDo(print())
+                .andExpect(status().isNoContent());
+    }
+
 
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("아트워크 상세 조회 시 댓글도 같이 조회 된다")

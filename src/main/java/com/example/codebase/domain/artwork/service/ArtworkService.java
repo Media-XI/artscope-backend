@@ -23,10 +23,10 @@ import com.example.codebase.domain.artwork.entity.ArtworkWithIsLike;
 import com.example.codebase.domain.artwork.repository.ArtworkCommentRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkLikeMemberRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
+import com.example.codebase.domain.auth.exception.BadRequestException;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberRepository;
-import com.example.codebase.exception.NotAccessException;
 import com.example.codebase.exception.NotFoundException;
 import com.example.codebase.s3.S3Service;
 import com.example.codebase.util.SecurityUtil;
@@ -147,7 +147,7 @@ public class ArtworkService {
                 .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
 
         if (!SecurityUtil.isAdmin() && !artwork.getMember().getUsername().equals(username)) {
-            throw new NotAccessException("해당 작품의 소유자가 아닙니다.");
+            throw new BadRequestException("해당 작품의 소유자가 아닙니다.");
         }
 
         artwork.update(dto);
@@ -160,7 +160,7 @@ public class ArtworkService {
                 .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
 
         if (!SecurityUtil.isAdmin() && !artwork.getMember().getUsername().equals(username)) {
-            throw new NotAccessException("해당 작품의 소유자가 아닙니다.");
+            throw new BadRequestException("해당 작품의 소유자가 아닙니다.");
         }
 
         // Artwork의 Artwork Media URL를 가져와서 S3 Object Delete
@@ -172,7 +172,8 @@ public class ArtworkService {
 
     public ArtworkResponseDTO updateArtworkMedia(Long id, Long mediaId, ArtworkMediaCreateDTO dto, String username) {
         Artwork artwork = artworkRepository.findByIdAndMember_Username(id, username)
-                .orElseThrow(() -> new NotAccessException("해당 작품의 소유자가 아닙니다."));
+                .orElseThrow(() -> new BadRequestException("해당 작품의 소유자가 아닙니다."));
+
         artwork.updateArtworkMedia(mediaId, dto);
         return ArtworkResponseDTO.from(artwork);
     }
@@ -312,7 +313,7 @@ public class ArtworkService {
                 .orElseThrow(NotFoundMemberException::new);
 
         if (!SecurityUtil.isAdmin() && !comment.getAuthor().equals(member)) {
-            throw new NotAccessException("해당 댓글의 작성자가 아닙니다.");
+            throw new BadRequestException("해당 댓글의 작성자가 아닙니다.");
         }
 
         Artwork artwork = comment.getArtwork();
@@ -340,7 +341,7 @@ public class ArtworkService {
         }
 
         if (!SecurityUtil.isAdmin() && !comment.getAuthor().getUsername().equals(loginUsername)) {
-            throw new NotAccessException("해당 댓글의 작성자가 아닙니다.");
+            throw new BadRequestException("해당 댓글의 작성자가 아닙니다.");
         }
 
         comment.update(commentCreateDTO);

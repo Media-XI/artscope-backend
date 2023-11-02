@@ -93,7 +93,7 @@ public class ArtworkController {
     }
 
     @ApiOperation(value = "아트워크 수정", notes = "[USER] 아트워크를 수정합니다. 작성자/관리자만 수정 가능합니다.")
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity updateArtwork(@PathVariable Long id, @RequestBody ArtworkUpdateDTO dto) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
