@@ -37,7 +37,7 @@ public class ExhibitionController {
     this.imageService = imageService;
   }
 
-  @ApiOperation(value = "이벤트 생성", notes = "[ARTIST] 이벤트를 생성합니다.")
+  @ApiOperation(value = "이벤트 생성", notes = "[ADMIN, CURATOR, ARTIST] 이벤트를 생성합니다.")
   @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST', 'ROLE_CURATOR')")
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   public ResponseEntity createExhibition(
@@ -56,7 +56,7 @@ public class ExhibitionController {
     return new ResponseEntity(exhibition, HttpStatus.CREATED);
   }
 
-  @ApiOperation(value = "개별 이벤트 일정 추가 ", notes = "[ARTIST] 이벤트 일정을 개별로 추가합니다.")
+  @ApiOperation(value = "개별 이벤트 일정 추가 ", notes = "[ADMIN, CURATOR, ARTIST] 이벤트 일정을 개별로 추가합니다.")
   @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST', 'ROLE_CURATOR')")
   @PostMapping("/{exhibitionId}/schedule")
   public ResponseEntity createEventSchedule(
@@ -114,8 +114,8 @@ public class ExhibitionController {
     return new ResponseEntity("이벤트  삭제되었습니다.", HttpStatus.OK);
   }
 
-  @ApiOperation(value = "이벤트 일정 개별 삭제 ", notes = "[ADMIN],[ARTIST] 해당 이벤트 일정을 개별로 삭제합니다.")
-  @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST')")
+  @ApiOperation(value = "이벤트 일정 개별 삭제 ", notes = "[ADMIN, CURATOR, ARTIST] 해당 이벤트 일정을 개별로 삭제합니다.")
+  @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST', 'ROLE_CURATOR')")
   @DeleteMapping("/{exhibitionId}/schedule/{eventScheduleId}")
   public ResponseEntity deleteEventSchedule(
       @PathVariable Long exhibitionId, @PathVariable Long eventScheduleId) {
@@ -125,8 +125,8 @@ public class ExhibitionController {
     return new ResponseEntity("이벤트 일정이 삭제되었습니다.", HttpStatus.OK);
   }
 
-  @ApiOperation(value = "이벤트 일정 전체 삭제", notes = "[ADMIN],[ARTIST] 해당 이벤트 일정을 전체 삭제합니다. ")
-  @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST')")
+  @ApiOperation(value = "이벤트 일정 전체 삭제", notes = "[ADMIN, CURATOR, ARTIST] 해당 이벤트 일정을 전체 삭제합니다. ")
+  @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST', 'ROLE_CURATOR')")
   @DeleteMapping("/{exhibitionId}/all")
   public ResponseEntity deleteAllExhibition(@PathVariable Long exhibitionId) {
     String username =
