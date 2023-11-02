@@ -1,16 +1,16 @@
 package com.example.codebase.domain.exhibition.entity;
 
 import com.example.codebase.domain.exhibition.dto.CreateExhibitionDTO;
+import com.example.codebase.domain.exhibition.dto.UpdateExhibitionDTO;
 import com.example.codebase.domain.member.entity.Member;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "exhibition")
@@ -20,69 +20,90 @@ import java.util.List;
 @NoArgsConstructor
 public class Exhibition {
 
-    @Id
-    @Column(name = "exhibition_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @Column(name = "exhibition_id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(name = "title", nullable = false)
-    private String title;
+  @Column(name = "title", nullable = false)
+  private String title;
 
-    @Column(name = "description", columnDefinition = "TEXT")
-    private String description;
+  @Column(name = "description", columnDefinition = "TEXT")
+  private String description;
 
-    @Column(name = "link")
-    private String link;
+  @Column(name = "price")
+  private int price;
 
-    @Column(name = "start_date")
-    private LocalDateTime startDate;
+  @Column(name = "link", nullable = false, length = 500)
+  private String link;
 
-    @Column(name = "end_date")
-    private LocalDateTime endDate;
+  @Builder.Default
+  @OneToMany(mappedBy = "exhibition", cascade = CascadeType.ALL)
+  private List<ExhibitionMedia> exhibitionMedias = new ArrayList<>();
 
-    @Column(name = "created_time")
-    private LocalDateTime createdTime;
+  @Builder.Default
+  @OneToMany(mappedBy = "exhibition", cascade = CascadeType.ALL)
+  private List<EventSchedule> eventSchedules = new ArrayList<>();
 
-    @Column(name = "updated_time")
-    private LocalDateTime updatedTime;
+  @Column(name = "created_time")
+  private LocalDateTime createdTime;
 
-    @Builder.Default
-    @Column(name = "enabled")
-    private boolean enabled = true;    // 공모전 활성상태 -> 삭제 여부와 같음
+  @Column(name = "updated_time")
+  private LocalDateTime updatedTime;
 
-    @ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
+  @Builder.Default
+  @Column(name = "type", nullable = false)
+  @Enumerated(EnumType.STRING)
+  private EventType type = EventType.STANDARD;
 
-    @Builder.Default
-    @OneToMany(mappedBy = "exhibition", cascade = CascadeType.ALL)
-    private List<ExhibitionMedia> exhibitionMedias = new ArrayList<>();
+  @ManyToOne
+  @JoinColumn(name = "member_id", nullable = false)
+  private Member member;
 
-    public static Exhibition of(CreateExhibitionDTO dto, Member member) {
-        return Exhibition.builder()
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .link(dto.getLink())
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
-                .createdTime(LocalDateTime.now())
-                .member(member)
-                .build();
-    }
+  @Builder.Default
+  @Column(name = "enabled")
+  private boolean enabled = true; // 공모전 활성상태 -> 삭제 여부와 같음
 
-    public void update(CreateExhibitionDTO createExhibitionDTO) {
-        this.title = createExhibitionDTO.getTitle();
-        this.description = createExhibitionDTO.getDescription();
-        this.startDate = createExhibitionDTO.getStartDate();
-        this.endDate = createExhibitionDTO.getEndDate();
-        this.updatedTime = LocalDateTime.now();
-    }
+  public static Exhibition of(CreateExhibitionDTO dto, Member member) {
+    return Exhibition.builder()
+        .title(dto.getTitle())
+        .description(dto.getDescription())
+        .price(dto.getPrice())
+        .link(dto.getLink())
+        .type(dto.getEventType())
+        .member(member)
+        .createdTime(LocalDateTime.now())
+        .build();
+  }
 
-    public void delete() {
-        this.enabled = false;
-    }
+  public void update(UpdateExhibitionDTO updateExhibitionDTO) {
+    this.title =
+        updateExhibitionDTO.getTitle() != null ? updateExhibitionDTO.getTitle() : this.title;
+    this.description =
+        updateExhibitionDTO.getDescription() != null
+            ? updateExhibitionDTO.getDescription()
+            : this.description;
+    this.link = updateExhibitionDTO.getLink() != null ? updateExhibitionDTO.getLink() : this.link;
+    this.type =
+        updateExhibitionDTO.getEventType() != null ? updateExhibitionDTO.getEventType() : this.type;
+    this.price = updateExhibitionDTO.getPrice() != null ? updateExhibitionDTO.getPrice() : this.price;
+    this.updatedTime = LocalDateTime.now();
+  }
 
-    public void addExhibitionMedia(ExhibitionMedia media) {
-        this.exhibitionMedias.add(media);
-    }
+  public void delete() {
+    this.enabled = false;
+    deleteEventSchedules();
+  }
+
+  public void deleteEventSchedules() {
+    this.eventSchedules.forEach(EventSchedule::delete);
+  }
+
+  public void addExhibitionMedia(ExhibitionMedia media) {
+    this.exhibitionMedias.add(media);
+  }
+
+  public void addEventSchedule(EventSchedule eventSchedule) {
+    this.eventSchedules.add(eventSchedule);
+  }
 }
