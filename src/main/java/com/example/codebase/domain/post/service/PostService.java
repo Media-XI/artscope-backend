@@ -23,6 +23,7 @@ import com.example.codebase.domain.post.repository.PostCommentRepository;
 import com.example.codebase.domain.post.repository.PostLikeMemberRepository;
 import com.example.codebase.domain.post.repository.PostRepository;
 import com.example.codebase.s3.S3Service;
+import com.example.codebase.util.SecurityUtil;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -114,7 +115,7 @@ public class PostService {
         Post post =
                 postRepository.findById(postId).orElseThrow(() -> new RuntimeException("존재하지 않는 게시글입니다."));
 
-        if (!post.getAuthor().getUsername().equals(loginUsername)) {
+        if (!SecurityUtil.isAdmin() && !post.getAuthor().getUsername().equals(loginUsername)) {
             throw new RuntimeException("게시글 작성자만 수정할 수 있습니다.");
         }
 
@@ -124,11 +125,10 @@ public class PostService {
 
     @Transactional
     public void deletePost(Long postId, String loginUsername) {
-        // TODO: 동일 작성자 검증 추가
         Post post =
                 postRepository.findById(postId).orElseThrow(() -> new RuntimeException("존재하지 않는 게시글입니다."));
 
-        if (!post.getAuthor().getUsername().equals(loginUsername)) {
+        if (!SecurityUtil.isAdmin() && !post.getAuthor().getUsername().equals(loginUsername)) {
             throw new RuntimeException("게시글 작성자만 삭제할 수 있습니다.");
         }
 
@@ -241,7 +241,7 @@ public class PostService {
         Member author =
                 memberRepository.findByUsername(loginUsername).orElseThrow(NotFoundMemberException::new);
 
-        if (!comment.getAuthor().equals(author)) {
+        if (!SecurityUtil.isAdmin() && !comment.getAuthor().equals(author)) {
             throw new RuntimeException("댓글 작성자만 수정할 수 있습니다.");
         }
 
@@ -260,7 +260,7 @@ public class PostService {
         Member author =
                 memberRepository.findByUsername(loginUsername).orElseThrow(NotFoundMemberException::new);
 
-        if (!comment.getAuthor().equals(author)) {
+        if (!SecurityUtil.isAdmin() && !comment.getAuthor().equals(author)) {
             throw new RuntimeException("댓글 작성자만 삭제할 수 있습니다.");
         }
 
