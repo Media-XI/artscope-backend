@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@ApiOperation(value = "피드", notes = "피드 관련 API")
+@ApiOperation(value = "통합 검색", notes = "")
 @RestController
 @RequestMapping("/api/search")
 public class SearchController {

@@ -125,12 +125,13 @@ public class ArtworkService {
         Artwork artwork = artworkRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
 
+        String loginUsername = username.orElse("");
+        if (!artwork.isVisible() && !artwork.getMember().getUsername().equals(loginUsername)) {
+            throw new NotFoundException("해당 작품을 찾을 수 없습니다.");
+        }
+
         if (username.isPresent()) {
             existLike = artworkLikeMemberRepository.existsByArtwork_IdAndMember_Username(id, username.get());
-
-            if (!artwork.isVisible() && !artwork.getMember().getUsername().equals(username.get())) {
-                throw new NotFoundException("해당 작품을 찾을 수 없습니다.");
-            }
         }
 
         artwork.increaseView(); // 조회수 증가
