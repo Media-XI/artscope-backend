@@ -31,7 +31,7 @@ public class Exhibition {
   @Column(name = "description", columnDefinition = "TEXT")
   private String description;
 
-  @Column(name = "price")
+  @Column(name = "price", nullable = false)
   private int price;
 
   @Column(name = "link", nullable = false, length = 500)
