@@ -56,7 +56,6 @@ public class ExhibitionController {
     return new ResponseEntity(exhibition, HttpStatus.CREATED);
   }
 
-  //
   @ApiOperation(value = "개별 이벤트 일정 추가 ", notes = "[ARTIST] 이벤트 일정을 개별로 추가합니다.")
   @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST', 'ROLE_CURATOR')")
   @PostMapping("/{exhibitionId}/schedule")
