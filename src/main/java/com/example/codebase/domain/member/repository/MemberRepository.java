@@ -2,14 +2,12 @@ package com.example.codebase.domain.member.repository;
 
 
 import com.example.codebase.domain.member.entity.Member;
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface MemberRepository extends JpaRepository<Member, UUID> {
 
@@ -29,14 +27,16 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
     Optional<Member> findByOauthProviderId(String oauthProviderId);
     Optional<Member> findByOauthProviderIdAndEmail(String oauthProviderId, String email);
 
-    Boolean existsByEmail(String email);
+  Boolean existsByEmail(String email);
 
-    Boolean existsByUsername(String username);
+  Boolean existsByUsername(String username);
 
-    Optional<Member> findByEmailAndActivated(String email, boolean activated);
+  Optional<Member> findByEmailAndActivated(String email, boolean activated);
 
-    @Query("SELECT m " +
-            "FROM Member m " +
-            "WHERE m.activated = ?1 and m.createdTime <= ?2")
-    List<Member> findMembersByNoneActrivatedAndCreatedTimeAfter(boolean activated, LocalDateTime afterTime);
+  @Query("SELECT m " + "FROM Member m " + "WHERE m.activated = ?1 and m.createdTime <= ?2")
+  List<Member> findMembersByNoneActrivatedAndCreatedTimeAfter(
+      boolean activated, LocalDateTime afterTime);
+
+  @Query("SELECT m FROM Member m WHERE m.email = ?1")
+  Member findByEmail(String email);
 }
