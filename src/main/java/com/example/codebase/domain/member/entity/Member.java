@@ -1,5 +1,6 @@
 package com.example.codebase.domain.member.entity;
 
+import com.example.codebase.domain.agoda.entity.Agora;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.auth.OAuthAttributes;
 import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
@@ -111,6 +112,10 @@ public class Member {
     @Builder.Default
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     private List<Post> posts = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    private List<Agora> agoras = new ArrayList<>();
 
     public void setPassword(String password) {
         this.password = password;
@@ -260,5 +265,9 @@ public class Member {
         this.companyName = createCuratorMemberDTO.getCompanyName();
         this.roleStatus = RoleStatus.CURATOR_PENDING;
         this.updatedTime = LocalDateTime.now();
+    }
+
+    public void addAgora(Agora agora) {
+        this.agoras.add(agora);
     }
 }
