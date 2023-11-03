@@ -19,40 +19,43 @@ import lombok.Setter;
 @Builder
 public class PostResponseDTO {
 
-    protected Long id;
+  protected Long id;
 
-    protected String content;
+  protected String content;
 
-    protected Integer views;
+  protected Integer views;
 
-    protected Integer likes;
+  protected Integer likes;
 
-    protected Integer comments;
+  protected Integer comments;
 
-    @Builder.Default
-    protected Boolean isLiked = false;
+  protected String mentionUsername;
 
-    protected String authorUsername;
+  @Builder.Default protected Boolean isLiked = false;
 
-    protected String authorName;
+  protected String authorUsername;
 
-    protected String authorIntroduction;
+  protected String authorIntroduction;
+  
+  protected String authorName;
+ 
+  protected String authorDescription;
 
-    protected String authorProfileImageUrl;
+  protected String authorProfileImageUrl;
 
-    protected String authorCompanyRole;
+  protected String authorCompanyRole;
 
-    protected String authorCompanyName;
+  protected String authorCompanyName;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    protected LocalDateTime createdTime;
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+  protected LocalDateTime createdTime;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    protected LocalDateTime updatedTime;
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+  protected LocalDateTime updatedTime;
 
-    protected List<PostCommentResponseDTO> commentPosts;
-
-    protected List<PostMediaResponseDTO> medias;
+  protected List<PostCommentResponseDTO> commentPosts;
+  
+  protected List<PostMediaResponseDTO> medias;
 
     protected PostResponseDTO(Post post) {
         this.id = post.getId();
@@ -67,10 +70,7 @@ public class PostResponseDTO {
         this.createdTime = post.getCreatedTime();
         this.updatedTime = post.getUpdatedTime();
         this.isLiked = false;
-
-        this.medias = post.getPostMedias().stream()
-                .map(PostMediaResponseDTO::from)
-                .collect(Collectors.toList());
+    }
 
         if (post.getPostComment() != null) {
             this.commentPosts = post.getPostComment().stream()
@@ -134,16 +134,51 @@ public class PostResponseDTO {
 
         return response;
     }
+  }
 
-    public static PostResponseDTO from(PostWithIsLiked post) {
-        PostResponseDTO dto = from(post.getPost());
-        dto.setIsLiked(post.getIsLiked());
-        return dto;
+  public static PostResponseDTO from(Post post) {
+    PostResponseDTO response =
+        PostResponseDTO.builder()
+            .id(post.getId())
+            .content(post.getContent())
+            .views(post.getViews())
+            .likes(post.getLikes())
+            .comments(post.getComments())
+            .authorUsername(post.getAuthor().getUsername())
+            .authorName(post.getAuthor().getName())
+            .authorDescription(post.getAuthor().getIntroduction()) // TODO : introduction이 맞는지 확인
+            .authorProfileImageUrl(post.getAuthor().getPicture())
+            .createdTime(post.getCreatedTime())
+            .updatedTime(post.getUpdatedTime())
+            .build();
+
+
+    if (post.getPostComment() != null) {
+      List<PostCommentResponseDTO> commentResponse =
+          post.getPostComment().stream()
+              .filter(comment -> comment.getParent() == null && comment.getChildComments() != null)
+              .map(PostCommentResponseDTO::from)
+              .collect(Collectors.toList());
+
+      response.setCommentPosts(commentResponse);
     }
 
-    public static PostResponseDTO of(Post post, Boolean isLiked) {
-        PostResponseDTO dto = from(post);
-        dto.setIsLiked(isLiked);
-        return dto;
-    }
+    List<PostMediaResponseDTO> mediaResponse =
+        post.getPostMedias().stream().map(PostMediaResponseDTO::from).collect(Collectors.toList());
+    response.setMedias(mediaResponse);
+
+    return response;
+  }
+
+  public static PostResponseDTO from(PostWithIsLiked post) {
+    PostResponseDTO dto = from(post.getPost());
+    dto.setIsLiked(post.getIsLiked());
+    return dto;
+  }
+
+  public static PostResponseDTO of(Post post, Boolean isLiked) {
+    PostResponseDTO dto = from(post);
+    dto.setIsLiked(isLiked);
+    return dto;
+  }
 }

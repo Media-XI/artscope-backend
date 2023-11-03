@@ -3,22 +3,28 @@ package com.example.codebase.controller;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.example.codebase.domain.artwork.entity.Artwork;
-import com.example.codebase.domain.artwork.entity.ArtworkMedia;
-import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.auth.WithMockCustomUser;
-import com.example.codebase.domain.exhibition.dto.CreateExhibitionDTO;
+import com.example.codebase.domain.exhibition.dto.EventScheduleCreateDTO;
+import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
 import com.example.codebase.domain.exhibition.dto.ExhibitionMediaCreateDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionSearchDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionUpdateDTO;
+import com.example.codebase.domain.exhibition.entity.EventSchedule;
+import com.example.codebase.domain.exhibition.entity.EventType;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
 import com.example.codebase.domain.exhibition.entity.ExhibitionMedia;
+import com.example.codebase.domain.exhibition.entity.ExhibitionParticipant;
 import com.example.codebase.domain.exhibition.entity.ExhibtionMediaType;
+import com.example.codebase.domain.exhibition.repository.EventScheduleRepository;
+import com.example.codebase.domain.exhibition.repository.ExhibitionParticipantRepository;
 import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
-import com.example.codebase.domain.media.MediaType;
+import com.example.codebase.domain.location.entity.Location;
+import com.example.codebase.domain.location.repository.LocationRepository;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
@@ -26,9 +32,14 @@ import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import javax.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +49,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -51,304 +65,479 @@ import org.springframework.web.context.WebApplicationContext;
 @ActiveProfiles("test")
 @Transactional
 class ExhibitionControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private WebApplicationContext context;
+  @Autowired private MockMvc mockMvc;
+  @Autowired private WebApplicationContext context;
 
-    @Autowired
-    private MemberRepository memberRepository;
+  @Autowired private MemberRepository memberRepository;
 
-    @Autowired
-    private MemberAuthorityRepository memberAuthorityRepository;
+  @Autowired private MemberAuthorityRepository memberAuthorityRepository;
 
-    @Autowired
-    private ArtworkRepository artworkRepository;
+  @Autowired private ExhibitionRepository exhibitionRepository;
 
-    @Autowired
-    private ExhibitionRepository exhibitionRepository;
+  @Autowired private EventScheduleRepository eventScheduleRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+  @Autowired private ExhibitionParticipantRepository exhibitionParticipantRepository;
 
-    private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+  @Autowired private LocationRepository locationRepository;
 
-    @BeforeEach
-    public void setUp() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
+  @Autowired private PasswordEncoder passwordEncoder;
+
+  @Autowired private ResourceLoader resourceLoader;
+
+  private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
+  @BeforeEach
+  public void setUp() {
+    mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+  }
+
+  public Member createOrLoadMember() {
+    return createOrLoadMember("testid", "ROLE_CURATOR");
+  }
+
+  public Member createOrLoadMember(String username, String... authorities) {
+    Optional<Member> testMember = memberRepository.findByUsername(username);
+    if (testMember.isPresent()) {
+      return testMember.get();
     }
 
-    public Member createOrLoadMember() {
-        return createOrLoadMember(1);
+    Member dummy =
+        Member.builder()
+            .username(username)
+            .password(passwordEncoder.encode("1234"))
+            .email(username + "@test.com")
+            .name(username)
+            .activated(true)
+            .createdTime(LocalDateTime.now())
+            .build();
+
+    for (String authority : authorities) {
+      MemberAuthority memberAuthority = new MemberAuthority();
+      memberAuthority.setAuthority(Authority.of(authority));
+      memberAuthority.setMember(dummy);
+      dummy.addAuthority(memberAuthority);
     }
 
-    public Member createOrLoadMember(int idx) {
-        Optional<Member> testMember = memberRepository.findByUsername("testid" + idx);
-        if (testMember.isPresent()) {
-            return testMember.get();
-        }
+    Member save = memberRepository.save(dummy);
+    return save;
+  }
 
-        Member dummy = Member.builder()
-                .username("testid" + idx)
-                .password(passwordEncoder.encode("1234"))
-                .email("email" + idx)
-                .name("test" + idx)
-                .activated(true)
-                .createdTime(LocalDateTime.now())
-                .build();
+  public Exhibition createOrLoadExhibition() {
+    return createOrLoadExhibition(1);
+  }
 
-        MemberAuthority memberAuthority = new MemberAuthority();
-        memberAuthority.setAuthority(Authority.of("ROLE_USER"));
-        memberAuthority.setMember(dummy);
-        dummy.addAuthority(memberAuthority);
-
-        Member save = memberRepository.save(dummy);
-        return save;
+  public Exhibition createOrLoadExhibition(int idx) {
+    Optional<Exhibition> save = exhibitionRepository.findById(Long.valueOf(idx));
+    if (save.isPresent()) {
+      return save.get();
     }
 
-    public Artwork createOrLoadArtwork() {
-        Optional<Artwork> testArtwork = artworkRepository.findById(1L);
-        if (testArtwork.isPresent()) {
-            return testArtwork.get();
-        }
-        ArtworkMedia artworkMedia = ArtworkMedia.builder()
-                .artworkMediaType(MediaType.video)
-                .mediaUrl("url")
-                .createdTime(LocalDateTime.now())
-                .build();
+    Exhibition exhibition =
+        Exhibition.builder()
+            .title("이벤트 제목" + idx)
+            .description("이벤트 설명" + idx)
+            .link("링크" + idx)
+            .price(10000 + idx)
+            .type(EventType.STANDARD)
+            .createdTime(LocalDateTime.now())
+            .member(createOrLoadMember())
+            .build();
 
-        Artwork artwork = Artwork.builder()
-                .title("작품 제목")
-                .description("작품 설명")
-                .member(createOrLoadMember())
-                .visible(true)
-                .createdTime(LocalDateTime.now())
-                .build();
-        artwork.addArtworkMedia(artworkMedia);
+    ExhibitionMedia thumbnail =
+        ExhibitionMedia.builder()
+            .mediaUrl("url" + idx)
+            .exhibtionMediaType(ExhibtionMediaType.image)
+            .createdTime(LocalDateTime.now())
+            .build();
+    exhibition.addExhibitionMedia(thumbnail);
 
-        return artworkRepository.save(artwork);
+    ExhibitionMedia media =
+        ExhibitionMedia.builder()
+            .mediaUrl("url" + idx)
+            .exhibtionMediaType(ExhibtionMediaType.image)
+            .createdTime(LocalDateTime.now())
+            .build();
+    exhibition.addExhibitionMedia(media);
+
+    exhibitionRepository.save(exhibition);
+
+    EventSchedule eventSchedule =
+        EventSchedule.builder()
+            .eventDate(LocalDateTime.now())
+            .startTime(LocalDateTime.now())
+            .endTime(LocalDateTime.now().plusMonths(1))
+            .detailLocation("상세 위치")
+            .createdTime(LocalDateTime.now())
+            .build();
+    eventSchedule.setEvent(exhibition);
+
+    Location location =
+        Location.builder()
+            .latitude(123.123)
+            .longitude(123.123)
+            .address("주소")
+            .name("장소 이름")
+            .englishName("장소 영어 이름")
+            .link("test.com")
+            .phoneNumber("010-1234-1234")
+            .webSiteUrl("test.com")
+            .snsUrl("test.com")
+            .build();
+    eventSchedule.setLocation(location);
+    locationRepository.save(location);
+
+    ExhibitionParticipant exhibitionParticipant =
+        ExhibitionParticipant.builder().member(createOrLoadMember()).build();
+    exhibitionParticipant.setEventSchedule(eventSchedule);
+    exhibitionParticipantRepository.save(exhibitionParticipant);
+
+    eventScheduleRepository.save(eventSchedule);
+    return exhibition;
+  }
+
+  public Location createMockLocation() {
+    // Localtion
+    Location location =
+        Location.builder()
+            .latitude(123.123)
+            .longitude(123.123)
+            .address("주소")
+            .name("장소 이름")
+            .englishName("장소 영어 이름")
+            .link("test.com")
+            .phoneNumber("010-1234-1234")
+            .webSiteUrl("test.com")
+            .snsUrl("test.com")
+            .build();
+    return locationRepository.save(location);
+  }
+
+  public ExhbitionCreateDTO mockCreateExhibitionDTO() {
+    return mockCreateExhibitionDTO(1);
+  }
+
+  public ExhbitionCreateDTO mockCreateExhibitionDTO(int scheduleSize) {
+    ExhibitionMediaCreateDTO thumbnailDTO = new ExhibitionMediaCreateDTO();
+    thumbnailDTO.setMediaType(ExhibtionMediaType.image.name());
+    thumbnailDTO.setMediaUrl("http://localhost/");
+
+    ExhibitionMediaCreateDTO mediaCreateDTO = new ExhibitionMediaCreateDTO();
+    mediaCreateDTO.setMediaType(ExhibtionMediaType.image.name());
+    mediaCreateDTO.setMediaUrl("http://localhost/");
+
+    List<EventScheduleCreateDTO> scuheduleDTOs = new ArrayList<>();
+    for (int i = 0; i < scheduleSize; i++) {
+      EventScheduleCreateDTO scuheduleDTO = new EventScheduleCreateDTO();
+      scuheduleDTO.setEventDate(LocalDateTime.now().plusDays(i));
+      scuheduleDTO.setStartTime(LocalDateTime.now().plusMinutes(i));
+      scuheduleDTO.setEndTime(LocalDateTime.now().plusHours(9).plusMinutes(i));
+      scuheduleDTO.setLocationId(createMockLocation().getId());
+      scuheduleDTO.setDetailLocation("상세 위치" + i);
+      scuheduleDTOs.add(scuheduleDTO);
     }
 
-    public Exhibition createOrLoadExhibition() {
-        return createOrLoadExhibition(1);
-    }
+    ExhbitionCreateDTO dto = new ExhbitionCreateDTO();
+    dto.setTitle("이벤트 제목");
+    dto.setDescription("이벤트 설명");
+    dto.setPrice(10000);
+    dto.setLink("http://event.com");
+    dto.setEventType(EventType.STANDARD);
+    dto.setSchedule(scuheduleDTOs);
+    dto.setMedias(Collections.singletonList(mediaCreateDTO));
+    dto.setThumbnail(thumbnailDTO);
 
-    public Exhibition createOrLoadExhibition(int idx) {
-        Optional<Exhibition> save = exhibitionRepository.findById(Long.valueOf(idx));
-        if (save.isPresent()) {
-            return save.get();
-        }
+    return dto;
+  }
 
-        ExhibitionMedia media = ExhibitionMedia.builder()
-                .mediaUrl("url" + idx)
-                .exhibtionMediaType(ExhibtionMediaType.image)
-                .createdTime(LocalDateTime.now())
-                .build();
+  private byte[] createImageFile() throws IOException {
+    File file =
+        resourceLoader.getResource("classpath:test/img.jpg").getFile(); // TODO : 테스트용 이미지 파일
+    return Files.readAllBytes(file.toPath());
+  }
 
-        Exhibition exhibition = Exhibition.builder()
-                .title("공모전 제목" + idx)
-                .description("공모전 설명" + idx)
-                .startDate(LocalDateTime.now())
-                .endDate(LocalDateTime.now().plusMonths(idx))
-                .createdTime(LocalDateTime.now())
-                .member(createOrLoadMember(idx))
-                .build();
-        exhibition.addExhibitionMedia(media);
+  @WithMockCustomUser(username = "user", role = "CURATOR")
+  @DisplayName("이벤트 등록")
+  @Test
+  public void 이벤트_등록() throws Exception {
+    createOrLoadMember("user", "ROLE_CURATOR");
 
-        return exhibitionRepository.save(exhibition);
-    }
+    ExhbitionCreateDTO dto = mockCreateExhibitionDTO();
 
+    MockMultipartFile dtoFile =
+        new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
 
-    @WithMockCustomUser(username = "testid1", role = "USER")
-    @DisplayName("공모전 등록")
-    @Test
-    public void test01() throws Exception {
-        createOrLoadMember();
+    MockMultipartFile mediaFile =
+        new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
 
-        ExhibitionMediaCreateDTO createDTO = new ExhibitionMediaCreateDTO();
-        createDTO.setMediaType(ExhibtionMediaType.image.name());
-        createDTO.setMediaUrl("http://localhost:123");
+    MockMultipartFile thumbnailFile =
+        new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
 
-        CreateExhibitionDTO dto = new CreateExhibitionDTO();
-        dto.setTitle("공모전 제목");
-        dto.setDescription("공모전 내용");
-        dto.setLink("링크");
-        dto.setStartDate(LocalDateTime.now());
-        dto.setEndDate(LocalDateTime.now().plusMonths(1));
-        dto.setMediaUrls(Collections.singletonList(createDTO));
+    mockMvc
+        .perform(
+            multipart("/api/exhibitions")
+                .file(dtoFile)
+                .file(mediaFile)
+                .file(thumbnailFile)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8"))
+        .andDo(print())
+        .andExpect(status().isCreated());
+  }
 
-        mockMvc.perform(
-                        post("/api/exhibitions")
-                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
-                )
-                .andDo(print())
-                .andExpect(status().isCreated());
-    }
+  @WithMockCustomUser(username = "user", role = "CURATOR")
+  @DisplayName("스케줄이 없는 이벤트 등록 시")
+  @Test
+  public void 스케줄이_없는_이벤트_등록() throws Exception {
+    createOrLoadMember("user", "ROLE_CURATOR");
 
-    @DisplayName("비회원이 공모전 등록 시")
-    @Test
-    public void test02() throws Exception {
-        createOrLoadMember();
+    ExhbitionCreateDTO dto = mockCreateExhibitionDTO(0);
 
-        ExhibitionMediaCreateDTO createDTO = new ExhibitionMediaCreateDTO();
-        createDTO.setMediaType(ExhibtionMediaType.image.name());
-        createDTO.setMediaUrl("http://localhost:123");
+    MockMultipartFile dtoFile =
+        new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
 
-        CreateExhibitionDTO dto = new CreateExhibitionDTO();
-        dto.setTitle("공모전 제목");
-        dto.setDescription("공모전 내용");
-        dto.setLink("링크");
-        dto.setStartDate(LocalDateTime.now());
-        dto.setEndDate(LocalDateTime.now().plusMonths(1));
-        dto.setMediaUrls(Collections.singletonList(createDTO));
+    MockMultipartFile mediaFile =
+        new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
 
-        mockMvc.perform(
-                        post("/api/exhibitions")
-                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
-                )
-                .andDo(print())
-                .andExpect(status().isForbidden());
-    }
+    MockMultipartFile thumbnailFile =
+        new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
 
-    @DisplayName("공모전 전체 조회 - 성공")
-    @Test
-    public void test03() throws Exception {
-        createOrLoadExhibition(1);
-        createOrLoadExhibition(2);
-        createOrLoadExhibition(3);
+    mockMvc
+        .perform(
+            multipart("/api/exhibitions")
+                .file(dtoFile)
+                .file(mediaFile)
+                .file(thumbnailFile)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8"))
+        .andDo(print())
+        .andExpect(status().isBadRequest());
+  }
 
-        LocalDate startDate = LocalDate.of(2023, 12, 1);
-        LocalDate endDate = LocalDate.of(2023, 12, 31);
+  @WithMockCustomUser(username = "user", role = "CURATOR")
+  @DisplayName("스케줄이 5개인 이벤트 등록 시")
+  @Test
+  public void 스케줄이_5개인_이벤트_등록() throws Exception {
+    createOrLoadMember("user", "ROLE_CURATOR");
 
-        int page = 0;
-        int size = 10;
-        String sortDirection = "DESC";
+    ExhbitionCreateDTO dto = mockCreateExhibitionDTO(5);
 
-        mockMvc.perform(
-                        get("/api/exhibitions")
-                                .param("startDate", startDate.toString())
-                                .param("endDate", endDate.toString())
-                                .param("page", String.valueOf(page))
-                                .param("size", String.valueOf(size))
-                                .param("sortDirection", sortDirection)
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
+    MockMultipartFile dtoFile =
+        new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
 
-    @WithMockCustomUser(username = "testid1", role = "USER")
-    @DisplayName("공모전 수정")
-    @Test
-    public void test06() throws Exception {
-        Exhibition exhibition = createOrLoadExhibition();
+    MockMultipartFile mediaFile =
+        new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
 
-        CreateExhibitionDTO dto = new CreateExhibitionDTO();
-        dto.setTitle("공모전 제목 수정");
-        dto.setDescription("공모전 내용 수정");
-        dto.setLink("링크 수정");
-        dto.setStartDate(LocalDateTime.now());
-        dto.setEndDate(LocalDateTime.now().plusMonths(1L));
+    MockMultipartFile thumbnailFile =
+        new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
 
-        mockMvc.perform(
-                        put(String.format("/api/exhibitions/%d", exhibition.getId()))
-                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
+    mockMvc
+        .perform(
+            multipart("/api/exhibitions")
+                .file(dtoFile)
+                .file(mediaFile)
+                .file(thumbnailFile)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8"))
+        .andDo(print())
+        .andExpect(status().isCreated());
+  }
 
-    @WithMockCustomUser(username = "asdsad", role = "USER")
-    @DisplayName("다른 사람이 해당 공모전 수정 시")
-    @Test
-    public void test07() throws Exception {
-        Exhibition exhibition = createOrLoadExhibition();
+  @WithMockCustomUser(username = "user", role = "CURATOR")
+  @DisplayName("스케줄 시작시간이 종료시간보다 빠를시")
+  @Test
+  public void 스케줄이_시작시간이_더_빠른경우_이벤트등록() throws Exception {
+    createOrLoadMember("user", "ROLE_CURATOR");
 
-        CreateExhibitionDTO dto = new CreateExhibitionDTO();
-        dto.setTitle("공모전 제목 수정");
-        dto.setDescription("공모전 내용 수정");
-        dto.setLink("링크 수정");
-        dto.setStartDate(LocalDateTime.now());
-        dto.setEndDate(LocalDateTime.now().plusMonths(1L));
+    ExhbitionCreateDTO dto = mockCreateExhibitionDTO(1);
+    EventScheduleCreateDTO eventScheduleCreateDTO = dto.getSchedule().get(0);
+    eventScheduleCreateDTO.setEndTime(LocalDateTime.now().minusDays(1));
+    eventScheduleCreateDTO.setStartTime(LocalDateTime.now());
 
-        mockMvc.perform(
-                        put(String.format("/api/exhibitions/%d", exhibition.getId()))
-                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
-                )
-                .andDo(print())
-                .andExpect(status().isBadRequest());
-    }
+    MockMultipartFile dtoFile =
+        new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
 
-    @WithMockCustomUser(username = "testid1", role = "USER")
-    @DisplayName("공모전 삭제")
-    @Test
-    public void test10() throws Exception {
-        Exhibition exhibition = createOrLoadExhibition();
+    MockMultipartFile mediaFile =
+        new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
 
-        mockMvc.perform(
-                        delete(String.format("/api/exhibitions/%d", exhibition.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
+    MockMultipartFile thumbnailFile =
+        new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
 
-    @DisplayName("공모전 전체 조회 - 시작일과 종료일이 같을떄")
-    @Test
-    public void test11() throws Exception {
-        createOrLoadExhibition(1);
-        createOrLoadExhibition(2);
-        createOrLoadExhibition(3);
+    mockMvc
+        .perform(
+            multipart("/api/exhibitions")
+                .file(dtoFile)
+                .file(mediaFile)
+                .file(thumbnailFile)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8"))
+        .andDo(print())
+        .andExpect(status().isBadRequest());
+  }
 
-        LocalDate startDate = LocalDate.of(2023, 12, 1);
-        LocalDate endDate = LocalDate.of(2023, 12, 1);
+  @DisplayName("이벤트 전체 조회 - 성공")
+  @Test
+  public void 이벤트를_전체_조회합니다() throws Exception {
+    createOrLoadExhibition(1);
+    createOrLoadExhibition(2);
+    createOrLoadExhibition(3);
 
-        int page = 0;
-        int size = 10;
-        String sortDirection = "DESC";
+    //    createMockLocation();
+    ExhibitionSearchDTO exhibitionSearchDTO =
+        ExhibitionSearchDTO.builder()
+            .startDate(LocalDate.now())
+            .endDate(LocalDate.now().plusMonths(1))
+            .eventType(EventType.STANDARD.name())
+            .build();
 
-        mockMvc.perform(
-                        get("/api/exhibitions")
-                                .param("startDate", startDate.toString())
-                                .param("endDate", endDate.toString())
-                                .param("page", String.valueOf(page))
-                                .param("size", String.valueOf(size))
-                                .param("sortDirection", sortDirection)
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
+    int page = 0;
+    int size = 10;
+    String sortDirection = "DESC";
 
-    @DisplayName("공모전 전체 조회 - 시작일이 종료일보다 빠를때")
-    @Test
-    public void test12() throws Exception {
-        createOrLoadExhibition(1);
-        createOrLoadExhibition(2);
-        createOrLoadExhibition(3);
+    mockMvc
+        .perform(
+            get("/api/exhibitions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(exhibitionSearchDTO))
+                .param("page", String.valueOf(page))
+                .param("size", String.valueOf(size))
+                .param("sortDirection", sortDirection))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
 
-        LocalDate startDate = LocalDate.of(2023, 12, 31);
-        LocalDate endDate = LocalDate.of(2023, 12, 1);
+  @WithMockCustomUser(username = "testid", role = "CURATOR")
+  @DisplayName("공모전 수정")
+  @Test
+  public void 공모전_수정() throws Exception {
+    createOrLoadMember("testid", "ROLE_CURATOR");
+    Exhibition exhibition = createOrLoadExhibition();
 
-        int page = 0;
-        int size = 10;
-        String sortDirection = "DESC";
+    ExhibitionUpdateDTO dto = new ExhibitionUpdateDTO();
+    dto.setTitle("수정된 제목");
+    dto.setDescription("수정된 설명 꽁자");
 
-        mockMvc.perform(
-                        get("/api/exhibitions")
-                                .param("startDate", startDate.toString())
-                                .param("endDate", endDate.toString())
-                                .param("page", String.valueOf(page))
-                                .param("size", String.valueOf(size))
-                                .param("sortDirection", sortDirection)
-                )
-                .andDo(print())
-                .andExpect(status().isBadRequest());
-    }
+    mockMvc
+        .perform(
+            put(String.format("/api/exhibitions/%d", exhibition.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
 
+  @WithMockCustomUser(username = "testid", role = "CURATOR")
+  @DisplayName("가격을 음수로 이벤트 수정 시")
+  @Test
+  public void 공모전_가격_음수로_수정시() throws Exception {
+    createOrLoadMember("testid", "ROLE_CURATOR");
+    Exhibition exhibition = createOrLoadExhibition();
 
+    ExhibitionUpdateDTO dto = new ExhibitionUpdateDTO();
+    dto.setPrice(-10000);
+
+    mockMvc
+        .perform(
+            put(String.format("/api/exhibitions/%d", exhibition.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+        .andDo(print())
+        .andExpect(status().isBadRequest());
+  }
+
+  @WithMockCustomUser(username = "user", role = "CURATOR")
+  @DisplayName("작성자가 아닐 시 이벤트 수정")
+  @Test
+  public void 작성자가_아닌_유저가_공모전_수정() throws Exception {
+    createOrLoadMember("user", "ROLE_CURATOR");
+    Exhibition exhibition = createOrLoadExhibition(); // testid 사용자가 만듬
+
+    ExhibitionUpdateDTO dto = new ExhibitionUpdateDTO();
+    dto.setTitle("수정된 제목");
+    dto.setDescription("수정된 설명");
+    dto.setPrice(3200);
+
+    mockMvc
+        .perform(
+            put(String.format("/api/exhibitions/%d", exhibition.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+        .andDo(print())
+        .andExpect(status().isBadRequest());
+  }
+
+  @WithMockCustomUser(username = "testid", role = "CURATOR")
+  @DisplayName("공모전 삭제")
+  @Test
+  public void 공모전_삭제() throws Exception {
+    Exhibition exhibition = createOrLoadExhibition();
+
+    mockMvc
+        .perform(delete(String.format("/api/exhibitions/%d", exhibition.getId())))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
+
+  @DisplayName("공모전 전체 조회 - 시작일과 종료일이 같을떄")
+  @Test
+  public void 공모전_전체_조회() throws Exception {
+    createOrLoadExhibition(1);
+    createOrLoadExhibition(2);
+    createOrLoadExhibition(3);
+
+    ExhibitionSearchDTO exhibitionSearchDTO =
+        ExhibitionSearchDTO.builder()
+            .startDate(LocalDate.now())
+            .endDate(LocalDate.now())
+            .eventType(EventType.STANDARD.name())
+            .build();
+
+    int page = 0;
+    int size = 10;
+    String sortDirection = "DESC";
+
+    mockMvc
+        .perform(
+            get("/api/exhibitions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(exhibitionSearchDTO))
+                .param("page", String.valueOf(page))
+                .param("size", String.valueOf(size))
+                .param("sortDirection", sortDirection))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
+
+  @DisplayName("공모전 전체 조회 - 시작일이 종료일보다 빠를때")
+  @Test
+  public void 공모전_전체_조회시_시작일이_종료일보다_빠를때() throws Exception {
+    createOrLoadExhibition(1);
+    createOrLoadExhibition(2);
+    createOrLoadExhibition(3);
+
+    ExhibitionSearchDTO exhibitionSearchDTO =
+        ExhibitionSearchDTO.builder()
+            .startDate(LocalDate.now())
+            .endDate(LocalDate.now().minusDays(1))
+            .eventType(EventType.STANDARD.name())
+            .build();
+
+    int page = 0;
+    int size = 10;
+    String sortDirection = "DESC";
+
+    mockMvc
+        .perform(
+            get("/api/exhibitions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(exhibitionSearchDTO))
+                .param("page", String.valueOf(page))
+                .param("size", String.valueOf(size))
+                .param("sortDirection", sortDirection))
+        .andDo(print())
+        .andExpect(status().isBadRequest());
+  }
 }

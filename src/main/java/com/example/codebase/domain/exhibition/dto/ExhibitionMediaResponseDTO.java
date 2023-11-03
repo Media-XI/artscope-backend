@@ -1,11 +1,8 @@
 package com.example.codebase.domain.exhibition.dto;
 
-import com.example.codebase.domain.artwork.dto.ArtworkMediaResponseDTO;
 import com.example.codebase.domain.exhibition.entity.ExhibitionMedia;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
