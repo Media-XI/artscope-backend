@@ -241,8 +241,9 @@ public class ExhibitionService {
 
     Member member =
         memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+
     if (!member.equals(exhibition.getMember())) {
-      throw new RuntimeException("이벤트 일정을 삭제할 권한이 없습니다.");
+      throw new RuntimeException("해당 이벤트의 생성자가 아닙니다.");
     }
 
     List<EventSchedule> eventSchedules = exhibition.getEventSchedules();
