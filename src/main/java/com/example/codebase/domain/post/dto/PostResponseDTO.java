@@ -94,6 +94,7 @@ public class PostResponseDTO {
             .updatedTime(post.getUpdatedTime())
             .build();
 
+
     if (post.getPostComment() != null) {
       List<PostCommentResponseDTO> commentResponse =
           post.getPostComment().stream()

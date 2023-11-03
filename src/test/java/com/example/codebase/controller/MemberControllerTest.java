@@ -1,9 +1,19 @@
 package com.example.codebase.controller;
 
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.amazonaws.services.s3.AmazonS3;
 import com.example.codebase.config.S3MockConfig;
 import com.example.codebase.domain.auth.WithMockCustomUser;
 import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
+import com.example.codebase.domain.member.dto.CreateCuratorMemberDTO;
 import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.example.codebase.domain.member.dto.UpdateMemberDTO;
 import com.example.codebase.domain.member.entity.Authority;
@@ -13,39 +23,32 @@ import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.findify.s3mock.S3Mock;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.data.repository.init.ResourceReader;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Optional;
-
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Import(S3MockConfig.class)
 @ExtendWith(SpringExtension.class)
@@ -151,6 +154,7 @@ class MemberControllerTest {
                 .andDo(print());
     }
 
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
     @DisplayName("관리자 회원가입 API가 작동한다")
     @Test
     void 관리자_가입() throws Exception {
@@ -263,12 +267,12 @@ class MemberControllerTest {
         MockMultipartFile file = new MockMultipartFile("profile", "test.jpg", "image/jpg", createImageFile());
 
         mockMvc.perform(
-                    multipart(String.format("/api/members/testid1/picture"))
-                            .file(file)
-                            .with(request -> {
-                                request.setMethod("PUT");
-                                return request;
-                            })
+                        multipart(String.format("/api/members/testid1/picture"))
+                                .file(file)
+                                .with(request -> {
+                                    request.setMethod("PUT");
+                                    return request;
+                                })
 
                 )
                 .andExpect(status().isOk())
@@ -340,7 +344,7 @@ class MemberControllerTest {
     void 아티스트_승인() throws Exception {
         createOrLoadMember();
 
-        String status = "APPROVED";
+        String status = "ARTIST";
 
         mockMvc.perform(
                         put(String.format("/api/members/artist/%s?status=%s", "testid1", status))
@@ -385,7 +389,8 @@ class MemberControllerTest {
         Member loadMember2 = createOrLoadMember(2);
 
         mockMvc.perform(
-                        put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(), loadMember2.getUsername()))
+                        put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(),
+                                loadMember2.getUsername()))
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest());
@@ -394,9 +399,8 @@ class MemberControllerTest {
     @WithMockCustomUser(username = "testid1", role = "USER")
     @DisplayName("아이디 변경 시 유효성 검증 확인")
     @Test
-    void 아이디_검증 () throws Exception {
+    void 아이디_검증() throws Exception {
         Member loadMember1 = createOrLoadMember();
-
 
         mockMvc.perform(
                         put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(), "1"))
@@ -411,7 +415,8 @@ class MemberControllerTest {
                 .andExpect(status().isBadRequest());
 
         mockMvc.perform(
-                        put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(), "asdasdasdsadasdasdasdsa"))
+                        put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(),
+                                "asdasdasdsadasdasdasdsa"))
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest());
@@ -421,7 +426,7 @@ class MemberControllerTest {
     @WithMockCustomUser(username = "testid1", role = "USER")
     @DisplayName("비밀번호 변경 시")
     @Test
-    void 비밀번호_변경 () throws Exception {
+    void 비밀번호_변경() throws Exception {
         Member loadMember = createOrLoadMember();
 
         mockMvc.perform(
@@ -434,7 +439,7 @@ class MemberControllerTest {
 
     @DisplayName("유효하지 않은 이메일로 가입 시")
     @Test
-    void non_email_create_mebmer () throws Exception {
+    void non_email_create_mebmer() throws Exception {
         CreateMemberDTO dto = new CreateMemberDTO();
         dto.setEmail("qwer@gmailcom");
         dto.setName("test1");
@@ -450,5 +455,27 @@ class MemberControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @WithMockCustomUser(username = "testid1", role = "USER")
+    @DisplayName("기획자 정보 입력 시")
+    @Test
+    void create_curator() throws Exception {
+        Member member = createOrLoadMember();
+        CreateCuratorMemberDTO dto = new CreateCuratorMemberDTO();
+        dto.setIntroduction("소개");
+        dto.setHistory("연혁");
+        dto.setWebsiteUrl("https://localhost/");
+        dto.setSnsUrl("https://localhost/");
+        dto.setCompanyName("회사 이름");
+        dto.setCompanyRole("기획자");
+        dto.setUsername(member.getUsername());
+
+        mockMvc.perform(
+                        post("/api/members/curator")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
+    }
 
 }
