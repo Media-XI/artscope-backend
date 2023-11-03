@@ -2,7 +2,7 @@ package com.example.codebase.domain.image.service;
 
 import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
-import com.example.codebase.domain.exhibition.dto.CreateExhibitionDTO;
+import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
 import com.example.codebase.domain.exhibition.dto.ExhibitionMediaCreateDTO;
 import com.example.codebase.domain.post.dto.PostCreateDTO;
 import com.example.codebase.domain.post.dto.PostMediaCreateDTO;
@@ -129,7 +129,7 @@ public class ImageService {
     thumbnailDto.setMediaUrl(savedUrl);
   }
 
-  public void mediasUpload(CreateExhibitionDTO dto, List<MultipartFile> mediaFiles)
+  public void mediasUpload(ExhbitionCreateDTO dto, List<MultipartFile> mediaFiles)
       throws IOException {
     if (mediaFiles.size() > Integer.valueOf(fileCount)) {
       throw new RuntimeException("파일은 최대 " + fileCount + "개까지 업로드 가능합니다.");

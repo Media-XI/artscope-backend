@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
-public class CreateExhibitionDTO {
+public class ExhbitionCreateDTO {
 
   @NotBlank(message = "제목은 필수입니다.")
   private String title;
@@ -33,7 +33,7 @@ public class CreateExhibitionDTO {
   private EventType eventType;
 
   // 스케쥴 생성 DTO
-  private List<CreateEventScheduleDTO> schedule;
+  private List<EventScheduleCreateDTO> schedule;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private List<MultipartFile> mediaFiles;

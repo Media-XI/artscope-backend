@@ -1,7 +1,7 @@
 package com.example.codebase.domain.exhibition.entity;
 
-import com.example.codebase.domain.exhibition.dto.CreateExhibitionDTO;
-import com.example.codebase.domain.exhibition.dto.UpdateExhibitionDTO;
+import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionUpdateDTO;
 import com.example.codebase.domain.member.entity.Member;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ public class Exhibition {
   @Column(name = "enabled")
   private boolean enabled = true; // 공모전 활성상태 -> 삭제 여부와 같음
 
-  public static Exhibition of(CreateExhibitionDTO dto, Member member) {
+  public static Exhibition of(ExhbitionCreateDTO dto, Member member) {
     return Exhibition.builder()
         .title(dto.getTitle())
         .description(dto.getDescription())
@@ -76,17 +76,18 @@ public class Exhibition {
         .build();
   }
 
-  public void update(UpdateExhibitionDTO updateExhibitionDTO) {
+  public void update(ExhibitionUpdateDTO exhibitionUpdateDTO) {
     this.title =
-        updateExhibitionDTO.getTitle() != null ? updateExhibitionDTO.getTitle() : this.title;
+        exhibitionUpdateDTO.getTitle() != null ? exhibitionUpdateDTO.getTitle() : this.title;
     this.description =
-        updateExhibitionDTO.getDescription() != null
-            ? updateExhibitionDTO.getDescription()
+        exhibitionUpdateDTO.getDescription() != null
+            ? exhibitionUpdateDTO.getDescription()
             : this.description;
-    this.link = updateExhibitionDTO.getLink() != null ? updateExhibitionDTO.getLink() : this.link;
+    this.link = exhibitionUpdateDTO.getLink() != null ? exhibitionUpdateDTO.getLink() : this.link;
     this.type =
-        updateExhibitionDTO.getEventType() != null ? updateExhibitionDTO.getEventType() : this.type;
-    this.price = updateExhibitionDTO.getPrice() != null ? updateExhibitionDTO.getPrice() : this.price;
+        exhibitionUpdateDTO.getEventType() != null ? exhibitionUpdateDTO.getEventType() : this.type;
+    this.price =
+        exhibitionUpdateDTO.getPrice() != null ? exhibitionUpdateDTO.getPrice() : this.price;
     this.updatedTime = LocalDateTime.now();
   }
 

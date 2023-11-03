@@ -1,6 +1,6 @@
 package com.example.codebase.domain.exhibition.entity;
 
-import com.example.codebase.domain.exhibition.dto.CreateEventScheduleDTO;
+import com.example.codebase.domain.exhibition.dto.EventScheduleCreateDTO;
 import com.example.codebase.domain.location.entity.Location;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ public class EventSchedule {
   @Column(name = "updated_time")
   private LocalDateTime updatedTime;
 
-  public static EventSchedule from(CreateEventScheduleDTO scheduleDTO) {
+  public static EventSchedule from(EventScheduleCreateDTO scheduleDTO) {
     return EventSchedule.builder()
         .eventDate(scheduleDTO.getEventDate())
         .startTime(scheduleDTO.getStartTime())

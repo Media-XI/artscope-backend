@@ -1,8 +1,8 @@
 package com.example.codebase.domain.location.service;
 
 import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
-import com.example.codebase.domain.location.dto.CreateLocationDTO;
-import com.example.codebase.domain.location.dto.ResponseLocationDTO;
+import com.example.codebase.domain.location.dto.LocationCreateDTO;
+import com.example.codebase.domain.location.dto.LocationResponseDTO;
 import com.example.codebase.domain.location.entity.Location;
 import com.example.codebase.domain.location.repository.LocationRepository;
 import com.example.codebase.domain.member.entity.Member;
@@ -32,7 +32,7 @@ public class LocationService {
   }
 
   @Transactional
-  public ResponseLocationDTO createLocation(CreateLocationDTO dto, String username) {
+  public LocationResponseDTO createLocation(LocationCreateDTO dto, String username) {
     Member member =
         memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
@@ -40,11 +40,11 @@ public class LocationService {
 
     locationRepository.save(location);
 
-    return ResponseLocationDTO.of(location);
+    return LocationResponseDTO.of(location);
   }
 
   @Transactional(readOnly = true)
-  public ResponseLocationDTO getLocation(
+  public LocationResponseDTO getLocation(
       Long locationId, int page, int size, String sortDirection) {
     Location location =
         locationRepository

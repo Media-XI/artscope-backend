@@ -9,11 +9,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.codebase.domain.auth.WithMockCustomUser;
-import com.example.codebase.domain.exhibition.dto.CreateEventScheduleDTO;
-import com.example.codebase.domain.exhibition.dto.CreateExhibitionDTO;
+import com.example.codebase.domain.exhibition.dto.EventScheduleCreateDTO;
+import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
 import com.example.codebase.domain.exhibition.dto.ExhibitionMediaCreateDTO;
-import com.example.codebase.domain.exhibition.dto.SearchExhibitionDTO;
-import com.example.codebase.domain.exhibition.dto.UpdateExhibitionDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionSearchDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionUpdateDTO;
 import com.example.codebase.domain.exhibition.entity.EventSchedule;
 import com.example.codebase.domain.exhibition.entity.EventType;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
@@ -212,11 +212,11 @@ class ExhibitionControllerTest {
     return locationRepository.save(location);
   }
 
-  public CreateExhibitionDTO mockCreateExhibitionDTO() {
+  public ExhbitionCreateDTO mockCreateExhibitionDTO() {
     return mockCreateExhibitionDTO(1);
   }
 
-  public CreateExhibitionDTO mockCreateExhibitionDTO(int scheduleSize) {
+  public ExhbitionCreateDTO mockCreateExhibitionDTO(int scheduleSize) {
     ExhibitionMediaCreateDTO thumbnailDTO = new ExhibitionMediaCreateDTO();
     thumbnailDTO.setMediaType(ExhibtionMediaType.image.name());
     thumbnailDTO.setMediaUrl("http://localhost/");
@@ -225,9 +225,9 @@ class ExhibitionControllerTest {
     mediaCreateDTO.setMediaType(ExhibtionMediaType.image.name());
     mediaCreateDTO.setMediaUrl("http://localhost/");
 
-    List<CreateEventScheduleDTO> scuheduleDTOs = new ArrayList<>();
+    List<EventScheduleCreateDTO> scuheduleDTOs = new ArrayList<>();
     for (int i = 0; i < scheduleSize; i++) {
-      CreateEventScheduleDTO scuheduleDTO = new CreateEventScheduleDTO();
+      EventScheduleCreateDTO scuheduleDTO = new EventScheduleCreateDTO();
       scuheduleDTO.setEventDate(LocalDateTime.now().plusDays(i));
       scuheduleDTO.setStartTime(LocalDateTime.now().plusMinutes(i));
       scuheduleDTO.setEndTime(LocalDateTime.now().plusHours(9).plusMinutes(i));
@@ -236,7 +236,7 @@ class ExhibitionControllerTest {
       scuheduleDTOs.add(scuheduleDTO);
     }
 
-    CreateExhibitionDTO dto = new CreateExhibitionDTO();
+    ExhbitionCreateDTO dto = new ExhbitionCreateDTO();
     dto.setTitle("이벤트 제목");
     dto.setDescription("이벤트 설명");
     dto.setPrice(10000);
@@ -261,7 +261,7 @@ class ExhibitionControllerTest {
   public void 이벤트_등록() throws Exception {
     createOrLoadMember("user", "ROLE_CURATOR");
 
-    CreateExhibitionDTO dto = mockCreateExhibitionDTO();
+    ExhbitionCreateDTO dto = mockCreateExhibitionDTO();
 
     MockMultipartFile dtoFile =
         new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
@@ -291,7 +291,7 @@ class ExhibitionControllerTest {
   public void 스케줄이_없는_이벤트_등록() throws Exception {
     createOrLoadMember("user", "ROLE_CURATOR");
 
-    CreateExhibitionDTO dto = mockCreateExhibitionDTO(0);
+    ExhbitionCreateDTO dto = mockCreateExhibitionDTO(0);
 
     MockMultipartFile dtoFile =
         new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
@@ -321,7 +321,7 @@ class ExhibitionControllerTest {
   public void 스케줄이_5개인_이벤트_등록() throws Exception {
     createOrLoadMember("user", "ROLE_CURATOR");
 
-    CreateExhibitionDTO dto = mockCreateExhibitionDTO(5);
+    ExhbitionCreateDTO dto = mockCreateExhibitionDTO(5);
 
     MockMultipartFile dtoFile =
         new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
@@ -351,10 +351,10 @@ class ExhibitionControllerTest {
   public void 스케줄이_시작시간이_더_빠른경우_이벤트등록() throws Exception {
     createOrLoadMember("user", "ROLE_CURATOR");
 
-    CreateExhibitionDTO dto = mockCreateExhibitionDTO(1);
-    CreateEventScheduleDTO createEventScheduleDTO = dto.getSchedule().get(0);
-    createEventScheduleDTO.setEndTime(LocalDateTime.now().minusDays(1));
-    createEventScheduleDTO.setStartTime(LocalDateTime.now());
+    ExhbitionCreateDTO dto = mockCreateExhibitionDTO(1);
+    EventScheduleCreateDTO eventScheduleCreateDTO = dto.getSchedule().get(0);
+    eventScheduleCreateDTO.setEndTime(LocalDateTime.now().minusDays(1));
+    eventScheduleCreateDTO.setStartTime(LocalDateTime.now());
 
     MockMultipartFile dtoFile =
         new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
@@ -386,8 +386,8 @@ class ExhibitionControllerTest {
     createOrLoadExhibition(3);
 
     //    createMockLocation();
-    SearchExhibitionDTO searchExhibitionDTO =
-        SearchExhibitionDTO.builder()
+    ExhibitionSearchDTO exhibitionSearchDTO =
+        ExhibitionSearchDTO.builder()
             .startDate(LocalDate.now())
             .endDate(LocalDate.now().plusMonths(1))
             .eventType(EventType.STANDARD.name())
@@ -401,7 +401,7 @@ class ExhibitionControllerTest {
         .perform(
             get("/api/exhibitions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(searchExhibitionDTO))
+                .content(objectMapper.writeValueAsString(exhibitionSearchDTO))
                 .param("page", String.valueOf(page))
                 .param("size", String.valueOf(size))
                 .param("sortDirection", sortDirection))
@@ -416,7 +416,7 @@ class ExhibitionControllerTest {
     createOrLoadMember("testid", "ROLE_CURATOR");
     Exhibition exhibition = createOrLoadExhibition();
 
-    UpdateExhibitionDTO dto = new UpdateExhibitionDTO();
+    ExhibitionUpdateDTO dto = new ExhibitionUpdateDTO();
     dto.setTitle("수정된 제목");
     dto.setDescription("수정된 설명 꽁자");
 
@@ -436,7 +436,7 @@ class ExhibitionControllerTest {
     createOrLoadMember("testid", "ROLE_CURATOR");
     Exhibition exhibition = createOrLoadExhibition();
 
-    UpdateExhibitionDTO dto = new UpdateExhibitionDTO();
+    ExhibitionUpdateDTO dto = new ExhibitionUpdateDTO();
     dto.setPrice(-10000);
 
     mockMvc
@@ -455,7 +455,7 @@ class ExhibitionControllerTest {
     createOrLoadMember("user", "ROLE_CURATOR");
     Exhibition exhibition = createOrLoadExhibition(); // testid 사용자가 만듬
 
-    UpdateExhibitionDTO dto = new UpdateExhibitionDTO();
+    ExhibitionUpdateDTO dto = new ExhibitionUpdateDTO();
     dto.setTitle("수정된 제목");
     dto.setDescription("수정된 설명");
     dto.setPrice(3200);
@@ -488,8 +488,8 @@ class ExhibitionControllerTest {
     createOrLoadExhibition(2);
     createOrLoadExhibition(3);
 
-    SearchExhibitionDTO searchExhibitionDTO =
-        SearchExhibitionDTO.builder()
+    ExhibitionSearchDTO exhibitionSearchDTO =
+        ExhibitionSearchDTO.builder()
             .startDate(LocalDate.now())
             .endDate(LocalDate.now())
             .eventType(EventType.STANDARD.name())
@@ -503,7 +503,7 @@ class ExhibitionControllerTest {
         .perform(
             get("/api/exhibitions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(searchExhibitionDTO))
+                .content(objectMapper.writeValueAsString(exhibitionSearchDTO))
                 .param("page", String.valueOf(page))
                 .param("size", String.valueOf(size))
                 .param("sortDirection", sortDirection))
@@ -518,8 +518,8 @@ class ExhibitionControllerTest {
     createOrLoadExhibition(2);
     createOrLoadExhibition(3);
 
-    SearchExhibitionDTO searchExhibitionDTO =
-        SearchExhibitionDTO.builder()
+    ExhibitionSearchDTO exhibitionSearchDTO =
+        ExhibitionSearchDTO.builder()
             .startDate(LocalDate.now())
             .endDate(LocalDate.now().minusDays(1))
             .eventType(EventType.STANDARD.name())
@@ -533,7 +533,7 @@ class ExhibitionControllerTest {
         .perform(
             get("/api/exhibitions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(searchExhibitionDTO))
+                .content(objectMapper.writeValueAsString(exhibitionSearchDTO))
                 .param("page", String.valueOf(page))
                 .param("size", String.valueOf(size))
                 .param("sortDirection", sortDirection))

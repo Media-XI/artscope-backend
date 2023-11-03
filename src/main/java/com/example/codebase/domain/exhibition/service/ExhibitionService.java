@@ -1,15 +1,15 @@
 package com.example.codebase.domain.exhibition.service;
 
 import com.example.codebase.controller.dto.PageInfo;
-import com.example.codebase.domain.exhibition.dto.CreateEventScheduleDTO;
-import com.example.codebase.domain.exhibition.dto.CreateExhibitionDTO;
+import com.example.codebase.domain.exhibition.dto.EventScheduleCreateDTO;
+import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionIntroduceResponseDTO;
 import com.example.codebase.domain.exhibition.dto.ExhibitionMediaCreateDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionPageInfoResponseDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionResponseDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionSearchDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionUpdateDTO;
 import com.example.codebase.domain.exhibition.dto.ParticipantInformationDTO;
-import com.example.codebase.domain.exhibition.dto.ResponseExhibitionDTO;
-import com.example.codebase.domain.exhibition.dto.ResponseExhibitionIntroduceDTO;
-import com.example.codebase.domain.exhibition.dto.ResponseExhibitionPageInfoDTO;
-import com.example.codebase.domain.exhibition.dto.SearchExhibitionDTO;
-import com.example.codebase.domain.exhibition.dto.UpdateExhibitionDTO;
 import com.example.codebase.domain.exhibition.entity.EventSchedule;
 import com.example.codebase.domain.exhibition.entity.EventType;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
@@ -63,7 +63,7 @@ public class ExhibitionService {
   }
 
   @Transactional
-  public ResponseExhibitionDTO createExhibition(CreateExhibitionDTO dto, String username) {
+  public ExhibitionResponseDTO createExhibition(ExhbitionCreateDTO dto, String username) {
     Member member =
         memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
@@ -86,7 +86,7 @@ public class ExhibitionService {
       throw new RuntimeException("스케쥴을 등록해주세요.");
     }
 
-    CreateEventScheduleDTO scheduleDTO = dto.getSchedule().get(0);
+    EventScheduleCreateDTO scheduleDTO = dto.getSchedule().get(0);
     // 장소 찾기
     Location location =
         locationRepository
@@ -94,16 +94,16 @@ public class ExhibitionService {
             .orElseThrow(() -> new NotFoundException("장소를 찾을 수 없습니다."));
 
     // 이벤트 스케쥴 등록
-    for (CreateEventScheduleDTO schedule : dto.getSchedule()) {
+    for (EventScheduleCreateDTO schedule : dto.getSchedule()) {
       createEventSchedule(schedule, location, exhibition);
     }
 
-    return ResponseExhibitionDTO.from(exhibition);
+    return ExhibitionResponseDTO.from(exhibition);
   }
 
   @Transactional
   public void createEventSchedule(
-      Long exhibitionId, CreateEventScheduleDTO scheduleDTO, String username) {
+      Long exhibitionId, EventScheduleCreateDTO scheduleDTO, String username) {
     Member member =
         memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
@@ -120,7 +120,7 @@ public class ExhibitionService {
   }
 
   public void createEventSchedule(
-      CreateEventScheduleDTO schedule, Location location, Exhibition exhibition) {
+      EventScheduleCreateDTO schedule, Location location, Exhibition exhibition) {
     schedule.checkTimeValidity();
 
     EventSchedule eventSchedule = EventSchedule.from(schedule);
@@ -147,11 +147,11 @@ public class ExhibitionService {
   }
 
   @Transactional(readOnly = true)
-  public ResponseExhibitionPageInfoDTO getAllExhibition(
-      SearchExhibitionDTO searchExhibitionDTO, int page, int size, String sortDirection) {
+  public ExhibitionPageInfoResponseDTO getAllExhibition(
+      ExhibitionSearchDTO exhibitionSearchDTO, int page, int size, String sortDirection) {
 
-    searchExhibitionDTO.repeatTimeValidity();
-    SearchEventType searchEventType = SearchEventType.create(searchExhibitionDTO.getEventType());
+    exhibitionSearchDTO.repeatTimeValidity();
+    SearchEventType searchEventType = SearchEventType.create(exhibitionSearchDTO.getEventType());
 
     Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
     PageRequest pageRequest = PageRequest.of(page, size, sort);
@@ -160,12 +160,12 @@ public class ExhibitionService {
     if (searchEventType == SearchEventType.ALL) {
       eventSchedules =
           eventScheduleRepository.findByStartAndEndDate(
-              searchExhibitionDTO.getStartDate(), searchExhibitionDTO.getEndDate(), pageRequest);
+              exhibitionSearchDTO.getStartDate(), exhibitionSearchDTO.getEndDate(), pageRequest);
     } else {
       eventSchedules =
           eventScheduleRepository.findByStartAndEndDate(
-              searchExhibitionDTO.getStartDate(),
-              searchExhibitionDTO.getEndDate(),
+              exhibitionSearchDTO.getStartDate(),
+              exhibitionSearchDTO.getEndDate(),
               EventType.valueOf(searchEventType.name()),
               pageRequest);
     }
@@ -173,31 +173,31 @@ public class ExhibitionService {
     PageInfo pageInfo =
         PageInfo.of(page, size, eventSchedules.getTotalPages(), eventSchedules.getTotalElements());
 
-    List<ResponseExhibitionDTO> dtos = new ArrayList<>();
+    List<ExhibitionResponseDTO> dtos = new ArrayList<>();
     for (int i = 0; i < eventSchedules.getContent().size(); i++) {
       Exhibition exhibition =
           exhibitionRepository
               .findById(eventSchedules.getContent().get(i).getExhibition().getId())
               .orElseThrow();
-      ResponseExhibitionDTO dto = ResponseExhibitionDTO.from(exhibition);
+      ExhibitionResponseDTO dto = ExhibitionResponseDTO.from(exhibition);
       dtos.add(dto);
     }
-    return ResponseExhibitionPageInfoDTO.of(dtos, pageInfo);
+    return ExhibitionPageInfoResponseDTO.of(dtos, pageInfo);
   }
 
   @Transactional(readOnly = true)
-  public ResponseExhibitionIntroduceDTO getExhibitionDetail(Long exhibitionId) {
+  public ExhibitionIntroduceResponseDTO getExhibitionDetail(Long exhibitionId) {
     Exhibition exhibition =
         exhibitionRepository
             .findById(exhibitionId)
             .orElseThrow(() -> new NotFoundException("이벤트를 찾을 수 없습니다."));
 
-    return ResponseExhibitionIntroduceDTO.from(exhibition);
+    return ExhibitionIntroduceResponseDTO.from(exhibition);
   }
 
   @Transactional
-  public ResponseExhibitionIntroduceDTO updateExhibition(
-      Long exhibitionId, UpdateExhibitionDTO dto, String username) {
+  public ExhibitionIntroduceResponseDTO updateExhibition(
+      Long exhibitionId, ExhibitionUpdateDTO dto, String username) {
     Exhibition exhibition =
         exhibitionRepository
             .findById(exhibitionId)
@@ -212,7 +212,7 @@ public class ExhibitionService {
 
     exhibition.update(dto);
 
-    return ResponseExhibitionIntroduceDTO.from(exhibition);
+    return ExhibitionIntroduceResponseDTO.from(exhibition);
   }
 
   @Transactional

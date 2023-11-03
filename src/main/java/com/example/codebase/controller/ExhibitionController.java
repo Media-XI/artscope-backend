@@ -1,12 +1,12 @@
 package com.example.codebase.controller;
 
-import com.example.codebase.domain.exhibition.dto.CreateEventScheduleDTO;
-import com.example.codebase.domain.exhibition.dto.CreateExhibitionDTO;
-import com.example.codebase.domain.exhibition.dto.ResponseExhibitionDTO;
-import com.example.codebase.domain.exhibition.dto.ResponseExhibitionIntroduceDTO;
-import com.example.codebase.domain.exhibition.dto.ResponseExhibitionPageInfoDTO;
-import com.example.codebase.domain.exhibition.dto.SearchExhibitionDTO;
-import com.example.codebase.domain.exhibition.dto.UpdateExhibitionDTO;
+import com.example.codebase.domain.exhibition.dto.EventScheduleCreateDTO;
+import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionIntroduceResponseDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionPageInfoResponseDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionResponseDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionSearchDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionUpdateDTO;
 import com.example.codebase.domain.exhibition.service.ExhibitionService;
 import com.example.codebase.domain.image.service.ImageService;
 import com.example.codebase.util.SecurityUtil;
@@ -41,7 +41,7 @@ public class ExhibitionController {
   @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST', 'ROLE_CURATOR')")
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   public ResponseEntity createExhibition(
-      @RequestPart(value = "dto") @Valid CreateExhibitionDTO dto,
+      @RequestPart(value = "dto") @Valid ExhbitionCreateDTO dto,
       @RequestPart(value = "mediaFiles") List<MultipartFile> mediaFiles,
       @RequestPart(value = "thumbnailFile") MultipartFile thumbnailFile)
       throws Exception {
@@ -51,7 +51,7 @@ public class ExhibitionController {
     imageService.mediasUpload(dto, mediaFiles);
     imageService.thumbnailUpload(dto.getThumbnail(), thumbnailFile);
 
-    ResponseExhibitionDTO exhibition = exhibitionService.createExhibition(dto, username);
+    ExhibitionResponseDTO exhibition = exhibitionService.createExhibition(dto, username);
 
     return new ResponseEntity(exhibition, HttpStatus.CREATED);
   }
@@ -60,7 +60,7 @@ public class ExhibitionController {
   @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST', 'ROLE_CURATOR')")
   @PostMapping("/{exhibitionId}/schedule")
   public ResponseEntity createEventSchedule(
-      @PathVariable Long exhibitionId, @RequestBody @Valid CreateEventScheduleDTO dto)
+      @PathVariable Long exhibitionId, @RequestBody @Valid EventScheduleCreateDTO dto)
       throws Exception {
     String username =
         SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
@@ -73,19 +73,19 @@ public class ExhibitionController {
   @ApiOperation(value = "이벤트 기간으로 전체 조회", notes = "해당 기간 범위 안에 이벤트 전체 조회합니다.")
   @GetMapping
   public ResponseEntity getExhibition(
-      @RequestBody @Valid SearchExhibitionDTO searchExhibitionDTO,
+      @RequestBody @Valid ExhibitionSearchDTO exhibitionSearchDTO,
       @PositiveOrZero @RequestParam int page,
       @PositiveOrZero @RequestParam int size,
       @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
-    ResponseExhibitionPageInfoDTO dtos =
-        exhibitionService.getAllExhibition(searchExhibitionDTO, page, size, sortDirection);
+    ExhibitionPageInfoResponseDTO dtos =
+        exhibitionService.getAllExhibition(exhibitionSearchDTO, page, size, sortDirection);
     return new ResponseEntity(dtos, HttpStatus.OK);
   }
 
   @ApiOperation(value = "이벤트 상세 조회", notes = "이벤트를 상세 조회합니다.")
   @GetMapping("/{exhibitionId}")
   public ResponseEntity getExhibitionDetail(@PathVariable Long exhibitionId) {
-    ResponseExhibitionIntroduceDTO exhibition = exhibitionService.getExhibitionDetail(exhibitionId);
+    ExhibitionIntroduceResponseDTO exhibition = exhibitionService.getExhibitionDetail(exhibitionId);
     return new ResponseEntity(exhibition, HttpStatus.OK);
   }
 
@@ -93,12 +93,12 @@ public class ExhibitionController {
   @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST', 'ROLE_CURATOR')")
   @PutMapping("/{exhibitionId}")
   public ResponseEntity updateExhibition(
-      @PathVariable Long exhibitionId, @RequestBody @Valid UpdateExhibitionDTO dto)
+      @PathVariable Long exhibitionId, @RequestBody @Valid ExhibitionUpdateDTO dto)
       throws Exception {
     String username =
         SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
-    ResponseExhibitionIntroduceDTO exhibition =
+    ExhibitionIntroduceResponseDTO exhibition =
         exhibitionService.updateExhibition(exhibitionId, dto, username);
 
     return new ResponseEntity(exhibition, HttpStatus.OK);

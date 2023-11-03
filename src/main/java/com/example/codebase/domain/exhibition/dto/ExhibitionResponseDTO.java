@@ -18,7 +18,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseExhibitionDTO {
+public class ExhibitionResponseDTO {
   private Long id;
 
   private String title;
@@ -35,7 +35,7 @@ public class ResponseExhibitionDTO {
 
   private EventType eventType;
 
-  private List<ResponseEventScheduleDTO> eventSchedule;
+  private List<EventScheduleResponseDTO> eventSchedule;
 
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime createdTime;
@@ -43,7 +43,7 @@ public class ResponseExhibitionDTO {
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime updatedTime;
 
-  public static ResponseExhibitionDTO from(Exhibition exhibition) {
+  public static ExhibitionResponseDTO from(Exhibition exhibition) {
     List<ExhibitionMedia> medias = exhibition.getExhibitionMedias();
 
     // 썸네일
@@ -54,12 +54,12 @@ public class ResponseExhibitionDTO {
     List<ExhibitionMediaResponseDTO> exhibitionMediaResponseDTOS =
         medias.stream().skip(1).map(ExhibitionMediaResponseDTO::from).collect(Collectors.toList());
 
-    List<ResponseEventScheduleDTO> eventScheduleDTOS =
+    List<EventScheduleResponseDTO> eventScheduleDTOS =
         exhibition.getEventSchedules().stream()
-            .map(ResponseEventScheduleDTO::from)
+            .map(EventScheduleResponseDTO::from)
             .collect(Collectors.toList());
 
-    return ResponseExhibitionDTO.builder()
+    return ExhibitionResponseDTO.builder()
         .id(exhibition.getId())
         .title(exhibition.getTitle())
         .author(exhibition.getMember().getName())

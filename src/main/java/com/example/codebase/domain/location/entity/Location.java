@@ -1,7 +1,6 @@
 package com.example.codebase.domain.location.entity;
 
-import com.example.codebase.domain.exhibition.entity.Exhibition;
-import com.example.codebase.domain.location.dto.CreateLocationDTO;
+import com.example.codebase.domain.location.dto.LocationCreateDTO;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -53,7 +52,7 @@ public class Location {
   @Column(name = "sns_url", nullable = false, length = 255)
   private String snsUrl;
 
-  public static Location of (CreateLocationDTO dto) {
+  public static Location of(LocationCreateDTO dto) {
     return Location.builder()
         .latitude(dto.getLatitude())
         .longitude(dto.getLongitude())

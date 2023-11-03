@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UpdateExhibitionDTO {
+public class ExhibitionUpdateDTO {
 
   @Parameter(required = false)
   private String title;

@@ -9,7 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @Setter
-public class CreateEventScheduleDTO {
+public class EventScheduleCreateDTO {
 
   @NotBlank(message = "날짜 지정은 필수입니다.")
   @DateTimeFormat(pattern = "yyyy-MM-dd")

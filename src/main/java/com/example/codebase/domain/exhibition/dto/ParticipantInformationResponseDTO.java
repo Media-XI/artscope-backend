@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseParticipantInformationDTO {
+public class ParticipantInformationResponseDTO {
 
   private String username;
 
@@ -16,9 +16,9 @@ public class ResponseParticipantInformationDTO {
 
   // TODO : 뭐가 더 필요하지..
 
-  public static ResponseParticipantInformationDTO from(
+  public static ParticipantInformationResponseDTO from(
       ExhibitionParticipant exhibitionParticipant) {
-    return ResponseParticipantInformationDTO.builder()
+    return ParticipantInformationResponseDTO.builder()
         .username(exhibitionParticipant.getMember().getUsername())
         .name(exhibitionParticipant.getMember().getName())
         .build();

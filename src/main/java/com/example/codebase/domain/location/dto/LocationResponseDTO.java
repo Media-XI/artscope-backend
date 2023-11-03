@@ -13,7 +13,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseLocationDTO {
+public class LocationResponseDTO {
 
   private Long id;
 
@@ -35,8 +35,8 @@ public class ResponseLocationDTO {
 
   private String snsUrl;
 
-  public static ResponseLocationDTO from(EventSchedule eventSchedule) {
-    return ResponseLocationDTO.builder()
+  public static LocationResponseDTO from(EventSchedule eventSchedule) {
+    return LocationResponseDTO.builder()
         .id(eventSchedule.getLocation().getId())
         .latitude(eventSchedule.getLocation().getLatitude())
         .longitude(eventSchedule.getLocation().getLongitude())
@@ -50,8 +50,8 @@ public class ResponseLocationDTO {
         .build();
   }
 
-  public static ResponseLocationDTO of(Location location) {
-    return ResponseLocationDTO.builder()
+  public static LocationResponseDTO of(Location location) {
+    return LocationResponseDTO.builder()
         .id(location.getId())
         .latitude(location.getLatitude())
         .longitude(location.getLongitude())

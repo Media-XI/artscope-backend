@@ -1,7 +1,7 @@
 package com.example.codebase.controller;
 
-import com.example.codebase.domain.location.dto.CreateLocationDTO;
-import com.example.codebase.domain.location.dto.ResponseLocationDTO;
+import com.example.codebase.domain.location.dto.LocationCreateDTO;
+import com.example.codebase.domain.location.dto.LocationResponseDTO;
 import com.example.codebase.domain.location.service.LocationService;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.annotations.ApiOperation;
@@ -33,21 +33,21 @@ public class LocationController {
   @ApiOperation(value = "특정 장소 추가", notes = "[ADMIN],[ARTIST] 특정 장소에 대한 위치 정보를 생성합니다.")
   @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST')")
   @PostMapping
-  public ResponseEntity createLocation(@RequestBody CreateLocationDTO dto) {
+  public ResponseEntity createLocation(@RequestBody LocationCreateDTO dto) {
     String username =
         SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
-    ResponseLocationDTO location = locationService.createLocation(dto, username);
+    LocationResponseDTO location = locationService.createLocation(dto, username);
     return new ResponseEntity(location, HttpStatus.CREATED);
   }
 
   @ApiOperation(value = "특정 장소 조회", notes = "특정 장소에 대한 위치 정보를 조회합니다.")
   @GetMapping("/{locationId}")
-  public ResponseEntity<ResponseLocationDTO> getLocation(
+  public ResponseEntity<LocationResponseDTO> getLocation(
       @PathVariable("locationId") Long locationId,
       @PositiveOrZero @RequestParam int page,
       @PositiveOrZero @RequestParam int size,
       @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
-    ResponseLocationDTO location =
+    LocationResponseDTO location =
         locationService.getLocation(locationId, page, size, sortDirection);
     return new ResponseEntity<>(location, HttpStatus.OK);
   }
