@@ -27,6 +27,7 @@ import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.s3.S3Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.findify.s3mock.S3Mock;
 import java.io.File;
 import java.io.IOException;
@@ -97,6 +98,7 @@ class ArtworkControllerTest {
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
+        objectMapper.registerModule(new JavaTimeModule());
     }
 
     @BeforeAll

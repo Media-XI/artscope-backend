@@ -1,5 +1,7 @@
 package com.example.codebase.domain.image.service;
 
+import com.example.codebase.domain.agoda.dto.AgoraCreateDTO;
+import com.example.codebase.domain.agoda.dto.AgoraMediaCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
 import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
@@ -169,5 +171,52 @@ public class ImageService {
         }
         String savedUrl = s3Service.saveUploadFile(thumbnailFile);
         thumbnailDto.setMediaUrl(savedUrl);
+    }
+
+    public void mediasUpload(AgoraCreateDTO dto, List<MultipartFile> mediaFiles) throws IOException {
+        if (dto.getMedias() == null) {
+            return;
+        }
+
+        if (mediaFiles.size() > Integer.valueOf(fileCount)) {
+            throw new RuntimeException("파일은 최대 " + fileCount + "개까지 업로드 가능합니다.");
+        }
+
+        if (mediaFiles.size() == 0) {
+            throw new RuntimeException("파일을 업로드 해주세요.");
+        }
+
+        for (int i = 0; i < dto.getMedias().size(); i++) {
+            AgoraMediaCreateDTO mediaDto = dto.getMedias().get(i);
+
+            if (mediaDto.getMediaType().equals("url")) {
+                String youtubeUrl = new String(mediaFiles.get(i).getBytes(), "UTF-8");
+
+                if (!youtubeUrl.matches("^(https?\\:\\/\\/)?(www\\.)?(youtube\\.com|youtu\\.?be)\\/.+$")) {
+                    throw new RuntimeException(
+                            "유튜브 링크 형식이 올바르지 않습니다. ex) https://www.youtube.com/watch?v=XXXXXXXXXXX 또는 https://youtu.be/XXXXXXXXXXX");
+                }
+
+                mediaDto.setMediaUrl(youtubeUrl);
+            } else {
+                String savedUrl = s3Service.saveUploadFile(mediaFiles.get(i));
+                mediaDto.setMediaUrl(savedUrl);
+            }
+        }
+    }
+
+    public void thumbnailUpload(AgoraCreateDTO dto, MultipartFile thumbnailFile) throws IOException {
+
+        if (dto.getThumbnail() == null) {
+            return;
+        }
+
+        String mediaType = dto.getThumbnail().getMediaType();
+
+        if (!mediaType.equals("image") && FileUtil.validateImageFile(thumbnailFile.getInputStream())) {
+            throw new RuntimeException("썸네일은 이미지 파일만 업로드 가능합니다.");
+        }
+        String savedUrl = s3Service.saveUploadFile(thumbnailFile);
+        dto.getThumbnail().setMediaUrl(savedUrl);
     }
 }
