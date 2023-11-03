@@ -8,7 +8,5 @@ CREATE TABLE agora_opinion
     agora_id         BIGINT     NOT NULL,
     author_id        BINARY(16) NOT NULL,
     FOREIGN KEY (agora_id) REFERENCES agora (agora_id),
-    FOREIGN KEY (author_id) REFERENCES agora_participant (member_id)
+    FOREIGN KEY (agora_id, author_id) REFERENCES agora_participant (agora_id, participant_id)
 )
-
-
