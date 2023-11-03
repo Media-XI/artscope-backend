@@ -1,5 +1,7 @@
 package com.example.codebase.domain.location.dto;
 
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
@@ -10,10 +12,14 @@ import lombok.Setter;
 @Setter
 public class CreateLocationDTO {
 
-  @NotEmpty(message = "위치 정보는 필수입니다.")
+  @NotEmpty(message = "위도 정보는 필수입니다.")
+  @DecimalMin(value = "-90", message = "위도는 최소 -90도부터 가능합니다.")
+  @DecimalMax(value = "90", message = "위도는 최대 90도까지 가능합니다.")
   private Double latitude;
 
-  @NotEmpty(message = "위치 정보는 필수입니다.")
+  @NotEmpty(message = "경도 정보는 필수입니다.")
+  @DecimalMin(value = "-180", message = "경도는 최소 -180도부터 가능합니다.")
+  @DecimalMax(value = "180", message = "경도는 최대 180도까지 가능합니다.")
   private Double longitude;
 
   @NotEmpty(message = "주소는 필수입니다.")
