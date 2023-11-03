@@ -1,6 +1,5 @@
 package com.example.codebase.domain.location.service;
 
-import com.example.codebase.domain.exhibition.entity.Exhibition;
 import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
 import com.example.codebase.domain.location.dto.CreateLocationDTO;
 import com.example.codebase.domain.location.dto.ResponseLocationDTO;
@@ -10,9 +9,6 @@ import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,33 +51,17 @@ public class LocationService {
             .findById(locationId)
             .orElseThrow(() -> new RuntimeException("존재하지 않는 장소입니다."));
 
-    Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
-    PageRequest pageRequest = PageRequest.of(page, size, sort);
-    Page<Exhibition> exhibitions;
+    throw new RuntimeException("getLocation 구현 안됨"); // TODO: 현재 장소에 대한 정보 구현 필요
     //
-    //    PageInfo pageInfo =
-    //        PageInfo.of(page, size, exhibitions.getTotalPages(), exhibitions.getTotalElements());
-
-    return null;
-
     //    Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
     //    PageRequest pageRequest = PageRequest.of(page, size, sort);
     //    Page<Exhibition> exhibitions;
     //
-    //    exhibitions = exhibitionRepository.findByLocation(location.getId(), pageRequest);
+    //        PageInfo pageInfo =
+    //            PageInfo.of(page, size, exhibitions.getTotalPages(),
+    // exhibitions.getTotalElements());
     //
-    //    PageInfo pageInfo =
-    //        PageInfo.of(page, size, exhibitions.getTotalPages(), exhibitions.getTotalElements());
-    //
-    //    List<ResponseExhibitionDTO> exhibitionDtos =
-    //        exhibitions.getContent().stream()
-    //            .map(ResponseExhibitionDTO::from)
-    //            .collect(Collectors.toList());
-    //
-    //    ResponseExhibitionPageInfoDTO responseExhibitionPageInfoDto =
-    //        ResponseExhibitionPageInfoDTO.of(exhibitionDtos, pageInfo);
-    //    // return ResponseLocationDTO.of(location, responseExhibitionPageInfoDto);
-    //    return ResponseLocationDTO.of(location);
+
   }
 
   @Transactional
@@ -89,6 +69,6 @@ public class LocationService {
     Member member =
         memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
-    throw new RuntimeException("deleteLocation 구현 안됨");
+    throw new RuntimeException("deleteLocation 구현 안됨"); // TODO: 현재 장소에 대한 삭제 로직 구현 필요
   }
 }
