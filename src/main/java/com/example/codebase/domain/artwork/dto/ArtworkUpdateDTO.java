@@ -1,11 +1,9 @@
 package com.example.codebase.domain.artwork.dto;
 
+import java.util.List;
+import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-import java.util.List;
 
 @Getter
 @Setter

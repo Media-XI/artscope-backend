@@ -10,13 +10,11 @@ import com.example.codebase.domain.post.dto.PostsResponseDTO;
 import com.example.codebase.domain.post.entity.Post;
 import com.example.codebase.domain.post.repository.PostRepository;
 import com.example.codebase.domain.search.dto.SearchResponseDTO;
-import java.awt.print.Pageable;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service

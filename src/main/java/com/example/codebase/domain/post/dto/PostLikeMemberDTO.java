@@ -1,9 +1,11 @@
 package com.example.codebase.domain.post.dto;
 
 import com.example.codebase.domain.member.entity.Member;
-import lombok.*;
-
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 
 @NoArgsConstructor

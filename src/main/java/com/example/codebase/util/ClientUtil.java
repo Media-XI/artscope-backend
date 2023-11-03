@@ -3,9 +3,8 @@ package com.example.codebase.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
 
 public class ClientUtil {
 
@@ -37,8 +36,7 @@ public class ClientUtil {
         return ip;
     }
 
-    public static StringBuilder jsonBodyForLogging(Object body) throws IOException
-    {
+    public static StringBuilder jsonBodyForLogging(Object body) throws IOException {
         StringBuilder stringBuilder = new StringBuilder("Body = \n");
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
         String jsonInString = null;
@@ -47,17 +45,14 @@ public class ClientUtil {
             return stringBuilder.append("null");
         }
 
-        try
-        {
+        try {
             jsonInString = objectMapper.writerWithDefaultPrettyPrinter()
                     .writeValueAsString(body)
                     .replaceAll("\"password\" : \"[^\"]*\"", "\"password\" : \"*****\"")
                     .replaceAll("\"accessToken\" : \"[^\"]*\"", "\"accessToken\" : \"*****\"")
                     .replaceAll("\"refreshToken\" : \"[^\"]*\"", "\"refreshToken\" : \"*****\"");
 
-        }
-        catch (JsonProcessingException e)
-        {
+        } catch (JsonProcessingException e) {
             throw new RuntimeException(e.getMessage());
         }
 

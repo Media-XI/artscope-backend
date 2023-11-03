@@ -22,31 +22,31 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ExhibitionParticipant {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "exhibition_participant_id")
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "exhibition_participant_id")
+    private Long id;
 
-  @ManyToOne
-  @JoinColumn(name = "member_id")
-  private Member member;
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private Member member;
 
-  @ManyToOne
-  @JoinColumn(name = "event_schedule_id", nullable = false)
-  private EventSchedule eventSchedule;
+    @ManyToOne
+    @JoinColumn(name = "event_schedule_id", nullable = false)
+    private EventSchedule eventSchedule;
 
-  public static ExhibitionParticipant of(Member member, EventSchedule eventSchedule){
-    return ExhibitionParticipant.builder()
-        .member(member)
-        .eventSchedule(eventSchedule)
-        .build();
-  }
+    public static ExhibitionParticipant of(Member member, EventSchedule eventSchedule) {
+        return ExhibitionParticipant.builder()
+                .member(member)
+                .eventSchedule(eventSchedule)
+                .build();
+    }
 
-  public void setMember(Member member) {
-    this.member = member;
-  }
+    public void setMember(Member member) {
+        this.member = member;
+    }
 
-  public void setEventSchedule(EventSchedule eventSchedule) {
-    this.eventSchedule = eventSchedule;
-  }
+    public void setEventSchedule(EventSchedule eventSchedule) {
+        this.eventSchedule = eventSchedule;
+    }
 }

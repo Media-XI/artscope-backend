@@ -12,6 +12,6 @@ public class ExhibitionMediaCreateDTO {
     @NotNull
     private String mediaType;
 
-  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private String mediaUrl;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String mediaUrl;
 }

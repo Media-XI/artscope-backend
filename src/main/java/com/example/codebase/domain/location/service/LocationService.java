@@ -15,60 +15,60 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class LocationService {
 
-  private final LocationRepository locationRepository;
+    private final LocationRepository locationRepository;
 
-  private final ExhibitionRepository exhibitionRepository;
+    private final ExhibitionRepository exhibitionRepository;
 
-  private final MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
-  @Autowired
-  public LocationService(
-      LocationRepository locationRepository,
-      MemberRepository memberRepository,
-      ExhibitionRepository exhibitionRepository) {
-    this.locationRepository = locationRepository;
-    this.memberRepository = memberRepository;
-    this.exhibitionRepository = exhibitionRepository;
-  }
+    @Autowired
+    public LocationService(
+            LocationRepository locationRepository,
+            MemberRepository memberRepository,
+            ExhibitionRepository exhibitionRepository) {
+        this.locationRepository = locationRepository;
+        this.memberRepository = memberRepository;
+        this.exhibitionRepository = exhibitionRepository;
+    }
 
-  @Transactional
-  public LocationResponseDTO createLocation(LocationCreateDTO dto, String username) {
-    Member member =
-        memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+    @Transactional
+    public LocationResponseDTO createLocation(LocationCreateDTO dto, String username) {
+        Member member =
+                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
-    Location location = Location.of(dto);
+        Location location = Location.of(dto);
 
-    locationRepository.save(location);
+        locationRepository.save(location);
 
-    return LocationResponseDTO.of(location);
-  }
+        return LocationResponseDTO.of(location);
+    }
 
-  @Transactional(readOnly = true)
-  public LocationResponseDTO getLocation(
-      Long locationId, int page, int size, String sortDirection) {
-    Location location =
-        locationRepository
-            .findById(locationId)
-            .orElseThrow(() -> new RuntimeException("존재하지 않는 장소입니다."));
+    @Transactional(readOnly = true)
+    public LocationResponseDTO getLocation(
+            Long locationId, int page, int size, String sortDirection) {
+        Location location =
+                locationRepository
+                        .findById(locationId)
+                        .orElseThrow(() -> new RuntimeException("존재하지 않는 장소입니다."));
 
-    throw new RuntimeException("getLocation 구현 안됨"); // TODO: 현재 장소에 대한 정보 구현 필요
-    //
-    //    Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
-    //    PageRequest pageRequest = PageRequest.of(page, size, sort);
-    //    Page<Exhibition> exhibitions;
-    //
-    //        PageInfo pageInfo =
-    //            PageInfo.of(page, size, exhibitions.getTotalPages(),
-    // exhibitions.getTotalElements());
-    //
+        throw new RuntimeException("getLocation 구현 안됨"); // TODO: 현재 장소에 대한 정보 구현 필요
+        //
+        //    Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
+        //    PageRequest pageRequest = PageRequest.of(page, size, sort);
+        //    Page<Exhibition> exhibitions;
+        //
+        //        PageInfo pageInfo =
+        //            PageInfo.of(page, size, exhibitions.getTotalPages(),
+        // exhibitions.getTotalElements());
+        //
 
-  }
+    }
 
-  @Transactional
-  public void deleteLocation(Long locationId, String username) {
-    Member member =
-        memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+    @Transactional
+    public void deleteLocation(Long locationId, String username) {
+        Member member =
+                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
-    throw new RuntimeException("deleteLocation 구현 안됨"); // TODO: 현재 장소에 대한 삭제 로직 구현 필요
-  }
+        throw new RuntimeException("deleteLocation 구현 안됨"); // TODO: 현재 장소에 대한 삭제 로직 구현 필요
+    }
 }

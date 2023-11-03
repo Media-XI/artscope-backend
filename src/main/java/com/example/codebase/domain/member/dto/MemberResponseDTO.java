@@ -3,7 +3,6 @@ package com.example.codebase.domain.member.dto;
 import com.example.codebase.domain.member.entity.Member;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -41,7 +40,7 @@ public class MemberResponseDTO {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdTime;
-//
+    //
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedTime;
 

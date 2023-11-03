@@ -1,7 +1,11 @@
 package com.example.codebase.domain.artwork.dto;
 
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -19,7 +23,7 @@ public class ArtworkMediaResponseDTO {
 
     private String description;
 
-    public static ArtworkMediaResponseDTO from (ArtworkMedia artworkMedia) {
+    public static ArtworkMediaResponseDTO from(ArtworkMedia artworkMedia) {
         return ArtworkMediaResponseDTO.builder()
                 .id(artworkMedia.getId())
                 .mediaType(artworkMedia.getArtworkMediaType().name())

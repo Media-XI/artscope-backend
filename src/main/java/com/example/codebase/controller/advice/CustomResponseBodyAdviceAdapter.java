@@ -1,16 +1,14 @@
 package com.example.codebase.controller.advice;
 
 import com.example.codebase.util.ClientUtil;
+import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdviceAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
-
-import java.io.IOException;
 
 @Slf4j
 @RestControllerAdvice
@@ -21,7 +19,8 @@ public class CustomResponseBodyAdviceAdapter implements ResponseBodyAdvice {
     }
 
     @Override
-    public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
+    public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
+                                  Class selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         try {
             long start = System.currentTimeMillis();
             log.info(ClientUtil.jsonBodyForLogging(body).insert(0, "Response ").toString() + "\n\n");

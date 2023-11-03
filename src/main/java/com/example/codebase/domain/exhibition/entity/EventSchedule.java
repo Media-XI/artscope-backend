@@ -28,71 +28,71 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class EventSchedule {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "event_schedule_id")
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "event_schedule_id")
+    private Long id;
 
-  @Column(name = "event_date")
-  private LocalDateTime eventDate;
+    @Column(name = "event_date")
+    private LocalDateTime eventDate;
 
-  @Column(name = "start_time")
-  private LocalDateTime startTime;
+    @Column(name = "start_time")
+    private LocalDateTime startTime;
 
-  @Column(name = "end_time")
-  private LocalDateTime endTime;
+    @Column(name = "end_time")
+    private LocalDateTime endTime;
 
-  @ManyToOne
-  @JoinColumn(name = "location_id", nullable = false)
-  private Location location;
+    @ManyToOne
+    @JoinColumn(name = "location_id", nullable = false)
+    private Location location;
 
-  @Column(name = "detail_location")
-  private String detailLocation;
+    @Column(name = "detail_location")
+    private String detailLocation;
 
-  @ManyToOne
-  @JoinColumn(name = "event_id", nullable = false)
-  private Exhibition exhibition;
+    @ManyToOne
+    @JoinColumn(name = "event_id", nullable = false)
+    private Exhibition exhibition;
 
-  @Builder.Default
-  @OneToMany(mappedBy = "eventSchedule", cascade = CascadeType.ALL)
-  private List<ExhibitionParticipant> exhibitionParticipants = new ArrayList<>();
+    @Builder.Default
+    @OneToMany(mappedBy = "eventSchedule", cascade = CascadeType.ALL)
+    private List<ExhibitionParticipant> exhibitionParticipants = new ArrayList<>();
 
-  @Column(name = "created_time")
-  private LocalDateTime createdTime;
+    @Column(name = "created_time")
+    private LocalDateTime createdTime;
 
-  @Column(name = "updated_time")
-  private LocalDateTime updatedTime;
+    @Column(name = "updated_time")
+    private LocalDateTime updatedTime;
 
-  public static EventSchedule from(EventScheduleCreateDTO scheduleDTO) {
-    return EventSchedule.builder()
-        .eventDate(scheduleDTO.getEventDate())
-        .startTime(scheduleDTO.getStartTime())
-        .endTime(scheduleDTO.getEndTime())
-        .detailLocation(scheduleDTO.getDetailLocation())
-        .createdTime(LocalDateTime.now())
-        .build();
-  }
+    public static EventSchedule from(EventScheduleCreateDTO scheduleDTO) {
+        return EventSchedule.builder()
+                .eventDate(scheduleDTO.getEventDate())
+                .startTime(scheduleDTO.getStartTime())
+                .endTime(scheduleDTO.getEndTime())
+                .detailLocation(scheduleDTO.getDetailLocation())
+                .createdTime(LocalDateTime.now())
+                .build();
+    }
 
-  // Event 양방향 연관 메소드
-  public void setEvent(Exhibition exhibition) {
-    this.exhibition = exhibition;
-    exhibition.addEventSchedule(this);
-  }
+    // Event 양방향 연관 메소드
+    public void setEvent(Exhibition exhibition) {
+        this.exhibition = exhibition;
+        exhibition.addEventSchedule(this);
+    }
 
-  public Location getLocation() {
-    return this.location;
-  }
+    public Location getLocation() {
+        return this.location;
+    }
 
-  // Location 단방향 연관 메소드
-  public void setLocation(Location location) {
-    this.location = location;
-  }
+    // Location 단방향 연관 메소드
+    public void setLocation(Location location) {
+        this.location = location;
+    }
 
-  public void getDetailLocation(String detailLocation) {
-    this.detailLocation = detailLocation;
-  }
+    public void getDetailLocation(String detailLocation) {
+        this.detailLocation = detailLocation;
+    }
 
-  public void delete() {
-    this.exhibition = null;
-  }
+    public void delete() {
+        this.exhibition = null;
+    }
 }

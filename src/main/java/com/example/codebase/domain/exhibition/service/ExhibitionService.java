@@ -38,233 +38,233 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ExhibitionService {
 
-  private final ExhibitionRepository exhibitionRepository;
+    private final ExhibitionRepository exhibitionRepository;
 
-  private final ExhibitionParticipantRepository exhibitionParticipantRepository;
+    private final ExhibitionParticipantRepository exhibitionParticipantRepository;
 
-  private final EventScheduleRepository eventScheduleRepository;
+    private final EventScheduleRepository eventScheduleRepository;
 
-  private final MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
-  private final LocationRepository locationRepository;
+    private final LocationRepository locationRepository;
 
-  @Autowired
-  public ExhibitionService(
-      ExhibitionRepository exhibitionRepository,
-      ExhibitionParticipantRepository exhibitionParticipantRepository,
-      EventScheduleRepository eventScheduleRepository,
-      MemberRepository memberRepository,
-      LocationRepository locationRepository) {
-    this.exhibitionRepository = exhibitionRepository;
-    this.exhibitionParticipantRepository = exhibitionParticipantRepository;
-    this.eventScheduleRepository = eventScheduleRepository;
-    this.memberRepository = memberRepository;
-    this.locationRepository = locationRepository;
-  }
-
-  @Transactional
-  public ExhibitionResponseDTO createExhibition(ExhbitionCreateDTO dto, String username) {
-    Member member =
-        memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
-
-    // 이벤트 생성
-    Exhibition exhibition = Exhibition.of(dto, member);
-
-    // 썸네일 추가
-    ExhibitionMedia thumbnail = ExhibitionMedia.of(dto.getThumbnail(), exhibition);
-    exhibition.addExhibitionMedia(thumbnail); // 제일 첫번째는 썸네일로
-
-    // 미디어 추가
-    for (ExhibitionMediaCreateDTO mediaCreateDTO : dto.getMedias()) {
-      ExhibitionMedia media = ExhibitionMedia.of(mediaCreateDTO, exhibition);
-      exhibition.addExhibitionMedia(media);
-    }
-    // 이벤트 저장
-    exhibitionRepository.save(exhibition);
-
-    if (dto.getSchedule().size() < 1) {
-      throw new RuntimeException("스케쥴을 등록해주세요.");
+    @Autowired
+    public ExhibitionService(
+            ExhibitionRepository exhibitionRepository,
+            ExhibitionParticipantRepository exhibitionParticipantRepository,
+            EventScheduleRepository eventScheduleRepository,
+            MemberRepository memberRepository,
+            LocationRepository locationRepository) {
+        this.exhibitionRepository = exhibitionRepository;
+        this.exhibitionParticipantRepository = exhibitionParticipantRepository;
+        this.eventScheduleRepository = eventScheduleRepository;
+        this.memberRepository = memberRepository;
+        this.locationRepository = locationRepository;
     }
 
-    EventScheduleCreateDTO scheduleDTO = dto.getSchedule().get(0);
-    // 장소 찾기
-    Location location =
-        locationRepository
-            .findById(scheduleDTO.getLocationId())
-            .orElseThrow(() -> new NotFoundException("장소를 찾을 수 없습니다."));
+    @Transactional
+    public ExhibitionResponseDTO createExhibition(ExhbitionCreateDTO dto, String username) {
+        Member member =
+                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
-    // 이벤트 스케쥴 등록
-    for (EventScheduleCreateDTO schedule : dto.getSchedule()) {
-      createEventSchedule(schedule, location, exhibition);
+        // 이벤트 생성
+        Exhibition exhibition = Exhibition.of(dto, member);
+
+        // 썸네일 추가
+        ExhibitionMedia thumbnail = ExhibitionMedia.of(dto.getThumbnail(), exhibition);
+        exhibition.addExhibitionMedia(thumbnail); // 제일 첫번째는 썸네일로
+
+        // 미디어 추가
+        for (ExhibitionMediaCreateDTO mediaCreateDTO : dto.getMedias()) {
+            ExhibitionMedia media = ExhibitionMedia.of(mediaCreateDTO, exhibition);
+            exhibition.addExhibitionMedia(media);
+        }
+        // 이벤트 저장
+        exhibitionRepository.save(exhibition);
+
+        if (dto.getSchedule().size() < 1) {
+            throw new RuntimeException("스케쥴을 등록해주세요.");
+        }
+
+        EventScheduleCreateDTO scheduleDTO = dto.getSchedule().get(0);
+        // 장소 찾기
+        Location location =
+                locationRepository
+                        .findById(scheduleDTO.getLocationId())
+                        .orElseThrow(() -> new NotFoundException("장소를 찾을 수 없습니다."));
+
+        // 이벤트 스케쥴 등록
+        for (EventScheduleCreateDTO schedule : dto.getSchedule()) {
+            createEventSchedule(schedule, location, exhibition);
+        }
+
+        return ExhibitionResponseDTO.from(exhibition);
     }
 
-    return ExhibitionResponseDTO.from(exhibition);
-  }
+    @Transactional
+    public void createEventSchedule(
+            Long exhibitionId, EventScheduleCreateDTO scheduleDTO, String username) {
+        Member member =
+                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
-  @Transactional
-  public void createEventSchedule(
-      Long exhibitionId, EventScheduleCreateDTO scheduleDTO, String username) {
-    Member member =
-        memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+        Exhibition exhibition =
+                exhibitionRepository.findById(exhibitionId).orElseThrow(RuntimeException::new);
 
-    Exhibition exhibition =
-        exhibitionRepository.findById(exhibitionId).orElseThrow(RuntimeException::new);
+        Location location =
+                locationRepository
+                        .findById(scheduleDTO.getLocationId())
+                        .orElseThrow(() -> new NotFoundException("장소를 찾을 수 없습니다."));
 
-    Location location =
-        locationRepository
-            .findById(scheduleDTO.getLocationId())
-            .orElseThrow(() -> new NotFoundException("장소를 찾을 수 없습니다."));
-
-    // 이벤트 스케쥴 최초 등록
-    createEventSchedule(scheduleDTO, location, exhibition);
-  }
-
-  public void createEventSchedule(
-      EventScheduleCreateDTO schedule, Location location, Exhibition exhibition) {
-    schedule.checkTimeValidity();
-
-    EventSchedule eventSchedule = EventSchedule.from(schedule);
-    eventSchedule.setLocation(location);
-    eventSchedule.setEvent(exhibition);
-
-    List<ParticipantInformationDTO> participants =
-        schedule.getParticipants() != null ? schedule.getParticipants() : Collections.emptyList();
-    for (ParticipantInformationDTO participant : participants) {
-      ExhibitionParticipant exhibitionParticipant = new ExhibitionParticipant();
-
-      if (participant.getUsername() != null) {
-        Member participantMember =
-            memberRepository
-                .findByUsername(participant.getUsername())
-                .orElseThrow(NotFoundMemberException::new);
-        exhibitionParticipant.setMember(participantMember);
-      }
-      exhibitionParticipant.setEventSchedule(eventSchedule);
-      exhibitionParticipantRepository.save(exhibitionParticipant);
+        // 이벤트 스케쥴 최초 등록
+        createEventSchedule(scheduleDTO, location, exhibition);
     }
 
-    eventScheduleRepository.save(eventSchedule);
-  }
+    public void createEventSchedule(
+            EventScheduleCreateDTO schedule, Location location, Exhibition exhibition) {
+        schedule.checkTimeValidity();
 
-  @Transactional(readOnly = true)
-  public ExhibitionPageInfoResponseDTO getAllExhibition(
-      ExhibitionSearchDTO exhibitionSearchDTO, int page, int size, String sortDirection) {
+        EventSchedule eventSchedule = EventSchedule.from(schedule);
+        eventSchedule.setLocation(location);
+        eventSchedule.setEvent(exhibition);
 
-    exhibitionSearchDTO.repeatTimeValidity();
-    SearchEventType searchEventType = SearchEventType.create(exhibitionSearchDTO.getEventType());
+        List<ParticipantInformationDTO> participants =
+                schedule.getParticipants() != null ? schedule.getParticipants() : Collections.emptyList();
+        for (ParticipantInformationDTO participant : participants) {
+            ExhibitionParticipant exhibitionParticipant = new ExhibitionParticipant();
 
-    Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
-    PageRequest pageRequest = PageRequest.of(page, size, sort);
+            if (participant.getUsername() != null) {
+                Member participantMember =
+                        memberRepository
+                                .findByUsername(participant.getUsername())
+                                .orElseThrow(NotFoundMemberException::new);
+                exhibitionParticipant.setMember(participantMember);
+            }
+            exhibitionParticipant.setEventSchedule(eventSchedule);
+            exhibitionParticipantRepository.save(exhibitionParticipant);
+        }
 
-    Page<EventSchedule> eventSchedules;
-    if (searchEventType == SearchEventType.ALL) {
-      eventSchedules =
-          eventScheduleRepository.findByStartAndEndDate(
-              exhibitionSearchDTO.getStartDate(), exhibitionSearchDTO.getEndDate(), pageRequest);
-    } else {
-      eventSchedules =
-          eventScheduleRepository.findByStartAndEndDate(
-              exhibitionSearchDTO.getStartDate(),
-              exhibitionSearchDTO.getEndDate(),
-              EventType.valueOf(searchEventType.name()),
-              pageRequest);
+        eventScheduleRepository.save(eventSchedule);
     }
 
-    PageInfo pageInfo =
-        PageInfo.of(page, size, eventSchedules.getTotalPages(), eventSchedules.getTotalElements());
+    @Transactional(readOnly = true)
+    public ExhibitionPageInfoResponseDTO getAllExhibition(
+            ExhibitionSearchDTO exhibitionSearchDTO, int page, int size, String sortDirection) {
 
-    List<ExhibitionResponseDTO> dtos = new ArrayList<>();
-    for (int i = 0; i < eventSchedules.getContent().size(); i++) {
-      Exhibition exhibition =
-          exhibitionRepository
-              .findById(eventSchedules.getContent().get(i).getExhibition().getId())
-              .orElseThrow();
-      ExhibitionResponseDTO dto = ExhibitionResponseDTO.from(exhibition);
-      dtos.add(dto);
-    }
-    return ExhibitionPageInfoResponseDTO.of(dtos, pageInfo);
-  }
+        exhibitionSearchDTO.repeatTimeValidity();
+        SearchEventType searchEventType = SearchEventType.create(exhibitionSearchDTO.getEventType());
 
-  @Transactional(readOnly = true)
-  public ExhibitionIntroduceResponseDTO getExhibitionDetail(Long exhibitionId) {
-    Exhibition exhibition =
-        exhibitionRepository
-            .findById(exhibitionId)
-            .orElseThrow(() -> new NotFoundException("이벤트를 찾을 수 없습니다."));
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
 
-    return ExhibitionIntroduceResponseDTO.from(exhibition);
-  }
+        Page<EventSchedule> eventSchedules;
+        if (searchEventType == SearchEventType.ALL) {
+            eventSchedules =
+                    eventScheduleRepository.findByStartAndEndDate(
+                            exhibitionSearchDTO.getStartDate(), exhibitionSearchDTO.getEndDate(), pageRequest);
+        } else {
+            eventSchedules =
+                    eventScheduleRepository.findByStartAndEndDate(
+                            exhibitionSearchDTO.getStartDate(),
+                            exhibitionSearchDTO.getEndDate(),
+                            EventType.valueOf(searchEventType.name()),
+                            pageRequest);
+        }
 
-  @Transactional
-  public ExhibitionIntroduceResponseDTO updateExhibition(
-      Long exhibitionId, ExhibitionUpdateDTO dto, String username) {
-    Exhibition exhibition =
-        exhibitionRepository
-            .findById(exhibitionId)
-            .orElseThrow(() -> new NotFoundException("이벤트를 찾을 수 없습니다."));
+        PageInfo pageInfo =
+                PageInfo.of(page, size, eventSchedules.getTotalPages(), eventSchedules.getTotalElements());
 
-    Member member =
-        memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
-
-    if (!member.equals(exhibition.getMember())) {
-      throw new RuntimeException("이벤트의 작성자가 아닙니다.");
-    }
-
-    exhibition.update(dto);
-
-    return ExhibitionIntroduceResponseDTO.from(exhibition);
-  }
-
-  @Transactional
-  public void deleteExhibition(Long exhibitionId, String username) {
-    Exhibition exhibition =
-        exhibitionRepository
-            .findById(exhibitionId)
-            .orElseThrow(() -> new NotFoundException("이벤트를 찾을 수 없습니다."));
-
-    Member member =
-        memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
-    if (!member.equals(exhibition.getMember())) {
-      throw new RuntimeException("이벤트를 삭제할 권한이 없습니다.");
+        List<ExhibitionResponseDTO> dtos = new ArrayList<>();
+        for (int i = 0; i < eventSchedules.getContent().size(); i++) {
+            Exhibition exhibition =
+                    exhibitionRepository
+                            .findById(eventSchedules.getContent().get(i).getExhibition().getId())
+                            .orElseThrow();
+            ExhibitionResponseDTO dto = ExhibitionResponseDTO.from(exhibition);
+            dtos.add(dto);
+        }
+        return ExhibitionPageInfoResponseDTO.of(dtos, pageInfo);
     }
 
-    exhibition.delete();
-    eventScheduleRepository.deleteAll(exhibition.getEventSchedules());
-  }
+    @Transactional(readOnly = true)
+    public ExhibitionIntroduceResponseDTO getExhibitionDetail(Long exhibitionId) {
+        Exhibition exhibition =
+                exhibitionRepository
+                        .findById(exhibitionId)
+                        .orElseThrow(() -> new NotFoundException("이벤트를 찾을 수 없습니다."));
 
-  @Transactional
-  public void deleteAllEventSchedules(Long exhibitionId, String username) {
-    Exhibition exhibition =
-        exhibitionRepository
-            .findById(exhibitionId)
-            .orElseThrow(() -> new NotFoundException("이벤트를 찾을 수 없습니다."));
-
-    Member member =
-        memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
-
-    if (!member.equals(exhibition.getMember())) {
-      throw new RuntimeException("해당 이벤트의 생성자가 아닙니다.");
+        return ExhibitionIntroduceResponseDTO.from(exhibition);
     }
 
-    List<EventSchedule> eventSchedules = exhibition.getEventSchedules();
-    exhibition.deleteEventSchedules();
+    @Transactional
+    public ExhibitionIntroduceResponseDTO updateExhibition(
+            Long exhibitionId, ExhibitionUpdateDTO dto, String username) {
+        Exhibition exhibition =
+                exhibitionRepository
+                        .findById(exhibitionId)
+                        .orElseThrow(() -> new NotFoundException("이벤트를 찾을 수 없습니다."));
 
-    eventScheduleRepository.deleteAll(eventSchedules);
-  }
+        Member member =
+                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
-  public void deleteEventSchedule(Long exhibitionId, Long eventScheduleId, String username) {
-    Exhibition exhibition =
-        exhibitionRepository
-            .findById(exhibitionId)
-            .orElseThrow(() -> new NotFoundException("이벤트를 찾을 수 없습니다."));
+        if (!member.equals(exhibition.getMember())) {
+            throw new RuntimeException("이벤트의 작성자가 아닙니다.");
+        }
 
-    Member member =
-        memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+        exhibition.update(dto);
 
-    if (!member.equals(exhibition.getMember())) {
-      throw new RuntimeException("이벤트 일정을 삭제할 권한이 없습니다.");
+        return ExhibitionIntroduceResponseDTO.from(exhibition);
     }
-    exhibition.deleteEventSchedules();
-    eventScheduleRepository.deleteById(eventScheduleId);
-  }
+
+    @Transactional
+    public void deleteExhibition(Long exhibitionId, String username) {
+        Exhibition exhibition =
+                exhibitionRepository
+                        .findById(exhibitionId)
+                        .orElseThrow(() -> new NotFoundException("이벤트를 찾을 수 없습니다."));
+
+        Member member =
+                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+        if (!member.equals(exhibition.getMember())) {
+            throw new RuntimeException("이벤트를 삭제할 권한이 없습니다.");
+        }
+
+        exhibition.delete();
+        eventScheduleRepository.deleteAll(exhibition.getEventSchedules());
+    }
+
+    @Transactional
+    public void deleteAllEventSchedules(Long exhibitionId, String username) {
+        Exhibition exhibition =
+                exhibitionRepository
+                        .findById(exhibitionId)
+                        .orElseThrow(() -> new NotFoundException("이벤트를 찾을 수 없습니다."));
+
+        Member member =
+                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+
+        if (!member.equals(exhibition.getMember())) {
+            throw new RuntimeException("해당 이벤트의 생성자가 아닙니다.");
+        }
+
+        List<EventSchedule> eventSchedules = exhibition.getEventSchedules();
+        exhibition.deleteEventSchedules();
+
+        eventScheduleRepository.deleteAll(eventSchedules);
+    }
+
+    public void deleteEventSchedule(Long exhibitionId, Long eventScheduleId, String username) {
+        Exhibition exhibition =
+                exhibitionRepository
+                        .findById(exhibitionId)
+                        .orElseThrow(() -> new NotFoundException("이벤트를 찾을 수 없습니다."));
+
+        Member member =
+                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+
+        if (!member.equals(exhibition.getMember())) {
+            throw new RuntimeException("이벤트 일정을 삭제할 권한이 없습니다.");
+        }
+        exhibition.deleteEventSchedules();
+        eventScheduleRepository.deleteById(eventScheduleId);
+    }
 }

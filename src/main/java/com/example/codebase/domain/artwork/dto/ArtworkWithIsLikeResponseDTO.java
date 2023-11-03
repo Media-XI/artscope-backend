@@ -2,10 +2,9 @@ package com.example.codebase.domain.artwork.dto;
 
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkWithIsLike;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 
 @Getter
@@ -37,7 +36,8 @@ public class ArtworkWithIsLikeResponseDTO {
         return artworkWithIsLikeResponseDTO;
     }
 
-    public static ArtworkWithIsLikeResponseDTO from(Artwork artwork, List<ArtworkCommentResponseDTO> comments, boolean existLike) {
+    public static ArtworkWithIsLikeResponseDTO from(Artwork artwork, List<ArtworkCommentResponseDTO> comments,
+                                                    boolean existLike) {
         ArtworkWithIsLikeResponseDTO artworkWithIsLikeResponseDTO = new ArtworkWithIsLikeResponseDTO();
         artworkWithIsLikeResponseDTO.setArtwork(ArtworkResponseDTO.of(artwork, comments));
         artworkWithIsLikeResponseDTO.setIsLiked(existLike);

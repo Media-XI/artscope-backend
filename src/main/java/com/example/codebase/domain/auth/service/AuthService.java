@@ -6,10 +6,10 @@ import com.example.codebase.domain.member.entity.MemberAuthority;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.util.RedisUtil;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 @Service
 public class AuthService {
 
@@ -20,7 +20,8 @@ public class AuthService {
     private final MemberRepository memberRepository;
 
     @Autowired
-    public AuthService(RedisUtil redisUtil, MemberAuthorityRepository memberAuthorityRepository, MemberRepository memberRepository) {
+    public AuthService(RedisUtil redisUtil, MemberAuthorityRepository memberAuthorityRepository,
+                       MemberRepository memberRepository) {
         this.redisUtil = redisUtil;
         this.memberAuthorityRepository = memberAuthorityRepository;
         this.memberRepository = memberRepository;

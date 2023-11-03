@@ -4,6 +4,8 @@ import com.example.codebase.controller.dto.RestResponse;
 import com.example.codebase.exception.ErrorCode;
 import com.example.codebase.exception.NotAcceptTypeException;
 import com.example.codebase.exception.NotAccessException;
+import java.io.IOException;
+import java.util.Objects;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -13,9 +15,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
-
-import java.io.IOException;
-import java.util.Objects;
 
 @RestControllerAdvice
 public class CustomExceptionHandler {
@@ -52,7 +51,8 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler({NullPointerException.class})
     public ResponseEntity handleInternal(final NullPointerException e) {
-        RestResponse response = new RestResponse(false, e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+        RestResponse response = new RestResponse(false, e.getLocalizedMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value());
         return new ResponseEntity(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -79,6 +79,7 @@ public class CustomExceptionHandler {
         RestResponse response = new RestResponse(false, e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         return new ResponseEntity(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
     private static RestResponse makeErrorResponse(BindingResult bindingResult) {
         String code = "";
         String description = "";
@@ -93,7 +94,7 @@ public class CustomExceptionHandler {
             String bindResultCode = bindingResult.getFieldError().getCode();
 
             switch (Objects.requireNonNull(bindResultCode)) {
-                case "NotNull" :
+                case "NotNull":
                     code = ErrorCode.NOT_NULL.getCode();
                     description = ErrorCode.NOT_NULL.getDescription();
                     break;

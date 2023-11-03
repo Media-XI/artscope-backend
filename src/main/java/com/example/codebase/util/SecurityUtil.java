@@ -3,14 +3,13 @@ package com.example.codebase.util;
 
 import com.example.codebase.domain.auth.dto.TokenResponseDTO;
 import com.example.codebase.domain.member.dto.AuthorityDto;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class SecurityUtil {
@@ -81,7 +80,7 @@ public class SecurityUtil {
     /*
         Username을 가진 사람이 관리자 이거나, 현재 스프링 컨텍스트에 저장된 유저와 같은 사람인가(같은 스레드 요청인지)
      */
-    public static Boolean isAdminOrSameUser(String username){
+    public static Boolean isAdminOrSameUser(String username) {
         return isAdmin() || isSameUser(username, getCurrentUsername().get()) ? true : false;
     }
 

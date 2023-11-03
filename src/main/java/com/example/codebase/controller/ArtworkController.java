@@ -1,33 +1,39 @@
 package com.example.codebase.controller;
 
-import com.example.codebase.domain.artwork.dto.*;
-import com.example.codebase.domain.artwork.entity.Artwork;
+import com.example.codebase.domain.artwork.dto.ArtworkCommentCreateDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkLikeMemberPageDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkLikeMembersPageDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkLikeResponseDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkResponseDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkUpdateDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkWithIsLikeResponseDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkWithLikePageDTO;
+import com.example.codebase.domain.artwork.dto.ArtworksResponseDTO;
 import com.example.codebase.domain.artwork.service.ArtworkService;
 import com.example.codebase.domain.image.service.ImageService;
-import com.example.codebase.s3.S3Service;
-import com.example.codebase.util.FileUtil;
 import com.example.codebase.util.SecurityUtil;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import java.util.List;
+import java.util.Optional;
+import javax.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.imageio.ImageIO;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @ApiOperation(value = "아트워크", notes = "아트워크 관련 API")
 @RestController
@@ -186,7 +192,8 @@ public class ArtworkController {
             @RequestParam(defaultValue = "DESC", required = false) String sortDirection
     ) {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
-        ArtworkLikeMemberPageDTO memberLikes = artworkService.getUserLikeArtworks(page, size, sortDirection, loginUsername);
+        ArtworkLikeMemberPageDTO memberLikes = artworkService.getUserLikeArtworks(page, size, sortDirection,
+                loginUsername);
         return new ResponseEntity(memberLikes, HttpStatus.OK);
     }
 
