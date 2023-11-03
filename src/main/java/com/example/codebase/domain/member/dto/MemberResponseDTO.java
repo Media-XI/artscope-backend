@@ -2,14 +2,10 @@ package com.example.codebase.domain.member.dto;
 
 import com.example.codebase.domain.member.entity.Member;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Getter;
-import lombok.Setter;
-
-import javax.persistence.Column;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -21,15 +17,13 @@ public class MemberResponseDTO {
 
     private String email;
 
-    private Optional<String> picture;
+    private String picture;
 
-    private Optional<String> oauthProvider;
-
-    // private Optional<String> oauthProviderId;
+    private String oauthProvider;
 
     private boolean activated;
 
-    private String artistStatus;
+    private String roleStatus;
 
     private String snsUrl;
 
@@ -38,6 +32,10 @@ public class MemberResponseDTO {
     private String introduction;
 
     private String history;
+
+    private String companyName;
+
+    private String companyRole;
 
 //    private Set<String> authrities;
 
@@ -52,10 +50,10 @@ public class MemberResponseDTO {
         dto.setUsername(member.getUsername());
         dto.setName(member.getName());
         dto.setEmail(member.getEmail());
-        dto.setPicture(Optional.ofNullable(member.getPicture()));
-        dto.setOauthProvider(Optional.ofNullable(String.valueOf(member.getOauthProvider())));
+        dto.setPicture(member.getPicture());
+        dto.setOauthProvider(String.valueOf(member.getOauthProvider()));
         // dto.setOauthProviderId(Optional.ofNullable(member.getOauthProviderId()));
-         dto.setActivated(member.isActivated());
+        dto.setActivated(member.isActivated());
         /* dto.setAuthrities(
                 member.getAuthorities().stream()
                         .map(authority -> authority.getAuthority().getAuthorityName()
@@ -64,11 +62,18 @@ public class MemberResponseDTO {
         ); */
         dto.setCreatedTime(member.getCreatedTime());
         dto.setUpdatedTime(member.getUpdatedTime());
-        dto.setArtistStatus(member.getArtistStatus().toString());
-        dto.setSnsUrl(member.getSnsUrl());
-        dto.setWebsiteUrl(member.getWebsiteUrl());
-        dto.setIntroduction(member.getIntroduction());
-        dto.setHistory(member.getHistory());
+        dto.setRoleStatus(member.getRoleStatus().toString());
+
+        // TODO : 일반유저는 NPE 발생 가능성 있음 해결하기
+        dto.setSnsUrl(member.getSnsUrl() != null ? member.getSnsUrl() : null);
+        dto.setWebsiteUrl(member.getWebsiteUrl() != null ? member.getWebsiteUrl() : null);
+        dto.setIntroduction(member.getIntroduction() != null ? member.getIntroduction() : null);
+        dto.setHistory(member.getHistory() != null ? member.getHistory() : null);
+
+        // TODO : 기획자가 아니면 NPE 발생 가능성 있음 해결하기
+        dto.setCompanyName(
+                member.getCompanyName() != null ? member.getCompanyName() : null);
+        dto.setCompanyRole(member.getCompanyRole() != null ? member.getCompanyRole() : null);
 
         return dto;
     }

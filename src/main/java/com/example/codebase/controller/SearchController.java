@@ -2,7 +2,6 @@ package com.example.codebase.controller;
 
 import com.example.codebase.domain.search.SearchService;
 import com.example.codebase.domain.search.dto.SearchResponseDTO;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import javax.validation.constraints.PositiveOrZero;
 import org.springframework.data.domain.PageRequest;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@ApiOperation(value = "피드", notes = "피드 관련 API")
+@ApiOperation(value = "통합 검색", notes = "")
 @RestController
 @RequestMapping("/api/search")
 public class SearchController {
@@ -34,7 +33,7 @@ public class SearchController {
             @RequestParam(defaultValue = "DESC", required = false) String sortDirection
     ) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
-        PageRequest pageRequest = PageRequest.of(0, 10, sort);
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
 
         SearchResponseDTO dto = searchService.totalSearch(keyword, pageRequest);
 

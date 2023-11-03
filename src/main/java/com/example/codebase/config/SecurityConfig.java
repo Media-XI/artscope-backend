@@ -1,11 +1,11 @@
 package com.example.codebase.config;
 
-import com.example.codebase.domain.auth.service.CustomOAuth2UserService;
 import com.example.codebase.domain.auth.handler.OAuth2AuthenticationFailureHandler;
 import com.example.codebase.domain.auth.handler.OAuth2AuthenticationSuccessHandler;
+import com.example.codebase.domain.auth.service.CustomOAuth2UserService;
+import com.example.codebase.jwt.JwtAccessDeniedHandler;
 import com.example.codebase.jwt.JwtAuthenticationEntryPoint;
 import com.example.codebase.jwt.TokenProvider;
-import com.example.codebase.jwt.JwtAccessDeniedHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,8 +23,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
+
     @Autowired
-    public SecurityConfig(TokenProvider tokenProvider, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint, JwtAccessDeniedHandler jwtAccessDeniedHandler, OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler, OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler, CustomOAuth2UserService customOAuth2UserService) {
+    public SecurityConfig(TokenProvider tokenProvider, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+                          JwtAccessDeniedHandler jwtAccessDeniedHandler,
+                          OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler,
+                          OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler,
+                          CustomOAuth2UserService customOAuth2UserService) {
         this.tokenProvider = tokenProvider;
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
         this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
@@ -62,7 +67,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .accessDeniedHandler(jwtAccessDeniedHandler)
-
 
                 .and()
                 .sessionManagement()
