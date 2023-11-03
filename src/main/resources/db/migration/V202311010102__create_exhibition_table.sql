@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS `exhibition`;
 
 CREATE TABLE `exhibition`
 (
