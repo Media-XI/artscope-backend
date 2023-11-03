@@ -23,10 +23,10 @@ import com.example.codebase.domain.artwork.entity.ArtworkWithIsLike;
 import com.example.codebase.domain.artwork.repository.ArtworkCommentRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkLikeMemberRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
+import com.example.codebase.domain.auth.exception.BadRequestException;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberRepository;
-import com.example.codebase.exception.NotAccessException;
 import com.example.codebase.exception.NotFoundException;
 import com.example.codebase.s3.S3Service;
 import com.example.codebase.util.SecurityUtil;
@@ -143,8 +143,12 @@ public class ArtworkService {
 
     @Transactional
     public ArtworkResponseDTO updateArtwork(Long id, ArtworkUpdateDTO dto, String username) {
-        Artwork artwork = artworkRepository.findByIdAndMember_Username(id, username)
-                .orElseThrow(() -> new NotAccessException("해당 작품의 소유자가 아닙니다."));
+        Artwork artwork = artworkRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
+
+        if (!SecurityUtil.isAdmin() && !artwork.getMember().getUsername().equals(username)) {
+            throw new BadRequestException("해당 작품의 소유자가 아닙니다.");
+        }
 
         artwork.update(dto);
         return ArtworkResponseDTO.from(artwork);
@@ -155,8 +159,8 @@ public class ArtworkService {
         Artwork artwork = artworkRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
 
-        if (username != null && !artwork.getMember().getUsername().equals(username)) {
-            throw new NotAccessException("해당 작품의 소유자가 아닙니다.");
+        if (!SecurityUtil.isAdmin() && !artwork.getMember().getUsername().equals(username)) {
+            throw new BadRequestException("해당 작품의 소유자가 아닙니다.");
         }
 
         // Artwork의 Artwork Media URL를 가져와서 S3 Object Delete
@@ -168,7 +172,8 @@ public class ArtworkService {
 
     public ArtworkResponseDTO updateArtworkMedia(Long id, Long mediaId, ArtworkMediaCreateDTO dto, String username) {
         Artwork artwork = artworkRepository.findByIdAndMember_Username(id, username)
-                .orElseThrow(() -> new NotAccessException("해당 작품의 소유자가 아닙니다."));
+                .orElseThrow(() -> new BadRequestException("해당 작품의 소유자가 아닙니다."));
+
         artwork.updateArtworkMedia(mediaId, dto);
         return ArtworkResponseDTO.from(artwork);
     }
@@ -307,8 +312,8 @@ public class ArtworkService {
         Member member = memberRepository.findByUsername(loginUsername)
                 .orElseThrow(NotFoundMemberException::new);
 
-        if (!comment.getAuthor().equals(member)) {
-            throw new NotAccessException("해당 댓글의 작성자가 아닙니다.");
+        if (!SecurityUtil.isAdmin() && !comment.getAuthor().equals(member)) {
+            throw new BadRequestException("해당 댓글의 작성자가 아닙니다.");
         }
 
         Artwork artwork = comment.getArtwork();
@@ -322,30 +327,26 @@ public class ArtworkService {
         artworkRepository.save(artwork);
     }
 
-//    @Transactional
-//    public ArtworkResponseDTO addChildComment(Long artworkId, Long commentId, String loginUsername, ArtworkCommentCreateDTO commentCreateDTO) {
-//        ArtworkComment parentComment = artworkCommentRepository.findById(commentId)
-//                .orElseThrow(() -> new NotFoundException("해당 댓글을 찾을 수 없습니다."));
-//
-//        Artwork artwork = parentComment.getArtwork();
-//        if (!artwork.getId().equals(artworkId)) {
-//            throw new NotFoundException("해당 작품을 찾을 수 없습니다.");
-//        }
-//
-//        Member member = memberRepository.findByUsername(loginUsername)
-//                .orElseThrow(NotFoundMemberException::new);
-//
-//        ArtworkComment childComment = ArtworkComment.of(commentCreateDTO, artwork, member);
-//        parentComment.addChildComment(childComment);
-//
-//        List<ArtworkCommentResponseDTO> comments = getComments(parentComment);
-//        return ArtworkResponseDTO.of(artwork, comments);
-//    }
-//
-//    private List<ArtworkCommentResponseDTO> getComments(ArtworkComment parentComment) {
-//        return parentComment.getChildComments().stream()
-//                .map(ArtworkCommentResponseDTO::from)
-//                .collect(Collectors.toList());
-//    }
+    @Transactional
+    public ArtworkResponseDTO updateArtworkComment(Long id, Long commentId, String loginUsername,
+                                                   ArtworkCommentCreateDTO commentCreateDTO) {
+        Artwork artwork = artworkRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("해당 작품을 찾을 수 없습니다."));
 
+        ArtworkComment comment = artworkCommentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException("해당 댓글을 찾을 수 없습니다."));
+
+        if (comment.getArtwork() != artwork) {
+            throw new NotFoundException("해당 작품의 댓글이 아닙니다.");
+        }
+
+        if (!SecurityUtil.isAdmin() && !comment.getAuthor().getUsername().equals(loginUsername)) {
+            throw new BadRequestException("해당 댓글의 작성자가 아닙니다.");
+        }
+
+        comment.update(commentCreateDTO);
+
+        List<ArtworkCommentResponseDTO> comments = getComments(artwork);
+        return ArtworkResponseDTO.of(artwork, comments);
+    }
 }

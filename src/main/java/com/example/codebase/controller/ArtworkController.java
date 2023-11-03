@@ -1,33 +1,39 @@
 package com.example.codebase.controller;
 
-import com.example.codebase.domain.artwork.dto.*;
-import com.example.codebase.domain.artwork.entity.Artwork;
+import com.example.codebase.domain.artwork.dto.ArtworkCommentCreateDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkLikeMemberPageDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkLikeMembersPageDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkLikeResponseDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkResponseDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkUpdateDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkWithIsLikeResponseDTO;
+import com.example.codebase.domain.artwork.dto.ArtworkWithLikePageDTO;
+import com.example.codebase.domain.artwork.dto.ArtworksResponseDTO;
 import com.example.codebase.domain.artwork.service.ArtworkService;
 import com.example.codebase.domain.image.service.ImageService;
-import com.example.codebase.s3.S3Service;
-import com.example.codebase.util.FileUtil;
 import com.example.codebase.util.SecurityUtil;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import java.util.List;
+import java.util.Optional;
+import javax.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.imageio.ImageIO;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @ApiOperation(value = "아트워크", notes = "아트워크 관련 API")
 @RestController
@@ -86,8 +92,8 @@ public class ArtworkController {
         return new ResponseEntity(artwork, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "아트워크 수정", notes = "[USER] 아트워크를 수정합니다. 작성자만 수정 가능합니다.")
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
+    @ApiOperation(value = "아트워크 수정", notes = "[USER] 아트워크를 수정합니다. 작성자/관리자만 수정 가능합니다.")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity updateArtwork(@PathVariable Long id, @RequestBody ArtworkUpdateDTO dto) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
@@ -120,11 +126,9 @@ public class ArtworkController {
     @DeleteMapping("/{id}")
     public ResponseEntity deleteArtwork(@PathVariable Long id) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
-        if (SecurityUtil.isAdmin()) {
-            username = null;
-        }
 
         artworkService.deleteArtwork(id, username);
+
         return new ResponseEntity("아트워크가 삭제되었습니다.", HttpStatus.OK);
     }
 
@@ -186,7 +190,8 @@ public class ArtworkController {
             @RequestParam(defaultValue = "DESC", required = false) String sortDirection
     ) {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
-        ArtworkLikeMemberPageDTO memberLikes = artworkService.getUserLikeArtworks(page, size, sortDirection, loginUsername);
+        ArtworkLikeMemberPageDTO memberLikes = artworkService.getUserLikeArtworks(page, size, sortDirection,
+                loginUsername);
         return new ResponseEntity(memberLikes, HttpStatus.OK);
     }
 
@@ -238,22 +243,23 @@ public class ArtworkController {
         return new ResponseEntity(comment, HttpStatus.CREATED);
     }
 
-//    @ApiOperation(value = "아트워크 대댓글 생성", notes = "[로그인] 해당 아트워크 댓글에 대댓글을 추가합니다.")
-//    @PreAuthorize("isAuthenticated()")
-//    @PostMapping("/{id}/comments/{commentId}/comments")
-//    public ResponseEntity addChildComment(@PathVariable Long id,
-//                                            @PathVariable Long commentId,
-//                                            @RequestBody ArtworkCommentCreateDTO commentCreateDTO) {
-//        String loginUsername = SecurityUtil.getCurrentUsername()
-//                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
-//
-//        ArtworkResponseDTO comment = artworkService.addChildComment(id, commentId, loginUsername, commentCreateDTO);
-//
-//        return new ResponseEntity(comment, HttpStatus.CREATED);
-//    }
+    @ApiOperation(value = "아트워크 댓글 수정", notes = "[로그인, 작성자, 관리자] 해당 아트워크 댓글을 수정합니다.")
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/{id}/comments/{commentId}")
+    public ResponseEntity updateArtworkComment(
+            @PathVariable Long id,
+            @PathVariable Long commentId,
+            @RequestBody ArtworkCommentCreateDTO commentCreateDTO) {
+        String loginUsername = SecurityUtil.getCurrentUsername()
+                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
+        ArtworkResponseDTO comment = artworkService.updateArtworkComment(id, commentId, loginUsername,
+                commentCreateDTO);
 
-    @ApiOperation(value = "아트워크 댓글 삭제", notes = "[로그인, 작성자] 해당 아트워크 댓글을 삭제합니다.")
+        return new ResponseEntity(comment, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "아트워크 댓글 삭제", notes = "[로그인, 작성자, 관리자] 해당 아트워크 댓글을 삭제합니다.")
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}/comments/{commentId}")
     public ResponseEntity deleteArtworkComment(

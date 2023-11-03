@@ -104,7 +104,7 @@ public class PostController {
     }
 
 
-    @ApiOperation(value = "게시글 수정", notes = "[로그인] 게시글을 수정합니다.")
+    @ApiOperation(value = "게시글 수정", notes = "[로그인, 관리자] 게시글을 수정합니다.")
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{postId}")
     public ResponseEntity updatePost(@PathVariable Long postId, @RequestBody PostUpdateDTO postUpdateDTO) {
@@ -115,7 +115,7 @@ public class PostController {
         return new ResponseEntity(post, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "게시글 삭제", notes = "[로그인] 게시글을 삭제합니다.")
+    @ApiOperation(value = "게시글 삭제", notes = "[로그인, 관리자] 게시글을 삭제합니다.")
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{postId}")
     public ResponseEntity deletePost(@PathVariable Long postId) {
@@ -152,7 +152,7 @@ public class PostController {
         return new ResponseEntity(post, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "댓글 수정", notes = "[로그인] 댓글을 수정합니다.")
+    @ApiOperation(value = "댓글 수정", notes = "[로그인, 관리자] 댓글을 수정합니다.")
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/comments/{commentId}")
     public ResponseEntity updateComment(@PathVariable Long commentId,
@@ -164,7 +164,7 @@ public class PostController {
         return new ResponseEntity(post, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "댓글 삭제", notes = "[로그인] 댓글을 삭제합니다.")
+    @ApiOperation(value = "댓글 삭제", notes = "[로그인, 관리자] 댓글을 삭제합니다.")
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/comments/{commentId}")
     public ResponseEntity deleteComment(@PathVariable Long commentId) {
