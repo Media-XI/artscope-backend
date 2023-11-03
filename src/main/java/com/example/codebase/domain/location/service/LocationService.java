@@ -44,24 +44,15 @@ public class LocationService {
   }
 
   @Transactional(readOnly = true)
-  public LocationResponseDTO getLocation(
-      Long locationId, int page, int size, String sortDirection) {
+  public LocationResponseDTO getLocation(Long locationId) {
     Location location =
         locationRepository
             .findById(locationId)
             .orElseThrow(() -> new RuntimeException("존재하지 않는 장소입니다."));
 
-    throw new RuntimeException("getLocation 구현 안됨"); // TODO: 현재 장소에 대한 정보 구현 필요
-    //
-    //    Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
-    //    PageRequest pageRequest = PageRequest.of(page, size, sort);
-    //    Page<Exhibition> exhibitions;
-    //
-    //        PageInfo pageInfo =
-    //            PageInfo.of(page, size, exhibitions.getTotalPages(),
-    // exhibitions.getTotalElements());
-    //
+    return LocationResponseDTO.of(location);
 
+    // TODO : 스케쥴, 이벤트 관련 반환 로직 구현 필요
   }
 
   @Transactional
