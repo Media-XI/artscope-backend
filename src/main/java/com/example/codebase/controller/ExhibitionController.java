@@ -91,7 +91,7 @@ public class ExhibitionController {
 
   @ApiOperation(value = "이벤트 수정", notes = "[ADMIN, CURATOR, ARTIST] 이벤트를 수정합니다.")
   @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST', 'ROLE_CURATOR')")
-  @PatchMapping("/{exhibitionId}")
+  @PutMapping("/{exhibitionId}")
   public ResponseEntity updateExhibition(
       @PathVariable Long exhibitionId, @RequestBody @Valid UpdateExhibitionDTO dto)
       throws Exception {
