@@ -111,7 +111,7 @@ public class ExhibitionController {
     String username =
         SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
     exhibitionService.deleteExhibition(exhibitionId, username);
-    return new ResponseEntity("이벤트  삭제되었습니다.", HttpStatus.OK);
+    return new ResponseEntity("이벤트가 삭제되었습니다.", HttpStatus.OK);
   }
 
   @ApiOperation(value = "이벤트 일정 개별 삭제 ", notes = "[ADMIN, CURATOR, ARTIST] 해당 이벤트 일정을 개별로 삭제합니다.")
