@@ -1,5 +1,6 @@
 package com.example.codebase.domain.agoda.entity;
 
+import com.example.codebase.domain.agoda.dto.AgoraMediaCreateDTO;
 import com.example.codebase.domain.media.MediaType;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
@@ -46,7 +47,19 @@ public class AgoraMedia {
     @JoinColumn(name = "agora_id")
     private Agora agora;
 
-    public void setAgora(Agora agora) {
+    public static AgoraMedia of(AgoraMediaCreateDTO thumbnail, Agora agora) {
+        AgoraMedia agoraMedia = AgoraMedia.builder()
+                .mediaType(MediaType.create(thumbnail.getMediaType()))
+                .mediaUrl(thumbnail.getMediaUrl())
+                .mediaWidth(thumbnail.getWidth())
+                .mediaHeight(thumbnail.getHeight())
+                .createdTime(LocalDateTime.now())
+                .build();
+        agoraMedia.setAgora(agora);
+        return agoraMedia;
+    }
+
+    private void setAgora(Agora agora) {
         this.agora = agora;
         agora.addMedia(this);
     }

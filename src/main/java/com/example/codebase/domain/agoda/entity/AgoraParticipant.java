@@ -52,6 +52,16 @@ public class AgoraParticipant {
     @OneToMany(mappedBy = "author")
     private List<AgoraOpinion> opinions = new ArrayList<>();
 
+    public static AgoraParticipant of(Member member, Agora agora) {
+        AgoraParticipant participant = AgoraParticipant.builder()
+                .agoraSequence(0)
+                .createdTime(LocalDateTime.now())
+                .updatedTime(LocalDateTime.now())
+                .build();
+        participant.setAgoraAndMember(agora, member);
+        return participant;
+    }
+
     public void setAgoraAndMember(Agora agora, Member member) {
         this.agora = agora;
         this.member = member;

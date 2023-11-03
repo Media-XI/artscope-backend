@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -43,7 +44,12 @@ public class AgoraOpinion {
     private Agora agora;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id")
+    @JoinColumns(
+            {
+                    @JoinColumn(name = "agora_id", referencedColumnName = "agora_id", insertable = false, updatable = false),
+                    @JoinColumn(name = "author_id", referencedColumnName = "member_id", insertable = false, updatable = false)
+            }
+    )
     private AgoraParticipant author;
 
     public void setAgora(Agora agora) {

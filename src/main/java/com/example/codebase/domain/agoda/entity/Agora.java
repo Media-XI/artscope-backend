@@ -1,5 +1,6 @@
 package com.example.codebase.domain.agoda.entity;
 
+import com.example.codebase.domain.agoda.dto.AgoraCreateDTO;
 import com.example.codebase.domain.member.entity.Member;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -55,18 +56,40 @@ public class Agora {
     @JoinColumn(name = "author_id")
     private Member author;
 
+    @Builder.Default
     @OneToMany(mappedBy = "agora")
     private List<AgoraMedia> medias = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "agora")
     private List<AgoraParticipant> participants = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "agora")
     private List<AgoraOpinion> opinions = new ArrayList<>();
+
+    public static Agora from(AgoraCreateDTO dto) {
+        return Agora.builder()
+                .title(dto.getTitle())
+                .content(dto.getContent())
+                .agreeText(dto.getAgreeText())
+                .disagreeText(dto.getDisagreeText())
+                .isAnonymous(dto.getIsAnonymous())
+                .createdTime(LocalDateTime.now())
+                .build();
+    }
+
+    public static Agora of(AgoraCreateDTO dto, Member member) {
+        Agora agora = from(dto);
+        agora.author = member;
+        member.addAgora(agora);
+        return agora;
+    }
 
     public void delete() {
         this.isDeleted = true;
     }
+
 
     public void addMedia(AgoraMedia agoraMedia) {
         this.medias.add(agoraMedia);
