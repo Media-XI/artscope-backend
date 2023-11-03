@@ -5,7 +5,6 @@ import com.example.codebase.domain.location.dto.LocationResponseDTO;
 import com.example.codebase.domain.location.service.LocationService;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.annotations.ApiOperation;
-import javax.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @ApiOperation(value = "위치", notes = "위치 관련 API")
@@ -30,8 +28,8 @@ public class LocationController {
     this.locationService = locationService;
   }
 
-  @ApiOperation(value = "특정 장소 추가", notes = "[ADMIN],[ARTIST] 특정 장소에 대한 위치 정보를 생성합니다.")
-  @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST')")
+  @ApiOperation(value = "특정 장소 추가", notes = "[ADMIN, CURATOR, ARTIST] 특정 장소에 대한 위치 정보를 생성합니다.")
+  @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST','ROLE_CURATOR')")
   @PostMapping
   public ResponseEntity createLocation(@RequestBody LocationCreateDTO dto) {
     String username =
@@ -43,12 +41,8 @@ public class LocationController {
   @ApiOperation(value = "특정 장소 조회", notes = "특정 장소에 대한 위치 정보를 조회합니다.")
   @GetMapping("/{locationId}")
   public ResponseEntity<LocationResponseDTO> getLocation(
-      @PathVariable("locationId") Long locationId,
-      @PositiveOrZero @RequestParam int page,
-      @PositiveOrZero @RequestParam int size,
-      @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
-    LocationResponseDTO location =
-        locationService.getLocation(locationId, page, size, sortDirection);
+      @PathVariable("locationId") Long locationId) {
+    LocationResponseDTO location = locationService.getLocation(locationId);
     return new ResponseEntity<>(location, HttpStatus.OK);
   }
 
