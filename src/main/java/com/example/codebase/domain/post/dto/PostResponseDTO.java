@@ -51,6 +51,33 @@ public class PostResponseDTO {
 
   protected List<PostMediaResponseDTO> medias;
 
+  public PostResponseDTO(Post post) {
+    this.id = post.getId();
+    this.content = post.getContent();
+    this.views = post.getViews();
+    this.likes = post.getLikes();
+    this.comments = post.getComments();
+    this.authorUsername = post.getAuthor().getUsername();
+    this.authorName = post.getAuthor().getName();
+    this.authorDescription = post.getAuthor().getIntroduction();
+    this.authorProfileImageUrl = post.getAuthor().getPicture();
+    this.createdTime = post.getCreatedTime();
+    this.updatedTime = post.getUpdatedTime();
+    this.isLiked = false;
+
+    this.medias =
+        post.getPostMedias().stream().map(PostMediaResponseDTO::from).collect(Collectors.toList());
+
+    if (post.getPostComment() != null) {
+      this.commentPosts =
+          post.getPostComment().stream()
+              .filter(comment -> comment.getParent() == null)
+              .filter(comment -> comment.getChildComments() != null)
+              .map(PostCommentResponseDTO::from)
+              .collect(Collectors.toList());
+    }
+  }
+
   public static PostResponseDTO from(Post post) {
     PostResponseDTO response =
         PostResponseDTO.builder()
