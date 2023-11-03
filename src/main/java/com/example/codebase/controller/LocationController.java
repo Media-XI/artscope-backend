@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @ApiOperation(value = "위치", notes = "위치 관련 API")
 @RestController
-@RequestMapping("/api/locations")
+@RequestMapping("/api/location")
 public class LocationController {
 
   private final LocationService locationService;
