@@ -7,11 +7,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AgoraParicipantResponseDTO {
+public class AgoraParticipantResponseDTO {
 
     private String name;
 
-    public static AgoraParicipantResponseDTO from(Member member, Boolean isAnonymous, Integer agoraSequence) {
+    public static AgoraParticipantResponseDTO from(Member member, Boolean isAnonymous, Integer agoraSequence) {
         // 익명 여부에 따른 이름 설정
         String authorName = member.getName();
 
@@ -21,9 +21,9 @@ public class AgoraParicipantResponseDTO {
             authorName = "익명 " + agoraSequence;
         }
 
-        AgoraParicipantResponseDTO agoraParicipantResponseDTO = new AgoraParicipantResponseDTO();
-        agoraParicipantResponseDTO.setName(authorName);
-        return agoraParicipantResponseDTO;
+        AgoraParticipantResponseDTO agoraParticipantResponseDTO = new AgoraParticipantResponseDTO();
+        agoraParticipantResponseDTO.setName(authorName);
+        return agoraParticipantResponseDTO;
     }
 
 }
