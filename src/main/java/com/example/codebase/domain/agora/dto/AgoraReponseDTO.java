@@ -1,16 +1,13 @@
-package com.example.codebase.domain.agoda.dto;
+package com.example.codebase.domain.agora.dto;
 
-import com.example.codebase.domain.agoda.entity.Agora;
-import com.example.codebase.domain.agoda.entity.AgoraMedia;
+import com.example.codebase.domain.agora.entity.Agora;
+import com.example.codebase.domain.agora.entity.AgoraMedia;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Setter

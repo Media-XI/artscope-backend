@@ -1,12 +1,13 @@
-package com.example.codebase.domain.agoda.dto;
+package com.example.codebase.domain.agora.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Getter
 @Setter

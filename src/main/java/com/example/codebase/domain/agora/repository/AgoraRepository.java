@@ -1,6 +1,6 @@
-package com.example.codebase.domain.agoda.repository;
+package com.example.codebase.domain.agora.repository;
 
-import com.example.codebase.domain.agoda.entity.Agora;
+import com.example.codebase.domain.agora.entity.Agora;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AgoraRepository extends JpaRepository<Agora, Long> {

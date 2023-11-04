@@ -1,4 +1,4 @@
-package com.example.codebase.domain.agoda.dto;
+package com.example.codebase.domain.agora.dto;
 
 
 import com.example.codebase.domain.member.entity.Member;

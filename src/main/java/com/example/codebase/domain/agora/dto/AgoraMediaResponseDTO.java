@@ -1,11 +1,7 @@
-package com.example.codebase.domain.agoda.dto;
+package com.example.codebase.domain.agora.dto;
 
-import com.example.codebase.domain.agoda.entity.AgoraMedia;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.example.codebase.domain.agora.entity.AgoraMedia;
+import lombok.*;
 
 @Getter
 @Setter

@@ -1,7 +1,7 @@
 package com.example.codebase.domain.image.service;
 
-import com.example.codebase.domain.agoda.dto.AgoraCreateDTO;
-import com.example.codebase.domain.agoda.dto.AgoraMediaCreateDTO;
+import com.example.codebase.domain.agora.dto.AgoraCreateDTO;
+import com.example.codebase.domain.agora.dto.AgoraMediaCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
 import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
@@ -10,12 +10,13 @@ import com.example.codebase.domain.post.dto.PostCreateDTO;
 import com.example.codebase.domain.post.dto.PostMediaCreateDTO;
 import com.example.codebase.s3.S3Service;
 import com.example.codebase.util.FileUtil;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.List;
 
 @Service
 public class ImageService {

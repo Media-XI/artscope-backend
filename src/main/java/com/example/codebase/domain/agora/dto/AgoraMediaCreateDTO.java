@@ -1,10 +1,11 @@
-package com.example.codebase.domain.agoda.dto;
+package com.example.codebase.domain.agora.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.awt.image.BufferedImage;
-import javax.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.validation.constraints.NotBlank;
+import java.awt.image.BufferedImage;
 
 @Getter
 @Setter

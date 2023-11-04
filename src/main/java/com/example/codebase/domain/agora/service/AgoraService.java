@@ -1,17 +1,18 @@
-package com.example.codebase.domain.agoda.service;
+package com.example.codebase.domain.agora.service;
 
-import com.example.codebase.domain.agoda.dto.AgoraCreateDTO;
-import com.example.codebase.domain.agoda.dto.AgoraReponseDTO;
-import com.example.codebase.domain.agoda.entity.Agora;
-import com.example.codebase.domain.agoda.entity.AgoraMedia;
-import com.example.codebase.domain.agoda.entity.AgoraParticipant;
-import com.example.codebase.domain.agoda.repository.AgoraRepository;
+import com.example.codebase.domain.agora.dto.AgoraCreateDTO;
+import com.example.codebase.domain.agora.dto.AgoraReponseDTO;
+import com.example.codebase.domain.agora.entity.Agora;
+import com.example.codebase.domain.agora.entity.AgoraMedia;
+import com.example.codebase.domain.agora.entity.AgoraParticipant;
+import com.example.codebase.domain.agora.repository.AgoraRepository;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberRepository;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
 
 @Service
 public class AgoraService {
