@@ -1,24 +1,24 @@
 package com.example.codebase.controller;
 
-import com.example.codebase.domain.agora.dto.AgoraCreateDTO;
-import com.example.codebase.domain.agora.dto.AgoraReponseDTO;
+import com.example.codebase.domain.agora.dto.*;
 import com.example.codebase.domain.agora.service.AgoraService;
 import com.example.codebase.domain.image.service.ImageService;
 import com.example.codebase.exception.LoginRequiredException;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.PositiveOrZero;
 import java.io.IOException;
 import java.util.List;
 
@@ -53,5 +53,63 @@ public class AgoraController {
         AgoraReponseDTO agora = agoraService.createAgora(dto, username);
 
         return new ResponseEntity(agora, HttpStatus.CREATED);
+    }
+
+    @ApiOperation(value = "아고라 전체 조회", notes = "[페이지네이션] 아고라를 전체 조회합니다.")
+    @GetMapping
+    public ResponseEntity getAllAgora(
+            @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,
+            @PositiveOrZero @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(defaultValue = "DESC", required = false) String sortDirection
+    ) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        AgorasResponseDTO agoras = agoraService.getAllAgora(pageRequest);
+        return new ResponseEntity(agoras, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "아고라 상세 조회", notes = "아고라를 상세 조회합니다.")
+    @GetMapping("/{agoraId}")
+    public ResponseEntity getAgora(
+            @PathVariable Long agoraId
+    ) {
+        AgoraDetailReponseDTO agora = agoraService.getAgora(agoraId);
+        return new ResponseEntity(agora, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "아고라 수정", notes = "아고라를 수정합니다.")
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/{agoraId}")
+    public ResponseEntity updateAgora(
+            @PathVariable Long agoraId,
+            @RequestBody @Valid AgoraUpdateDTO dto
+    ) {
+        String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
+
+        AgoraReponseDTO agora = agoraService.updateAgora(agoraId, dto, username);
+        return new ResponseEntity(agora, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "아고라 삭제", notes = "아고라를 삭제합니다.")
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{agoraId}")
+    public ResponseEntity deleteAgora(
+            @PathVariable Long agoraId
+    ) {
+        String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
+        agoraService.deleteAgora(agoraId, username);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "아고라 투표", notes = "아고라 투표를 합니다. \n 해당 투표 내용으로 찬성, 반대를 결정합니다. \n 이미 투표한 사람이 동일한 투표 내용으로 투표하면 취소됩니다.")
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/{agoraId}/vote")
+    public ResponseEntity voteAgora(
+            @PathVariable Long agoraId,
+            @RequestBody @NotBlank(message = "투표 내용을 작성해주세요.") String vote
+    ) {
+        String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
+        AgoraReponseDTO agora = agoraService.voteAgora(agoraId, vote, username);
+        return new ResponseEntity(agora, HttpStatus.OK);
     }
 }

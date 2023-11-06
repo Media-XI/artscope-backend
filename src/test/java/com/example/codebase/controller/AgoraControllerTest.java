@@ -181,4 +181,50 @@ class AgoraControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated());
     }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("아고라 실명으로 생성")
+    @Test
+    public void 아고라_생성2() throws Exception {
+        createOrLoadMember("admin", "ROLE_ADMIN");
+
+        AgoraMediaCreateDTO thumbnailCreateDTO = new AgoraMediaCreateDTO();
+        thumbnailCreateDTO.setMediaType("image");
+
+        AgoraMediaCreateDTO mediaCreateDTO = new AgoraMediaCreateDTO();
+        mediaCreateDTO.setMediaType("image");
+
+        AgoraCreateDTO agoraCreateDTO = new AgoraCreateDTO();
+        agoraCreateDTO.setTitle("AI 생성형 이미지 어떻게 생각하십니까");
+        agoraCreateDTO.setContent("생성형 이미지를 찬성하는지? 실명으로 얘기해봐요 ㅋㅋ");
+        agoraCreateDTO.setAgreeText("AI 찬성");
+        agoraCreateDTO.setDisagreeText("AI 반대");
+        agoraCreateDTO.setIsAnonymous(false);
+        agoraCreateDTO.setThumbnail(thumbnailCreateDTO);
+        agoraCreateDTO.setMedias(Collections.singletonList(mediaCreateDTO));
+
+        MockMultipartFile dto = new MockMultipartFile("dto", "", "application/json",
+                objectMapper.writeValueAsBytes(agoraCreateDTO));
+
+        List<MockMultipartFile> mediaFiles = new ArrayList<>();
+
+        MockMultipartFile thumbnailFile = new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg",
+                createImageFile());
+
+        MockMultipartFile mockMultipartFile = new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg",
+                createImageFile());
+        mediaFiles.add(mockMultipartFile);
+
+        mockMvc.perform(
+                        multipart("/api/agoras")
+                                .file(thumbnailFile)
+                                .file(mockMultipartFile)
+                                .file(dto)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
+    }
+
 }

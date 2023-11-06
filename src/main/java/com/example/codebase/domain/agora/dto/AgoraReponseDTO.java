@@ -34,7 +34,7 @@ public class AgoraReponseDTO {
 
     private Boolean isAnonymous;
 
-    private AgoraParicipantResponseDTO author;
+    private AgoraParticipantResponseDTO author;
 
     private AgoraMediaResponseDTO thumbnail;
 
@@ -46,8 +46,8 @@ public class AgoraReponseDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedTime;
 
-    public static AgoraReponseDTO from(Agora agora, Integer agreeCount, Integer disagreeCount,
-                                       Integer participantCount) {
+    public static AgoraReponseDTO of(Agora agora, Integer agreeCount, Integer disagreeCount,
+                                     Integer participantCount) {
         List<AgoraMedia> agoraMedia = agora.getMedias();
 
         List<AgoraMediaResponseDTO> medias =
@@ -55,7 +55,7 @@ public class AgoraReponseDTO {
 
         AgoraMediaResponseDTO thumbnail = medias.stream().findFirst().orElse(null);
 
-        AgoraParicipantResponseDTO agoraParicipantResponseDTO = AgoraParicipantResponseDTO.from(agora.getAuthor(),
+        AgoraParticipantResponseDTO agoraParticipantResponseDTO = AgoraParticipantResponseDTO.of(agora.getAuthor(),
                 agora.getIsAnonymous(), 0);
 
         return AgoraReponseDTO.builder()
@@ -70,7 +70,7 @@ public class AgoraReponseDTO {
                 .isAnonymous(agora.getIsAnonymous())
                 .createdTime(agora.getCreatedTime())
                 .updatedTime(agora.getUpdatedTime())
-                .author(agoraParicipantResponseDTO)
+                .author(agoraParticipantResponseDTO)
                 .thumbnail(thumbnail)
                 .medias(medias)
                 .build();

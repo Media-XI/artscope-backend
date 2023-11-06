@@ -1,6 +1,7 @@
 package com.example.codebase.domain.agora.entity;
 
 import com.example.codebase.domain.agora.dto.AgoraCreateDTO;
+import com.example.codebase.domain.agora.dto.AgoraUpdateDTO;
 import com.example.codebase.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -81,8 +82,9 @@ public class Agora {
 
     public void delete() {
         this.isDeleted = true;
+        this.opinions.forEach(AgoraOpinion::delete);
+        this.participants.forEach(AgoraParticipant::delete);
     }
-
 
     public void addMedia(AgoraMedia agoraMedia) {
         this.medias.add(agoraMedia);
@@ -94,5 +96,17 @@ public class Agora {
 
     public void addOpinion(AgoraOpinion agoraOpinion) {
         this.opinions.add(agoraOpinion);
+    }
+
+    public void update(AgoraUpdateDTO dto) {
+        this.title = dto.getTitle();
+        this.content = dto.getContent();
+        this.agreeText = dto.getAgreeText();
+        this.disagreeText = dto.getDisagreeText();
+        this.isAnonymous = dto.getIsAnonymous();
+    }
+
+    public void vote(String vote, AgoraParticipant participant) {
+
     }
 }

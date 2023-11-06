@@ -66,4 +66,17 @@ public class AgoraParticipant {
         this.opinions.add(opinion);
     }
 
+    public void delete() {
+        this.isDeleted = true;
+    }
+
+    public void vote(String vote, Integer agoraSequence) {
+        this.vote = vote;
+        this.agoraSequence = agoraSequence;
+    }
+
+    public void cancle(String vote) {
+        this.vote.equals(vote);
+
+    }
 }
