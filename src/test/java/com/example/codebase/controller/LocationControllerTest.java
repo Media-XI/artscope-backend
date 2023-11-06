@@ -146,8 +146,11 @@ class LocationControllerTest {
   @DisplayName("장소 조회 테스트")
   @Test
   public void 장소_조회() throws Exception {
-    createOrLoadLocation();
+    Location location = createOrLoadLocation();
 
-    mockMvc.perform(get("/api/location/1")).andDo(print()).andExpect(status().isOk());
+    mockMvc
+        .perform(get("/api/location/{locationId}", location.getId()))
+        .andDo(print())
+        .andExpect(status().isOk());
   }
 }
