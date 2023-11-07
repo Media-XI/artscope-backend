@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -150,22 +151,25 @@ public class ExhibitionService {
   public ExhibitionPageInfoResponseDTO getAllExhibition(
       ExhibitionSearchDTO exhibitionSearchDTO, int page, int size, String sortDirection) {
 
+    exhibitionSearchDTO.convertAndSetLocalDateTimes();
     exhibitionSearchDTO.repeatTimeValidity();
     SearchEventType searchEventType = SearchEventType.create(exhibitionSearchDTO.getEventType());
 
-    Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
+    Sort sort = Sort.by(Direction.fromString(sortDirection), "createdTime");
     PageRequest pageRequest = PageRequest.of(page, size, sort);
 
     Page<EventSchedule> eventSchedules;
     if (searchEventType == SearchEventType.ALL) {
       eventSchedules =
           eventScheduleRepository.findByStartAndEndDate(
-              exhibitionSearchDTO.getStartDate(), exhibitionSearchDTO.getEndDate(), pageRequest);
+              exhibitionSearchDTO.getStartLocalDateTime(),
+              exhibitionSearchDTO.getEndLocalDateTime(),
+              pageRequest);
     } else {
       eventSchedules =
           eventScheduleRepository.findByStartAndEndDate(
-              exhibitionSearchDTO.getStartDate(),
-              exhibitionSearchDTO.getEndDate(),
+              exhibitionSearchDTO.getStartLocalDateTime(),
+              exhibitionSearchDTO.getEndLocalDateTime(),
               EventType.valueOf(searchEventType.name()),
               pageRequest);
     }
