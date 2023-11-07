@@ -4,10 +4,7 @@
         <Property name="LOG_FILE_NAME">application</Property>
         <Property name="LOG_BASIC_PATTERN">%d [%t] %-5level %c(%M:%L) - %m%n%wEx</Property>
         <Property name="LOG_DATEFORMAT_PATTERN">{yyyy-MM-dd HH:mm:ss.SSS}</Property>
-        <Property name="LOG_LEVEL_PATTERN">{-%6p}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=green, DEBUG=green
-            bold, TRACE=blue} %style{${sys:PID}}{magenta} [%15.15t] %style{%-40.40C{1.}(%M:%L)}{cyan} :
-            %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}
-        </Property>
+        <Property name="LOG_LEVEL_PATTERN">{-%6p}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=green, DEBUG=greenbold, TRACE=blue} %style{${sys:PID}}{magenta} [%15.15t] %style{%-40.40C{1.}(%M:%L)}{cyan} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}</Property>
         <Property name="LOG_FILE_PATTERN">%d [%t] %-5level %c(%M:%L) - %m%n%wEx</Property>
         <Property name="LOG_REQUEST_ID_PATTERN">%style{[%equals{%X{request_id}}{}{Default}]}{Cyan}</Property>
         <Property name="LOGSTASH_PATTERN">
