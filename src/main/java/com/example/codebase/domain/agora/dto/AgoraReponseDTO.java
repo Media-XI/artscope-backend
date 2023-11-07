@@ -46,8 +46,7 @@ public class AgoraReponseDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedTime;
 
-    public static AgoraReponseDTO of(Agora agora, Integer agreeCount, Integer disagreeCount,
-                                     Integer participantCount) {
+    public static AgoraReponseDTO of(Agora agora) {
         List<AgoraMedia> agoraMedia = agora.getMedias();
 
         List<AgoraMediaResponseDTO> medias =
@@ -62,9 +61,9 @@ public class AgoraReponseDTO {
                 .id(agora.getId())
                 .title(agora.getTitle())
                 .content(agora.getContent())
-                .agreeCount(agreeCount)
-                .disagreeCount(disagreeCount)
-                .participantCount(participantCount)
+                .agreeCount(agora.getAgreeCount())
+                .disagreeCount(agora.getDisagreeCount())
+                .participantCount(agora.getParticipantCount())
                 .agreeText(agora.getAgreeText())
                 .disagreeText(agora.getDisagreeText())
                 .isAnonymous(agora.getIsAnonymous())

@@ -62,7 +62,7 @@ public class AgoraService {
         AgoraParticipant participant = AgoraParticipant.of(member, agora);
         agoraParticipantRepository.save(participant);
 
-        return AgoraReponseDTO.of(agora, 0, 0, 0);
+        return AgoraReponseDTO.of(agora);
     }
 
     @Transactional(readOnly = true)
@@ -71,7 +71,7 @@ public class AgoraService {
         PageInfo pageInfo = PageInfo.from(agoras);
 
         List<AgoraReponseDTO> agoraReponseDTOS = agoras.getContent().stream()
-                .map(this::settingAgoraCount)
+                .map(AgoraReponseDTO::of)
                 .collect(Collectors.toList());
 
         return AgorasResponseDTO.of(agoraReponseDTOS, pageInfo);
@@ -95,7 +95,7 @@ public class AgoraService {
                 .map(AgoraOpinionResponseDTO::from)
                 .collect(Collectors.toList());
 
-        AgoraReponseDTO agoraDTO = settingAgoraCount(agora);
+        AgoraReponseDTO agoraDTO = AgoraReponseDTO.of(agora);
         return AgoraDetailReponseDTO.of(agoraDTO, agreeOpinionDTOs, disagreeOpinionDTOs);
     }
 
@@ -115,7 +115,7 @@ public class AgoraService {
 
         agora.update(dto);
 
-        return settingAgoraCount(agora);
+        return AgoraReponseDTO.of(agora);
     }
 
     @Transactional
@@ -145,13 +145,6 @@ public class AgoraService {
         agora.delete();
     }
 
-    @Transactional
-    public AgoraReponseDTO settingAgoraCount(Agora agora) {
-        Integer participatnCount = agoraParticipantRepository.countByAgora(agora).intValue();
-        Integer agreeCount = agoraParticipantRepository.countByAgoraAndVote(agora, agora.getAgreeText()).intValue();
-        Integer disagreeCount = participatnCount - agreeCount;
-        return AgoraReponseDTO.of(agora, agreeCount, disagreeCount, participatnCount);
-    }
 
     @Transactional
     public AgoraReponseDTO voteAgora(Long agoraId, String vote, String username) {
@@ -180,7 +173,7 @@ public class AgoraService {
             if (participant.getVote().equals(vote)) {
                 participant.cancle(vote);
                 agoraParticipantRepository.save(participant);
-                return settingAgoraCount(agora);
+                return AgoraReponseDTO.of(agora);
             }
 
         // 새로운 투표이면 투표를 진행한다.
@@ -188,6 +181,6 @@ public class AgoraService {
         participant.vote(vote, size); // 새로운 투표 or 투표 변경 허용
 
         agoraParticipantRepository.save(participant);
-        return settingAgoraCount(agora);
+        return AgoraReponseDTO.of(agora);
     }
 }

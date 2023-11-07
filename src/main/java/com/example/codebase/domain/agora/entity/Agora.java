@@ -36,6 +36,12 @@ public class Agora {
 
     private String disagreeText;
 
+    private Integer agreeCount;
+
+    private Integer disagreeCount;
+
+    private Integer participantCount;
+
     @Builder.Default
     private Boolean isAnonymous = false;
 
@@ -92,6 +98,7 @@ public class Agora {
 
     public void addParticipant(AgoraParticipant agoraParticipant) {
         this.participants.add(agoraParticipant);
+        this.participantCount = this.participants.size();
     }
 
     public void addOpinion(AgoraOpinion agoraOpinion) {
