@@ -487,7 +487,7 @@ class MemberControllerTest {
         .andExpect(status().isOk());
   }
 
-  @DisplayName("이름으로 유저 리스트 조회")
+  @DisplayName("유저이름(username)으로 유저 리스트 조회")
   @Test
   void 유저_이름으로_유저_리스트_조회() throws Exception {
     Member member = createOrLoadMember(2);
