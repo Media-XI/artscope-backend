@@ -280,14 +280,10 @@ public class MemberService {
     Page<Member> searchResults = null;
     Pageable pageable = PageRequest.of(0, 10);
 
-    if (username.contains("@") && username.contains(".")) {
-      int atIndex = username.lastIndexOf("@");
-      String email = username.substring(0, atIndex);
-      String domain = username.substring(atIndex + 1);
-
-      searchResults = memberRepository.searchByEmail(email, domain, pageable);
+    String regex = "^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$";
+    if (username.matches(regex)) {
+      searchResults = memberRepository.searchByEmail(username, pageable);
     } else if (username.startsWith("@")) {
-      String findUserName = username.substring(1);
       searchResults = memberRepository.searchByUsername(username, pageable);
     } else {
       searchResults = memberRepository.searchByName(username, pageable);

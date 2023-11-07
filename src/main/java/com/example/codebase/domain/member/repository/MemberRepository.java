@@ -41,12 +41,12 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
   @Query("SELECT m FROM Member m WHERE m.email = ?1")
   Member findByEmail(String email);
 
-  @Query("SELECT m FROM Member m WHERE m.email LIKE  %?1%" + " AND m.email LIKE %?2%")
-  Page<Member> searchByEmail(String email, String domain, Pageable pageable);
+  @Query("SELECT m FROM Member m WHERE m.email LIKE  ?1%")
+  Page<Member> searchByEmail(String email, Pageable pageable);
 
-  @Query("SELECT m FROM Member m WHERE m.username LIKE %?1%")
+  @Query("SELECT m FROM Member m WHERE m.username LIKE ?1%")
   Page<Member> searchByUsername(String username, Pageable pageable);
 
-  @Query("SELECT m FROM Member m WHERE m.name LIKE %?1%")
+  @Query("SELECT m FROM Member m WHERE m.name LIKE ?1%")
   Page<Member> searchByName(String username, Pageable pageable);
 }
