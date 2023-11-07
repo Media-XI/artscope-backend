@@ -134,6 +134,4 @@ public class ExhibitionController {
     exhibitionService.deleteAllEventSchedules(exhibitionId, username);
     return new ResponseEntity("이벤트 일정이 전체 삭제되었습니다.", HttpStatus.OK);
   }
-
-
 }
