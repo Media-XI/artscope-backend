@@ -102,8 +102,8 @@ class PostControllerTest {
         Member dummy = Member.builder()
                 .username(username)
                 .password(passwordEncoder.encode("1234"))
-                .email("emailasdf")
-                .name("test")
+                .email(username + "@test.com")
+                .name(username)
                 .activated(true)
                 .createdTime(LocalDateTime.now())
                 .build();
@@ -303,7 +303,7 @@ class PostControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @WithMockCustomUser(username = "testid", role = "ADMIN")
+    @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("본인이 작성하지 않은 포스트 수정 시")
     @Test
     void 작성자가_아닌_포스트_수정() throws Exception {
@@ -322,6 +322,25 @@ class PostControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @WithMockCustomUser(username = "testid", role = "ADMIN")
+    @DisplayName("관리자가 작성하지 않은 포스트 수정 시")
+    @Test
+    void 관리자_포스트_수정() throws Exception {
+        Post post = createPost();
+
+        PostUpdateDTO dto = PostUpdateDTO.builder()
+                .content("내용 수정")
+                .build();
+
+        mockMvc.perform(
+                        put("/api/posts/" + post.getId())
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
     @DisplayName("포스트 삭제 시")
@@ -336,7 +355,7 @@ class PostControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @WithMockCustomUser(username = "testid", role = "ADMIN")
+    @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("본인이 작성하지 않은 포스트 삭제 시")
     @Test
     void 작성자가_아닌_포스트_삭제() throws Exception {
@@ -347,6 +366,19 @@ class PostControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "ADMIN")
+    @DisplayName("관리자가 포스트 삭제 시")
+    @Test
+    void 관리자가_포스트_삭제() throws Exception {
+        Post post = createPost();
+
+        mockMvc.perform(
+                        delete("/api/posts/" + post.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
@@ -549,6 +581,49 @@ class PostControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("작성자가 아닌데 댓글을 수정할시")
+    @Test
+    void 작성자가_아닌_게시글_댓글_수정() throws Exception {
+        createOrLoadMember("testid", "ROLE_USER");
+        Post post = createPostWithComment(1);
+        PostComment comment = post.getPostComment().get(0);
+
+        PostUpdateDTO dto = PostUpdateDTO.builder()
+                .content("수정한댓글")
+                .build();
+
+        mockMvc.perform(
+                        put("/api/posts/comments/" + comment.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "ADMIN")
+    @DisplayName("관리자가 댓글을 수정할시")
+    @Test
+    void 관리자가_게시글_댓글_수정() throws Exception {
+        createOrLoadMember("testid", "ROLE_ADMIN");
+        Post post = createPostWithComment(1);
+        PostComment comment = post.getPostComment().get(0);
+
+        PostUpdateDTO dto = PostUpdateDTO.builder()
+                .content("수정한댓글")
+                .build();
+
+        mockMvc.perform(
+                        put("/api/posts/comments/" + comment.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+
     @WithMockCustomUser(username = "admin", role = "ADMIN")
     @DisplayName("게시물에 댓글을 삭제할시")
     @Test
@@ -561,13 +636,38 @@ class PostControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("작성자가 아닌데 게시물에 댓글을 삭제할시")
+    @Test
+    void 작성자가아닌_게시물_댓글_삭제() throws Exception {
+        createOrLoadMember("testid", "ROLE_USER");
+        Post post = createPostWithComment(2);
+        PostComment comment = post.getPostComment().get(0);
 
         mockMvc.perform(
-                        get("/api/posts/" + post.getId())
+                        delete("/api/posts/comments/" + comment.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "ADMIN")
+    @DisplayName("관리자가 게시물에 댓글을 삭제할시")
+    @Test
+    void 관리자_게시물_댓글_삭제() throws Exception {
+        createOrLoadMember("testid", "ROLE_ADMIN");
+        Post post = createPostWithComment(2);
+        PostComment comment = post.getPostComment().get(0);
+
+        mockMvc.perform(
+                        delete("/api/posts/comments/" + comment.getId())
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
     }
+
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
     @DisplayName("멘션 대댓글 (3차) 삭제 시 ")

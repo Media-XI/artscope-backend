@@ -33,4 +33,14 @@ public class MemberAuthority {
     @ManyToOne
     @JoinColumn(name = "authority_name")
     private Authority authority;
+
+    public void setMember(Member member) {
+        this.member = member;
+        member.addAuthority(this);
+    }
+
+    public void setAuthority(Authority authority) {
+        this.authority = authority;
+        authority.addMemberAuthority(this);
+    }
 }

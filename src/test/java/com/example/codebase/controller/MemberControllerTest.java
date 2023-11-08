@@ -78,14 +78,6 @@ class MemberControllerTest {
     @Autowired
     private MemberRepository memberRepository;
 
-    @BeforeEach
-    public void setUp() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
-    }
-
     @BeforeAll
     static void setUp(@Autowired S3Mock s3Mock,
                       @Autowired AmazonS3 amazonS3,
@@ -93,34 +85,40 @@ class MemberControllerTest {
         log.info("s3Mock start");
         s3Mock.start();
         amazonS3.createBucket("media-xi-art-storage");
+  }
+
+  @AfterAll
+  static void tearDown(@Autowired S3Mock s3Mock, @Autowired AmazonS3 amazonS3) {
+    log.info("s3Mock stop");
+    amazonS3.deleteBucket("media-xi-art-storage");
+    s3Mock.stop();
+  }
+
+  @BeforeEach
+  public void setUp() {
+    mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+  }
+
+  public Member createOrLoadMember() {
+    return createOrLoadMember(1);
+  }
+
+  public Member createOrLoadMember(int index) {
+    Optional<Member> testMember = memberRepository.findByUsername("testid" + index);
+    if (testMember.isPresent()) {
+      return testMember.get();
     }
 
-    @AfterAll
-    static void tearDown(@Autowired S3Mock s3Mock,
-                         @Autowired AmazonS3 amazonS3) {
-        log.info("s3Mock stop");
-        amazonS3.deleteBucket("media-xi-art-storage");
-        s3Mock.stop();
-    }
-
-    public Member createOrLoadMember() {
-        return createOrLoadMember(1);
-    }
-
-    public Member createOrLoadMember(int index) {
-        Optional<Member> testMember = memberRepository.findByUsername("testid" + index);
-        if (testMember.isPresent()) {
-            return testMember.get();
-        }
-
-        Member dummy = Member.builder()
-                .username("testid" + index)
-                .password(passwordEncoder.encode("1234"))
-                .email("email" + index)
-                .name("test" + index)
-                .activated(true)
-                .createdTime(LocalDateTime.now().plusSeconds(index))
-                .build();
+    Member dummy =
+        Member.builder()
+            .username("testid" + index)
+            .password(passwordEncoder.encode("1234"))
+            .email("email" + index + ".com")
+            .name("test" + index)
+            .companyName("company" + index)
+            .activated(true)
+            .createdTime(LocalDateTime.now().plusSeconds(index))
+            .build();
 
         MemberAuthority memberAuthority = new MemberAuthority();
         memberAuthority.setAuthority(Authority.of("ROLE_USER"));
@@ -467,15 +465,51 @@ class MemberControllerTest {
         dto.setSnsUrl("https://localhost/");
         dto.setCompanyName("회사 이름");
         dto.setCompanyRole("기획자");
-        dto.setUsername(member.getUsername());
+    dto.setUsername(member.getUsername());
 
-        mockMvc.perform(
-                        post("/api/members/curator")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
-                )
-                .andDo(print())
-                .andExpect(status().isCreated());
-    }
+    mockMvc
+        .perform(
+            post("/api/members/curator")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+        .andDo(print())
+        .andExpect(status().isCreated());
+  }
 
+  @DisplayName("이메일로 유저 리스트 조회")
+  @Test
+  void 이메일로_유저_리스트_조회() throws Exception {
+    Member member = createOrLoadMember(2);
+
+    mockMvc
+        .perform(get("/api/members/search/{email}", member.getEmail()))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
+
+  @DisplayName("유저이름(username)으로 유저 리스트 조회")
+  @Test
+  void 유저_이름으로_유저_리스트_조회() throws Exception {
+    Member member = createOrLoadMember(2);
+
+    mockMvc
+        .perform(get("/api/members/search/{username}", member.getUsername()))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
+
+  @DisplayName("이름으로 유저 리스트 조회")
+  @Test
+  void 이름으로_유저_리스트_조회() throws Exception {
+
+    createOrLoadMember(1);
+    createOrLoadMember(2);
+    createOrLoadMember(3);
+    createOrLoadMember(4);
+
+    mockMvc
+        .perform(get("/api/members/search/{name}", "test"))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
 }

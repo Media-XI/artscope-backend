@@ -92,8 +92,8 @@ public class ArtworkController {
         return new ResponseEntity(artwork, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "아트워크 수정", notes = "[USER] 아트워크를 수정합니다. 작성자만 수정 가능합니다.")
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
+    @ApiOperation(value = "아트워크 수정", notes = "[USER] 아트워크를 수정합니다. 작성자/관리자만 수정 가능합니다.")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity updateArtwork(@PathVariable Long id, @RequestBody ArtworkUpdateDTO dto) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
@@ -126,11 +126,9 @@ public class ArtworkController {
     @DeleteMapping("/{id}")
     public ResponseEntity deleteArtwork(@PathVariable Long id) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
-        if (SecurityUtil.isAdmin()) {
-            username = null;
-        }
 
         artworkService.deleteArtwork(id, username);
+
         return new ResponseEntity("아트워크가 삭제되었습니다.", HttpStatus.OK);
     }
 
@@ -245,22 +243,23 @@ public class ArtworkController {
         return new ResponseEntity(comment, HttpStatus.CREATED);
     }
 
-//    @ApiOperation(value = "아트워크 대댓글 생성", notes = "[로그인] 해당 아트워크 댓글에 대댓글을 추가합니다.")
-//    @PreAuthorize("isAuthenticated()")
-//    @PostMapping("/{id}/comments/{commentId}/comments")
-//    public ResponseEntity addChildComment(@PathVariable Long id,
-//                                            @PathVariable Long commentId,
-//                                            @RequestBody ArtworkCommentCreateDTO commentCreateDTO) {
-//        String loginUsername = SecurityUtil.getCurrentUsername()
-//                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
-//
-//        ArtworkResponseDTO comment = artworkService.addChildComment(id, commentId, loginUsername, commentCreateDTO);
-//
-//        return new ResponseEntity(comment, HttpStatus.CREATED);
-//    }
+    @ApiOperation(value = "아트워크 댓글 수정", notes = "[로그인, 작성자, 관리자] 해당 아트워크 댓글을 수정합니다.")
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/{id}/comments/{commentId}")
+    public ResponseEntity updateArtworkComment(
+            @PathVariable Long id,
+            @PathVariable Long commentId,
+            @RequestBody ArtworkCommentCreateDTO commentCreateDTO) {
+        String loginUsername = SecurityUtil.getCurrentUsername()
+                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
+        ArtworkResponseDTO comment = artworkService.updateArtworkComment(id, commentId, loginUsername,
+                commentCreateDTO);
 
-    @ApiOperation(value = "아트워크 댓글 삭제", notes = "[로그인, 작성자] 해당 아트워크 댓글을 삭제합니다.")
+        return new ResponseEntity(comment, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "아트워크 댓글 삭제", notes = "[로그인, 작성자, 관리자] 해당 아트워크 댓글을 삭제합니다.")
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}/comments/{commentId}")
     public ResponseEntity deleteArtworkComment(

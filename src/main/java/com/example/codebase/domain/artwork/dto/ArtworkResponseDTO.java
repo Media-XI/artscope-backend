@@ -20,53 +20,61 @@ import lombok.Setter;
 @Builder
 public class ArtworkResponseDTO {
 
-    private Long id;
+  private Long id;
 
-    private String title;
+  private String title;
 
-    private List<String> tags;
+  private List<String> tags;
 
-    private String description;
+  private String description;
 
-    private Integer views;
+  private Integer views;
 
-    private Integer likes;
+  private Integer likes;
 
-    private Integer comments;
+  private Integer comments;
 
-    private String authorUsername;
+  private String authorUsername;
 
-    private String authorName;
+  private String authorName;
 
-    private ArtworkMediaResponseDTO thumbnail;
+  private String authorProfileImage;
 
-    private List<ArtworkMediaResponseDTO> artworkMedias;
+  private String authorIntroduction;
 
-    private List<ArtworkCommentResponseDTO> artworkComments;
+  private String authorCompanyName;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime createdTime;
+  private String authorCompanyRole;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime updatedTime;
+  private ArtworkMediaResponseDTO thumbnail;
 
-    public static ArtworkResponseDTO from(Artwork artwork) {
-        List<ArtworkMedia> artworkMedia = artwork.getArtworkMedia();
+  private List<ArtworkMediaResponseDTO> artworkMedias;
 
-        ArtworkMediaResponseDTO thumbnail =
-                artworkMedia.stream().findFirst().map(ArtworkMediaResponseDTO::from).orElse(null);
+  private List<ArtworkCommentResponseDTO> artworkComments;
 
-        List<ArtworkMediaResponseDTO> artworkMediaResponseDTOS =
-                artworkMedia.stream()
-                        .skip(1)
-                        .map(ArtworkMediaResponseDTO::from)
-                        .collect(Collectors.toList());
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+  private LocalDateTime createdTime;
 
-        List<String> tags = null;
-        if (Optional.ofNullable(artwork.getTags()).isPresent()) {
-            String[] split = artwork.getTags().split(",");
-            tags = List.of(split);
-        }
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+  private LocalDateTime updatedTime;
+
+  public static ArtworkResponseDTO from(Artwork artwork) {
+    List<ArtworkMedia> artworkMedia = artwork.getArtworkMedia();
+
+    ArtworkMediaResponseDTO thumbnail =
+        artworkMedia.stream().findFirst().map(ArtworkMediaResponseDTO::from).orElse(null);
+
+    List<ArtworkMediaResponseDTO> artworkMediaResponseDTOS =
+        artworkMedia.stream()
+            .skip(1)
+            .map(ArtworkMediaResponseDTO::from)
+            .collect(Collectors.toList());
+
+    List<String> tags = null;
+    if (Optional.ofNullable(artwork.getTags()).isPresent()) {
+      String[] split = artwork.getTags().split(",");
+      tags = List.of(split);
+    }
 
         return ArtworkResponseDTO.builder()
                 .id(artwork.getId())
@@ -78,6 +86,12 @@ public class ArtworkResponseDTO {
                 .comments(artwork.getComments())
                 .authorName(artwork.getMember().getName())
                 .authorUsername(artwork.getMember().getUsername())
+                .authorIntroduction(artwork.getMember().getIntroduction())
+                .authorProfileImage(artwork.getMember().getPicture() != null ? artwork.getMember().getPicture() : null)
+                .authorCompanyName(
+                        artwork.getMember().getCompanyName() != null ? artwork.getMember().getCompanyName() : null)
+                .authorCompanyRole(
+                        artwork.getMember().getCompanyRole() != null ? artwork.getMember().getCompanyRole() : null)
                 .thumbnail(thumbnail)
                 .artworkMedias(artworkMediaResponseDTOS)
                 .createdTime(artwork.getCreatedTime())
@@ -85,10 +99,10 @@ public class ArtworkResponseDTO {
                 .build();
     }
 
-    public static ArtworkResponseDTO of(
-            Artwork artwork, List<ArtworkCommentResponseDTO> artworkComments) {
-        ArtworkResponseDTO artworkResponseDTO = from(artwork);
-        artworkResponseDTO.setArtworkComments(artworkComments);
-        return artworkResponseDTO;
-    }
+  public static ArtworkResponseDTO of(
+      Artwork artwork, List<ArtworkCommentResponseDTO> artworkComments) {
+    ArtworkResponseDTO artworkResponseDTO = from(artwork);
+    artworkResponseDTO.setArtworkComments(artworkComments);
+    return artworkResponseDTO;
+  }
 }

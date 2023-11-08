@@ -7,6 +7,7 @@ import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
 import com.example.codebase.domain.member.dto.CreateCuratorMemberDTO;
 import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.example.codebase.domain.member.dto.MemberResponseDTO;
+import com.example.codebase.domain.member.dto.MemberSearchResponseDTO;
 import com.example.codebase.domain.member.dto.UpdateMemberDTO;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
@@ -24,6 +25,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,256 +35,260 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class MemberService {
 
-    private final PasswordEncoder passwordEncoder;
-    private final MemberRepository memberRepository;
-    private final MemberAuthorityRepository memberAuthorityRepository;
-    private final S3Service s3Service;
+  private final PasswordEncoder passwordEncoder;
+  private final MemberRepository memberRepository;
+  private final MemberAuthorityRepository memberAuthorityRepository;
+  private final S3Service s3Service;
 
-    @Autowired
-    public MemberService(PasswordEncoder passwordEncoder, MemberRepository memberRepository,
-                         MemberAuthorityRepository memberAuthorityRepository, S3Service s3Service) {
-        this.passwordEncoder = passwordEncoder;
-        this.memberRepository = memberRepository;
-        this.memberAuthorityRepository = memberAuthorityRepository;
-        this.s3Service = s3Service;
+  @Autowired
+  public MemberService(
+      PasswordEncoder passwordEncoder,
+      MemberRepository memberRepository,
+      MemberAuthorityRepository memberAuthorityRepository,
+      S3Service s3Service) {
+    this.passwordEncoder = passwordEncoder;
+    this.memberRepository = memberRepository;
+    this.memberAuthorityRepository = memberAuthorityRepository;
+    this.s3Service = s3Service;
+  }
+
+  @Transactional
+  public MemberResponseDTO createMember(CreateMemberDTO member) {
+    if (memberRepository.existsByUsername(member.getUsername())) {
+      throw new ExistMemberException();
     }
 
-    @Transactional
-    public MemberResponseDTO createMember(CreateMemberDTO member) {
-        if (memberRepository.existsByUsername(member.getUsername())) {
-            throw new ExistMemberException();
-        }
-
-        if (memberRepository.existsByEmail(member.getEmail())) {
-            throw new ExistsEmailException();
-        }
-
-        Authority authority = Authority.builder()
-                .authorityName("ROLE_GUEST")
-                .build();
-
-        Member newMember = Member.builder()
-                .username(member.getUsername())
-                .password(passwordEncoder.encode(member.getPassword()))
-                .name(member.getName())
-                .email(member.getEmail())
-                .createdTime(LocalDateTime.now())
-                .activated(false)
-                .build();
-
-        MemberAuthority memberAuthority = MemberAuthority.builder()
-                .authority(authority)
-                .member(newMember)
-                .build();
-        newMember.addAuthority(memberAuthority);
-
-        Member save = memberRepository.save(newMember);
-        return MemberResponseDTO.from(save);
+    if (memberRepository.existsByEmail(member.getEmail())) {
+      throw new ExistsEmailException();
     }
 
-    @Transactional
-    public MemberResponseDTO createAdmin(CreateMemberDTO member) {
-        if (memberRepository.findByUsername(member.getUsername()).isPresent()) {
-            throw new ExistMemberException();
-        }
+    Authority authority = Authority.builder().authorityName("ROLE_GUEST").build();
 
-        Member newMember = Member.builder()
-                .username(member.getUsername())
-                .password(passwordEncoder.encode(member.getPassword()))
-                .name(member.getName())
-                .email(member.getEmail())
-                .createdTime(LocalDateTime.now())
-                .activated(true)
-                .build();
+    Member newMember =
+        Member.builder()
+            .username(member.getUsername())
+            .password(passwordEncoder.encode(member.getPassword()))
+            .name(member.getName())
+            .email(member.getEmail())
+            .createdTime(LocalDateTime.now())
+            .activated(false)
+            .build();
 
-        MemberAuthority userAuthority = MemberAuthority.builder()
-                .authority(Authority.of("ROLE_USER"))
-                .member(newMember)
-                .build();
-        newMember.addAuthority(userAuthority);
+    MemberAuthority memberAuthority =
+        MemberAuthority.builder().authority(authority).member(newMember).build();
+    newMember.addAuthority(memberAuthority);
 
-        MemberAuthority adminAuthority = MemberAuthority.builder()
-                .authority(Authority.of("ROLE_ADMIN"))
-                .member(newMember)
-                .build();
-        newMember.addAuthority(adminAuthority);
+    Member save = memberRepository.save(newMember);
+    return MemberResponseDTO.from(save);
+  }
 
-        return MemberResponseDTO.from(memberRepository.save(newMember));
+  @Transactional
+  public MemberResponseDTO createAdmin(CreateMemberDTO member) {
+    if (memberRepository.findByUsername(member.getUsername()).isPresent()) {
+      throw new ExistMemberException();
     }
 
-    @Transactional
-    public Member createOAuthMember(OAuthAttributes oAuthAttributes) {
-        if (isExistUsername(oAuthAttributes.getOAuthProviderId())) {
-            throw new ExistMemberException();
-        }
+    Member newMember =
+        Member.builder()
+            .username(member.getUsername())
+            .password(passwordEncoder.encode(member.getPassword()))
+            .name(member.getName())
+            .email(member.getEmail())
+            .createdTime(LocalDateTime.now())
+            .activated(true)
+            .build();
 
-        if (isExistEmail(oAuthAttributes.getEmail())) {
-            throw new ExistsEmailException();
-        }
+    MemberAuthority userAuthority =
+        MemberAuthority.builder().authority(Authority.of("ROLE_USER")).member(newMember).build();
+    newMember.addAuthority(userAuthority);
 
-        // New Save
-        Authority authority = new Authority();
-        authority.setAuthorityName("ROLE_USER");
+    MemberAuthority adminAuthority =
+        MemberAuthority.builder().authority(Authority.of("ROLE_ADMIN")).member(newMember).build();
+    newMember.addAuthority(adminAuthority);
 
-        Member newMember = Member.from(passwordEncoder, oAuthAttributes);
-        MemberAuthority memberAuthority = MemberAuthority.builder()
-                .authority(authority)
-                .member(newMember)
-                .build();
-        newMember.addAuthority(memberAuthority);
+    return MemberResponseDTO.from(memberRepository.save(newMember));
+  }
 
-        Member save = memberRepository.save(newMember);
-        return save;
+  @Transactional
+  public Member createOAuthMember(OAuthAttributes oAuthAttributes) {
+    if (isExistUsername(oAuthAttributes.getOAuthProviderId())) {
+      throw new ExistMemberException();
     }
 
-    public List<MemberResponseDTO> getAllMember() {
-        return memberRepository.findAll().stream()
-                .map(MemberResponseDTO::from)
-                .collect(Collectors.toList());
+    if (isExistEmail(oAuthAttributes.getEmail())) {
+      throw new ExistsEmailException();
     }
 
-    @Transactional
-    public MemberResponseDTO createArtist(CreateArtistMemberDTO createArtistMemberDTO) {
-        Member member = memberRepository
-                .findByUsername(createArtistMemberDTO.getUsername())
-                .orElseThrow(NotFoundMemberException::new);
-        member.setArtist(createArtistMemberDTO);
+    // New Save
+    Authority authority = new Authority();
+    authority.setAuthorityName("ROLE_USER");
 
-        return MemberResponseDTO.from(member);
+    Member newMember = Member.from(passwordEncoder, oAuthAttributes);
+    MemberAuthority memberAuthority =
+        MemberAuthority.builder().authority(authority).member(newMember).build();
+    newMember.addAuthority(memberAuthority);
+
+    Member save = memberRepository.save(newMember);
+    return save;
+  }
+
+  public List<MemberResponseDTO> getAllMember() {
+    return memberRepository.findAll().stream()
+        .map(MemberResponseDTO::from)
+        .collect(Collectors.toList());
+  }
+
+  @Transactional
+  public MemberResponseDTO createArtist(CreateArtistMemberDTO createArtistMemberDTO) {
+    Member member =
+        memberRepository
+            .findByUsername(createArtistMemberDTO.getUsername())
+            .orElseThrow(NotFoundMemberException::new);
+    member.setArtist(createArtistMemberDTO);
+
+    return MemberResponseDTO.from(member);
+  }
+
+  @Transactional
+  public MemberResponseDTO createCurator(CreateCuratorMemberDTO createCuratorMemberDTO) {
+    Member member =
+        memberRepository
+            .findByUsername(createCuratorMemberDTO.getUsername())
+            .orElseThrow(NotFoundMemberException::new);
+    member.setCurator(createCuratorMemberDTO);
+
+    return MemberResponseDTO.from(member);
+  }
+
+  public MemberResponseDTO getProfile(String username) {
+    Member member =
+        memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+    return MemberResponseDTO.from(member);
+  }
+
+  @Transactional
+  public MemberResponseDTO updateMember(String username, UpdateMemberDTO updateMemberDTO) {
+    Member member =
+        memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+
+    member.update(updateMemberDTO);
+
+    return MemberResponseDTO.from(member);
+  }
+
+  @Transactional
+  public MemberResponseDTO updateProfile(String username, MultipartFile multipartFile) {
+    Member member =
+        memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+
+    try {
+      String fileUrl = s3Service.saveUploadFile(multipartFile);
+      member.update(fileUrl);
+    } catch (IOException e) {
+      throw new RuntimeException("S3 Upload Error");
     }
 
-    @Transactional
-    public MemberResponseDTO createCurator(CreateCuratorMemberDTO createCuratorMemberDTO) {
-        Member member = memberRepository
-                .findByUsername(createCuratorMemberDTO.getUsername())
-                .orElseThrow(NotFoundMemberException::new);
-        member.setCurator(createCuratorMemberDTO);
+    return MemberResponseDTO.from(member);
+  }
 
-        return MemberResponseDTO.from(member);
+  public void deleteMember(String username) {
+    Member member =
+        memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+
+    // S3 오브젝트 삭제
+    if (Optional.ofNullable(member.getPicture()).isPresent()
+        && member.getPicture().startsWith(s3Service.getDir())) {
+      s3Service.deleteObject(member.getPicture());
     }
 
-    public MemberResponseDTO getProfile(String username) {
-        Member member = memberRepository
-                .findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
-        return MemberResponseDTO.from(member);
+    // 미디어 파일 삭제
+    if (Optional.ofNullable(member.getArtworks()).isPresent()) {
+      deleteMemberAllArtworkMedias(member.getArtworks());
     }
 
-    @Transactional
-    public MemberResponseDTO updateMember(String username, UpdateMemberDTO updateMemberDTO) {
-        Member member = memberRepository
-                .findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
+    memberRepository.delete(member);
+  }
 
-        member.update(updateMemberDTO);
+  public void deleteMemberAllArtworkMedias(List<Artwork> artworks) {
+    for (Artwork artwork : artworks) {
+      List<ArtworkMedia> artworkMedias = artwork.getArtworkMedia();
+      List<String> urls =
+          artworkMedias.stream().map(ArtworkMedia::getMediaUrl).collect(Collectors.toList());
 
-        return MemberResponseDTO.from(member);
+      if (urls.size() > 0) {
+        s3Service.deleteObjects(urls);
+      }
+    }
+  }
+
+  public boolean isExistEmail(String email) {
+    return memberRepository.existsByEmail(email);
+  }
+
+  public boolean isExistUsername(String username) {
+    return memberRepository.existsByUsername(username);
+  }
+
+  @Transactional
+  public MemberResponseDTO updateArtistStatus(String username, String status) {
+    Member member =
+        memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+
+    member.updateArtistStatus(status);
+
+    return MemberResponseDTO.from(member);
+  }
+
+  @Transactional
+  public MemberResponseDTO updateUsername(String username, String newUsername) {
+    Member member =
+        memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+
+    Boolean existsByUsername = memberRepository.existsByUsername(newUsername);
+    if (existsByUsername) {
+      throw new RuntimeException("사용중인 아이디입니다.");
     }
 
-    @Transactional
-    public MemberResponseDTO updateProfile(String username, MultipartFile multipartFile) {
-        Member member = memberRepository
-                .findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
+    member.updateUsername(newUsername);
 
-        try {
-            String fileUrl = s3Service.saveUploadFile(multipartFile);
-            member.update(fileUrl);
-        } catch (IOException e) {
-            throw new RuntimeException("S3 Upload Error");
-        }
+    return MemberResponseDTO.from(member);
+  }
 
-        return MemberResponseDTO.from(member);
+  @Transactional
+  public void updatePassword(String username, String password) {
+    Member member =
+        memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+
+    member.updatePassword(passwordEncoder.encode(password));
+  }
+
+  @Transactional
+  public MemberResponseDTO updateAdmin(String username) {
+    Member member =
+        memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+
+    MemberAuthority adminAuthority = new MemberAuthority();
+    adminAuthority.setAuthority(Authority.of("ROLE_ADMIN"));
+    adminAuthority.setMember(member);
+
+    member.addAuthority(adminAuthority);
+
+    return MemberResponseDTO.from(member);
+  }
+
+  public List<MemberSearchResponseDTO> searchMember(String username) {
+    Page<Member> searchResults = null;
+    Pageable pageable = PageRequest.of(0, 10);
+
+    String regex = "^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$";
+    if (username.matches(regex)) {
+      searchResults = memberRepository.searchByEmail(username, pageable);
+    } else if (username.startsWith("@")) {
+      searchResults = memberRepository.searchByUsername(username, pageable);
+    } else {
+      searchResults = memberRepository.searchByName(username, pageable);
     }
 
-    public void deleteMember(String username) {
-        Member member = memberRepository
-                .findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
-
-        // S3 오브젝트 삭제
-        if (Optional.ofNullable(member.getPicture()).isPresent() && member.getPicture()
-                .startsWith(s3Service.getDir())) {
-            s3Service.deleteObject(member.getPicture());
-        }
-
-        // 미디어 파일 삭제
-        if (Optional.ofNullable(member.getArtworks()).isPresent()) {
-            deleteMemberAllArtworkMedias(member.getArtworks());
-        }
-
-        memberRepository.delete(member);
-    }
-
-    public void deleteMemberAllArtworkMedias(List<Artwork> artworks) {
-        for (Artwork artwork : artworks) {
-            List<ArtworkMedia> artworkMedias = artwork.getArtworkMedia();
-            List<String> urls = artworkMedias.stream()
-                    .map(ArtworkMedia::getMediaUrl)
-                    .collect(Collectors.toList());
-
-            if (urls.size() > 0) {
-                s3Service.deleteObjects(urls);
-            }
-        }
-    }
-
-    public boolean isExistEmail(String email) {
-        return memberRepository.existsByEmail(email);
-    }
-
-    public boolean isExistUsername(String username) {
-        return memberRepository.existsByUsername(username);
-    }
-
-    @Transactional
-    public MemberResponseDTO updateArtistStatus(String username, String status) {
-        Member member = memberRepository
-                .findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
-
-        member.updateArtistStatus(status);
-
-        return MemberResponseDTO.from(member);
-    }
-
-    @Transactional
-    public MemberResponseDTO updateUsername(String username, String newUsername) {
-        Member member = memberRepository
-                .findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
-
-        Boolean existsByUsername = memberRepository.existsByUsername(newUsername);
-        if (existsByUsername) {
-            throw new RuntimeException("사용중인 아이디입니다.");
-        }
-
-        member.updateUsername(newUsername);
-
-        return MemberResponseDTO.from(member);
-    }
-
-    @Transactional
-    public void updatePassword(String username, String password) {
-        Member member = memberRepository
-                .findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
-
-        member.updatePassword(passwordEncoder.encode(password));
-    }
-
-    @Transactional
-    public MemberResponseDTO updateAdmin(String username) {
-        Member member = memberRepository
-                .findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
-
-        MemberAuthority adminAuthority = new MemberAuthority();
-        adminAuthority.setAuthority(Authority.of("ROLE_ADMIN"));
-        adminAuthority.setMember(member);
-
-        member.addAuthority(adminAuthority);
-
-        return MemberResponseDTO.from(member);
-    }
+    return searchResults.stream().map(MemberSearchResponseDTO::from).collect(Collectors.toList());
+  }
 }

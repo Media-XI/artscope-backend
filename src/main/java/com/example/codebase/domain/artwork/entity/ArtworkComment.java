@@ -73,4 +73,9 @@ public class ArtworkComment {
         this.childComments.add(childComment);
         childComment.parentComment = this;
     }
+
+    public void update(ArtworkCommentCreateDTO commentCreateDTO) {
+        this.content = commentCreateDTO.getContent();
+        this.updatedTime = LocalDateTime.now();
+    }
 }

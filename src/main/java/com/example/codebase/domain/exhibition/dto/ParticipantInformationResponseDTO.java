@@ -10,17 +10,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ParticipantInformationResponseDTO {
 
-    private String username;
+  private String username;
 
-    private String name;
+  private String name;
 
-    // TODO : 뭐가 더 필요하지..
+  // TODO : 뭐가 더 필요하지..
 
-    public static ParticipantInformationResponseDTO from(
-            ExhibitionParticipant exhibitionParticipant) {
-        return ParticipantInformationResponseDTO.builder()
-                .username(exhibitionParticipant.getMember().getUsername())
-                .name(exhibitionParticipant.getMember().getName())
-                .build();
-    }
+  public static ParticipantInformationResponseDTO from(
+      ExhibitionParticipant exhibitionParticipant) {
+    return ParticipantInformationResponseDTO.builder()
+        .username(exhibitionParticipant.getMember().getUsername())
+        .name(exhibitionParticipant.getName())
+        .build();
+  }
 }
