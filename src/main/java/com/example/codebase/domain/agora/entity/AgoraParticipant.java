@@ -112,9 +112,6 @@ public class AgoraParticipant {
         agora.decreaseVoteCount(vote);
     }
 
-    /**
-     * 의견을 작성했는지 확인
-     */
     public boolean hasOpinions() {
         return this.opinions.size() > 0;
     }
