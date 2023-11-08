@@ -63,8 +63,8 @@ public class ArtworkController {
             throw new RuntimeException("태그는 최대 5개까지 등록 가능합니다.");
         }
 
-        imageService.mediasUpload(dto, mediaFiles);
-        imageService.thumbnailUpload(dto.getThumbnail(), thumbnailFile);
+        imageService.uploadMedias(dto, mediaFiles);
+        imageService.uploadThumbnail(dto.getThumbnail(), thumbnailFile);
 
         ArtworkResponseDTO artwork = artworkService.createArtwork(dto, username);
         return new ResponseEntity(artwork, HttpStatus.CREATED);

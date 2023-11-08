@@ -30,7 +30,7 @@ public class ImageService {
         this.s3Service = s3Service;
     }
 
-    public void mediasUpload(ArtworkCreateDTO dto, List<MultipartFile> mediaFiles)
+    public void uploadMedias(ArtworkCreateDTO dto, List<MultipartFile> mediaFiles)
             throws IOException {
         if (mediaFiles.size() > Integer.valueOf(fileCount)) {
             throw new RuntimeException("파일은 최대 " + fileCount + "개까지 업로드 가능합니다.");
@@ -67,7 +67,7 @@ public class ImageService {
     }
 
     // TODO : 중복코드 리팩터링
-    public void mediasUpload(PostCreateDTO dto, List<MultipartFile> mediaFiles) throws IOException {
+    public void uploadMedias(PostCreateDTO dto, List<MultipartFile> mediaFiles) throws IOException {
         if (mediaFiles.size() > Integer.valueOf(fileCount)) {
             throw new RuntimeException("파일은 최대 " + fileCount + "개까지 업로드 가능합니다.");
         }
@@ -102,7 +102,7 @@ public class ImageService {
         }
     }
 
-    public void thumbnailUpload(ArtworkMediaCreateDTO thumbnailDto, MultipartFile thumbnailFile)
+    public void uploadThumbnail(ArtworkMediaCreateDTO thumbnailDto, MultipartFile thumbnailFile)
             throws IOException {
         String mediaType = thumbnailDto.getMediaType();
 
@@ -117,7 +117,7 @@ public class ImageService {
         thumbnailDto.setMediaUrl(savedUrl);
     }
 
-    public void thumbnailUpload(PostMediaCreateDTO thumbnailDto, MultipartFile thumbnailFile)
+    public void uploadThumbnail(PostMediaCreateDTO thumbnailDto, MultipartFile thumbnailFile)
             throws IOException {
         String mediaType = thumbnailDto.getMediaType();
 
@@ -132,7 +132,7 @@ public class ImageService {
         thumbnailDto.setMediaUrl(savedUrl);
     }
 
-    public void mediasUpload(ExhbitionCreateDTO dto, List<MultipartFile> mediaFiles)
+    public void uploadMedias(ExhbitionCreateDTO dto, List<MultipartFile> mediaFiles)
             throws IOException {
         if (mediaFiles.size() > Integer.valueOf(fileCount)) {
             throw new RuntimeException("파일은 최대 " + fileCount + "개까지 업로드 가능합니다.");
@@ -163,7 +163,7 @@ public class ImageService {
         }
     }
 
-    public void thumbnailUpload(ExhibitionMediaCreateDTO thumbnailDto, MultipartFile thumbnailFile)
+    public void uploadThumbnail(ExhibitionMediaCreateDTO thumbnailDto, MultipartFile thumbnailFile)
             throws IOException {
         String mediaType = thumbnailDto.getMediaType();
 
@@ -174,7 +174,7 @@ public class ImageService {
         thumbnailDto.setMediaUrl(savedUrl);
     }
 
-    public void mediasUpload(AgoraCreateDTO dto, List<MultipartFile> mediaFiles) throws IOException {
+    public void uploadMedias(AgoraCreateDTO dto, List<MultipartFile> mediaFiles) throws IOException {
         if (dto.getMedias() == null) {
             return;
         }
@@ -206,7 +206,7 @@ public class ImageService {
         }
     }
 
-    public void thumbnailUpload(AgoraCreateDTO dto, MultipartFile thumbnailFile) throws IOException {
+    public void uploadThumbnail(AgoraCreateDTO dto, MultipartFile thumbnailFile) throws IOException {
 
         if (dto.getThumbnail() == null) {
             return;

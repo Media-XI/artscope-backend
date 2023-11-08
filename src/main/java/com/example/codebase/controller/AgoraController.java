@@ -47,8 +47,8 @@ public class AgoraController {
     ) throws IOException {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
 
-        imageService.mediasUpload(dto, mediaFiles);
-        imageService.thumbnailUpload(dto, thumbnailFile);
+        imageService.uploadMedias(dto, mediaFiles);
+        imageService.uploadThumbnail(dto, thumbnailFile);
 
         AgoraReponseDTO agora = agoraService.createAgora(dto, username);
 

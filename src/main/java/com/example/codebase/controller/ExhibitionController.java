@@ -48,8 +48,8 @@ public class ExhibitionController {
     String username =
         SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
-    imageService.mediasUpload(dto, mediaFiles);
-    imageService.thumbnailUpload(dto.getThumbnail(), thumbnailFile);
+    imageService.uploadMedias(dto, mediaFiles);
+    imageService.uploadThumbnail(dto.getThumbnail(), thumbnailFile);
 
     ExhibitionResponseDTO exhibition = exhibitionService.createExhibition(dto, username);
 
