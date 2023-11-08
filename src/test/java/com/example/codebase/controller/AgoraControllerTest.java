@@ -379,6 +379,7 @@ class AgoraControllerTest {
         updateDTO.setTitle("AI 생성형 이미지 어떻게 생각하십니까");
         updateDTO.setContent("수정");
         updateDTO.setAgreeText("AI 찬성");
+        updateDTO.setNaturalText("AI 중립");
         updateDTO.setDisagreeText("AI 반대");
         updateDTO.setIsAnonymous(false);
 

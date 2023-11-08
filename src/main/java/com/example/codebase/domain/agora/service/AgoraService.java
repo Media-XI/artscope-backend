@@ -93,14 +93,14 @@ public class AgoraService {
     @Transactional
     public AgoraReponseDTO updateAgora(Long agoraId, AgoraUpdateDTO dto, String username) {
         Agora agora = agoraRepository.findById(agoraId)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다.")); // Agora 1번 1000번지
 
         if (!agora.isAuthor(username)) {
             throw new RuntimeException("아고라의 작성자가 아닙니다.");
         }
 
-        if (agora.getOpinionSize() > 0) {
-            throw new RuntimeException("아고라에 달린 의견이 있습니다.");
+        if (agora.getParticipantsSize() > 1) {
+            throw new RuntimeException("아고라에 참가한 사람이 있습니다.");
         }
 
         agora.update(dto);

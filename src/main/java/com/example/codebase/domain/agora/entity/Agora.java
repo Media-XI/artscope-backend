@@ -4,10 +4,7 @@ import com.example.codebase.domain.agora.dto.AgoraCreateDTO;
 import com.example.codebase.domain.agora.dto.AgoraUpdateDTO;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.exception.NotFoundException;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -141,9 +138,10 @@ public class Agora {
         this.title = dto.getTitle();
         this.content = dto.getContent();
         this.agreeText = dto.getAgreeText();
-        this.naturalText = dto.getNeturalText();
+        this.naturalText = dto.getNaturalText();
         this.disagreeText = dto.getDisagreeText();
         this.isAnonymous = dto.getIsAnonymous();
+        this.updatedTime = LocalDateTime.now();
     }
 
     public boolean isCorrectVoteText(String vote) {
