@@ -39,7 +39,7 @@ public class AgoraParticipantResponseDTO {
         Agora agora = agoraOpinion.getAgora();
         Member member = agoraOpinion.getAuthor().getMember();
         Boolean isAnonymous = agora.getIsAnonymous();
-        Integer agoraSequence = agoraOpinion.getAuthor().getAgoraSequence();
+        Integer agoraSequence = agoraOpinion.getAuthorSequence();
 
         return AgoraParticipantResponseDTO.of(member, isAnonymous, agoraSequence);
     }

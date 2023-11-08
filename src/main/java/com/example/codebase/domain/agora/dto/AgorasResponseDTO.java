@@ -1,9 +1,15 @@
 package com.example.codebase.domain.agora.dto;
 
 import com.example.codebase.controller.dto.PageInfo;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
+@Getter
+@Setter
 public class AgorasResponseDTO {
 
     List<AgoraReponseDTO> agoras;

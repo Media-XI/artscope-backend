@@ -3,6 +3,8 @@ package com.example.codebase.domain.agora.dto;
 import com.example.codebase.domain.agora.entity.Agora;
 import com.example.codebase.domain.agora.entity.AgoraMedia;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -34,6 +36,9 @@ public class AgoraReponseDTO {
 
     private Boolean isAnonymous;
 
+    @JsonIgnore
+    private Boolean isUserVoteCancle = false; // 현재 유저가 투표했는지 여부
+
     private AgoraParticipantResponseDTO author;
 
     private AgoraMediaResponseDTO thumbnail;
@@ -46,7 +51,7 @@ public class AgoraReponseDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedTime;
 
-    public static AgoraReponseDTO of(Agora agora) {
+    public static AgoraReponseDTO from(Agora agora) {
         List<AgoraMedia> agoraMedia = agora.getMedias();
 
         List<AgoraMediaResponseDTO> medias =
@@ -66,6 +71,7 @@ public class AgoraReponseDTO {
                 .participantCount(agora.getParticipantCount())
                 .agreeText(agora.getAgreeText())
                 .disagreeText(agora.getDisagreeText())
+                .isUserVoteCancle(false)
                 .isAnonymous(agora.getIsAnonymous())
                 .createdTime(agora.getCreatedTime())
                 .updatedTime(agora.getUpdatedTime())
@@ -75,4 +81,9 @@ public class AgoraReponseDTO {
                 .build();
     }
 
+    public static AgoraReponseDTO of(Agora agora, boolean userVoted) {
+        AgoraReponseDTO from = from(agora);
+        from.setIsUserVoteCancle(userVoted);
+        return from;
+    }
 }

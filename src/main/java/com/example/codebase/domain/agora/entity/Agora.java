@@ -20,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Where(clause = "is_deleted = false")
+@Where(clause = "is_deleted = 0")
 public class Agora {
 
     @Id
@@ -57,15 +57,15 @@ public class Agora {
     private Member author;
 
     @Builder.Default
-    @OneToMany(mappedBy = "agora")
+    @OneToMany(mappedBy = "agora", cascade = CascadeType.ALL)
     private List<AgoraMedia> medias = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "agora")
+    @OneToMany(mappedBy = "agora", cascade = CascadeType.ALL)
     private List<AgoraParticipant> participants = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "agora")
+    @OneToMany(mappedBy = "agora", cascade = CascadeType.ALL)
     private List<AgoraOpinion> opinions = new ArrayList<>();
 
     public static Agora from(AgoraCreateDTO dto) {
@@ -74,6 +74,9 @@ public class Agora {
                 .content(dto.getContent())
                 .agreeText(dto.getAgreeText())
                 .disagreeText(dto.getDisagreeText())
+                .agreeCount(0)
+                .disagreeCount(0)
+                .participantCount(0)
                 .isAnonymous(dto.getIsAnonymous())
                 .createdTime(LocalDateTime.now())
                 .build();
@@ -81,11 +84,18 @@ public class Agora {
 
     public static Agora of(AgoraCreateDTO dto, Member member) {
         Agora agora = from(dto);
-        agora.author = member;
-        member.addAgora(agora);
+        agora.setMember(member);
         return agora;
     }
 
+    private void setMember(Member member) {
+        this.author = member;
+        member.addAgora(this);
+    }
+
+    /**
+     * 아고라 삭제 (isDeleted = true) SOFT DELETE
+     */
     public void delete() {
         this.isDeleted = true;
         this.opinions.forEach(AgoraOpinion::delete);
@@ -105,6 +115,11 @@ public class Agora {
         this.opinions.add(agoraOpinion);
     }
 
+    public void setVoteCount(Integer agreeCount, Integer disagreeCount) {
+        this.agreeCount = agreeCount;
+        this.disagreeCount = disagreeCount;
+    }
+
     public void update(AgoraUpdateDTO dto) {
         this.title = dto.getTitle();
         this.content = dto.getContent();
@@ -113,7 +128,28 @@ public class Agora {
         this.isAnonymous = dto.getIsAnonymous();
     }
 
-    public void vote(String vote, AgoraParticipant participant) {
+    public boolean isCorrectVoteText(String vote){
+        return this.getAgreeText().equals(vote) || this.getDisagreeText().equals(vote);
+    }
 
+    public void removeMedia(AgoraMedia agoraMedia) {
+        this.medias.remove(agoraMedia);
+    }
+
+    // TODO : 동기화 문제가 있을 수 있음
+    public void increaseVoteCount(String vote) {
+        if (agreeText.equals(vote)) {
+            agreeCount++;
+        } else if (disagreeText.equals(vote)) {
+            disagreeCount++;
+        }
+    }
+
+    public void decreaseVoteCount(String vote) {
+        if (agreeText.equals(vote)) {
+            agreeCount--;
+        } else if (disagreeText.equals(vote)) {
+            disagreeCount--;
+        }
     }
 }

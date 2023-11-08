@@ -3,7 +3,6 @@ package com.example.codebase.domain.agora.entity;
 import com.example.codebase.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
@@ -14,7 +13,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "agora_participant")
-@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -43,23 +41,36 @@ public class AgoraParticipant {
 
     private LocalDateTime updatedTime;
 
-    @OneToMany(mappedBy = "author")
+    @Builder.Default
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     private List<AgoraOpinion> opinions = new ArrayList<>();
 
-    public static AgoraParticipant of(Member member, Agora agora) {
+    public static AgoraParticipant create() {
         AgoraParticipant participant = AgoraParticipant.builder()
                 .agoraSequence(0)
                 .createdTime(LocalDateTime.now())
-                .updatedTime(LocalDateTime.now())
                 .build();
-        participant.setAgoraAndMember(agora, member);
         return participant;
     }
 
+    /**
+     * 연관관계 메소드
+     *
+     * @param agora
+     * @param member
+     */
     public void setAgoraAndMember(Agora agora, Member member) {
         this.agora = agora;
         this.member = member;
         agora.addParticipant(this);
+    }
+
+    /**
+     * 새로운 참가 순번 부여
+     */
+    public void newSequence() {
+        int newSequence = this.agora.getParticipants().size() - 1;
+        this.agoraSequence = newSequence;
     }
 
     public void addOpinion(AgoraOpinion opinion) {
@@ -68,15 +79,69 @@ public class AgoraParticipant {
 
     public void delete() {
         this.isDeleted = true;
+        updateTime();
     }
 
-    public void vote(String vote, Integer agoraSequence) {
+    public void newVote(String vote) {
         this.vote = vote;
-        this.agoraSequence = agoraSequence;
+        increaseVoteCount(vote);
     }
 
-    public void cancle(String vote) {
-        this.vote.equals(vote);
+    public void updateVote(String vote) {
+        String oldVote = this.vote;
+        cancleVote(oldVote);
+        newVote(vote);
+        updateTime();
+    }
 
+    public void cancleVote(String vote) {
+        decreaseVoteCount(vote);
+        this.vote = "";
+        updateTime();
+    }
+
+    private void updateTime() {
+        this.updatedTime = LocalDateTime.now();
+    }
+
+    private void increaseVoteCount(String vote) {
+        agora.increaseVoteCount(vote);
+    }
+
+    private void decreaseVoteCount(String vote) {
+        agora.decreaseVoteCount(vote);
+    }
+
+    /**
+     * 의견을 작성했는지 확인
+     */
+    public boolean hasOpinions() {
+        return this.opinions.size() > 0;
+    }
+
+    /**
+     * 새로운 투표자인지 확인
+     */
+    public boolean isNewParticipant() {
+        return this.member == null && this.agora == null;
+    }
+
+    /**
+     * 투표 내용이 같은지 확인
+     */
+    public boolean isSameVote(String vote) {
+        return this.vote.equals(vote) && this.vote != "";
+    }
+
+    public String getVoteText() {
+        return this.vote;
+    }
+
+    public Member getMember() {
+        return this.member;
+    }
+
+    public Integer getSequence() {
+        return this.agoraSequence;
     }
 }

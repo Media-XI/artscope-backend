@@ -38,7 +38,7 @@ public class AgoraMedia {
     @JoinColumn(name = "agora_id")
     private Agora agora;
 
-    public static AgoraMedia of(AgoraMediaCreateDTO thumbnail, Agora agora) {
+    public static AgoraMedia from(AgoraMediaCreateDTO thumbnail) {
         AgoraMedia agoraMedia = AgoraMedia.builder()
                 .mediaType(MediaType.create(thumbnail.getMediaType()))
                 .mediaUrl(thumbnail.getMediaUrl())
@@ -46,16 +46,15 @@ public class AgoraMedia {
                 .mediaHeight(thumbnail.getHeight())
                 .createdTime(LocalDateTime.now())
                 .build();
-        agoraMedia.setAgora(agora);
         return agoraMedia;
     }
 
-    private void setAgora(Agora agora) {
+    public void setAgora(Agora agora) {
         this.agora = agora;
         agora.addMedia(this);
     }
 
     public void delete() {
-        this.agora = null;
+        this.agora.removeMedia(this);
     }
 }
