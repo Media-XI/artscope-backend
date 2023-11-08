@@ -73,7 +73,7 @@ public class ExhibitionController {
   @ApiOperation(value = "이벤트 기간으로 전체 조회", notes = "해당 기간 범위 안에 이벤트 전체 조회합니다.")
   @GetMapping
   public ResponseEntity getExhibition(
-      @RequestBody @Valid ExhibitionSearchDTO exhibitionSearchDTO,
+      @ModelAttribute @Valid ExhibitionSearchDTO exhibitionSearchDTO,
       @PositiveOrZero @RequestParam int page,
       @PositiveOrZero @RequestParam int size,
       @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {

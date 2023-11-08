@@ -4,6 +4,7 @@ import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
 import com.example.codebase.domain.member.dto.CreateCuratorMemberDTO;
 import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.example.codebase.domain.member.dto.MemberResponseDTO;
+import com.example.codebase.domain.member.dto.MemberSearchResponseDTO;
 import com.example.codebase.domain.member.dto.UpdateMemberDTO;
 import com.example.codebase.domain.member.dto.UsernameDTO;
 import com.example.codebase.domain.member.service.MemberService;
@@ -214,14 +215,22 @@ public class MemberController {
         }
 
         memberService.updatePassword(username, newPassword);
-        return new ResponseEntity("비밀번호가 변경되었습니다.", HttpStatus.OK);
-    }
+    return new ResponseEntity("비밀번호가 변경되었습니다.", HttpStatus.OK);
+  }
 
-    @ApiOperation(value = "관리자 권한 부여", notes = "[관리자] 해당 사용자 관리자 권한 부여")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    @PutMapping("/{username}/admin")
-    public ResponseEntity updateAdmin(@PathVariable String username) {
-        MemberResponseDTO member = memberService.updateAdmin(username);
-        return new ResponseEntity(member, HttpStatus.OK);
-    }
+  @ApiOperation(value = "관리자 권한 부여", notes = "[관리자] 해당 사용자 관리자 권한 부여")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  @PutMapping("/{username}/admin")
+  public ResponseEntity updateAdmin(@PathVariable String username) {
+    MemberResponseDTO member = memberService.updateAdmin(username);
+    return new ResponseEntity(member, HttpStatus.OK);
+  }
+
+  @ApiOperation(value = "유저 리스트 조회", notes = "이메일, 이름, 유저 이름으로 유저 리스트 조회")
+  @GetMapping("/search/{username}")
+  public ResponseEntity searchMember(@PathVariable String username) {
+
+    List<MemberSearchResponseDTO> memberList = memberService.searchMember(username);
+    return new ResponseEntity(memberList, HttpStatus.OK);
+  }
 }

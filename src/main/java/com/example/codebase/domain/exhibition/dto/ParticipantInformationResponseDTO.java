@@ -20,7 +20,7 @@ public class ParticipantInformationResponseDTO {
       ExhibitionParticipant exhibitionParticipant) {
     return ParticipantInformationResponseDTO.builder()
         .username(exhibitionParticipant.getMember().getUsername())
-        .name(exhibitionParticipant.getMember().getName())
+        .name(exhibitionParticipant.getName())
         .build();
   }
 }

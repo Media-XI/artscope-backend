@@ -384,12 +384,14 @@ class ExhibitionControllerTest {
     createOrLoadExhibition(1);
     createOrLoadExhibition(2);
     createOrLoadExhibition(3);
+    createOrLoadExhibition(4);
+    createOrLoadExhibition(5);
+    createOrLoadExhibition(6);
 
-    //    createMockLocation();
     ExhibitionSearchDTO exhibitionSearchDTO =
         ExhibitionSearchDTO.builder()
-            .startDate(LocalDate.now())
-            .endDate(LocalDate.now().plusMonths(1))
+            .startDate(LocalDate.now().toString())
+            .endDate(LocalDate.now().plusMonths(1).toString())
             .eventType(EventType.STANDARD.name())
             .build();
 
@@ -400,8 +402,9 @@ class ExhibitionControllerTest {
     mockMvc
         .perform(
             get("/api/exhibitions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(exhibitionSearchDTO))
+                .param("startDate", exhibitionSearchDTO.getStartDate())
+                .param("endDate", exhibitionSearchDTO.getEndDate())
+                .param("eventType", exhibitionSearchDTO.getEventType())
                 .param("page", String.valueOf(page))
                 .param("size", String.valueOf(size))
                 .param("sortDirection", sortDirection))
@@ -490,8 +493,8 @@ class ExhibitionControllerTest {
 
     ExhibitionSearchDTO exhibitionSearchDTO =
         ExhibitionSearchDTO.builder()
-            .startDate(LocalDate.now())
-            .endDate(LocalDate.now())
+            .startDate(String.valueOf(LocalDate.now()))
+            .endDate(String.valueOf(LocalDate.now().plusMonths(1)))
             .eventType(EventType.STANDARD.name())
             .build();
 
@@ -502,8 +505,9 @@ class ExhibitionControllerTest {
     mockMvc
         .perform(
             get("/api/exhibitions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(exhibitionSearchDTO))
+                .param("startDate", exhibitionSearchDTO.getStartDate())
+                .param("endDate", exhibitionSearchDTO.getEndDate())
+                .param("eventType", exhibitionSearchDTO.getEventType())
                 .param("page", String.valueOf(page))
                 .param("size", String.valueOf(size))
                 .param("sortDirection", sortDirection))
@@ -520,11 +524,10 @@ class ExhibitionControllerTest {
 
     ExhibitionSearchDTO exhibitionSearchDTO =
         ExhibitionSearchDTO.builder()
-            .startDate(LocalDate.now())
-            .endDate(LocalDate.now().minusDays(1))
+            .startDate(String.valueOf(LocalDate.now().plusDays(1)))
+            .endDate(String.valueOf(LocalDate.now()))
             .eventType(EventType.STANDARD.name())
             .build();
-
     int page = 0;
     int size = 10;
     String sortDirection = "DESC";
@@ -532,8 +535,9 @@ class ExhibitionControllerTest {
     mockMvc
         .perform(
             get("/api/exhibitions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(exhibitionSearchDTO))
+                .param("startDate", exhibitionSearchDTO.getStartDate())
+                .param("endDate", exhibitionSearchDTO.getEndDate())
+                .param("eventType", exhibitionSearchDTO.getEventType())
                 .param("page", String.valueOf(page))
                 .param("size", String.valueOf(size))
                 .param("sortDirection", sortDirection))

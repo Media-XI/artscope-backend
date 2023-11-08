@@ -1,11 +1,12 @@
 package com.example.codebase.domain.member.repository;
 
-
 import com.example.codebase.domain.member.entity.Member;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -39,4 +40,13 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
 
   @Query("SELECT m FROM Member m WHERE m.email = ?1")
   Member findByEmail(String email);
+
+  @Query("SELECT m FROM Member m WHERE m.email LIKE  ?1%")
+  Page<Member> searchByEmail(String email, Pageable pageable);
+
+  @Query("SELECT m FROM Member m WHERE m.username LIKE ?1%")
+  Page<Member> searchByUsername(String username, Pageable pageable);
+
+  @Query("SELECT m FROM Member m WHERE m.name LIKE ?1%")
+  Page<Member> searchByName(String username, Pageable pageable);
 }
