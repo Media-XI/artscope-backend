@@ -98,7 +98,7 @@ public class AgoraController {
     ) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         agoraService.deleteAgora(agoraId, username);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @ApiOperation(value = "아고라 투표", notes = "아고라 투표를 합니다. \n 해당 투표 내용으로 찬성, 반대를 결정합니다. \n 이미 투표한 사람이 동일한 투표 내용으로 투표하면 취소됩니다.")
@@ -110,6 +110,48 @@ public class AgoraController {
     ) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         AgoraReponseDTO agora = agoraService.voteAgora(agoraId, vote, username);
+
+        if (agora.getIsUserVoteCancle()) {
+            return new ResponseEntity(agora, HttpStatus.NO_CONTENT);
+        }
         return new ResponseEntity(agora, HttpStatus.OK);
     }
+
+    @ApiOperation(value = "아고라 의견 생성", notes = "아고라에 의견을 생성합니다.")
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/{agoraId}/opinions")
+    public ResponseEntity createOpinion(
+            @PathVariable Long agoraId,
+            @RequestBody @NotBlank(message = "의견 내용을 작성해주세요.") String content
+    ) {
+        String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
+        AgoraDetailReponseDTO opinion = agoraService.createOpinion(agoraId, content, username);
+        return new ResponseEntity(opinion, HttpStatus.CREATED);
+    }
+
+    @ApiOperation(value = "아고라 의견 수정", notes = "해당 의견을 생성합니다.")
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/{agoraId}/opinions/{opinionId}")
+    public ResponseEntity updateOpinion(
+            @PathVariable Long agoraId,
+            @PathVariable Long opinionId,
+            @RequestBody @NotBlank(message = "수정할 의견 내용을 작성해주세요.") String content
+    ) {
+        String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
+        AgoraDetailReponseDTO opinion = agoraService.updateOpinion(agoraId, opinionId, content, username);
+        return new ResponseEntity(opinion, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "아고라 의견 삭제", notes = "해당 의견을 삭제합니다.")
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{agoraId}/opinions/{opinionId}")
+    public ResponseEntity updateOpinion(
+            @PathVariable Long agoraId,
+            @PathVariable Long opinionId
+    ) {
+        String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
+        AgoraDetailReponseDTO opinion = agoraService.deleteOpinion(agoraId, opinionId, username, SecurityUtil.isAdmin());
+        return new ResponseEntity(opinion, HttpStatus.NO_CONTENT);
+    }
+
 }

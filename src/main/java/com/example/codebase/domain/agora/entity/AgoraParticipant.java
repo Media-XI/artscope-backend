@@ -21,12 +21,12 @@ import java.util.List;
 public class AgoraParticipant {
 
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "agora_id")
     private Agora agora;
 
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "member_id")
     private Member member;
 
@@ -42,7 +42,7 @@ public class AgoraParticipant {
     private LocalDateTime updatedTime;
 
     @Builder.Default
-    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "author")
     private List<AgoraOpinion> opinions = new ArrayList<>();
 
     public static AgoraParticipant create() {
@@ -69,7 +69,7 @@ public class AgoraParticipant {
      * 새로운 참가 순번 부여
      */
     public void newSequence() {
-        int newSequence = this.agora.getParticipants().size() - 1;
+        int newSequence = this.agora.getParticipantsSize() - 1;
         this.agoraSequence = newSequence;
     }
 
@@ -130,7 +130,7 @@ public class AgoraParticipant {
      * 투표 내용이 같은지 확인
      */
     public boolean isSameVote(String vote) {
-        return this.vote.equals(vote) && this.vote != "";
+        return isVoted() && this.vote.equals(vote);
     }
 
     public String getVoteText() {
@@ -143,5 +143,17 @@ public class AgoraParticipant {
 
     public Integer getSequence() {
         return this.agoraSequence;
+    }
+
+    public Agora getAgora() {
+        return this.agora;
+    }
+
+    public boolean isVoted() {
+        return this.vote != null && this.vote != "";
+    }
+
+    public void removeOpinion(AgoraOpinion agoraOpinion) {
+        this.opinions.remove(agoraOpinion);
     }
 }

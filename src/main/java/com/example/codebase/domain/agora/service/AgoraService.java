@@ -58,12 +58,13 @@ public class AgoraService {
             AgoraMedia agoraMedia = AgoraMedia.from(mediaDTO);
             agoraMedia.setAgora(agora);
         });
+        agoraRepository.save(agora);
 
         // 작성자를 아고라 참여자로 추가
         AgoraParticipant participant = AgoraParticipant.create();
         participant.setAgoraAndMember(agora, member);
+        agoraParticipantRepository.save(participant);
 
-        agoraRepository.save(agora);
         return AgoraReponseDTO.from(agora);
     }
 
@@ -84,6 +85,8 @@ public class AgoraService {
         Agora agora = agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
 
+        agora.isDeleted();
+
         return AgoraDetailReponseDTO.from(agora);
     }
 
@@ -95,11 +98,11 @@ public class AgoraService {
         Agora agora = agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
 
-        if (agora.getAuthor() != member) {
+        if (!agora.isAuthor(member)) {
             throw new RuntimeException("아고라의 작성자가 아닙니다.");
         }
 
-        if (agora.getOpinions().size() > 0) {
+        if (agora.getOpinionSize() > 0) {
             throw new RuntimeException("아고라에 달린 의견이 있습니다.");
         }
 
@@ -113,11 +116,11 @@ public class AgoraService {
         Agora agora = agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
 
-        if (agora.getAuthor().equals(username)) {
+        if (!agora.isAuthorUsername(username)) {
             throw new RuntimeException("아고라의 작성자가 아닙니다.");
         }
 
-        if (agora.getOpinions().size() > 0) {
+        if (agora.getOpinionSize() > 0) {
             throw new RuntimeException("아고라에 달린 의견이 있습니다.");
         }
 
@@ -129,6 +132,7 @@ public class AgoraService {
         }
 
         agora.delete();
+        agoraRepository.save(agora);
     }
 
 
@@ -170,7 +174,53 @@ public class AgoraService {
         return AgoraReponseDTO.of(agora, isVoteCancle);
     }
 
+    @Transactional
     public AgoraDetailReponseDTO createOpinion(Long agoraId, String content, String username) {
-        throw new RuntimeException("아직 구현 안됨");
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+
+        Agora agora = agoraRepository.findById(agoraId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
+
+        AgoraParticipant participant = agoraParticipantRepository.findById(AgoraParticipantIds.of(agora, member))
+                .orElseThrow(() -> new RuntimeException("아고라에 참여하지 않은 사람은 의견을 작성할 수 없습니다."));
+
+        if (!participant.isVoted()) {
+            throw new RuntimeException("투표한 사람만 의견을 작성할 수 있습니다.");
+        }
+
+        AgoraOpinion opinion = AgoraOpinion.from(content);
+        opinion.setAgoraAndAuthor(agora, participant);
+
+        agoraOpinionRepository.save(opinion);
+        return AgoraDetailReponseDTO.from(agora);
+    }
+
+    @Transactional
+    public AgoraDetailReponseDTO updateOpinion(Long agoraId, Long opinionId, String content, String username) {
+        AgoraOpinion opinion = agoraOpinionRepository.findById(opinionId)
+                .orElseThrow(() -> new RuntimeException("해당 의견이 존재하지 않습니다."));
+
+        opinion.checkAgoraId(agoraId);
+        opinion.checkAuthor(username);
+
+        opinion.update(content);
+
+        agoraOpinionRepository.save(opinion);
+        return AgoraDetailReponseDTO.from(opinion.getAgora());
+    }
+
+    @Transactional
+    public AgoraDetailReponseDTO deleteOpinion(Long agoraId, Long opinionId, String username, boolean isAdmin) {
+        AgoraOpinion opinion = agoraOpinionRepository.findById(opinionId)
+                .orElseThrow(() -> new RuntimeException("해당 의견이 존재하지 않습니다."));
+
+        opinion.checkAgoraId(agoraId);
+        opinion.checkAuthorOrIsAdmin(username, isAdmin);
+
+        opinion.delete();
+
+        agoraOpinionRepository.save(opinion);
+        return AgoraDetailReponseDTO.from(opinion.getAgora());
     }
 }

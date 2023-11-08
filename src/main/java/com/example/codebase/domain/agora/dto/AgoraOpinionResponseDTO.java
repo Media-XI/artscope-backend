@@ -1,6 +1,7 @@
 package com.example.codebase.domain.agora.dto;
 
 import com.example.codebase.domain.agora.entity.AgoraOpinion;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -16,8 +17,10 @@ public class AgoraOpinionResponseDTO {
 
     private String vote;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdTime;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedTime;
 
     private AgoraParticipantResponseDTO author;
@@ -25,7 +28,7 @@ public class AgoraOpinionResponseDTO {
     public static AgoraOpinionResponseDTO from(AgoraOpinion opinion) {
         return AgoraOpinionResponseDTO.builder()
                 .content(opinion.getContent())
-                .vote(opinion.getAuthor().getVote())
+                .vote(opinion.getAuthorVote())
                 .createdTime(opinion.getCreatedTime())
                 .updatedTime(opinion.getUpdatedTime())
                 .author(AgoraParticipantResponseDTO.from(opinion))

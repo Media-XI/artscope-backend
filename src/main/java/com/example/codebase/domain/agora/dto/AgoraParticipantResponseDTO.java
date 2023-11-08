@@ -15,6 +15,8 @@ public class AgoraParticipantResponseDTO {
 
     private String username;
 
+    private String profileImageUrl;
+
     public static AgoraParticipantResponseDTO of(Member member, Boolean isAnonymous, Integer agoraSequence) {
         // 익명 여부에 따른 이름 설정
         String authorName = member.getName();
@@ -32,12 +34,13 @@ public class AgoraParticipantResponseDTO {
         AgoraParticipantResponseDTO agoraParticipantResponseDTO = new AgoraParticipantResponseDTO();
         agoraParticipantResponseDTO.setName(authorName);
         agoraParticipantResponseDTO.setUsername(authorUsername);
+        agoraParticipantResponseDTO.setProfileImageUrl(member.getPicture());
         return agoraParticipantResponseDTO;
     }
 
     public static AgoraParticipantResponseDTO from(AgoraOpinion agoraOpinion) {
         Agora agora = agoraOpinion.getAgora();
-        Member member = agoraOpinion.getAuthor().getMember();
+        Member member = agoraOpinion.getMember();
         Boolean isAnonymous = agora.getIsAnonymous();
         Integer agoraSequence = agoraOpinion.getAuthorSequence();
 
