@@ -21,10 +21,12 @@ public class AgoraParticipantResponseDTO {
         // 익명 여부에 따른 이름 설정
         String authorName = member.getName();
         String authorUsername = member.getUsername();
+        String authorProfileImageUrl = member.getPicture();
 
         if (isAnonymous) {
             authorName = "익명 " + agoraSequence;
             authorUsername = null;
+            authorProfileImageUrl = null;
             // 0번이면 익명 작성자
             if (agoraSequence == 0) {
                 authorName = "익명 작성자";
@@ -34,7 +36,7 @@ public class AgoraParticipantResponseDTO {
         AgoraParticipantResponseDTO agoraParticipantResponseDTO = new AgoraParticipantResponseDTO();
         agoraParticipantResponseDTO.setName(authorName);
         agoraParticipantResponseDTO.setUsername(authorUsername);
-        agoraParticipantResponseDTO.setProfileImageUrl(member.getPicture());
+        agoraParticipantResponseDTO.setProfileImageUrl(authorProfileImageUrl);
         return agoraParticipantResponseDTO;
     }
 
