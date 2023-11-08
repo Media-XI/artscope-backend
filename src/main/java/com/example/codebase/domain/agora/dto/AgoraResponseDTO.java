@@ -92,4 +92,8 @@ public class AgoraResponseDTO {
         from.setIsUserVoteCancle(userVoted);
         return from;
     }
+
+    public boolean isUserVoteCancle() {
+        return isUserVoteCancle;
+    }
 }

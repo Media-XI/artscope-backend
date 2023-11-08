@@ -259,4 +259,8 @@ public class Member {
     public void addAgora(Agora agora) {
         this.agoras.add(agora);
     }
+
+    public boolean equalsUsername(String username) {
+        return this.username.equals(username);
+    }
 }

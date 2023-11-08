@@ -111,7 +111,7 @@ public class AgoraController {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         AgoraResponseDTO agora = agoraService.voteAgora(agoraId, vote, username);
 
-        if (agora.getIsUserVoteCancle()) {
+        if (agora.isUserVoteCancle()) {
             return new ResponseEntity(agora, HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity(agora, HttpStatus.OK);

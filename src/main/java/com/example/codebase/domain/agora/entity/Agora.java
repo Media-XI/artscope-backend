@@ -186,6 +186,6 @@ public class Agora {
     }
 
     public boolean isAuthor(String username) {
-        return this.author.getUsername().equals(username);
+        return this.author.equalsUsername(username);
     }
 }
