@@ -3,8 +3,12 @@ package com.example.codebase.domain.exhibition.dto;
 import com.example.codebase.domain.exhibition.entity.ExhibitionParticipant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
