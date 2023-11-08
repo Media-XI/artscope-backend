@@ -11,10 +11,4 @@ import java.util.UUID;
 
 public interface AgoraParticipantRepository extends JpaRepository<AgoraParticipant, AgoraParticipantIds> {
 
-    Long countByAgora(Agora agora);
-
-    Long countByAgoraAndVote(Agora agora, String vote);
-
-    @Query("select count(ap) > 0 from AgoraParticipant ap where ap.agora = :agora and ap.member = :member")
-    Boolean existsByAgoraAndMember(Agora agora, Member member);
 }
