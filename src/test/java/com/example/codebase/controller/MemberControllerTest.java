@@ -113,7 +113,7 @@ class MemberControllerTest {
         Member.builder()
             .username("testid" + index)
             .password(passwordEncoder.encode("1234"))
-            .email("email" + index + ".com")
+            .email("email" + index + "@test.com")
             .name("test" + index)
             .companyName("company" + index)
             .activated(true)
@@ -493,7 +493,7 @@ class MemberControllerTest {
     Member member = createOrLoadMember(2);
 
     mockMvc
-        .perform(get("/api/members/search/{username}", member.getUsername()))
+        .perform(get("/api/members/search/@{username}", member.getUsername()))
         .andDo(print())
         .andExpect(status().isOk());
   }
