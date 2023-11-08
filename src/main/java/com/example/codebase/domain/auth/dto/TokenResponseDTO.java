@@ -1,6 +1,5 @@
 package com.example.codebase.domain.auth.dto;
 
-import com.example.codebase.jwt.TokenProvider;
 import lombok.Getter;
 import lombok.Setter;
 

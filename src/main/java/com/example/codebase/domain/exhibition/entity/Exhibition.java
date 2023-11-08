@@ -6,7 +6,18 @@ import com.example.codebase.domain.member.entity.Member;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,91 +31,91 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Exhibition {
 
-  @Id
-  @Column(name = "exhibition_id")
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @Column(name = "exhibition_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Column(name = "title", nullable = false)
-  private String title;
+    @Column(name = "title", nullable = false)
+    private String title;
 
-  @Column(name = "description", columnDefinition = "TEXT")
-  private String description;
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
 
-  @Column(name = "price", nullable = false)
-  private int price;
+    @Column(name = "price", nullable = false)
+    private int price;
 
-  @Column(name = "link", nullable = false, length = 500)
-  private String link;
+    @Column(name = "link", nullable = false, length = 500)
+    private String link;
 
-  @Builder.Default
-  @OneToMany(mappedBy = "exhibition", cascade = CascadeType.ALL)
-  private List<ExhibitionMedia> exhibitionMedias = new ArrayList<>();
+    @Builder.Default
+    @OneToMany(mappedBy = "exhibition", cascade = CascadeType.ALL)
+    private List<ExhibitionMedia> exhibitionMedias = new ArrayList<>();
 
-  @Builder.Default
-  @OneToMany(mappedBy = "exhibition", cascade = CascadeType.ALL)
-  private List<EventSchedule> eventSchedules = new ArrayList<>();
+    @Builder.Default
+    @OneToMany(mappedBy = "exhibition", cascade = CascadeType.ALL)
+    private List<EventSchedule> eventSchedules = new ArrayList<>();
 
-  @Column(name = "created_time")
-  private LocalDateTime createdTime;
+    @Column(name = "created_time")
+    private LocalDateTime createdTime;
 
-  @Column(name = "updated_time")
-  private LocalDateTime updatedTime;
+    @Column(name = "updated_time")
+    private LocalDateTime updatedTime;
 
-  @Builder.Default
-  @Column(name = "type", nullable = false)
-  @Enumerated(EnumType.STRING)
-  private EventType type = EventType.STANDARD;
+    @Builder.Default
+    @Column(name = "type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private EventType type = EventType.STANDARD;
 
-  @ManyToOne
-  @JoinColumn(name = "member_id", nullable = false)
-  private Member member;
+    @ManyToOne
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
-  @Builder.Default
-  @Column(name = "enabled")
-  private boolean enabled = true; // 공모전 활성상태 -> 삭제 여부와 같음
+    @Builder.Default
+    @Column(name = "enabled")
+    private boolean enabled = true; // 공모전 활성상태 -> 삭제 여부와 같음
 
-  public static Exhibition of(ExhbitionCreateDTO dto, Member member) {
-    return Exhibition.builder()
-        .title(dto.getTitle())
-        .description(dto.getDescription())
-        .price(dto.getPrice())
-        .link(dto.getLink())
-        .type(dto.getEventType())
-        .member(member)
-        .createdTime(LocalDateTime.now())
-        .build();
-  }
+    public static Exhibition of(ExhbitionCreateDTO dto, Member member) {
+        return Exhibition.builder()
+                .title(dto.getTitle())
+                .description(dto.getDescription())
+                .price(dto.getPrice())
+                .link(dto.getLink())
+                .type(dto.getEventType())
+                .member(member)
+                .createdTime(LocalDateTime.now())
+                .build();
+    }
 
-  public void update(ExhibitionUpdateDTO exhibitionUpdateDTO) {
-    this.title =
-        exhibitionUpdateDTO.getTitle() != null ? exhibitionUpdateDTO.getTitle() : this.title;
-    this.description =
-        exhibitionUpdateDTO.getDescription() != null
-            ? exhibitionUpdateDTO.getDescription()
-            : this.description;
-    this.link = exhibitionUpdateDTO.getLink() != null ? exhibitionUpdateDTO.getLink() : this.link;
-    this.type =
-        exhibitionUpdateDTO.getEventType() != null ? exhibitionUpdateDTO.getEventType() : this.type;
-    this.price =
-        exhibitionUpdateDTO.getPrice() != null ? exhibitionUpdateDTO.getPrice() : this.price;
-    this.updatedTime = LocalDateTime.now();
-  }
+    public void update(ExhibitionUpdateDTO exhibitionUpdateDTO) {
+        this.title =
+                exhibitionUpdateDTO.getTitle() != null ? exhibitionUpdateDTO.getTitle() : this.title;
+        this.description =
+                exhibitionUpdateDTO.getDescription() != null
+                        ? exhibitionUpdateDTO.getDescription()
+                        : this.description;
+        this.link = exhibitionUpdateDTO.getLink() != null ? exhibitionUpdateDTO.getLink() : this.link;
+        this.type =
+                exhibitionUpdateDTO.getEventType() != null ? exhibitionUpdateDTO.getEventType() : this.type;
+        this.price =
+                exhibitionUpdateDTO.getPrice() != null ? exhibitionUpdateDTO.getPrice() : this.price;
+        this.updatedTime = LocalDateTime.now();
+    }
 
-  public void delete() {
-    this.enabled = false;
-    deleteEventSchedules();
-  }
+    public void delete() {
+        this.enabled = false;
+        deleteEventSchedules();
+    }
 
-  public void deleteEventSchedules() {
-    this.eventSchedules.forEach(EventSchedule::delete);
-  }
+    public void deleteEventSchedules() {
+        this.eventSchedules.forEach(EventSchedule::delete);
+    }
 
-  public void addExhibitionMedia(ExhibitionMedia media) {
-    this.exhibitionMedias.add(media);
-  }
+    public void addExhibitionMedia(ExhibitionMedia media) {
+        this.exhibitionMedias.add(media);
+    }
 
-  public void addEventSchedule(EventSchedule eventSchedule) {
-    this.eventSchedules.add(eventSchedule);
-  }
+    public void addEventSchedule(EventSchedule eventSchedule) {
+        this.eventSchedules.add(eventSchedule);
+    }
 }

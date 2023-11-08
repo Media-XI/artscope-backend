@@ -9,15 +9,15 @@ import lombok.Setter;
 @Setter
 public class ExhibitionPageInfoResponseDTO {
 
-  List<ExhibitionResponseDTO> exhibitions;
+    List<ExhibitionResponseDTO> exhibitions;
 
-  PageInfo pageInfo;
+    PageInfo pageInfo;
 
-  public static ExhibitionPageInfoResponseDTO of(
-      List<ExhibitionResponseDTO> dtos, PageInfo pageInfo) {
-    ExhibitionPageInfoResponseDTO responseDTO = new ExhibitionPageInfoResponseDTO();
-    responseDTO.exhibitions = dtos;
-    responseDTO.pageInfo = pageInfo;
-    return responseDTO;
-  }
+    public static ExhibitionPageInfoResponseDTO of(
+            List<ExhibitionResponseDTO> dtos, PageInfo pageInfo) {
+        ExhibitionPageInfoResponseDTO responseDTO = new ExhibitionPageInfoResponseDTO();
+        responseDTO.exhibitions = dtos;
+        responseDTO.pageInfo = pageInfo;
+        return responseDTO;
+    }
 }

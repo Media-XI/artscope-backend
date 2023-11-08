@@ -11,7 +11,7 @@ public class ExhibitionMediaResponseDTO {
 
     private String mediaUrl;
 
-    public static ExhibitionMediaResponseDTO from (ExhibitionMedia exhibitionMedia) {
+    public static ExhibitionMediaResponseDTO from(ExhibitionMedia exhibitionMedia) {
         ExhibitionMediaResponseDTO dto = new ExhibitionMediaResponseDTO();
         dto.setMediaType(exhibitionMedia.getExhibtionMediaType().name());
         dto.setMediaUrl(exhibitionMedia.getMediaUrl());

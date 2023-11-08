@@ -1,26 +1,22 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.artwork.dto.ArtworkResponseDTO;
-import com.example.codebase.domain.artwork.dto.ArtworksResponseDTO;
 import com.example.codebase.domain.feed.dto.FeedResponseDto;
 import com.example.codebase.domain.feed.service.FeedService;
 import com.example.codebase.domain.post.dto.PostResponseDTO;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
+import java.util.Optional;
+import javax.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.swing.text.html.Option;
-import javax.validation.constraints.PositiveOrZero;
-import java.util.Optional;
 
 @ApiOperation(value = "피드", notes = "피드 관련 API")
 @RestController

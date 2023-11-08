@@ -1,6 +1,5 @@
 package com.example.codebase.jwt;
 
-import antlr.Token;
 import com.example.codebase.domain.auth.dto.LoginDTO;
 import com.example.codebase.domain.auth.dto.TokenResponseDTO;
 import com.example.codebase.domain.member.entity.Member;
@@ -8,9 +7,20 @@ import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.exception.InvalidJwtTokenException;
 import com.example.codebase.exception.NotFoundException;
 import com.example.codebase.util.RedisUtil;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import java.security.Key;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,13 +32,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
-
-import java.security.Key;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -47,7 +50,8 @@ public class TokenProvider implements InitializingBean {
     public TokenProvider(
             AuthenticationManagerBuilder authenticationManagerBuilder, @Value("${jwt.secret}") String secret,
             @Value("${jwt.token-validity-in-seconds}") Long tokenValidityInMilliseconds,
-            @Value("${jwt.refresh-token-validity-in-seconds}") Long refreshTokenValidityInMilliseconds, RedisUtil redisUtil,
+            @Value("${jwt.refresh-token-validity-in-seconds}") Long refreshTokenValidityInMilliseconds,
+            RedisUtil redisUtil,
             MemberRepository memberRepository) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.secret = secret;
@@ -118,7 +122,8 @@ public class TokenProvider implements InitializingBean {
     public Authentication getAuthentication(String token) {
         Claims claims = getClaims(token); // Token 값
 
-        Collection<? extends GrantedAuthority> authorities = Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
+        Collection<? extends GrantedAuthority> authorities = Arrays.stream(
+                        claims.get(AUTHORITIES_KEY).toString().split(","))
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
@@ -146,7 +151,8 @@ public class TokenProvider implements InitializingBean {
         String refreshToken = createRefreshToken(authentication);
 
         // Redis에 Refresh Token 캐싱
-        redisUtil.setDataAndExpire(authentication.getName() + "_token", refreshToken, refreshTokenValidityInMilliseconds);
+        redisUtil.setDataAndExpire(authentication.getName() + "_token", refreshToken,
+                refreshTokenValidityInMilliseconds);
 
         TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
         tokenResponseDTO.setAccessToken(accessToken);
@@ -163,7 +169,8 @@ public class TokenProvider implements InitializingBean {
         String refreshToken = createRefreshToken(authentication);
 
         // Redis에 Refresh Token 캐싱
-        redisUtil.setDataAndExpire(authentication.getName() + "_token", refreshToken, refreshTokenValidityInMilliseconds);
+        redisUtil.setDataAndExpire(authentication.getName() + "_token", refreshToken,
+                refreshTokenValidityInMilliseconds);
 
         TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
         tokenResponseDTO.setAccessToken(accessToken);

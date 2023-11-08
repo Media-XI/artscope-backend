@@ -1,15 +1,9 @@
 package com.example.codebase.domain.auth;
 
-import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.oauth2.oAuthProvider;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Map;
-import java.util.UUID;
 
 @Getter
 public class OAuthAttributes {

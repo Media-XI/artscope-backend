@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class ParticipantInformationDTO {
 
-  private String username;
+    private String username;
 
-  private String name;
+    private String name;
 }

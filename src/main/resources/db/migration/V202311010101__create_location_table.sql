@@ -10,4 +10,5 @@ CREATE TABLE `location`
     `phone_number` varchar(255) NOT NULL,
     `web_site_url` varchar(255) NOT NULL,
     `sns_url`      varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;

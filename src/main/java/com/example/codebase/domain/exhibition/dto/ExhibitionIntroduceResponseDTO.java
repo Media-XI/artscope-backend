@@ -17,33 +17,33 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ExhibitionIntroduceResponseDTO {
 
-  ExhibitionResponseDTO exhibitionList;
+    ExhibitionResponseDTO exhibitionList;
 
-  private String detailLocation;
+    private String detailLocation;
 
-  private int price;
+    private int price;
 
-  private LocationResponseDTO location;
+    private LocationResponseDTO location;
 
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-  private LocalDateTime createdTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime createdTime;
 
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-  private LocalDateTime updatedTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime updatedTime;
 
-  public static ExhibitionIntroduceResponseDTO from(Exhibition exhibition) {
-    ExhibitionResponseDTO exhibitionList = ExhibitionResponseDTO.from(exhibition);
+    public static ExhibitionIntroduceResponseDTO from(Exhibition exhibition) {
+        ExhibitionResponseDTO exhibitionList = ExhibitionResponseDTO.from(exhibition);
 
-    LocationResponseDTO locationDTO =
-        LocationResponseDTO.from(exhibition.getEventSchedules().get(0));
+        LocationResponseDTO locationDTO =
+                LocationResponseDTO.from(exhibition.getEventSchedules().get(0));
 
-    return ExhibitionIntroduceResponseDTO.builder()
-        .exhibitionList(exhibitionList)
-        .detailLocation(exhibition.getEventSchedules().get(0).getDetailLocation())
-        .price(exhibition.getPrice())
-        .location(locationDTO)
-        .createdTime(exhibition.getCreatedTime())
-        .updatedTime(exhibition.getUpdatedTime())
-        .build();
-  }
+        return ExhibitionIntroduceResponseDTO.builder()
+                .exhibitionList(exhibitionList)
+                .detailLocation(exhibition.getEventSchedules().get(0).getDetailLocation())
+                .price(exhibition.getPrice())
+                .location(locationDTO)
+                .createdTime(exhibition.getCreatedTime())
+                .updatedTime(exhibition.getUpdatedTime())
+                .build();
+    }
 }

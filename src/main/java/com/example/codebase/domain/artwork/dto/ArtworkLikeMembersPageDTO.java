@@ -1,12 +1,9 @@
 package com.example.codebase.domain.artwork.dto;
 
 import com.example.codebase.controller.dto.PageInfo;
-import com.example.codebase.domain.artwork.entity.ArtworkLikeMember;
-import com.example.codebase.domain.member.dto.MemberResponseDTO;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter

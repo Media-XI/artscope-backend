@@ -1,10 +1,9 @@
 package com.example.codebase.domain.post.dto;
 
 import com.example.codebase.controller.dto.PageInfo;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter

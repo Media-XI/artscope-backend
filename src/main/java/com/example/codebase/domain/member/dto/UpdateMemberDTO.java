@@ -1,13 +1,11 @@
 package com.example.codebase.domain.member.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.swing.text.html.Option;
-import javax.validation.constraints.*;
-import java.util.Optional;
 
 @Getter
 @Setter

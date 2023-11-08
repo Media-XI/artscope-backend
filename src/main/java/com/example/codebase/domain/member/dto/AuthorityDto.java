@@ -1,9 +1,10 @@
 package com.example.codebase.domain.member.dto;
 
-import lombok.*;
-
-import java.util.Set;
-import java.util.stream.Collector;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter

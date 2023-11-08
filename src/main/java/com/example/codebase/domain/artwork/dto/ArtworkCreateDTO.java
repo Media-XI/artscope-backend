@@ -1,15 +1,11 @@
 package com.example.codebase.domain.artwork.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
+import javax.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter

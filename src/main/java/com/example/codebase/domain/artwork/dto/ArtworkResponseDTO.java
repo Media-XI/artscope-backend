@@ -20,61 +20,61 @@ import lombok.Setter;
 @Builder
 public class ArtworkResponseDTO {
 
-    private Long id;
+  private Long id;
 
-    private String title;
+  private String title;
 
-    private List<String> tags;
+  private List<String> tags;
 
-    private String description;
+  private String description;
 
-    private Integer views;
+  private Integer views;
 
-    private Integer likes;
+  private Integer likes;
 
-    private Integer comments;
+  private Integer comments;
 
-    private String authorUsername;
+  private String authorUsername;
 
-    private String authorName;
+  private String authorName;
 
-    private String authorProfileImage;
+  private String authorProfileImage;
 
-    private String authorIntroduction;
+  private String authorIntroduction;
 
-    private String authorCompanyName;
+  private String authorCompanyName;
 
-    private String authorCompanyRole;
+  private String authorCompanyRole;
 
-    private ArtworkMediaResponseDTO thumbnail;
+  private ArtworkMediaResponseDTO thumbnail;
 
-    private List<ArtworkMediaResponseDTO> artworkMedias;
+  private List<ArtworkMediaResponseDTO> artworkMedias;
 
-    private List<ArtworkCommentResponseDTO> artworkComments;
+  private List<ArtworkCommentResponseDTO> artworkComments;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime createdTime;
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+  private LocalDateTime createdTime;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime updatedTime;
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+  private LocalDateTime updatedTime;
 
-    public static ArtworkResponseDTO from(Artwork artwork) {
-        List<ArtworkMedia> artworkMedia = artwork.getArtworkMedia();
+  public static ArtworkResponseDTO from(Artwork artwork) {
+    List<ArtworkMedia> artworkMedia = artwork.getArtworkMedia();
 
-        ArtworkMediaResponseDTO thumbnail =
-                artworkMedia.stream().findFirst().map(ArtworkMediaResponseDTO::from).orElse(null);
+    ArtworkMediaResponseDTO thumbnail =
+        artworkMedia.stream().findFirst().map(ArtworkMediaResponseDTO::from).orElse(null);
 
-        List<ArtworkMediaResponseDTO> artworkMediaResponseDTOS =
-                artworkMedia.stream()
-                        .skip(1)
-                        .map(ArtworkMediaResponseDTO::from)
-                        .collect(Collectors.toList());
+    List<ArtworkMediaResponseDTO> artworkMediaResponseDTOS =
+        artworkMedia.stream()
+            .skip(1)
+            .map(ArtworkMediaResponseDTO::from)
+            .collect(Collectors.toList());
 
-        List<String> tags = null;
-        if (Optional.ofNullable(artwork.getTags()).isPresent()) {
-            String[] split = artwork.getTags().split(",");
-            tags = List.of(split);
-        }
+    List<String> tags = null;
+    if (Optional.ofNullable(artwork.getTags()).isPresent()) {
+      String[] split = artwork.getTags().split(",");
+      tags = List.of(split);
+    }
 
         return ArtworkResponseDTO.builder()
                 .id(artwork.getId())
@@ -99,10 +99,10 @@ public class ArtworkResponseDTO {
                 .build();
     }
 
-    public static ArtworkResponseDTO of(
-            Artwork artwork, List<ArtworkCommentResponseDTO> artworkComments) {
-        ArtworkResponseDTO artworkResponseDTO = from(artwork);
-        artworkResponseDTO.setArtworkComments(artworkComments);
-        return artworkResponseDTO;
-    }
+  public static ArtworkResponseDTO of(
+      Artwork artwork, List<ArtworkCommentResponseDTO> artworkComments) {
+    ArtworkResponseDTO artworkResponseDTO = from(artwork);
+    artworkResponseDTO.setArtworkComments(artworkComments);
+    return artworkResponseDTO;
+  }
 }

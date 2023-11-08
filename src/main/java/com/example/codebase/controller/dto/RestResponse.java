@@ -2,8 +2,6 @@ package com.example.codebase.controller.dto;
 
 import lombok.Getter;
 
-import java.util.Optional;
-
 @Getter
 public class RestResponse {
 
@@ -38,7 +36,7 @@ public class RestResponse {
     public String toString() {
         return "success=" + success +
                 ", message='" + message + '\'' +
-                ", detail='" + detail  + '\'' +
+                ", detail='" + detail + '\'' +
                 ", code='" + code;
     }
 }
