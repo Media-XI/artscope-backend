@@ -84,9 +84,7 @@ public class AgoraService {
     public AgoraDetailReponseDTO getAgora(Long agoraId) {
         Agora agora = agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
-
-        agora.isDeleted();
-
+        
         return AgoraDetailReponseDTO.from(agora);
     }
 

@@ -451,7 +451,6 @@ class AgoraControllerTest {
                 .andExpect(status().isOk());
     }
 
-
     @WithMockCustomUser(username = "testid2", role = "USER")
     @DisplayName("아고라 투표 및 투표 변경")
     @Test
