@@ -141,6 +141,7 @@ public class Agora {
         this.title = dto.getTitle();
         this.content = dto.getContent();
         this.agreeText = dto.getAgreeText();
+        this.naturalText = dto.getNeturalText();
         this.disagreeText = dto.getDisagreeText();
         this.isAnonymous = dto.getIsAnonymous();
     }
