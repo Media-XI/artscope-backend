@@ -170,6 +170,7 @@ class AgoraControllerTest {
         dto.setTitle("AI 생성형 이미지 어떻게 생각하십니까");
         dto.setContent("생성형 이미지를 찬성하는지?");
         dto.setAgreeText("찬성");
+        dto.setNaturalText("중립");
         dto.setDisagreeText("반대");
         dto.setIsAnonymous(isAnonymous);
         dto.setMedias(Collections.singletonList(AgoraMediaCreateDTO.builder()
@@ -395,6 +396,23 @@ class AgoraControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
     }
+
+    @WithMockCustomUser(username = "testid2", role = "USER")
+    @DisplayName("아고라 중립 투표 시")
+    @Test
+    public void 아고라_중립_투표() throws Exception {
+        createOrLoadMember("testid2", "ROLE_USER");
+
+        Agora agora = createOrLoadAgora(true);
+
+        mockMvc.perform(
+                        post("/api/agoras/" + agora.getId() + "/vote")
+                                .content("중립")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
 
     @WithMockCustomUser(username = "testid2", role = "USER")
     @DisplayName("아고라 투표 및 투표 변경")

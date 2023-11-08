@@ -26,16 +26,21 @@ public class AgoraReponseDTO {
 
     private Integer agreeCount;
 
+    private Integer naturalCount;
+
     private Integer disagreeCount;
 
     private Integer participantCount;
 
     private String agreeText;
 
+    private String naturalText;
+
     private String disagreeText;
 
     private Boolean isAnonymous;
 
+    @Builder.Default
     @JsonIgnore
     private Boolean isUserVoteCancle = false; // 현재 유저가 투표했는지 여부
 
@@ -67,9 +72,11 @@ public class AgoraReponseDTO {
                 .title(agora.getTitle())
                 .content(agora.getContent())
                 .agreeCount(agora.getAgreeCount())
+                .naturalCount(agora.getNaturalCount())
                 .disagreeCount(agora.getDisagreeCount())
                 .participantCount(agora.getParticipantCount())
                 .agreeText(agora.getAgreeText())
+                .naturalText(agora.getNaturalText())
                 .disagreeText(agora.getDisagreeText())
                 .isUserVoteCancle(false)
                 .isAnonymous(agora.getIsAnonymous())

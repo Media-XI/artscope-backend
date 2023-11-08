@@ -2,11 +2,9 @@ package com.example.codebase.domain.agora.service;
 
 import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.agora.dto.*;
-import com.example.codebase.domain.agora.entity.Agora;
-import com.example.codebase.domain.agora.entity.AgoraMedia;
-import com.example.codebase.domain.agora.entity.AgoraParticipant;
-import com.example.codebase.domain.agora.entity.AgoraParticipantIds;
+import com.example.codebase.domain.agora.entity.*;
 import com.example.codebase.domain.agora.repository.AgoraMediaRepository;
+import com.example.codebase.domain.agora.repository.AgoraOpinionRepository;
 import com.example.codebase.domain.agora.repository.AgoraParticipantRepository;
 import com.example.codebase.domain.agora.repository.AgoraRepository;
 import com.example.codebase.domain.member.entity.Member;
@@ -30,14 +28,17 @@ public class AgoraService {
     private final AgoraRepository agoraRepository;
     private final AgoraParticipantRepository agoraParticipantRepository;
     private final AgoraMediaRepository agoraMediaRepository;
+
+    private final AgoraOpinionRepository agoraOpinionRepository;
     private final S3Service s3Service;
 
     @Autowired
-    public AgoraService(MemberRepository memberRepository, AgoraRepository agoraRepository, AgoraParticipantRepository agoraParticipantRepository, AgoraMediaRepository agoraMediaRepository, S3Service s3Service) {
+    public AgoraService(MemberRepository memberRepository, AgoraRepository agoraRepository, AgoraParticipantRepository agoraParticipantRepository, AgoraMediaRepository agoraMediaRepository, AgoraOpinionRepository agoraOpinionRepository, S3Service s3Service) {
         this.memberRepository = memberRepository;
         this.agoraRepository = agoraRepository;
         this.agoraParticipantRepository = agoraParticipantRepository;
         this.agoraMediaRepository = agoraMediaRepository;
+        this.agoraOpinionRepository = agoraOpinionRepository;
         this.s3Service = s3Service;
     }
 
@@ -81,24 +82,9 @@ public class AgoraService {
     @Transactional(readOnly = true)
     public AgoraDetailReponseDTO getAgora(Long agoraId) {
         Agora agora = agoraRepository.findById(agoraId)
-                .orElseThrow(() -> {
-                    throw new NotFoundException("존재하지 않는 아고라입니다.");
-                });
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
 
-        // 아고라에 달린 의견 조회
-        // TODO : 삭제된 의견 및 참여자 제외할 로직 추가
-        List<AgoraOpinionResponseDTO> agreeOpinionDTOs = agora.getOpinions().stream()
-                .filter(opinion -> opinion.getAuthor().isSameVote(agora.getAgreeText()))
-                .map(AgoraOpinionResponseDTO::from)
-                .collect(Collectors.toList());
-
-        List<AgoraOpinionResponseDTO> disagreeOpinionDTOs = agora.getOpinions().stream()
-                .filter(opinion -> opinion.getAuthor().isSameVote(agora.getDisagreeText()))
-                .map(AgoraOpinionResponseDTO::from)
-                .collect(Collectors.toList());
-
-        AgoraReponseDTO agoraDTO = AgoraReponseDTO.from(agora);
-        return AgoraDetailReponseDTO.of(agoraDTO, agreeOpinionDTOs, disagreeOpinionDTOs);
+        return AgoraDetailReponseDTO.from(agora);
     }
 
     @Transactional
@@ -107,9 +93,7 @@ public class AgoraService {
                 .orElseThrow(NotFoundMemberException::new);
 
         Agora agora = agoraRepository.findById(agoraId)
-                .orElseThrow(() -> {
-                    throw new NotFoundException("존재하지 않는 아고라입니다.");
-                });
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
 
         if (agora.getAuthor() != member) {
             throw new RuntimeException("아고라의 작성자가 아닙니다.");
@@ -127,9 +111,7 @@ public class AgoraService {
     @Transactional
     public void deleteAgora(Long agoraId, String username) {
         Agora agora = agoraRepository.findById(agoraId)
-                .orElseThrow(() -> {
-                    throw new NotFoundException("존재하지 않는 아고라입니다.");
-                });
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
 
         if (agora.getAuthor().equals(username)) {
             throw new RuntimeException("아고라의 작성자가 아닙니다.");
@@ -156,9 +138,7 @@ public class AgoraService {
                 .orElseThrow(NotFoundMemberException::new);
 
         Agora agora = agoraRepository.findById(agoraId)
-                .orElseThrow(() -> {
-                    throw new NotFoundException("존재하지 않는 아고라입니다.");
-                });
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
 
         if (!agora.isCorrectVoteText(vote)) {
             throw new RuntimeException("투표 내용이 올바르지 않습니다.");

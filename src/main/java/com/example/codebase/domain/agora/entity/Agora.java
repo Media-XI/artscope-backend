@@ -36,7 +36,11 @@ public class Agora {
 
     private String disagreeText;
 
+    private String naturalText;
+
     private Integer agreeCount;
+
+    private Integer naturalCount;
 
     private Integer disagreeCount;
 
@@ -73,8 +77,10 @@ public class Agora {
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .agreeText(dto.getAgreeText())
+                .naturalText(dto.getNaturalText())
                 .disagreeText(dto.getDisagreeText())
                 .agreeCount(0)
+                .naturalCount(0)
                 .disagreeCount(0)
                 .participantCount(0)
                 .isAnonymous(dto.getIsAnonymous())
@@ -115,11 +121,6 @@ public class Agora {
         this.opinions.add(agoraOpinion);
     }
 
-    public void setVoteCount(Integer agreeCount, Integer disagreeCount) {
-        this.agreeCount = agreeCount;
-        this.disagreeCount = disagreeCount;
-    }
-
     public void update(AgoraUpdateDTO dto) {
         this.title = dto.getTitle();
         this.content = dto.getContent();
@@ -129,7 +130,7 @@ public class Agora {
     }
 
     public boolean isCorrectVoteText(String vote){
-        return this.getAgreeText().equals(vote) || this.getDisagreeText().equals(vote);
+        return this.agreeText.equals(vote) || this.disagreeText.equals(vote) || this.naturalText.equals(vote);
     }
 
     public void removeMedia(AgoraMedia agoraMedia) {
@@ -142,6 +143,8 @@ public class Agora {
             agreeCount++;
         } else if (disagreeText.equals(vote)) {
             disagreeCount++;
+        } else if (naturalText.equals(vote)) {
+            naturalCount++;
         }
     }
 
@@ -150,6 +153,8 @@ public class Agora {
             agreeCount--;
         } else if (disagreeText.equals(vote)) {
             disagreeCount--;
+        } else if (naturalText.equals(vote)) {
+            naturalCount--;
         }
     }
 }
