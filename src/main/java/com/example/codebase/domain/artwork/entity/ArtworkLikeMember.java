@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 @IdClass(ArtworkLikeMemberId.class)
-public class ArtworkLikeMember implements Serializable {
+public class ArtworkLikeMember {
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
