@@ -122,7 +122,7 @@ public class AgoraParticipant {
     /**
      * 새로운 투표자인지 확인
      */
-    public boolean isNewParticipant() {
+    public boolean hasAgora() {
         return this.member == null && this.agora == null;
     }
 

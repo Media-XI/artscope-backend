@@ -151,7 +151,7 @@ public class AgoraService {
         }
 
         boolean isVoteCancle = false;
-        if (participant.isNewParticipant()) {
+        if (participant.hasAgora()) {
             participant.setAgoraAndMember(agora, member);
             participant.newSequence();
             participant.newVote(vote);
