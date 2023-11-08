@@ -92,13 +92,10 @@ public class AgoraService {
 
     @Transactional
     public AgoraReponseDTO updateAgora(Long agoraId, AgoraUpdateDTO dto, String username) {
-        Member member = memberRepository.findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
-
         Agora agora = agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
 
-        if (!agora.isAuthor(member)) {
+        if (!agora.isAuthor(username)) {
             throw new RuntimeException("아고라의 작성자가 아닙니다.");
         }
 

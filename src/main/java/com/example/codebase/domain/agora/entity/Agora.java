@@ -187,7 +187,7 @@ public class Agora {
         return this.participants.size();
     }
 
-    public boolean isAuthor(Member member) {
-        return this.author.equals(member);
+    public boolean isAuthor(String username) {
+        return this.author.getUsername().equals(username);
     }
 }
