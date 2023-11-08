@@ -50,7 +50,7 @@ public class AgoraController {
         imageService.uploadMedias(dto, mediaFiles);
         imageService.uploadThumbnail(dto, thumbnailFile);
 
-        AgoraReponseDTO agora = agoraService.createAgora(dto, username);
+        AgoraResponseDTO agora = agoraService.createAgora(dto, username);
 
         return new ResponseEntity(agora, HttpStatus.CREATED);
     }
@@ -86,7 +86,7 @@ public class AgoraController {
     ) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
 
-        AgoraReponseDTO agora = agoraService.updateAgora(agoraId, dto, username);
+        AgoraResponseDTO agora = agoraService.updateAgora(agoraId, dto, username);
         return new ResponseEntity(agora, HttpStatus.OK);
     }
 
@@ -109,7 +109,7 @@ public class AgoraController {
             @RequestBody @NotBlank(message = "투표 내용을 작성해주세요.") String vote
     ) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
-        AgoraReponseDTO agora = agoraService.voteAgora(agoraId, vote, username);
+        AgoraResponseDTO agora = agoraService.voteAgora(agoraId, vote, username);
 
         if (agora.getIsUserVoteCancle()) {
             return new ResponseEntity(agora, HttpStatus.NO_CONTENT);

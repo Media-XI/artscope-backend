@@ -43,7 +43,7 @@ public class AgoraService {
     }
 
     @Transactional
-    public AgoraReponseDTO createAgora(AgoraCreateDTO dto, String username) {
+    public AgoraResponseDTO createAgora(AgoraCreateDTO dto, String username) {
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(NotFoundMemberException::new);
 
@@ -65,7 +65,7 @@ public class AgoraService {
         participant.setAgoraAndMember(agora, member);
         agoraParticipantRepository.save(participant);
 
-        return AgoraReponseDTO.from(agora);
+        return AgoraResponseDTO.from(agora);
     }
 
     @Transactional(readOnly = true)
@@ -73,11 +73,11 @@ public class AgoraService {
         Page<Agora> agoras = agoraRepository.findAll(pageRequest);
         PageInfo pageInfo = PageInfo.from(agoras);
 
-        List<AgoraReponseDTO> agoraReponseDTOS = agoras.getContent().stream()
-                .map(AgoraReponseDTO::from)
+        List<AgoraResponseDTO> agoraResponseDTOS = agoras.getContent().stream()
+                .map(AgoraResponseDTO::from)
                 .collect(Collectors.toList());
 
-        return AgorasResponseDTO.of(agoraReponseDTOS, pageInfo);
+        return AgorasResponseDTO.of(agoraResponseDTOS, pageInfo);
     }
 
     @Transactional(readOnly = true)
@@ -89,7 +89,7 @@ public class AgoraService {
     }
 
     @Transactional
-    public AgoraReponseDTO updateAgora(Long agoraId, AgoraUpdateDTO dto, String username) {
+    public AgoraResponseDTO updateAgora(Long agoraId, AgoraUpdateDTO dto, String username) {
         Agora agora = agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다.")); // Agora 1번 1000번지
 
@@ -103,7 +103,7 @@ public class AgoraService {
 
         agora.update(dto);
 
-        return AgoraReponseDTO.from(agora);
+        return AgoraResponseDTO.from(agora);
     }
 
     @Transactional
@@ -132,7 +132,7 @@ public class AgoraService {
 
 
     @Transactional
-    public AgoraReponseDTO voteAgora(Long agoraId, String vote, String username) {
+    public AgoraResponseDTO voteAgora(Long agoraId, String vote, String username) {
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(NotFoundMemberException::new);
 
@@ -166,7 +166,7 @@ public class AgoraService {
 
         agoraParticipantRepository.save(participant);
         agoraRepository.save(agora); // 변경 감지
-        return AgoraReponseDTO.of(agora, isVoteCancle);
+        return AgoraResponseDTO.of(agora, isVoteCancle);
     }
 
     @Transactional

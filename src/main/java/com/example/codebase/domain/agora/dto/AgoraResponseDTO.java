@@ -4,7 +4,6 @@ import com.example.codebase.domain.agora.entity.Agora;
 import com.example.codebase.domain.agora.entity.AgoraMedia;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -16,7 +15,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AgoraReponseDTO {
+public class AgoraResponseDTO {
 
     private Long id;
 
@@ -56,7 +55,7 @@ public class AgoraReponseDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedTime;
 
-    public static AgoraReponseDTO from(Agora agora) {
+    public static AgoraResponseDTO from(Agora agora) {
         List<AgoraMedia> agoraMedia = agora.getMedias();
 
         List<AgoraMediaResponseDTO> medias =
@@ -67,7 +66,7 @@ public class AgoraReponseDTO {
         AgoraParticipantResponseDTO agoraParticipantResponseDTO = AgoraParticipantResponseDTO.of(agora.getAuthor(),
                 agora.getIsAnonymous(), 0);
 
-        return AgoraReponseDTO.builder()
+        return AgoraResponseDTO.builder()
                 .id(agora.getId())
                 .title(agora.getTitle())
                 .content(agora.getContent())
@@ -88,8 +87,8 @@ public class AgoraReponseDTO {
                 .build();
     }
 
-    public static AgoraReponseDTO of(Agora agora, boolean userVoted) {
-        AgoraReponseDTO from = from(agora);
+    public static AgoraResponseDTO of(Agora agora, boolean userVoted) {
+        AgoraResponseDTO from = from(agora);
         from.setIsUserVoteCancle(userVoted);
         return from;
     }

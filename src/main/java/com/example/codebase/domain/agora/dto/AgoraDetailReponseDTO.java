@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @Builder
 public class AgoraDetailReponseDTO {
 
-    private AgoraReponseDTO agora;
+    private AgoraResponseDTO agora;
 
     // 찬성 의견
     private List<AgoraOpinionResponseDTO> agreeOpinions;
@@ -40,11 +40,11 @@ public class AgoraDetailReponseDTO {
                 .map(AgoraOpinionResponseDTO::from)
                 .collect(Collectors.toList());
 
-        AgoraReponseDTO agoraDTO = AgoraReponseDTO.from(agora);
+        AgoraResponseDTO agoraDTO = AgoraResponseDTO.from(agora);
         return of(agoraDTO, agreeOpinionDTOs, disagreeOpinionDTOs, naturalOpinionsDTOs);
     }
 
-    private static AgoraDetailReponseDTO of(AgoraReponseDTO agora, List<AgoraOpinionResponseDTO> agreeOpinions, List<AgoraOpinionResponseDTO> disagreeOpinions, List<AgoraOpinionResponseDTO> naturalOpinionsDTOs) {
+    private static AgoraDetailReponseDTO of(AgoraResponseDTO agora, List<AgoraOpinionResponseDTO> agreeOpinions, List<AgoraOpinionResponseDTO> disagreeOpinions, List<AgoraOpinionResponseDTO> naturalOpinionsDTOs) {
         return AgoraDetailReponseDTO.builder()
                 .agora(agora)
                 .agreeOpinions(agreeOpinions)
