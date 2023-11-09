@@ -1,5 +1,6 @@
 package com.example.codebase.domain.agora.entity;
 
+import com.example.codebase.domain.agora.dto.AgoraOpinionRequestDTO;
 import com.example.codebase.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,21 +37,21 @@ public class AgoraOpinion {
     private LocalDateTime updatedTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "agora_id")
+    @JoinColumn(name = "agora_id", insertable = false, updatable = false)
     private Agora agora;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns(
             {
-                    @JoinColumn(name = "agora_id", referencedColumnName = "agora_id", insertable = false, updatable = false),
-                    @JoinColumn(name = "author_id", referencedColumnName = "member_id", insertable = false, updatable = false)
+                    @JoinColumn(name = "agora_id", referencedColumnName = "agora_id"),
+                    @JoinColumn(name = "author_id", referencedColumnName = "member_id")
             }
     )
     private AgoraParticipant author;
 
-    public static AgoraOpinion from(String content) {
+    public static AgoraOpinion from(AgoraOpinionRequestDTO content) {
         return AgoraOpinion.builder()
-                .content(content)
+                .content(content.getContent())
                 .createdTime(LocalDateTime.now())
                 .isDeleted(false)
                 .build();
@@ -63,7 +64,6 @@ public class AgoraOpinion {
 
     private void setAgora(Agora agora) {
         this.agora = agora;
-        agora.addOpinion(this);
     }
 
     private void setAuthor(AgoraParticipant author) {
@@ -131,8 +131,8 @@ public class AgoraOpinion {
     }
 
 
-    public void update(String content) {
-        this.content = content;
+    public void update(AgoraOpinionRequestDTO content) {
+        this.content = content.getContent();
         this.updatedTime = LocalDateTime.now();
     }
 }

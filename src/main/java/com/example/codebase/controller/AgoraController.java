@@ -122,7 +122,7 @@ public class AgoraController {
     @PostMapping("/{agoraId}/opinions")
     public ResponseEntity createOpinion(
             @PathVariable Long agoraId,
-            @RequestBody @NotBlank(message = "의견 내용을 작성해주세요.") String content
+            @RequestBody @NotBlank(message = "의견 내용을 작성해주세요.") AgoraOpinionRequestDTO content
     ) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         AgoraDetailReponseDTO opinion = agoraService.createOpinion(agoraId, content, username);
@@ -135,7 +135,7 @@ public class AgoraController {
     public ResponseEntity updateOpinion(
             @PathVariable Long agoraId,
             @PathVariable Long opinionId,
-            @RequestBody @NotBlank(message = "수정할 의견 내용을 작성해주세요.") String content
+            @RequestBody @NotBlank(message = "수정할 의견 내용을 작성해주세요.") AgoraOpinionRequestDTO content
     ) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         AgoraDetailReponseDTO opinion = agoraService.updateOpinion(agoraId, opinionId, content, username);
