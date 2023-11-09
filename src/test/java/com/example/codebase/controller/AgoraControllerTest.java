@@ -1,9 +1,15 @@
 package com.example.codebase.controller;
 
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.amazonaws.services.s3.AmazonS3;
 import com.example.codebase.config.S3MockConfig;
 import com.example.codebase.domain.agora.dto.AgoraCreateDTO;
 import com.example.codebase.domain.agora.dto.AgoraMediaCreateDTO;
+import com.example.codebase.domain.agora.dto.AgoraOpinionRequestDTO;
 import com.example.codebase.domain.agora.dto.AgoraUpdateDTO;
 import com.example.codebase.domain.agora.entity.*;
 import com.example.codebase.domain.agora.repository.AgoraOpinionRepository;
@@ -19,6 +25,13 @@ import com.example.codebase.s3.S3Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.findify.s3mock.S3Mock;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.time.LocalDateTime;
+import java.util.*;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,20 +47,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.time.LocalDateTime;
-import java.util.*;
-
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 @Import(S3MockConfig.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -221,7 +220,7 @@ class AgoraControllerTest {
 
     @Transactional
     public AgoraOpinion createAgoraOpinion(Agora agora, AgoraParticipant agoraParticipant, String content) {
-        AgoraOpinion opinion = AgoraOpinion.from(content);
+        AgoraOpinion opinion = AgoraOpinion.from(new AgoraOpinionRequestDTO(content));
         opinion.setAgoraAndAuthor(agora, agoraParticipant);
         return agoraOpinionRepository.save(opinion);
     }
