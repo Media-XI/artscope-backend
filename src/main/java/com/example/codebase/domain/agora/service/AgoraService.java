@@ -1,5 +1,6 @@
 package com.example.codebase.domain.agora.service;
 
+import com.example.codebase.domain.agora.dto.AgoraOpinionRequestDTO;
 import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.agora.dto.*;
 import com.example.codebase.domain.agora.entity.*;
@@ -170,7 +171,7 @@ public class AgoraService {
     }
 
     @Transactional
-    public AgoraDetailReponseDTO createOpinion(Long agoraId, String content, String username) {
+    public AgoraDetailReponseDTO createOpinion(Long agoraId, AgoraOpinionRequestDTO content, String username) {
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(NotFoundMemberException::new);
 
@@ -192,7 +193,7 @@ public class AgoraService {
     }
 
     @Transactional
-    public AgoraDetailReponseDTO updateOpinion(Long agoraId, Long opinionId, String content, String username) {
+    public AgoraDetailReponseDTO updateOpinion(Long agoraId, Long opinionId, AgoraOpinionRequestDTO content, String username) {
         AgoraOpinion opinion = agoraOpinionRepository.findById(opinionId)
                 .orElseThrow(() -> new RuntimeException("해당 의견이 존재하지 않습니다."));
 
