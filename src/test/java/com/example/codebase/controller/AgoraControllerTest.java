@@ -523,132 +523,154 @@ class AgoraControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @WithMockCustomUser(username = "user", role = "USER")
-    @DisplayName("익명 아고라 의견 생성")
-    @Test
-    public void 아고라_의견_생성 () throws Exception {
-        Member loginMember = createOrLoadMember("user", "ROLE_USER");
+  @WithMockCustomUser(username = "user", role = "USER")
+  @DisplayName("익명 아고라 의견 생성")
+  @Test
+  public void 아고라_의견_생성() throws Exception {
+    Member loginMember = createOrLoadMember("user", "ROLE_USER");
 
-        Agora agora = createOrLoadAgora(true);
+    Agora agora = createOrLoadAgora(true);
 
-        // 의견을 달기 위해선 미리 투표가 되어야한다.
-        createOrLoadAgoraParticipant(agora, loginMember, "찬성");
+    // 의견을 달기 위해선 미리 투표가 되어야한다.
+    createOrLoadAgoraParticipant(agora, loginMember, "찬성");
 
-        mockMvc.perform(
-                        post("/api/agoras/" + agora.getId() + "/opinions")
-                                .content("의견")
-                )
-                .andDo(print())
-                .andExpect(status().isCreated());
+    AgoraOpinionRequestDTO dto = new AgoraOpinionRequestDTO();
+    dto.setContent("의견 수정");
+
+    mockMvc
+        .perform(
+            post("/api/agoras/" + agora.getId() + "/opinions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+        .andDo(print())
+        .andExpect(status().isCreated());
+  }
+
+  @WithMockCustomUser(username = "testid", role = "USER")
+  @DisplayName("익명 아고라 작성자가 의견 생성 시")
+  @Test
+  public void 아고라_의견_작성자가_생성() throws Exception {
+
+    Agora agora = createOrLoadAgora(true);
+
+    AgoraOpinionRequestDTO dto = new AgoraOpinionRequestDTO();
+    dto.setContent("의견");
+
+    // 의견을 달기 위해선 미리 투표가 되어야한다.
+    mockMvc
+        .perform(post("/api/agoras/" + agora.getId() + "/vote").content("찬성"))
+        .andDo(print())
+        .andExpect(status().isOk());
+
+    mockMvc
+        .perform(
+            post("/api/agoras/" + agora.getId() + "/opinions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+        .andDo(print())
+        .andExpect(status().isCreated());
     }
 
-    @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("익명 아고라 작성자가 의견 생성 시")
-    @Test
-    public void 아고라_의견_작성자가_생성 () throws Exception {
+  @WithMockCustomUser(username = "user", role = "USER")
+  @DisplayName("실명 아고라 의견 생성")
+  @Test
+  public void 아고라_의견_생성2() throws Exception {
+    Member loginMember = createOrLoadMember("user", "ROLE_USER");
 
-        Agora agora = createOrLoadAgora(true);
+    Agora agora = createOrLoadAgora(false);
 
-        // 의견을 달기 위해선 미리 투표가 되어야한다.
-        mockMvc.perform(
-                        post("/api/agoras/" + agora.getId() + "/vote")
-                                .content("찬성")
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+    // 의견을 달기 위해선 미리 투표가 되어야한다.
+    createOrLoadAgoraParticipant(agora, loginMember, "찬성");
 
-        mockMvc.perform(
-                        post("/api/agoras/" + agora.getId() + "/opinions")
-                                .content("작성자 의견입니다.")
-                )
-                .andDo(print())
-                .andExpect(status().isCreated());
-    }
+    AgoraOpinionRequestDTO dto = new AgoraOpinionRequestDTO();
+    dto.setContent("의견");
 
-    @WithMockCustomUser(username = "user", role = "USER")
-    @DisplayName("실명 아고라 의견 생성")
-    @Test
-    public void 아고라_의견_생성2 () throws Exception {
-        Member loginMember = createOrLoadMember("user", "ROLE_USER");
+    mockMvc
+        .perform(
+            post("/api/agoras/" + agora.getId() + "/opinions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+        .andDo(print())
+        .andExpect(status().isCreated());
+  }
 
-        Agora agora = createOrLoadAgora(false);
+  @WithMockCustomUser(username = "user", role = "USER")
+  @DisplayName("아고라 의견 수정")
+  @Test
+  public void 아고라_의견_수정() throws Exception {
+    Member loginMember = createOrLoadMember("user", "ROLE_USER");
 
-        // 의견을 달기 위해선 미리 투표가 되어야한다.
-        createOrLoadAgoraParticipant(agora, loginMember, "찬성");
+    Agora agora = createOrLoadAgora(false);
 
-        mockMvc.perform(
-                        post("/api/agoras/" + agora.getId() + "/opinions")
-                                .content("의견")
-                )
-                .andDo(print())
-                .andExpect(status().isCreated());
-    }
+    // 의견을 달기 위해선 미리 투표가 되어야한다.
+    AgoraParticipant participant = createOrLoadAgoraParticipant(agora, loginMember, "찬성");
 
-    @WithMockCustomUser(username = "user", role = "USER")
-    @DisplayName("아고라 의견 수정")
-    @Test
-    public void 아고라_의견_수정 () throws Exception {
-        Member loginMember = createOrLoadMember("user", "ROLE_USER");
+    // 의견 생성
+    AgoraOpinion opinion = createAgoraOpinion(agora, participant, "찬성하는 의견입니다 어쩌구");
 
-        Agora agora = createOrLoadAgora(false);
+    AgoraOpinionRequestDTO dto = new AgoraOpinionRequestDTO();
+    dto.setContent("의견 수정");
 
-        // 의견을 달기 위해선 미리 투표가 되어야한다.
-        AgoraParticipant participant = createOrLoadAgoraParticipant(agora, loginMember, "찬성");
-
-        // 의견 생성
-        AgoraOpinion opinion = createAgoraOpinion(agora, participant, "찬성하는 의견입니다 어쩌구");
-
-        mockMvc.perform(
-                        put("/api/agoras/" + agora.getId() + "/opinions/" + opinion.getId())
-                                .content("의견 바꿀게요")
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
+    mockMvc
+        .perform(
+            put("/api/agoras/" + agora.getId() + "/opinions/" + opinion.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
 
     @WithMockCustomUser(username = "user12", role = "USER")
     @DisplayName("작성자가 아닌데 아고라 의견 수정 시")
     @Test
     public void 아고라_의견_수정1 () throws Exception {
-        Member loginMember = createOrLoadMember("user", "ROLE_USER");
+    Member loginMember = createOrLoadMember("user", "ROLE_USER");
 
-        Agora agora = createOrLoadAgora(false);
+    Agora agora = createOrLoadAgora(false);
 
-        // 의견을 달기 위해선 미리 투표가 되어야한다.
-        AgoraParticipant participant = createOrLoadAgoraParticipant(agora, loginMember, "찬성");
+    // 의견을 달기 위해선 미리 투표가 되어야한다.
+    AgoraParticipant participant = createOrLoadAgoraParticipant(agora, loginMember, "찬성");
 
-        // 의견 생성
-        AgoraOpinion opinion = createAgoraOpinion(agora, participant, "찬성하는 의견입니다 어쩌구");
+    // 의견 생성
+    AgoraOpinion opinion = createAgoraOpinion(agora, participant, "찬성하는 의견입니다 어쩌구");
 
-        mockMvc.perform(
-                        put("/api/agoras/" + agora.getId() + "/opinions/" + opinion.getId())
-                                .content("의견 바꿀게요")
-                )
-                .andDo(print())
-                .andExpect(status().isBadRequest());
-    }
+    AgoraOpinionRequestDTO dto = new AgoraOpinionRequestDTO();
+    dto.setContent("의견");
 
-    @WithMockCustomUser(username = "user12", role = "USER")
-    @DisplayName("다른 아고라 ID를 이용해 아고라 의견 수정 시")
-    @Test
-    public void 아고라_의견_수정2 () throws Exception {
-        Member loginMember = createOrLoadMember("user", "ROLE_USER");
+    mockMvc
+        .perform(
+            put("/api/agoras/" + agora.getId() + "/opinions/" + opinion.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+        .andDo(print())
+        .andExpect(status().isBadRequest());
+  }
 
-        Agora agora = createOrLoadAgora(false);
+  @WithMockCustomUser(username = "user12", role = "USER")
+  @DisplayName("다른 아고라 ID를 이용해 아고라 의견 수정 시")
+  @Test
+  public void 아고라_의견_수정2() throws Exception {
+    Member loginMember = createOrLoadMember("user", "ROLE_USER");
 
-        // 의견을 달기 위해선 미리 투표가 되어야한다.
-        AgoraParticipant participant = createOrLoadAgoraParticipant(agora, loginMember, "찬성");
+    Agora agora = createOrLoadAgora(false);
 
-        // 의견 생성
-        AgoraOpinion opinion = createAgoraOpinion(agora, participant, "찬성하는 의견입니다 어쩌구");
+    // 의견을 달기 위해선 미리 투표가 되어야한다.
+    AgoraParticipant participant = createOrLoadAgoraParticipant(agora, loginMember, "찬성");
 
-        mockMvc.perform(
-                        put("/api/agoras/" + 0 + "/opinions/" + opinion.getId())
-                                .content("의견 바꿀게요")
-                )
-                .andDo(print())
-                .andExpect(status().isBadRequest());
-    }
+    // 의견 생성
+    AgoraOpinion opinion = createAgoraOpinion(agora, participant, "찬성하는 의견입니다 어쩌구");
+
+    AgoraOpinionRequestDTO dto = new AgoraOpinionRequestDTO();
+    dto.setContent("의견 수정");
+
+    mockMvc
+        .perform(
+            put("/api/agoras/" + 0 + "/opinions/" + opinion.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+        .andDo(print())
+        .andExpect(status().isBadRequest());
+  }
 
     @WithMockCustomUser(username = "user", role = "USER")
     @DisplayName("아고라 삭제 시")

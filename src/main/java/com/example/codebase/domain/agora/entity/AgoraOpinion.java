@@ -2,14 +2,13 @@ package com.example.codebase.domain.agora.entity;
 
 import com.example.codebase.domain.agora.dto.AgoraOpinionRequestDTO;
 import com.example.codebase.domain.member.entity.Member;
+import java.time.LocalDateTime;
+import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
-
-import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "agora_opinion")
@@ -63,7 +62,8 @@ public class AgoraOpinion {
     }
 
     private void setAgora(Agora agora) {
-        this.agora = agora;
+    this.agora = agora;
+    agora.addOpinion(this);
     }
 
     private void setAuthor(AgoraParticipant author) {
