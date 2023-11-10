@@ -127,6 +127,19 @@ class ExhibitionControllerTest {
   }
 
   public Exhibition createOrLoadExhibition(int idx) {
+    return createOrLoadExhibition(idx, LocalDateTime.now(), LocalDateTime.now().plusWeeks(1), 1);
+  }
+
+  public Exhibition createOrLoadExhibition(int idx, LocalDateTime startDate) {
+    return createOrLoadExhibition(idx, startDate, startDate.plusWeeks(1), 1);
+  }
+
+  public Exhibition createOrLoadExhibition(int idx, LocalDateTime startDate, int scheduleSize) {
+    return createOrLoadExhibition(idx, startDate, startDate.plusWeeks(1), scheduleSize);
+  }
+
+  public Exhibition createOrLoadExhibition(
+      int idx, LocalDateTime startDate, LocalDateTime endDate, int scheduleSize) {
     Optional<Exhibition> save = exhibitionRepository.findById(Long.valueOf(idx));
     if (save.isPresent()) {
       return save.get();
@@ -161,16 +174,6 @@ class ExhibitionControllerTest {
 
     exhibitionRepository.save(exhibition);
 
-    EventSchedule eventSchedule =
-        EventSchedule.builder()
-            .eventDate(LocalDateTime.now())
-            .startTime(LocalDateTime.now())
-            .endTime(LocalDateTime.now().plusMonths(1))
-            .detailLocation("상세 위치")
-            .createdTime(LocalDateTime.now())
-            .build();
-    eventSchedule.setEvent(exhibition);
-
     Location location =
         Location.builder()
             .latitude(123.123)
@@ -183,15 +186,28 @@ class ExhibitionControllerTest {
             .webSiteUrl("test.com")
             .snsUrl("test.com")
             .build();
-    eventSchedule.setLocation(location);
     locationRepository.save(location);
 
-    ExhibitionParticipant exhibitionParticipant =
-        ExhibitionParticipant.builder().member(createOrLoadMember()).build();
-    exhibitionParticipant.setEventSchedule(eventSchedule);
-    exhibitionParticipantRepository.save(exhibitionParticipant);
+    for (int i = 0; i < scheduleSize; i++) {
+      EventSchedule eventSchedule =
+          EventSchedule.builder()
+              .eventDate(startDate.plusDays(i))
+              .startTime(startDate)
+              .endTime(endDate)
+              .detailLocation("상세 위치")
+              .createdTime(LocalDateTime.now())
+              .build();
+      eventSchedule.setEvent(exhibition);
+      eventSchedule.setLocation(location);
 
-    eventScheduleRepository.save(eventSchedule);
+      ExhibitionParticipant exhibitionParticipant =
+          ExhibitionParticipant.builder().member(createOrLoadMember()).build();
+      exhibitionParticipant.setEventSchedule(eventSchedule);
+      exhibitionParticipantRepository.save(exhibitionParticipant);
+
+      eventScheduleRepository.save(eventSchedule);
+    }
+
     return exhibition;
   }
 
@@ -487,13 +503,13 @@ class ExhibitionControllerTest {
   @DisplayName("공모전 전체 조회 - 시작일과 종료일이 같을떄")
   @Test
   public void 공모전_전체_조회() throws Exception {
-    createOrLoadExhibition(1);
-    createOrLoadExhibition(2);
-    createOrLoadExhibition(3);
+    createOrLoadExhibition(1, LocalDateTime.now());
+    createOrLoadExhibition(2, LocalDateTime.now().minusDays(1));
+    createOrLoadExhibition(3, LocalDateTime.now().plusDays(2));
 
     ExhibitionSearchDTO exhibitionSearchDTO =
         ExhibitionSearchDTO.builder()
-            .startDate(String.valueOf(LocalDate.now()))
+            .startDate(String.valueOf(LocalDate.now().minusWeeks(1)))
             .endDate(String.valueOf(LocalDate.now().plusMonths(1)))
             .eventType(EventType.STANDARD.name())
             .build();
@@ -543,5 +559,16 @@ class ExhibitionControllerTest {
                 .param("sortDirection", sortDirection))
         .andDo(print())
         .andExpect(status().isBadRequest());
+  }
+
+  @DisplayName("공모전 상세 조회")
+  @Test
+  public void 공모전_상세_조회() throws Exception {
+    Exhibition exhibition = createOrLoadExhibition(3, LocalDateTime.now(), 3);
+
+    mockMvc
+        .perform(get("/api/exhibitions/{exhibitionId}", exhibition.getId()))
+        .andDo(print())
+        .andExpect(status().isOk());
   }
 }
