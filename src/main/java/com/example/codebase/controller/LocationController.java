@@ -2,9 +2,11 @@ package com.example.codebase.controller;
 
 import com.example.codebase.domain.location.dto.LocationCreateDTO;
 import com.example.codebase.domain.location.dto.LocationResponseDTO;
+import com.example.codebase.domain.location.dto.LocationsSearchResponseDTO;
 import com.example.codebase.domain.location.service.LocationService;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.annotations.ApiOperation;
+import javax.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,5 +59,17 @@ public class LocationController {
     locationService.deleteLocation(locationId, username);
 
     return new ResponseEntity(HttpStatus.OK);
+  }
+
+  @ApiOperation(value = "특정 장소 검색", notes = "[모든 사용자] 특정 장소에 대한 정보를 검색합니다.")
+  @GetMapping("/search")
+  public ResponseEntity findLocationByKeyword(
+      @RequestParam String keyword,
+      @PositiveOrZero @RequestParam(defaultValue = "0") int page,
+      @PositiveOrZero @RequestParam(defaultValue = "10") int size) {
+    LocationsSearchResponseDTO searchResponseDTO =
+        locationService.findLocationByKeyword(keyword, page, size);
+
+    return new ResponseEntity(searchResponseDTO, HttpStatus.OK);
   }
 }
