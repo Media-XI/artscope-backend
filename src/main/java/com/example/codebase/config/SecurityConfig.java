@@ -47,13 +47,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/swagger-resources/**"
     };
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web
-                .ignoring()
-                .antMatchers("/h2-console/**", "/favicon.ico")
-                .antMatchers(permitList);
-    }
+//    @Override
+//    public void configure(WebSecurity web) throws Exception {
+//        web
+//                .ignoring()
+//                .antMatchers("/h2-console/**", "/favicon.ico")
+//                .antMatchers(permitList);
+//    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -75,7 +75,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/api/**").permitAll()
-                .antMatchers(permitList).permitAll()
+                .antMatchers("/hizz").permitAll()
+                .antMatchers(permitList).hasAnyAuthority("ROLE_ADMIN")
 
                 .anyRequest().authenticated()
 
