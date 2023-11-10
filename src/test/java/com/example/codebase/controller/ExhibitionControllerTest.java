@@ -504,7 +504,7 @@ class ExhibitionControllerTest {
         ExhibitionSearchDTO.builder()
             .startDate(String.valueOf(LocalDate.now().minusWeeks(1)))
             .endDate(String.valueOf(LocalDate.now().plusMonths(1)))
-            .eventType(EventType.STANDARD.name())
+            .eventType(SearchEventType.ALL.name())
             .build();
 
     int page = 0;
