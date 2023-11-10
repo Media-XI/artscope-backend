@@ -14,12 +14,7 @@ import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
 import com.example.codebase.domain.exhibition.dto.ExhibitionMediaCreateDTO;
 import com.example.codebase.domain.exhibition.dto.ExhibitionSearchDTO;
 import com.example.codebase.domain.exhibition.dto.ExhibitionUpdateDTO;
-import com.example.codebase.domain.exhibition.entity.EventSchedule;
-import com.example.codebase.domain.exhibition.entity.EventType;
-import com.example.codebase.domain.exhibition.entity.Exhibition;
-import com.example.codebase.domain.exhibition.entity.ExhibitionMedia;
-import com.example.codebase.domain.exhibition.entity.ExhibitionParticipant;
-import com.example.codebase.domain.exhibition.entity.ExhibtionMediaType;
+import com.example.codebase.domain.exhibition.entity.*;
 import com.example.codebase.domain.exhibition.repository.EventScheduleRepository;
 import com.example.codebase.domain.exhibition.repository.ExhibitionParticipantRepository;
 import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
@@ -509,7 +504,7 @@ class ExhibitionControllerTest {
         ExhibitionSearchDTO.builder()
             .startDate(String.valueOf(LocalDate.now().minusWeeks(1)))
             .endDate(String.valueOf(LocalDate.now().plusMonths(1)))
-            .eventType(EventType.STANDARD.name())
+            .eventType(SearchEventType.ALL.name())
             .build();
 
     int page = 0;

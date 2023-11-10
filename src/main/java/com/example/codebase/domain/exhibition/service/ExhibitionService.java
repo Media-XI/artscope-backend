@@ -158,7 +158,7 @@ public class ExhibitionService {
     PageRequest pageRequest = PageRequest.of(page, size, sort);
 
     SearchEventType searchEventType = SearchEventType.create(exhibitionSearchDTO.getEventType());
-    EventType eventType = EventType.valueOf(searchEventType.name());
+    EventType eventType = EventType.create(searchEventType.name());
 
     Page<Exhibition> exhibitions =
         findExhibitionsWithEventSchedules(eventType, exhibitionSearchDTO, pageRequest);
