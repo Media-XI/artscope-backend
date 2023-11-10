@@ -23,7 +23,7 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 public class CustomExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity handleRuntimeException(RuntimeException e) {
-        log.info(e.getCause().toString());
+        log.info(String.valueOf(e.getCause()));
         RestResponse response = new RestResponse(false, e.getMessage(), HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity(response, HttpStatus.BAD_REQUEST);
     }
