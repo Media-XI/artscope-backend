@@ -49,7 +49,7 @@ public class Location {
   @Column(name = "sns_url", length = 255)
   private String snsUrl;
 
-  public static Location of(LocationCreateDTO dto) {
+  public static Location from(LocationCreateDTO dto) {
     return Location.builder()
         .latitude(dto.getLatitude())
         .longitude(dto.getLongitude())

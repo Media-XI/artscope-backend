@@ -43,7 +43,7 @@ public class LocationService {
     Member member =
         memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
-    Location location = Location.of(dto);
+    Location location = Location.from(dto);
 
     locationRepository.save(location);
 
