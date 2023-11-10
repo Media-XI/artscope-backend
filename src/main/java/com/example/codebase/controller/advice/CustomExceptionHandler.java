@@ -6,6 +6,8 @@ import com.example.codebase.exception.NotAcceptTypeException;
 import com.example.codebase.exception.NotAccessException;
 import java.io.IOException;
 import java.util.Objects;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -16,10 +18,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
+@Slf4j
 @RestControllerAdvice
 public class CustomExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity handleRuntimeException(RuntimeException e) {
+        log.info(String.valueOf(e.getCause()));
         RestResponse response = new RestResponse(false, e.getMessage(), HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity(response, HttpStatus.BAD_REQUEST);
     }
