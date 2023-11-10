@@ -25,9 +25,9 @@ import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.exception.NotFoundException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -153,40 +153,40 @@ public class ExhibitionService {
 
     exhibitionSearchDTO.convertAndSetLocalDateTimes();
     exhibitionSearchDTO.repeatTimeValidity();
-    SearchEventType searchEventType = SearchEventType.create(exhibitionSearchDTO.getEventType());
 
     Sort sort = Sort.by(Direction.fromString(sortDirection), "createdTime");
     PageRequest pageRequest = PageRequest.of(page, size, sort);
 
-    Page<EventSchedule> eventSchedules;
-    if (searchEventType == SearchEventType.ALL) {
-      eventSchedules =
-          eventScheduleRepository.findByStartAndEndDate(
-              exhibitionSearchDTO.getStartLocalDateTime(),
-              exhibitionSearchDTO.getEndLocalDateTime(),
-              pageRequest);
-    } else {
-      eventSchedules =
-          eventScheduleRepository.findByStartAndEndDate(
-              exhibitionSearchDTO.getStartLocalDateTime(),
-              exhibitionSearchDTO.getEndLocalDateTime(),
-              EventType.valueOf(searchEventType.name()),
-              pageRequest);
-    }
+    SearchEventType searchEventType = SearchEventType.create(exhibitionSearchDTO.getEventType());
+    EventType eventType = EventType.valueOf(searchEventType.name());
+
+    Page<Exhibition> exhibitions =
+        findExhibitionsWithEventSchedules(eventType, exhibitionSearchDTO, pageRequest);
 
     PageInfo pageInfo =
-        PageInfo.of(page, size, eventSchedules.getTotalPages(), eventSchedules.getTotalElements());
+        PageInfo.of(page, size, exhibitions.getTotalPages(), exhibitions.getTotalElements());
 
-    List<ExhibitionResponseDTO> dtos = new ArrayList<>();
-    for (int i = 0; i < eventSchedules.getContent().size(); i++) {
-      Exhibition exhibition =
-          exhibitionRepository
-              .findById(eventSchedules.getContent().get(i).getExhibition().getId())
-              .orElseThrow();
-      ExhibitionResponseDTO dto = ExhibitionResponseDTO.from(exhibition);
-      dtos.add(dto);
-    }
+    List<ExhibitionResponseDTO> dtos =
+        exhibitions.getContent().stream()
+            .map(ExhibitionResponseDTO::from)
+            .collect(Collectors.toList());
+
     return ExhibitionPageInfoResponseDTO.of(dtos, pageInfo);
+  }
+
+  private Page<Exhibition> findExhibitionsWithEventSchedules(
+      EventType eventType, ExhibitionSearchDTO exhibitionSearchDTO, PageRequest pageRequest) {
+    if (eventType == null) {
+      return exhibitionRepository.findExhibitionsWithEventSchedules(
+          exhibitionSearchDTO.getStartLocalDateTime(),
+          exhibitionSearchDTO.getEndLocalDateTime(),
+          pageRequest);
+    }
+    return exhibitionRepository.findExhibitionsWithEventSchedules(
+        exhibitionSearchDTO.getStartLocalDateTime(),
+        exhibitionSearchDTO.getEndLocalDateTime(),
+        eventType,
+        pageRequest);
   }
 
   @Transactional(readOnly = true)
