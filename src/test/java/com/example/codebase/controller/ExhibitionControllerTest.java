@@ -14,12 +14,7 @@ import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
 import com.example.codebase.domain.exhibition.dto.ExhibitionMediaCreateDTO;
 import com.example.codebase.domain.exhibition.dto.ExhibitionSearchDTO;
 import com.example.codebase.domain.exhibition.dto.ExhibitionUpdateDTO;
-import com.example.codebase.domain.exhibition.entity.EventSchedule;
-import com.example.codebase.domain.exhibition.entity.EventType;
-import com.example.codebase.domain.exhibition.entity.Exhibition;
-import com.example.codebase.domain.exhibition.entity.ExhibitionMedia;
-import com.example.codebase.domain.exhibition.entity.ExhibitionParticipant;
-import com.example.codebase.domain.exhibition.entity.ExhibtionMediaType;
+import com.example.codebase.domain.exhibition.entity.*;
 import com.example.codebase.domain.exhibition.repository.EventScheduleRepository;
 import com.example.codebase.domain.exhibition.repository.ExhibitionParticipantRepository;
 import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
@@ -568,5 +563,38 @@ class ExhibitionControllerTest {
         .perform(get("/api/exhibitions/{exhibitionId}", exhibition.getId()))
         .andDo(print())
         .andExpect(status().isOk());
+  }
+
+  @WithMockCustomUser(username = "user", role = "CURATOR")
+  @DisplayName("스케줄 시작시간과 종료시간이 같을시")
+  @Test
+  public void 스케줄시간과_종료시간이_같은경우_이벤트등록() throws Exception {
+    createOrLoadMember("user", "ROLE_CURATOR");
+
+    ExhbitionCreateDTO dto = mockCreateExhibitionDTO(1);
+    EventScheduleCreateDTO eventScheduleCreateDTO = dto.getSchedule().get(0);
+    eventScheduleCreateDTO.setEndTime(LocalDateTime.now());
+    eventScheduleCreateDTO.setStartTime(LocalDateTime.now());
+
+    MockMultipartFile dtoFile =
+        new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
+
+    MockMultipartFile mediaFile =
+        new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
+
+    MockMultipartFile thumbnailFile =
+        new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
+
+    mockMvc
+        .perform(
+            multipart("/api/exhibitions")
+                .file(dtoFile)
+                .file(mediaFile)
+                .file(thumbnailFile)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8"))
+        .andDo(print())
+        .andExpect(status().isBadRequest());
   }
 }
