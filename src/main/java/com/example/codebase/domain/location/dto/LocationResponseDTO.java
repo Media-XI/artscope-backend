@@ -27,8 +27,6 @@ public class LocationResponseDTO {
 
     private String englishName;
 
-    private String link;
-
     private String phoneNumber;
 
     private String webSiteUrl;
@@ -43,7 +41,6 @@ public class LocationResponseDTO {
                 .address(eventSchedule.getLocation().getAddress())
                 .name(eventSchedule.getLocation().getName())
                 .englishName(eventSchedule.getLocation().getEnglishName())
-                .link(eventSchedule.getLocation().getLink())
                 .phoneNumber(eventSchedule.getLocation().getPhoneNumber())
                 .webSiteUrl(eventSchedule.getLocation().getWebSiteUrl())
                 .snsUrl(eventSchedule.getLocation().getSnsUrl())
@@ -58,7 +55,6 @@ public class LocationResponseDTO {
                 .address(location.getAddress())
                 .name(location.getName())
                 .englishName(location.getEnglishName())
-                .link(location.getLink())
                 .phoneNumber(location.getPhoneNumber())
                 .webSiteUrl(location.getWebSiteUrl())
                 .snsUrl(location.getSnsUrl())

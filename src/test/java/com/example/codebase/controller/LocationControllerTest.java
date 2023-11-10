@@ -95,17 +95,20 @@ class LocationControllerTest {
   }
 
   public Location createOrLoadLocation() {
+    return createOrLoadLocation(1);
+  }
+
+  public Location createOrLoadLocation(int index) {
     Location location =
         Location.builder()
-            .latitude(37.123456)
-            .longitude(127.123456)
-            .address("경기도 용인시 수지구 죽전동")
-            .name("테스트 장소")
-            .englishName("Test Location")
-            .link("https://test.com")
-            .phoneNumber("010-1234-5678")
-            .webSiteUrl("https://test.com")
-            .snsUrl("https://test.com")
+            .latitude(37.123456 + index)
+            .longitude(127.123456 + index)
+            .address("경기도 용인시 수지구 죽전동" + index)
+            .name("테스트 장소" + index)
+            .englishName("Test Location" + index)
+            .phoneNumber("010-1234-5678" + index)
+            .webSiteUrl("https://test.com" + index)
+            .snsUrl("https://test.com" + index)
             .build();
 
     return locationRepository.save(location);
@@ -118,7 +121,6 @@ class LocationControllerTest {
     locationCreateDTO.setAddress("경기도 용인시 수지구 죽전동");
     locationCreateDTO.setName("테스트 장소");
     locationCreateDTO.setEnglishName("Test Location");
-    locationCreateDTO.setLink("https://test.com");
     locationCreateDTO.setPhoneNumber("010-1234-5678");
     locationCreateDTO.setWebSiteUrl("https://test.com");
     locationCreateDTO.setSnsUrl("https://test.com");
@@ -143,13 +145,57 @@ class LocationControllerTest {
         .andExpect(status().isCreated());
   }
 
-  @DisplayName("장소 조회 테스트")
+  @DisplayName("특정 장소 상세 조회 테스트")
   @Test
-  public void 장소_조회() throws Exception {
+  public void 특정_장소_상세조회() throws Exception {
     Location location = createOrLoadLocation();
 
     mockMvc
         .perform(get("/api/location/{locationId}", location.getId()))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
+
+  @DisplayName("이름으로 장소 검색 테스트")
+  @Test
+  public void 이름으로_장소_검색() throws Exception {
+    createOrLoadLocation(1);
+    createOrLoadLocation(2);
+    Location location = createOrLoadLocation(3);
+    createOrLoadLocation(4);
+    createOrLoadLocation(5);
+
+    int page = 0;
+    int size = 10;
+
+    mockMvc
+        .perform(
+            get("/api/location/search")
+                .param("keyword", location.getName())
+                .param("page", String.valueOf(page))
+                .param("size", String.valueOf(size)))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
+
+  @DisplayName("주소로 장소 검색 테스트")
+  @Test
+  public void 주소로_장소_검색() throws Exception {
+    createOrLoadLocation(1);
+    createOrLoadLocation(2);
+    createOrLoadLocation(3);
+    createOrLoadLocation(4);
+    createOrLoadLocation(5);
+
+    int page = 0;
+    int size = 10;
+
+    mockMvc
+        .perform(
+            get("/api/location/search")
+                .param("keyword", "경기도")
+                .param("page", String.valueOf(page))
+                .param("size", String.valueOf(size)))
         .andDo(print())
         .andExpect(status().isOk());
   }
