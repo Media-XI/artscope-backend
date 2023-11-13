@@ -86,9 +86,14 @@ public class AgoraService {
         Agora agora = agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
 
-        Member loginMember = memberRepository.findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
+        Optional<Member> loginMember = memberRepository.findByUsername(username);
+        if (loginMember.isPresent()) {
+            return getAgora(loginMember.get(), agora);
+        }
+        return AgoraDetailReponseDTO.from(agora);
+    }
 
+    private AgoraDetailReponseDTO getAgora(Member loginMember, Agora agora) {
         Optional<AgoraParticipant> loginParticipant = agoraParticipantRepository.findById(AgoraParticipantIds.of(agora, loginMember));
 
         if (loginParticipant.isPresent()) {

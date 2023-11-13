@@ -157,4 +157,8 @@ public class AgoraParticipant {
     public String getVote() {
         return this.vote;
     }
+
+    public Member getMember() {
+        return this.member;
+    }
 }

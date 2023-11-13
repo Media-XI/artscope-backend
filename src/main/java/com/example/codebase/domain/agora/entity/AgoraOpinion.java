@@ -95,7 +95,7 @@ public class AgoraOpinion {
     public Agora getAgora() {
         return this.agora;
     }
-    
+
 
     /**
      * @param agoraId 아고라의 id
@@ -131,5 +131,9 @@ public class AgoraOpinion {
     public void update(AgoraOpinionRequestDTO content) {
         this.content = content.getContent();
         this.updatedTime = LocalDateTime.now();
+    }
+
+    public Member getMember() {
+        return this.author.getMember();
     }
 }

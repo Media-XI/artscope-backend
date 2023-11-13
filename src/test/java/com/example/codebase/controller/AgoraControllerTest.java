@@ -208,14 +208,14 @@ class AgoraControllerTest {
                 .orElse(null);
 
         if (participant != null) {
-            participant.newVote(vote);
+            participant.createVote(vote);
             return agoraParticipantRepository.save(participant);
         }
 
         participant = AgoraParticipant.create();
         participant.setAgoraAndMember(agora, member);
         participant.newSequence();
-        participant.newVote(vote);
+        participant.createVote(vote);
         return agoraParticipantRepository.save(participant);
     }
 
@@ -225,7 +225,6 @@ class AgoraControllerTest {
         opinion.setAgoraAndAuthor(agora, agoraParticipant);
         return agoraOpinionRepository.save(opinion);
     }
-
 
     private byte[] createImageFile() throws IOException {
         File file = resourceLoader.getResource("classpath:test/img.jpg").getFile(); // TODO : 테스트용 이미지 파일
