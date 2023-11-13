@@ -40,9 +40,9 @@ public class AgoraOpinionResponseDTO {
     }
 
     public static AgoraOpinionResponseDTO of(AgoraOpinion opinion, AgoraParticipant agoraParticipant) {
-        AgoraOpinionResponseDTO agoraOpinionResponseDTO = from(opinion);
-        agoraOpinionResponseDTO.isMine = opinion.isAuthor(agoraParticipant.getMember().getUsername());
-        return agoraOpinionResponseDTO;
+        AgoraOpinionResponseDTO dto = from(opinion);
+        dto.isMine = opinion.isAuthor(agoraParticipant.getMemberUsername());
+        return dto;
     }
 
 

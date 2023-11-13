@@ -99,7 +99,7 @@ public class AgoraResponseDTO {
 
     public static AgoraResponseDTO of(Agora agora, AgoraParticipant agoraParticipant) {
         AgoraResponseDTO dto = from(agora);
-        dto.isMine = agora.isAuthor(agoraParticipant.getMember().getUsername());
+        dto.isMine = agora.isAuthor(agoraParticipant.getMemberUsername());
         return dto;
     }
 

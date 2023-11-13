@@ -1,6 +1,5 @@
 package com.example.codebase.domain.agora.service;
 
-import com.example.codebase.domain.agora.dto.AgoraOpinionRequestDTO;
 import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.agora.dto.*;
 import com.example.codebase.domain.agora.entity.*;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -89,11 +89,10 @@ public class AgoraService {
         Member loginMember = memberRepository.findByUsername(username)
                 .orElseThrow(NotFoundMemberException::new);
 
-        AgoraParticipant loginParticipant = agoraParticipantRepository.findById(AgoraParticipantIds.of(agora, loginMember))
-                .orElse(null);
+        Optional<AgoraParticipant> loginParticipant = agoraParticipantRepository.findById(AgoraParticipantIds.of(agora, loginMember));
 
-        if (loginParticipant != null) {
-            return AgoraDetailReponseDTO.of(agora, loginParticipant);
+        if (loginParticipant.isPresent()) {
+            return AgoraDetailReponseDTO.of(agora, loginParticipant.get());
         }
         return AgoraDetailReponseDTO.from(agora);
     }
@@ -161,10 +160,10 @@ public class AgoraService {
         }
 
         boolean isVoteCancle = false;
-        if (participant.hasAgora()) {
+        if (participant.isNew()) {
             participant.setAgoraAndMember(agora, member);
             participant.newSequence();
-            participant.newVote(vote);
+            participant.createVote(vote);
         } else {
             if (participant.isSameVote(vote)) {
                 participant.cancleVote(vote);

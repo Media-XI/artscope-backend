@@ -95,10 +95,7 @@ public class AgoraOpinion {
     public Agora getAgora() {
         return this.agora;
     }
-
-    public Member getMember() {
-        return author.getMember();
-    }
+    
 
     /**
      * @param agoraId 아고라의 id
@@ -111,7 +108,7 @@ public class AgoraOpinion {
     }
 
     public boolean isAuthor(String username) {
-        return this.author.getMember().getUsername().equals(username);
+        return this.author.getMemberUsername().equals(username);
     }
 
     /**
