@@ -74,8 +74,8 @@ public class ExhibitionController {
   @GetMapping
   public ResponseEntity getExhibition(
       @ModelAttribute @Valid ExhibitionSearchDTO exhibitionSearchDTO,
-      @PositiveOrZero @RequestParam int page,
-      @PositiveOrZero @RequestParam int size,
+      @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,
+      @PositiveOrZero @RequestParam(value = "size", defaultValue = "10") int size,
       @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
     ExhibitionPageInfoResponseDTO dtos =
         exhibitionService.getAllExhibition(exhibitionSearchDTO, page, size, sortDirection);
