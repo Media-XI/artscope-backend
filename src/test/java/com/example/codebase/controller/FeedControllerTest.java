@@ -1,20 +1,14 @@
 package com.example.codebase.controller;
 
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import com.example.codebase.domain.agora.entity.Agora;
+import com.example.codebase.domain.agora.entity.AgoraParticipant;
+import com.example.codebase.domain.agora.repository.AgoraParticipantRepository;
+import com.example.codebase.domain.agora.repository.AgoraRepository;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.auth.WithMockCustomUser;
-import com.example.codebase.domain.exhibition.entity.EventSchedule;
-import com.example.codebase.domain.exhibition.entity.EventType;
-import com.example.codebase.domain.exhibition.entity.Exhibition;
-import com.example.codebase.domain.exhibition.entity.ExhibitionMedia;
-import com.example.codebase.domain.exhibition.entity.ExhibitionParticipant;
-import com.example.codebase.domain.exhibition.entity.ExhibtionMediaType;
+import com.example.codebase.domain.exhibition.entity.*;
 import com.example.codebase.domain.exhibition.repository.EventScheduleRepository;
 import com.example.codebase.domain.exhibition.repository.ExhibitionParticipantRepository;
 import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
@@ -29,12 +23,6 @@ import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.domain.post.entity.Post;
 import com.example.codebase.domain.post.repository.PostRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -47,6 +35,18 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
@@ -70,23 +70,35 @@ class FeedControllerTest {
     @Autowired
     private ArtworkRepository artworkRepository;
 
-  @Autowired private PostRepository postRepository;
+    @Autowired
+    private PostRepository postRepository;
 
-  @Autowired private ExhibitionRepository exhibitionRepository;
+    @Autowired
+    private ExhibitionRepository exhibitionRepository;
 
-  @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired
+    private LocationRepository locationRepository;
 
-  @Autowired private LocationRepository locationRepository;
+    @Autowired
+    private EventScheduleRepository eventScheduleRepository;
 
-  @Autowired private EventScheduleRepository eventScheduleRepository;
+    @Autowired
+    private ExhibitionParticipantRepository exhibitionParticipantRepository;
 
-  @Autowired private ExhibitionParticipantRepository exhibitionParticipantRepository;
+    @Autowired
+    private AgoraRepository agoraRepository;
 
-  private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private AgoraParticipantRepository agoraParticipantRepository;
 
-  @BeforeEach
-  public void setUp() {
-    mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    @BeforeEach
+    public void setUp() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
     }
 
     @Transactional
@@ -159,74 +171,105 @@ class FeedControllerTest {
         return postRepository.save(post);
     }
 
-  @Transactional
-  public Exhibition createOrLoadExhibition(int idx) {
-    Optional<Exhibition> save = exhibitionRepository.findById(Long.valueOf(idx));
-    if (save.isPresent()) {
-      return save.get();
+    @Transactional
+    public Exhibition createOrLoadExhibition(int idx) {
+        Optional<Exhibition> save = exhibitionRepository.findById(Long.valueOf(idx));
+        if (save.isPresent()) {
+            return save.get();
+        }
+
+        Exhibition exhibition =
+                Exhibition.builder()
+                        .title("공모전 제목" + idx)
+                        .description("공모전 설명" + idx)
+                        .link("링크" + idx)
+                        .price(10000 + idx)
+                        .type(EventType.STANDARD)
+                        .createdTime(LocalDateTime.now())
+                        .member(createOrLoadMember())
+                        .build();
+
+        ExhibitionMedia thumbnail =
+                ExhibitionMedia.builder()
+                        .mediaUrl("url" + idx)
+                        .exhibtionMediaType(ExhibtionMediaType.image)
+                        .createdTime(LocalDateTime.now())
+                        .build();
+        exhibition.addExhibitionMedia(thumbnail);
+
+        ExhibitionMedia media =
+                ExhibitionMedia.builder()
+                        .mediaUrl("url" + idx)
+                        .exhibtionMediaType(ExhibtionMediaType.image)
+                        .createdTime(LocalDateTime.now())
+                        .build();
+        exhibition.addExhibitionMedia(media);
+
+        exhibitionRepository.save(exhibition);
+
+        EventSchedule eventSchedule =
+                EventSchedule.builder()
+                        .eventDate(LocalDateTime.now())
+                        .startTime(LocalDateTime.now())
+                        .endTime(LocalDateTime.now().plusMonths(1))
+                        .detailLocation("상세 위치")
+                        .createdTime(LocalDateTime.now())
+                        .build();
+        eventSchedule.setEvent(exhibition);
+
+        Location location =
+                Location.builder()
+                        .latitude(123.123)
+                        .longitude(123.123)
+                        .address("주소")
+                        .name("장소 이름")
+                        .englishName("장소 영어 이름")
+                        .phoneNumber("010-1234-1234")
+                        .webSiteUrl("test.com")
+                        .snsUrl("test.com")
+                        .build();
+        eventSchedule.setLocation(location);
+        locationRepository.save(location);
+
+        ExhibitionParticipant exhibitionParticipant =
+                ExhibitionParticipant.builder().member(createOrLoadMember()).build();
+        exhibitionParticipant.setEventSchedule(eventSchedule);
+        exhibitionParticipantRepository.save(exhibitionParticipant);
+
+        eventScheduleRepository.save(eventSchedule);
+        return exhibition;
     }
 
-    Exhibition exhibition =
-        Exhibition.builder()
-            .title("공모전 제목" + idx)
-            .description("공모전 설명" + idx)
-            .link("링크" + idx)
-            .price(10000 + idx)
-            .type(EventType.STANDARD)
-            .createdTime(LocalDateTime.now())
-            .member(createOrLoadMember())
-            .build();
+    @Transactional
+    public Agora createAgora(int idx, boolean isAnnoymous) {
+        Optional<Agora> agora = agoraRepository.findById(Long.valueOf(idx));
+        if (agora.isPresent()) {
+            return agora.get();
+        }
 
-    ExhibitionMedia thumbnail =
-        ExhibitionMedia.builder()
-            .mediaUrl("url" + idx)
-            .exhibtionMediaType(ExhibtionMediaType.image)
-            .createdTime(LocalDateTime.now())
-            .build();
-    exhibition.addExhibitionMedia(thumbnail);
+        Member member = createOrLoadMember();
 
-    ExhibitionMedia media =
-        ExhibitionMedia.builder()
-            .mediaUrl("url" + idx)
-            .exhibtionMediaType(ExhibtionMediaType.image)
-            .createdTime(LocalDateTime.now())
-            .build();
-    exhibition.addExhibitionMedia(media);
+        Agora dummy = Agora.builder()
+                .title("아고라_테스트" + idx)
+                .content("아고라_테스트_내용" + idx)
+                .agreeText("찬성")
+                .disagreeText("반대")
+                .naturalText("중립")
+                .agreeCount(0)
+                .disagreeCount(0)
+                .naturalCount(0)
+                .isAnonymous(isAnnoymous)
+                .author(member)
+                .createdTime(LocalDateTime.now())
+                .build();
+        agoraRepository.save(dummy);
 
-    exhibitionRepository.save(exhibition);
+        AgoraParticipant agoraParticipant = AgoraParticipant.create();
+        agoraParticipant.setAgoraAndMember(dummy, member);
+        agoraParticipantRepository.save(agoraParticipant);
 
-    EventSchedule eventSchedule =
-        EventSchedule.builder()
-            .eventDate(LocalDateTime.now())
-            .startTime(LocalDateTime.now())
-            .endTime(LocalDateTime.now().plusMonths(1))
-            .detailLocation("상세 위치")
-            .createdTime(LocalDateTime.now())
-            .build();
-    eventSchedule.setEvent(exhibition);
-
-    Location location =
-        Location.builder()
-            .latitude(123.123)
-            .longitude(123.123)
-            .address("주소")
-            .name("장소 이름")
-            .englishName("장소 영어 이름")
-            .phoneNumber("010-1234-1234")
-            .webSiteUrl("test.com")
-            .snsUrl("test.com")
-            .build();
-    eventSchedule.setLocation(location);
-    locationRepository.save(location);
-
-    ExhibitionParticipant exhibitionParticipant =
-        ExhibitionParticipant.builder().member(createOrLoadMember()).build();
-    exhibitionParticipant.setEventSchedule(eventSchedule);
-    exhibitionParticipantRepository.save(exhibitionParticipant);
-
-    eventScheduleRepository.save(eventSchedule);
-    return exhibition;
-  }
+        return dummy;
+    }
 
     @DisplayName("피드 생성")
     @Test
@@ -262,6 +305,40 @@ class FeedControllerTest {
         createOrLoadExhibition(2);
         createOrLoadExhibition(3);
         createOrLoadExhibition(4);
+
+        // Agora
+        createAgora(1, false);
+        createAgora(2, true);
+        createAgora(3, true);
+
+        mockMvc.perform(
+                        post("/api/feed")
+                                .param("page", "0")
+                )
+                .andExpect(status().isCreated())
+                .andDo(print());
+    }
+
+    @DisplayName("피드 생성2")
+    @Test
+    public void createFeed_Agora() throws Exception {
+
+        // 아트워크 생성 및 저장
+        createOrLoadArtwork(1, true, 1);
+        createOrLoadArtwork(2, true, 1);
+
+        // Post 생성 및 저장
+        createPost();
+        createPost();
+
+        // 전시 생성 및 저장
+        createOrLoadExhibition(1);
+        createOrLoadExhibition(2);
+
+        // Agora
+        createAgora(1, false);
+        createAgora(2, true);
+        createAgora(3, true);
 
         mockMvc.perform(
                         post("/api/feed")

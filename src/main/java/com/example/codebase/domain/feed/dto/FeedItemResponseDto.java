@@ -1,6 +1,9 @@
 package com.example.codebase.domain.feed.dto;
 
 
+import com.example.codebase.domain.agora.dto.AgoraParticipantResponseDTO;
+import com.example.codebase.domain.agora.entity.Agora;
+import com.example.codebase.domain.agora.entity.AgoraMedia;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
 import com.example.codebase.domain.artwork.entity.ArtworkWithIsLike;
@@ -58,6 +61,22 @@ public class FeedItemResponseDto {
     private Integer likes;
 
     private Integer comments;
+
+    // Agora Option
+    private Integer agoraAgreeCount;
+
+    private Integer agoraDisagreeCount;
+
+    private Integer agoraNaturalCount;
+
+    private Integer participantCount;
+
+    private String agreeText;
+
+    private String disagreeText;
+
+    private String naturalText;
+    //
 
     @Builder.Default
     private Boolean isLiked = false;
@@ -179,6 +198,47 @@ public class FeedItemResponseDto {
     public static FeedItemResponseDto from(ArtworkWithIsLike artworkWithIsLike) {
         FeedItemResponseDto dto = from(artworkWithIsLike.getArtwork());
         dto.setIsLiked(artworkWithIsLike.getIsLike());
+        return dto;
+    }
+    public static FeedItemResponseDto from(Agora agora) {
+        AgoraParticipantResponseDTO agoraParticipantResponseDTO = AgoraParticipantResponseDTO.of(agora.getAuthor(),
+                agora.getIsAnonymous(), 0);
+
+
+        FeedItemResponseDto dto = FeedItemResponseDto.builder()
+                .id(agora.getId())
+                .type(FeedType.agora)
+                .title(agora.getTitle())
+                .content(agora.getContent())
+                .authorName(agoraParticipantResponseDTO.getName())
+                .authorUsername(agoraParticipantResponseDTO.getUsername())
+                .authorProfileImageUrl(agoraParticipantResponseDTO.getProfileImageUrl())
+                .tags(null)
+                .categoryId(FeedType.agora.name())
+                .views(0)
+                .likes(0)
+                .comments(0)
+                .agoraAgreeCount(agora.getAgreeCount())
+                .agoraDisagreeCount(agora.getDisagreeCount())
+                .agoraNaturalCount(agora.getNaturalCount())
+                .participantCount(agora.getParticipantCount())
+                .agreeText(agora.getAgreeText())
+                .disagreeText(agora.getDisagreeText())
+                .naturalText(agora.getNaturalText())
+                .createdTime(agora.getCreatedTime())
+                .updatedTime(agora.getUpdatedTime())
+                .build();
+
+        if (agora.getMedias().size() > 0) {
+            String thumbnailUrl = agora.getMedias().get(0).getMediaUrl();
+            List<String> mediaUrls = agora.getMedias().stream()
+                    .map(AgoraMedia::getMediaUrl)
+                    .collect(Collectors.toList());
+
+            dto.setThumbnailUrl(thumbnailUrl);
+            dto.setMediaUrls(mediaUrls);
+        }
+
         return dto;
     }
 }

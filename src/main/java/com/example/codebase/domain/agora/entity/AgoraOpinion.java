@@ -96,9 +96,6 @@ public class AgoraOpinion {
         return this.agora;
     }
 
-    public Member getMember() {
-        return author.getMember();
-    }
 
     /**
      * @param agoraId 아고라의 id
@@ -110,8 +107,8 @@ public class AgoraOpinion {
         }
     }
 
-    private boolean isAuthor(String username) {
-        return this.author.getMember().getUsername().equals(username);
+    public boolean isAuthor(String username) {
+        return this.author.getMemberUsername().equals(username);
     }
 
     /**
@@ -134,5 +131,9 @@ public class AgoraOpinion {
     public void update(AgoraOpinionRequestDTO content) {
         this.content = content.getContent();
         this.updatedTime = LocalDateTime.now();
+    }
+
+    public Member getMember() {
+        return this.author.getMember();
     }
 }

@@ -2,8 +2,9 @@ package com.example.codebase.domain.agora.dto;
 
 import com.example.codebase.domain.agora.entity.Agora;
 import com.example.codebase.domain.agora.entity.AgoraMedia;
+import com.example.codebase.domain.agora.entity.AgoraParticipant;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties(value = {"isUserVoteCancle", "userVoteCancle"})
 public class AgoraResponseDTO {
 
     private Long id;
@@ -40,8 +42,10 @@ public class AgoraResponseDTO {
     private Boolean isAnonymous;
 
     @Builder.Default
-    @JsonIgnore
     private Boolean isUserVoteCancle = false; // 현재 유저가 투표했는지 여부
+
+    @Builder.Default
+    private Boolean isMine = false;
 
     private AgoraParticipantResponseDTO author;
 
@@ -88,9 +92,15 @@ public class AgoraResponseDTO {
     }
 
     public static AgoraResponseDTO of(Agora agora, boolean userVoted) {
-        AgoraResponseDTO from = from(agora);
-        from.setIsUserVoteCancle(userVoted);
-        return from;
+        AgoraResponseDTO dto = from(agora);
+        dto.setIsUserVoteCancle(userVoted);
+        return dto;
+    }
+
+    public static AgoraResponseDTO of(Agora agora, AgoraParticipant agoraParticipant) {
+        AgoraResponseDTO dto = from(agora);
+        dto.isMine = agora.isAuthor(agoraParticipant.getMemberUsername());
+        return dto;
     }
 
     public boolean isUserVoteCancle() {

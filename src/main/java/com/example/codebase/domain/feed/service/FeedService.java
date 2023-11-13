@@ -1,5 +1,7 @@
 package com.example.codebase.domain.feed.service;
 
+import com.example.codebase.domain.agora.entity.Agora;
+import com.example.codebase.domain.agora.repository.AgoraRepository;
 import com.example.codebase.domain.artwork.dto.ArtworkResponseDTO;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkWithIsLike;
@@ -32,15 +34,16 @@ public class FeedService {
     private final ArtworkRepository artworkRepository;
     private final PostRepository postRepository;
     private final ExhibitionRepository exhibitionRepository;
-
+    private final AgoraRepository agoraRepository;
     private final MemberRepository memberRepository;
 
     @Autowired
     public FeedService(ArtworkRepository artworkRepository, PostRepository postRepository,
-                       ExhibitionRepository exhibitionRepository, MemberRepository memberRepository) {
+                       ExhibitionRepository exhibitionRepository, AgoraRepository agoraRepository, MemberRepository memberRepository) {
         this.artworkRepository = artworkRepository;
         this.postRepository = postRepository;
         this.exhibitionRepository = exhibitionRepository;
+        this.agoraRepository = agoraRepository;
         this.memberRepository = memberRepository;
     }
 
@@ -78,10 +81,19 @@ public class FeedService {
                 .collect(Collectors.toList());
         feedItems.addAll(exhibitionItems);
 
+        // 아고라 조회
+        Page<Agora> agoras = agoraRepository.findAll(pageRequest);
+
+        List<FeedItemResponseDto> agoraItems = agoras
+                .stream()
+                .map(FeedItemResponseDto::from)
+                .collect(Collectors.toList());
+        feedItems.addAll(agoraItems);
+
         // application sort
         feedItems.sort((o1, o2) -> o2.getCreatedTime().compareTo(o1.getCreatedTime()));
 
-        boolean hasNext = artworks.hasNext() || posts.hasNext() || exhibitions.hasNext();
+        boolean hasNext = artworks.hasNext() || posts.hasNext() || exhibitions.hasNext() || agoras.hasNext();
         return FeedResponseDto.of(feedItems, hasNext);
     }
 
@@ -122,10 +134,18 @@ public class FeedService {
                 .collect(Collectors.toList());
         feedItems.addAll(exhibitionItems);
 
+        // 아고라 조회
+        Page<Agora> agoras = agoraRepository.findAll(pageRequest);
+        List<FeedItemResponseDto> agoraItems = agoras
+                .stream()
+                .map(FeedItemResponseDto::from)
+                .collect(Collectors.toList());
+        feedItems.addAll(agoraItems);
+
         // application sort
         feedItems.sort((o1, o2) -> o2.getCreatedTime().compareTo(o1.getCreatedTime()));
 
-        boolean hasNext = artworks.hasNext() || posts.hasNext() || exhibitions.hasNext();
+        boolean hasNext = artworks.hasNext() || posts.hasNext() || exhibitions.hasNext() || agoras.hasNext();
         return FeedResponseDto.of(feedItems, hasNext);
     }
 
