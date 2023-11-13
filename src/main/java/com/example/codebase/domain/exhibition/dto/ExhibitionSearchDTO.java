@@ -13,9 +13,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ExhibitionSearchDTO {
 
+    @Builder.Default
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate = LocalDate.of(1900, 1, 1);
 
+    @Builder.Default
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate = LocalDate.of(2100, 12, 31);
 

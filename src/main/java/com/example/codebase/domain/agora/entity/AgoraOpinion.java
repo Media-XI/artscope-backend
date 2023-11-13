@@ -137,7 +137,4 @@ public class AgoraOpinion {
         this.updatedTime = LocalDateTime.now();
     }
 
-    public Member getMember() {
-        return this.author.getMember();
-    }
 }
