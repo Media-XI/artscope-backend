@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Objects;
 
 @Slf4j
@@ -59,6 +60,7 @@ public class CustomExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity handleRuntimeException(RuntimeException e) {
         log.info(String.valueOf(e.getCause()));
+        log.info(Arrays.toString(e.getStackTrace()));
         RestResponse response = new RestResponse(false, e.getMessage(), HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity(response, HttpStatus.BAD_REQUEST);
     }
