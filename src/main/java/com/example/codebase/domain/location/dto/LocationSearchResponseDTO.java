@@ -1,11 +1,7 @@
 package com.example.codebase.domain.location.dto;
 
 import com.example.codebase.domain.location.entity.Location;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Builder
 @Getter
@@ -14,20 +10,20 @@ import lombok.Setter;
 @AllArgsConstructor
 public class LocationSearchResponseDTO {
 
-  private long locationId;
+    private long locationId;
 
-  private String name;
+    private String name;
 
-  private String address;
+    private String address;
 
-  private String englishName;
+    private String englishName;
 
-  public static LocationSearchResponseDTO from(Location location) {
-    return LocationSearchResponseDTO.builder()
-        .locationId(location.getId())
-        .name(location.getName())
-        .address(location.getAddress())
-        .englishName(location.getEnglishName())
-        .build();
-  }
+    public static LocationSearchResponseDTO from(Location location) {
+        return LocationSearchResponseDTO.builder()
+            .locationId(location.getId())
+            .name(location.getName())
+            .address(location.getAddress())
+            .englishName(location.getEnglishName())
+            .build();
+    }
 }

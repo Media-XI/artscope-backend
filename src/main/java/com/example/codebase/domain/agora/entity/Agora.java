@@ -4,7 +4,10 @@ import com.example.codebase.domain.agora.dto.AgoraCreateDTO;
 import com.example.codebase.domain.agora.dto.AgoraUpdateDTO;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.exception.NotFoundException;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -73,18 +76,18 @@ public class Agora {
 
     public static Agora from(AgoraCreateDTO dto) {
         return Agora.builder()
-                .title(dto.getTitle())
-                .content(dto.getContent())
-                .agreeText(dto.getAgreeText())
-                .naturalText(dto.getNaturalText())
-                .disagreeText(dto.getDisagreeText())
-                .agreeCount(0)
-                .naturalCount(0)
-                .disagreeCount(0)
-                .participantCount(0)
-                .isAnonymous(dto.getIsAnonymous())
-                .createdTime(LocalDateTime.now())
-                .build();
+            .title(dto.getTitle())
+            .content(dto.getContent())
+            .agreeText(dto.getAgreeText())
+            .naturalText(dto.getNaturalText())
+            .disagreeText(dto.getDisagreeText())
+            .agreeCount(0)
+            .naturalCount(0)
+            .disagreeCount(0)
+            .participantCount(0)
+            .isAnonymous(dto.getIsAnonymous())
+            .createdTime(LocalDateTime.now())
+            .build();
     }
 
     public static Agora of(AgoraCreateDTO dto, Member member) {

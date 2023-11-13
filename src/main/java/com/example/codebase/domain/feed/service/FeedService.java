@@ -15,16 +15,17 @@ import com.example.codebase.domain.post.dto.PostResponseDTO;
 import com.example.codebase.domain.post.entity.Post;
 import com.example.codebase.domain.post.entity.PostWithIsLiked;
 import com.example.codebase.domain.post.repository.PostRepository;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FeedService {
@@ -55,27 +56,27 @@ public class FeedService {
         Page<Artwork> artworks = artworkRepository.findAll(pageRequest);
 
         List<FeedItemResponseDto> artworkItems = artworks
-                .stream()
-                .map(FeedItemResponseDto::from)
-                .collect(Collectors.toList());
+            .stream()
+            .map(FeedItemResponseDto::from)
+            .collect(Collectors.toList());
         feedItems.addAll(artworkItems);
 
         // Post 조회
         Page<Post> posts = postRepository.findAll(pageRequest);
 
         List<FeedItemResponseDto> postItems = posts
-                .stream()
-                .map(FeedItemResponseDto::from)
-                .collect(Collectors.toList());
+            .stream()
+            .map(FeedItemResponseDto::from)
+            .collect(Collectors.toList());
         feedItems.addAll(postItems);
 
         // 전시 조회
         Page<Exhibition> exhibitions = exhibitionRepository.findAll(pageRequest);
 
         List<FeedItemResponseDto> exhibitionItems = exhibitions
-                .stream()
-                .map(FeedItemResponseDto::from)
-                .collect(Collectors.toList());
+            .stream()
+            .map(FeedItemResponseDto::from)
+            .collect(Collectors.toList());
         feedItems.addAll(exhibitionItems);
 
         // application sort
@@ -93,33 +94,33 @@ public class FeedService {
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
         Member member = memberRepository.findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
+            .orElseThrow(NotFoundMemberException::new);
 
         // 아트워크 조회
         Page<ArtworkWithIsLike> artworks = artworkRepository.findAllWithIsLiked(member, pageRequest);
 
         List<FeedItemResponseDto> artworkItems = artworks
-                .stream()
-                .map(FeedItemResponseDto::from)
-                .collect(Collectors.toList());
+            .stream()
+            .map(FeedItemResponseDto::from)
+            .collect(Collectors.toList());
         feedItems.addAll(artworkItems);
 
         // Post 조회
         Page<PostWithIsLiked> posts = postRepository.findAllWithIsLiked(member, pageRequest);
 
         List<FeedItemResponseDto> postItems = posts
-                .stream()
-                .map(FeedItemResponseDto::from)
-                .collect(Collectors.toList());
+            .stream()
+            .map(FeedItemResponseDto::from)
+            .collect(Collectors.toList());
         feedItems.addAll(postItems);
 
         // 전시 조회
         Page<Exhibition> exhibitions = exhibitionRepository.findAll(pageRequest);
 
         List<FeedItemResponseDto> exhibitionItems = exhibitions
-                .stream()
-                .map(FeedItemResponseDto::from)
-                .collect(Collectors.toList());
+            .stream()
+            .map(FeedItemResponseDto::from)
+            .collect(Collectors.toList());
         feedItems.addAll(exhibitionItems);
 
         // application sort
@@ -134,10 +135,10 @@ public class FeedService {
 
         LocalDateTime week = LocalDateTime.now().minusWeeks(1);
         List<PostResponseDTO> likePosts = postRepository.findTop10LikedPostByWeek(week)
-                .stream()
-                .map(PostResponseDTO::from)
-                .limit(10)
-                .collect(Collectors.toList());
+            .stream()
+            .map(PostResponseDTO::from)
+            .limit(10)
+            .collect(Collectors.toList());
 
         return likePosts;
     }
@@ -147,10 +148,10 @@ public class FeedService {
 
         LocalDateTime week = LocalDateTime.now().minusWeeks(1);
         List<ArtworkResponseDTO> likePosts = artworkRepository.findTop10LikedArtworkByWeek(week)
-                .stream()
-                .map(ArtworkResponseDTO::from)
-                .limit(10)
-                .collect(Collectors.toList());
+            .stream()
+            .map(ArtworkResponseDTO::from)
+            .limit(10)
+            .collect(Collectors.toList());
 
         return likePosts;
     }

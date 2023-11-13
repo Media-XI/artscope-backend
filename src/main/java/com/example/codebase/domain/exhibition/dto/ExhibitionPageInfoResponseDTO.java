@@ -1,9 +1,10 @@
 package com.example.codebase.domain.exhibition.dto;
 
 import com.example.codebase.controller.dto.PageInfo;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,7 +15,7 @@ public class ExhibitionPageInfoResponseDTO {
     PageInfo pageInfo;
 
     public static ExhibitionPageInfoResponseDTO of(
-            List<ExhibitionResponseDTO> dtos, PageInfo pageInfo) {
+        List<ExhibitionResponseDTO> dtos, PageInfo pageInfo) {
         ExhibitionPageInfoResponseDTO responseDTO = new ExhibitionPageInfoResponseDTO();
         responseDTO.exhibitions = dtos;
         responseDTO.pageInfo = pageInfo;

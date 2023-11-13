@@ -10,12 +10,13 @@ import com.example.codebase.domain.post.dto.PostsResponseDTO;
 import com.example.codebase.domain.post.entity.Post;
 import com.example.codebase.domain.post.repository.PostRepository;
 import com.example.codebase.domain.search.dto.SearchResponseDTO;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SearchService {
@@ -34,21 +35,21 @@ public class SearchService {
         // 아트워크 검색
         Page<Artwork> artworks = artworkRepository.findAllByKeywordContaining(keyword, pageRequest);
         PageInfo pageInfoArtwork = PageInfo.of(pageRequest.getPageNumber(), pageRequest.getPageSize(),
-                artworks.getTotalPages(), artworks.getTotalElements());
+            artworks.getTotalPages(), artworks.getTotalElements());
 
         List<ArtworkResponseDTO> dtos = artworks.stream()
-                .map(ArtworkResponseDTO::from)
-                .collect(Collectors.toList());
+            .map(ArtworkResponseDTO::from)
+            .collect(Collectors.toList());
         ArtworksResponseDTO artworksResponseDTO = ArtworksResponseDTO.of(dtos, pageInfoArtwork);
 
         // Post 검색
         Page<Post> posts = postRepository.findAllByKeywordContaining(keyword, pageRequest);
         PageInfo pageInfoPost = PageInfo.of(pageRequest.getPageNumber(), pageRequest.getPageSize(),
-                posts.getTotalPages(), posts.getTotalElements());
+            posts.getTotalPages(), posts.getTotalElements());
 
         List<PostResponseDTO> postResponseDTOS = posts.stream()
-                .map(PostResponseDTO::from)
-                .collect(Collectors.toList());
+            .map(PostResponseDTO::from)
+            .collect(Collectors.toList());
         PostsResponseDTO postsResponseDTO = PostsResponseDTO.of(postResponseDTOS, pageInfoPost);
 
         return SearchResponseDTO.of(artworksResponseDTO, postsResponseDTO);

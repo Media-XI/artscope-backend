@@ -106,34 +106,26 @@ public class Member {
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     private List<Agora> agoras = new ArrayList<>();
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void addAuthority(MemberAuthority memberAuthority) {
-        this.authorities.add(memberAuthority);
-    }
-
     public static User toUser(Member member) {
         return new User(member.getUsername(), member.getPassword(), member.getAuthorities().stream()
-                .map(authority -> new SimpleGrantedAuthority(authority.getAuthority().getAuthorityName()))
-                .collect(Collectors.toList()));
+            .map(authority -> new SimpleGrantedAuthority(authority.getAuthority().getAuthorityName()))
+            .collect(Collectors.toList()));
     }
 
     public static Member from(PasswordEncoder passwordEncoder, OAuthAttributes oAuthAttributes) {
         String username = generateUniqueUsernameLikeYT();
 
         return Member.builder()
-                .username(username)
-                .password(passwordEncoder.encode(UUID.randomUUID().toString()))
-                .name(oAuthAttributes.getName())
-                .email(oAuthAttributes.getEmail())
-                .picture(oAuthAttributes.getPicture())
-                .oauthProvider(oAuthAttributes.getRegistrationId())
-                .oauthProviderId(oAuthAttributes.getOAuthProviderId())
-                .createdTime(LocalDateTime.now())
-                .activated(true)
-                .build();
+            .username(username)
+            .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+            .name(oAuthAttributes.getName())
+            .email(oAuthAttributes.getEmail())
+            .picture(oAuthAttributes.getPicture())
+            .oauthProvider(oAuthAttributes.getRegistrationId())
+            .oauthProviderId(oAuthAttributes.getOAuthProviderId())
+            .createdTime(LocalDateTime.now())
+            .activated(true)
+            .build();
     }
 
     private static String generateUniqueUsername() {
@@ -166,6 +158,14 @@ public class Member {
         username.append(last);
 
         return username.toString();
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void addAuthority(MemberAuthority memberAuthority) {
+        this.authorities.add(memberAuthority);
     }
 
     public Member update(String name, String picture) {

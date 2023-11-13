@@ -1,23 +1,12 @@
 package com.example.codebase.config;
 
-import com.example.codebase.ArtBackendApplication;
 import org.jasypt.encryption.StringEncryptor;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import javax.swing.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -31,14 +20,14 @@ class JasyptConfigTest {
     @Test
     void encrypt() {
         String text = "hello world";
-        System.out.println(String.format("ENC(%s)", stringEncryptor.encrypt(text)));
+        System.out.printf("ENC(%s)%n", stringEncryptor.encrypt(text));
     }
 
     @DisplayName("Jasypt 복호화")
     @Test
     void decrypt() {
         String text = "XaueZq0cG2GamiRn8Z/Gs6nudz2XghjQvRO0cKIRSeE=";
-        System.out.println(String.format("%s", stringEncryptor.decrypt(text)));
+        System.out.printf("%s%n", stringEncryptor.decrypt(text));
     }
 
 }

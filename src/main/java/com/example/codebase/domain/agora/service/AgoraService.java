@@ -1,6 +1,5 @@
 package com.example.codebase.domain.agora.service;
 
-import com.example.codebase.domain.agora.dto.AgoraOpinionRequestDTO;
 import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.agora.dto.*;
 import com.example.codebase.domain.agora.entity.*;
@@ -46,7 +45,7 @@ public class AgoraService {
     @Transactional
     public AgoraResponseDTO createAgora(AgoraCreateDTO dto, String username) {
         Member member = memberRepository.findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
+            .orElseThrow(NotFoundMemberException::new);
 
         Agora agora = Agora.of(dto, member);
 
@@ -75,8 +74,8 @@ public class AgoraService {
         PageInfo pageInfo = PageInfo.from(agoras);
 
         List<AgoraResponseDTO> agoraResponseDTOS = agoras.getContent().stream()
-                .map(AgoraResponseDTO::from)
-                .collect(Collectors.toList());
+            .map(AgoraResponseDTO::from)
+            .collect(Collectors.toList());
 
         return AgorasResponseDTO.of(agoraResponseDTOS, pageInfo);
     }
@@ -84,15 +83,15 @@ public class AgoraService {
     @Transactional(readOnly = true)
     public AgoraDetailReponseDTO getAgora(Long agoraId) {
         Agora agora = agoraRepository.findById(agoraId)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
-        
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
+
         return AgoraDetailReponseDTO.from(agora);
     }
 
     @Transactional
     public AgoraResponseDTO updateAgora(Long agoraId, AgoraUpdateDTO dto, String username) {
         Agora agora = agoraRepository.findById(agoraId)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다.")); // Agora 1번 1000번지
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다.")); // Agora 1번 1000번지
 
         if (!agora.isAuthor(username)) {
             throw new RuntimeException("아고라의 작성자가 아닙니다.");
@@ -110,7 +109,7 @@ public class AgoraService {
     @Transactional
     public void deleteAgora(Long agoraId, String username) {
         Agora agora = agoraRepository.findById(agoraId)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
 
         if (!agora.isAuthorUsername(username)) {
             throw new RuntimeException("아고라의 작성자가 아닙니다.");
@@ -135,17 +134,17 @@ public class AgoraService {
     @Transactional
     public AgoraResponseDTO voteAgora(Long agoraId, String vote, String username) {
         Member member = memberRepository.findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
+            .orElseThrow(NotFoundMemberException::new);
 
         Agora agora = agoraRepository.findById(agoraId)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
 
         if (!agora.isCorrectVoteText(vote)) {
             throw new RuntimeException("투표 내용이 올바르지 않습니다.");
         }
 
         AgoraParticipant participant = agoraParticipantRepository.findById(AgoraParticipantIds.of(agora, member))
-                .orElse(AgoraParticipant.create()); // 아니면 새로운 투표자로 등록
+            .orElse(AgoraParticipant.create()); // 아니면 새로운 투표자로 등록
 
         if (participant.hasOpinions()) {
             throw new RuntimeException("이미 의견을 작성한 사람은 투표를 변경할 수 없습니다.");
@@ -173,13 +172,13 @@ public class AgoraService {
     @Transactional
     public AgoraDetailReponseDTO createOpinion(Long agoraId, AgoraOpinionRequestDTO content, String username) {
         Member member = memberRepository.findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
+            .orElseThrow(NotFoundMemberException::new);
 
         Agora agora = agoraRepository.findById(agoraId)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
 
         AgoraParticipant participant = agoraParticipantRepository.findById(AgoraParticipantIds.of(agora, member))
-                .orElseThrow(() -> new RuntimeException("아고라에 참여하지 않은 사람은 의견을 작성할 수 없습니다."));
+            .orElseThrow(() -> new RuntimeException("아고라에 참여하지 않은 사람은 의견을 작성할 수 없습니다."));
 
         if (!participant.isVoted()) {
             throw new RuntimeException("투표한 사람만 의견을 작성할 수 있습니다.");
@@ -195,7 +194,7 @@ public class AgoraService {
     @Transactional
     public AgoraDetailReponseDTO updateOpinion(Long agoraId, Long opinionId, AgoraOpinionRequestDTO content, String username) {
         AgoraOpinion opinion = agoraOpinionRepository.findById(opinionId)
-                .orElseThrow(() -> new RuntimeException("해당 의견이 존재하지 않습니다."));
+            .orElseThrow(() -> new RuntimeException("해당 의견이 존재하지 않습니다."));
 
         opinion.checkAgoraId(agoraId);
         opinion.checkAuthor(username);
@@ -209,7 +208,7 @@ public class AgoraService {
     @Transactional
     public AgoraDetailReponseDTO deleteOpinion(Long agoraId, Long opinionId, String username, boolean isAdmin) {
         AgoraOpinion opinion = agoraOpinionRepository.findById(opinionId)
-                .orElseThrow(() -> new RuntimeException("해당 의견이 존재하지 않습니다."));
+            .orElseThrow(() -> new RuntimeException("해당 의견이 존재하지 않습니다."));
 
         opinion.checkAgoraId(agoraId);
         opinion.checkAuthorOrIsAdmin(username, isAdmin);

@@ -1,37 +1,23 @@
 package com.example.codebase.controller;
 
-import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
-import com.example.codebase.domain.member.dto.CreateCuratorMemberDTO;
-import com.example.codebase.domain.member.dto.CreateMemberDTO;
-import com.example.codebase.domain.member.dto.MemberResponseDTO;
-import com.example.codebase.domain.member.dto.MemberSearchResponseDTO;
-import com.example.codebase.domain.member.dto.UpdateMemberDTO;
-import com.example.codebase.domain.member.dto.UsernameDTO;
+import com.example.codebase.domain.member.dto.*;
 import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.exception.NotAcceptTypeException;
 import com.example.codebase.util.FileUtil;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.annotations.ApiOperation;
-import java.util.List;
-import javax.validation.Valid;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 @RestController
 @ApiOperation(value = "회원", notes = "회원 관련 API")
@@ -86,7 +72,7 @@ public class MemberController {
     public ResponseEntity updateMember(@PathVariable String uesrname,
                                        @Valid @RequestBody UpdateMemberDTO updateMemberDTO) {
         String loginUsername = SecurityUtil.getCurrentUsername()
-                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+            .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
         if (!uesrname.equals(loginUsername)) {
             throw new RuntimeException("본인의 정보만 수정할 수 있습니다.");
@@ -100,11 +86,11 @@ public class MemberController {
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PutMapping("/{username}/picture")
     public ResponseEntity updateProfile(
-            @PathVariable String username,
-            @RequestPart MultipartFile profile
+        @PathVariable String username,
+        @RequestPart MultipartFile profile
     ) throws Exception {
         String currentUsername = SecurityUtil.getCurrentUsername()
-                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+            .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
         if (!currentUsername.equals(username)) {
             throw new RuntimeException("본인의 프로필 사진만 수정할 수 있습니다.");
         }
@@ -150,7 +136,7 @@ public class MemberController {
     @DeleteMapping("/{username}")
     public ResponseEntity deleteMember(@PathVariable String username) {
         String currentUsername = SecurityUtil.getCurrentUsername()
-                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+            .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
         if (!currentUsername.equals(username)) {
             throw new RuntimeException("본인의 정보만 삭제할 수 있습니다.");
         }
@@ -192,7 +178,7 @@ public class MemberController {
     public ResponseEntity updateUsername(@PathVariable String username,
                                          @Valid @RequestParam UsernameDTO newUsername) {
         String currentUsername = SecurityUtil.getCurrentUsername()
-                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+            .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
         if (!SecurityUtil.isAdmin() && !currentUsername.equals(username)) { // 관리자가 아니고, 본인의 아이디가 아닐 경우
             throw new RuntimeException("본인의 정보만 수정할 수 있습니다.");
         }
@@ -208,29 +194,29 @@ public class MemberController {
     public ResponseEntity updatePassword(@PathVariable String username,
                                          @NotBlank @RequestParam(value = "newPassword") String newPassword) {
         String currentUsername = SecurityUtil.getCurrentUsername()
-                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+            .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
         if (!SecurityUtil.isAdmin() && !currentUsername.equals(username)) {
             throw new RuntimeException("본인의 정보만 수정할 수 있습니다.");
         }
 
         memberService.updatePassword(username, newPassword);
-    return new ResponseEntity("비밀번호가 변경되었습니다.", HttpStatus.OK);
-  }
+        return new ResponseEntity("비밀번호가 변경되었습니다.", HttpStatus.OK);
+    }
 
-  @ApiOperation(value = "관리자 권한 부여", notes = "[관리자] 해당 사용자 관리자 권한 부여")
-  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-  @PutMapping("/{username}/admin")
-  public ResponseEntity updateAdmin(@PathVariable String username) {
-    MemberResponseDTO member = memberService.updateAdmin(username);
-    return new ResponseEntity(member, HttpStatus.OK);
-  }
+    @ApiOperation(value = "관리자 권한 부여", notes = "[관리자] 해당 사용자 관리자 권한 부여")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @PutMapping("/{username}/admin")
+    public ResponseEntity updateAdmin(@PathVariable String username) {
+        MemberResponseDTO member = memberService.updateAdmin(username);
+        return new ResponseEntity(member, HttpStatus.OK);
+    }
 
-  @ApiOperation(value = "유저 리스트 조회", notes = "이메일, 이름, 유저 이름으로 유저 리스트 조회")
-  @GetMapping("/search/{username}")
-  public ResponseEntity searchMember(@PathVariable String username) {
+    @ApiOperation(value = "유저 리스트 조회", notes = "이메일, 이름, 유저 이름으로 유저 리스트 조회")
+    @GetMapping("/search/{username}")
+    public ResponseEntity searchMember(@PathVariable String username) {
 
-    List<MemberSearchResponseDTO> memberList = memberService.searchMember(username);
-    return new ResponseEntity(memberList, HttpStatus.OK);
-  }
+        List<MemberSearchResponseDTO> memberList = memberService.searchMember(username);
+        return new ResponseEntity(memberList, HttpStatus.OK);
+    }
 }

@@ -3,8 +3,9 @@ package com.example.codebase.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 public class ClientUtil {
 
@@ -47,10 +48,10 @@ public class ClientUtil {
 
         try {
             jsonInString = objectMapper.writerWithDefaultPrettyPrinter()
-                    .writeValueAsString(body)
-                    .replaceAll("\"password\" : \"[^\"]*\"", "\"password\" : \"*****\"")
-                    .replaceAll("\"accessToken\" : \"[^\"]*\"", "\"accessToken\" : \"*****\"")
-                    .replaceAll("\"refreshToken\" : \"[^\"]*\"", "\"refreshToken\" : \"*****\"");
+                .writeValueAsString(body)
+                .replaceAll("\"password\" : \"[^\"]*\"", "\"password\" : \"*****\"")
+                .replaceAll("\"accessToken\" : \"[^\"]*\"", "\"accessToken\" : \"*****\"")
+                .replaceAll("\"refreshToken\" : \"[^\"]*\"", "\"refreshToken\" : \"*****\"");
 
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e.getMessage());
@@ -58,9 +59,9 @@ public class ClientUtil {
 
         if (jsonInString.length() > 1000) {
             stringBuilder
-                    .append(jsonInString.substring(0, 500))
-                    .append("\n\n...\n\n")
-                    .append(jsonInString.substring(jsonInString.length() - 500));
+                .append(jsonInString, 0, 500)
+                .append("\n\n...\n\n")
+                .append(jsonInString.substring(jsonInString.length() - 500));
         } else {
             stringBuilder.append(jsonInString);
         }

@@ -1,19 +1,20 @@
 package com.example.codebase.domain.auth;
 
 import com.example.codebase.domain.member.entity.oauth2.oAuthProvider;
-import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.Map;
+
 @Getter
 public class OAuthAttributes {
-    private Map<String, Object> attributes;
-    private String nameAttributeKey;
-    private String name;
-    private String email;
-    private String picture;
-    private oAuthProvider registrationId;
-    private String oAuthProviderId;
+    private final Map<String, Object> attributes;
+    private final String nameAttributeKey;
+    private final String name;
+    private final String email;
+    private final String picture;
+    private final oAuthProvider registrationId;
+    private final String oAuthProviderId;
 
     @Builder
     public OAuthAttributes(Map<String, Object> attributes,
@@ -41,14 +42,14 @@ public class OAuthAttributes {
     private static OAuthAttributes ofGoogle(String userNameAttributeName,
                                             Map<String, Object> attributes) {
         return OAuthAttributes.builder()
-                .oAuthProviderId(attributes.get("sub").toString())
-                .name((String) attributes.get("name"))
-                .email((String) attributes.get("email"))
-                .picture((String) attributes.get("picture"))
-                .attributes(attributes)
-                .registrationId(oAuthProvider.google)
-                .nameAttributeKey(userNameAttributeName)
-                .build();
+            .oAuthProviderId(attributes.get("sub").toString())
+            .name((String) attributes.get("name"))
+            .email((String) attributes.get("email"))
+            .picture((String) attributes.get("picture"))
+            .attributes(attributes)
+            .registrationId(oAuthProvider.google)
+            .nameAttributeKey(userNameAttributeName)
+            .build();
     }
 
     private static OAuthAttributes ofNaver(String userNameAttributeName,
@@ -56,14 +57,14 @@ public class OAuthAttributes {
         Map<String, Object> response = (Map<String, Object>) attributes.get("response"); // Json 필드 값 가져온다.
 
         return OAuthAttributes.builder()
-                .oAuthProviderId(attributes.get("sub").toString())
-                .name((String) response.get("name"))
-                .email((String) response.get("email"))
-                .picture((String) response.get("profile_image"))
-                .attributes(response)
-                .nameAttributeKey(userNameAttributeName)
-                .registrationId(oAuthProvider.valueOf("naver"))
-                .build();
+            .oAuthProviderId(attributes.get("sub").toString())
+            .name((String) response.get("name"))
+            .email((String) response.get("email"))
+            .picture((String) response.get("profile_image"))
+            .attributes(response)
+            .nameAttributeKey(userNameAttributeName)
+            .registrationId(oAuthProvider.valueOf("naver"))
+            .build();
     }
 
 }

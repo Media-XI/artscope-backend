@@ -20,11 +20,11 @@ public class AgoraMediaResponseDTO {
 
     public static AgoraMediaResponseDTO from(AgoraMedia media) {
         return AgoraMediaResponseDTO.builder()
-                .mediaType(media.getMediaType().name())
-                .mediaUrl(media.getMediaUrl())
-                .imageWidth(media.getMediaWidth())
-                .imageHeight(media.getMediaHeight())
-                .build();
+            .mediaType(media.getMediaType().name())
+            .mediaUrl(media.getMediaUrl())
+            .imageWidth(media.getMediaWidth())
+            .imageHeight(media.getMediaHeight())
+            .build();
     }
 
 }

@@ -1,18 +1,12 @@
 package com.example.codebase.domain.exhibition.entity;
 
 import com.example.codebase.domain.member.entity.Member;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "event_participant")
@@ -40,9 +34,9 @@ public class ExhibitionParticipant {
 
     public static ExhibitionParticipant of(Member member, EventSchedule eventSchedule) {
         return ExhibitionParticipant.builder()
-                .member(member)
-                .eventSchedule(eventSchedule)
-                .build();
+            .member(member)
+            .eventSchedule(eventSchedule)
+            .build();
     }
 
     public void setMember(Member member) {

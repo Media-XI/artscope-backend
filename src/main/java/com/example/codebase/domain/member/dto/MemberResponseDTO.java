@@ -2,9 +2,10 @@ package com.example.codebase.domain.member.dto;
 
 import com.example.codebase.domain.member.entity.Member;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -71,7 +72,7 @@ public class MemberResponseDTO {
 
         // TODO : 기획자가 아니면 NPE 발생 가능성 있음 해결하기
         dto.setCompanyName(
-                member.getCompanyName() != null ? member.getCompanyName() : null);
+            member.getCompanyName() != null ? member.getCompanyName() : null);
         dto.setCompanyRole(member.getCompanyRole() != null ? member.getCompanyRole() : null);
 
         return dto;

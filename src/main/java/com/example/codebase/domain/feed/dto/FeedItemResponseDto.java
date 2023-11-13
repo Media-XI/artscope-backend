@@ -10,15 +10,12 @@ import com.example.codebase.domain.post.entity.Post;
 import com.example.codebase.domain.post.entity.PostMedia;
 import com.example.codebase.domain.post.entity.PostWithIsLiked;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Setter
@@ -40,27 +37,27 @@ public class FeedItemResponseDto {
 
     private String authorUsername;
 
-  private String authorName;
+    private String authorName;
 
-  private String authorIntroduction;
+    private String authorIntroduction;
 
-  private String authorProfileImageUrl;
+    private String authorProfileImageUrl;
 
-  private String authorCompanyName;
+    private String authorCompanyName;
 
-  private String authorCompanyRole;
+    private String authorCompanyRole;
 
-  private FeedItemEventResponseDto event;
+    private FeedItemEventResponseDto event;
 
-  private List<String> tags;
+    private List<String> tags;
 
-  private String categoryId;
+    private String categoryId;
 
-  private Integer views;
+    private Integer views;
 
-  private Integer likes;
+    private Integer likes;
 
-  private Integer comments;
+    private Integer comments;
 
     @Builder.Default
     private Boolean isLiked = false;
@@ -74,38 +71,38 @@ public class FeedItemResponseDto {
     public static FeedItemResponseDto from(Artwork artwork) {
         String thumbnailUrl = artwork.getArtworkMedia().get(0).getMediaUrl();
         List<String> mediaUrls = artwork.getArtworkMedia().stream()
-                .map(ArtworkMedia::getMediaUrl)
-                .collect(Collectors.toList());
+            .map(ArtworkMedia::getMediaUrl)
+            .collect(Collectors.toList());
         String authorName = artwork.getMember().getName();
-        String authorUsername = artwork.getMember().getUsername().toString();
+        String authorUsername = artwork.getMember().getUsername();
         String authorDescription = artwork.getMember().getIntroduction();
         String authorProfileImageUrl = artwork.getMember().getPicture();
         List<String> tags = Arrays.stream(artwork.getTags().split(","))
-                .map(String::trim).collect(Collectors.toList());
+            .map(String::trim).collect(Collectors.toList());
 
         FeedItemResponseDto dto = FeedItemResponseDto.builder()
-                .id(artwork.getId())
-                .type(FeedType.artwork)
-                .title(artwork.getTitle())
-                .content(artwork.getDescription())
-                .thumbnailUrl(thumbnailUrl)
-                .authorName(authorName)
-                .authorUsername(authorUsername)
-                .authorIntroduction(authorDescription)
-                .authorProfileImageUrl(authorProfileImageUrl)
-                .authorCompanyName(
-                        artwork.getMember().getCompanyName() != null ? artwork.getMember().getCompanyName() : null)
-                .authorCompanyRole(
-                        artwork.getMember().getCompanyRole() != null ? artwork.getMember().getCompanyRole() : null)
-                .tags(tags)
-                .categoryId(FeedType.artwork.name())
-                .views(artwork.getViews())
-                .likes(artwork.getLikes())
-                .comments(artwork.getComments())
-                .mediaUrls(mediaUrls)
-                .createdTime(artwork.getCreatedTime())
-                .updatedTime(artwork.getUpdatedTime())
-                .build();
+            .id(artwork.getId())
+            .type(FeedType.artwork)
+            .title(artwork.getTitle())
+            .content(artwork.getDescription())
+            .thumbnailUrl(thumbnailUrl)
+            .authorName(authorName)
+            .authorUsername(authorUsername)
+            .authorIntroduction(authorDescription)
+            .authorProfileImageUrl(authorProfileImageUrl)
+            .authorCompanyName(
+                artwork.getMember().getCompanyName() != null ? artwork.getMember().getCompanyName() : null)
+            .authorCompanyRole(
+                artwork.getMember().getCompanyRole() != null ? artwork.getMember().getCompanyRole() : null)
+            .tags(tags)
+            .categoryId(FeedType.artwork.name())
+            .views(artwork.getViews())
+            .likes(artwork.getLikes())
+            .comments(artwork.getComments())
+            .mediaUrls(mediaUrls)
+            .createdTime(artwork.getCreatedTime())
+            .updatedTime(artwork.getUpdatedTime())
+            .build();
         return dto;
     }
 
@@ -117,31 +114,31 @@ public class FeedItemResponseDto {
 
     public static FeedItemResponseDto from(Post post) {
         List<String> mediaUrls = post.getPostMedias().stream()
-                .map(PostMedia::getMediaUrl)
-                .collect(Collectors.toList());
+            .map(PostMedia::getMediaUrl)
+            .collect(Collectors.toList());
 
         FeedItemResponseDto dto = FeedItemResponseDto.builder()
-                .id(post.getId())
-                .type(FeedType.post)
-                .title(null)
-                .content(post.getContent())
-                .authorName(post.getAuthor().getName())
-                .authorUsername(post.getAuthor().getUsername().toString())
-                .authorIntroduction(post.getAuthor().getIntroduction())
-                .authorProfileImageUrl(post.getAuthor().getPicture())
-                .authorCompanyName(
-                        post.getAuthor().getCompanyName() != null ? post.getAuthor().getCompanyName() : null)
-                .authorCompanyRole(
-                        post.getAuthor().getCompanyRole() != null ? post.getAuthor().getCompanyRole() : null)
-                .tags(null)
-                .categoryId(FeedType.post.name())
-                .views(post.getViews())
-                .likes(post.getLikes())
-                .comments(post.getComments())
-                .mediaUrls(mediaUrls)
-                .createdTime(post.getCreatedTime())
-                .updatedTime(post.getUpdatedTime())
-                .build();
+            .id(post.getId())
+            .type(FeedType.post)
+            .title(null)
+            .content(post.getContent())
+            .authorName(post.getAuthor().getName())
+            .authorUsername(post.getAuthor().getUsername())
+            .authorIntroduction(post.getAuthor().getIntroduction())
+            .authorProfileImageUrl(post.getAuthor().getPicture())
+            .authorCompanyName(
+                post.getAuthor().getCompanyName() != null ? post.getAuthor().getCompanyName() : null)
+            .authorCompanyRole(
+                post.getAuthor().getCompanyRole() != null ? post.getAuthor().getCompanyRole() : null)
+            .tags(null)
+            .categoryId(FeedType.post.name())
+            .views(post.getViews())
+            .likes(post.getLikes())
+            .comments(post.getComments())
+            .mediaUrls(mediaUrls)
+            .createdTime(post.getCreatedTime())
+            .updatedTime(post.getUpdatedTime())
+            .build();
         return dto;
     }
 
@@ -151,58 +148,58 @@ public class FeedItemResponseDto {
         return dto;
     }
 
-  public static FeedItemResponseDto from(Exhibition exhibition) {
-    FeedItemEventResponseDto eventDto =
-        FeedItemEventResponseDto.builder()
-            .eventType(exhibition.getType())
-            .eventDate(exhibition.getFirstEventSchedule().getEventDate())
-            .startTime(exhibition.getFirstEventSchedule().getStartTime())
-            .endTime(exhibition.getFirstEventSchedule().getEndTime())
-            .locationName(exhibition.getFirstEventSchedule().getLocation().getName())
-            .locationAddress(exhibition.getFirstEventSchedule().getLocation().getAddress())
-            .detailLocation(exhibition.getFirstEventSchedule().getDetailLocation())
-            .build();
+    public static FeedItemResponseDto from(Exhibition exhibition) {
+        FeedItemEventResponseDto eventDto =
+            FeedItemEventResponseDto.builder()
+                .eventType(exhibition.getType())
+                .eventDate(exhibition.getFirstEventSchedule().getEventDate())
+                .startTime(exhibition.getFirstEventSchedule().getStartTime())
+                .endTime(exhibition.getFirstEventSchedule().getEndTime())
+                .locationName(exhibition.getFirstEventSchedule().getLocation().getName())
+                .locationAddress(exhibition.getFirstEventSchedule().getLocation().getAddress())
+                .detailLocation(exhibition.getFirstEventSchedule().getDetailLocation())
+                .build();
 
-    FeedItemResponseDto dto =
-        FeedItemResponseDto.builder()
-            .id(exhibition.getId())
-            .type(FeedType.exhibition)
-            .title(exhibition.getTitle())
-            .content(exhibition.getDescription())
-            .authorName(exhibition.getMember().getName())
-            .authorUsername(exhibition.getMember().getUsername())
-            .authorIntroduction(exhibition.getMember().getIntroduction())
-            .authorProfileImageUrl(exhibition.getMember().getPicture())
-            .authorCompanyName(
-                exhibition.getMember().getCompanyName() != null
-                    ? exhibition.getMember().getCompanyName()
-                    : null)
-            .authorCompanyRole(
-                exhibition.getMember().getCompanyRole() != null
-                    ? exhibition.getMember().getCompanyRole()
-                    : null)
-            .tags(null)
-            .categoryId(FeedType.exhibition.name())
-            .event(eventDto)
-            .views(0)
-            .likes(0)
-            .comments(0)
-            .createdTime(exhibition.getCreatedTime())
-            .updatedTime(exhibition.getUpdatedTime())
-            .build();
+        FeedItemResponseDto dto =
+            FeedItemResponseDto.builder()
+                .id(exhibition.getId())
+                .type(FeedType.exhibition)
+                .title(exhibition.getTitle())
+                .content(exhibition.getDescription())
+                .authorName(exhibition.getMember().getName())
+                .authorUsername(exhibition.getMember().getUsername())
+                .authorIntroduction(exhibition.getMember().getIntroduction())
+                .authorProfileImageUrl(exhibition.getMember().getPicture())
+                .authorCompanyName(
+                    exhibition.getMember().getCompanyName() != null
+                        ? exhibition.getMember().getCompanyName()
+                        : null)
+                .authorCompanyRole(
+                    exhibition.getMember().getCompanyRole() != null
+                        ? exhibition.getMember().getCompanyRole()
+                        : null)
+                .tags(null)
+                .categoryId(FeedType.exhibition.name())
+                .event(eventDto)
+                .views(0)
+                .likes(0)
+                .comments(0)
+                .createdTime(exhibition.getCreatedTime())
+                .updatedTime(exhibition.getUpdatedTime())
+                .build();
 
-    if (exhibition.getExhibitionMedias().size() > 0) {
-      String thumbnailUrl = exhibition.getExhibitionMedias().get(0).getMediaUrl();
-      List<String> mediaUrls =
-          exhibition.getExhibitionMedias().stream()
-              .map(ExhibitionMedia::getMediaUrl)
-              .collect(Collectors.toList());
-      dto.setThumbnailUrl(thumbnailUrl);
-      dto.setMediaUrls(mediaUrls);
+        if (exhibition.getExhibitionMedias().size() > 0) {
+            String thumbnailUrl = exhibition.getExhibitionMedias().get(0).getMediaUrl();
+            List<String> mediaUrls =
+                exhibition.getExhibitionMedias().stream()
+                    .map(ExhibitionMedia::getMediaUrl)
+                    .collect(Collectors.toList());
+            dto.setThumbnailUrl(thumbnailUrl);
+            dto.setMediaUrls(mediaUrls);
+        }
+
+        return dto;
     }
-
-    return dto;
-  }
 
     public static FeedItemResponseDto from(ArtworkWithIsLike artworkWithIsLike) {
         FeedItemResponseDto dto = from(artworkWithIsLike.getArtwork());

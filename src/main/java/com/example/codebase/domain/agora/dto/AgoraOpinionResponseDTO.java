@@ -27,12 +27,12 @@ public class AgoraOpinionResponseDTO {
 
     public static AgoraOpinionResponseDTO from(AgoraOpinion opinion) {
         return AgoraOpinionResponseDTO.builder()
-                .content(opinion.getContent())
-                .vote(opinion.getAuthorVote())
-                .createdTime(opinion.getCreatedTime())
-                .updatedTime(opinion.getUpdatedTime())
-                .author(AgoraParticipantResponseDTO.from(opinion))
-                .build();
+            .content(opinion.getContent())
+            .vote(opinion.getAuthorVote())
+            .createdTime(opinion.getCreatedTime())
+            .updatedTime(opinion.getUpdatedTime())
+            .author(AgoraParticipantResponseDTO.from(opinion))
+            .build();
     }
 
 }

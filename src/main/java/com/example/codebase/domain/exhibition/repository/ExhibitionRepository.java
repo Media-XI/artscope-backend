@@ -20,14 +20,14 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
     Page<Exhibition> findExhibitionsWithEventSchedules(
         LocalDate startDate, LocalDate endDate, Pageable pageable);
 
-  @Query(
-      "SELECT e "
-          + "FROM Exhibition e INNER JOIN EventSchedule es ON es.exhibition = e "
-          + "WHERE es.eventDate BETWEEN :startDate AND :endDate "
-          + "AND e.enabled = true AND e.type = :eventType  "
-          + "ORDER BY es.startTime")
-  Page<Exhibition> findExhibitionsWithEventSchedules(
-      LocalDate startDate, LocalDate endDate,
-      EventType eventType,
-      Pageable pageable);
+    @Query(
+        "SELECT e "
+            + "FROM Exhibition e INNER JOIN EventSchedule es ON es.exhibition = e "
+            + "WHERE es.eventDate BETWEEN :startDate AND :endDate "
+            + "AND e.enabled = true AND e.type = :eventType  "
+            + "ORDER BY es.startTime")
+    Page<Exhibition> findExhibitionsWithEventSchedules(
+        LocalDate startDate, LocalDate endDate,
+        EventType eventType,
+        Pageable pageable);
 }

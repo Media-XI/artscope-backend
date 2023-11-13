@@ -1,7 +1,5 @@
 package com.example.codebase.controller;
 
-import static com.example.codebase.util.SecurityUtil.getCookieAccessTokenValue;
-
 import com.example.codebase.domain.auth.dto.LoginDTO;
 import com.example.codebase.domain.auth.dto.TokenResponseDTO;
 import com.example.codebase.domain.auth.service.AuthService;
@@ -9,17 +7,15 @@ import com.example.codebase.jwt.TokenProvider;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+
+import static com.example.codebase.util.SecurityUtil.getCookieAccessTokenValue;
 
 @ApiOperation(value = "인증", notes = "인증 관련 API")
 @RestController
@@ -42,8 +38,8 @@ public class AuthController {
 
         // Set Cookie
         return ResponseEntity.ok()
-                .header("Set-Cookie", getCookieAccessTokenValue(responseDTO))
-                .body(responseDTO);
+            .header("Set-Cookie", getCookieAccessTokenValue(responseDTO))
+            .body(responseDTO);
     }
 
     @ApiOperation(value = "로그아웃", notes = "해당 사용자의 리프레시 토큰을 서버에서 삭제합니다.")
@@ -60,19 +56,19 @@ public class AuthController {
     public ResponseEntity refresh(@RequestBody String refreshToken) {
         TokenResponseDTO responseDTO = tokenProvider.regenerateToken(refreshToken);
         return ResponseEntity.ok()
-                .header("Set-Cookie", getCookieAccessTokenValue(responseDTO))
-                .body(responseDTO);
+            .header("Set-Cookie", getCookieAccessTokenValue(responseDTO))
+            .body(responseDTO);
     }
 
     @ApiOperation(value = "이메일 인증확인 API", notes = "인증코드를 기반으로 이메일 인증 처리")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "이메일 인증 성공"),
-            @ApiResponse(code = 400, message = "이메일 인증 실패")
+        @ApiResponse(code = 200, message = "이메일 인증 성공"),
+        @ApiResponse(code = 400, message = "이메일 인증 실패")
     })
     @PreAuthorize("permitAll()")
     @GetMapping("/mail/authenticate")
     public ResponseEntity authenticateMailLink(
-            @RequestParam String code) {
+        @RequestParam String code) {
         authService.authenticateMail(code);
         return new ResponseEntity("이메일 인증되었습니다.", HttpStatus.OK);
     }

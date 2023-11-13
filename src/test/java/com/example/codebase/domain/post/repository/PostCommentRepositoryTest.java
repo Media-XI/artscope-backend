@@ -36,12 +36,12 @@ class PostCommentRepositoryTest {
         }
 
         Member dummy = Member.builder()
-                .username(username)
-                .email("test@email.com")
-                .name("test")
-                .activated(true)
-                .createdTime(LocalDateTime.now())
-                .build();
+            .username(username)
+            .email("test@email.com")
+            .name("test")
+            .activated(true)
+            .createdTime(LocalDateTime.now())
+            .build();
 
         MemberAuthority memberAuthority = new MemberAuthority();
         memberAuthority.setAuthority(Authority.of(role));
@@ -56,10 +56,10 @@ class PostCommentRepositoryTest {
         Member loadMember = createOrLoadMember("admin", "ROLE_ADMIN");
 
         Post post = Post.builder()
-                .content("content")
-                .author(loadMember)
-                .createdTime(LocalDateTime.now())
-                .build();
+            .content("content")
+            .author(loadMember)
+            .createdTime(LocalDateTime.now())
+            .build();
         return postRepository.save(post);
     }
 
@@ -68,15 +68,15 @@ class PostCommentRepositoryTest {
     public void test() throws Exception {
 
         Post post = Post.builder()
-                .content("content")
-                .createdTime(LocalDateTime.now())
-                .build();
+            .content("content")
+            .createdTime(LocalDateTime.now())
+            .build();
 
         PostComment newComment = PostComment.builder()
-                .content("content")
-                .post(post)
-                .createdTime(LocalDateTime.now())
-                .build();
+            .content("content")
+            .post(post)
+            .createdTime(LocalDateTime.now())
+            .build();
 
         post.addComment(newComment);
         postRepository.save(post);

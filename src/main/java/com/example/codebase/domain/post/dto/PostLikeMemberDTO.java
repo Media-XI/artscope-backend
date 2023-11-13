@@ -1,11 +1,12 @@
 package com.example.codebase.domain.post.dto;
 
 import com.example.codebase.domain.member.entity.Member;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 
 @NoArgsConstructor
@@ -22,9 +23,9 @@ public class PostLikeMemberDTO {
 
     public static PostLikeMemberDTO of(Member member, LocalDateTime likedTime) {
         return PostLikeMemberDTO.builder()
-                .username(member.getUsername())
-                .name(member.getName())
-                .likedTime(likedTime)
-                .build();
+            .username(member.getUsername())
+            .name(member.getName())
+            .likedTime(likedTime)
+            .build();
     }
 }

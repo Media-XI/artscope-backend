@@ -1,9 +1,10 @@
 package com.example.codebase.domain.artwork.dto;
 
 import com.example.codebase.controller.dto.PageInfo;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 
 @Setter

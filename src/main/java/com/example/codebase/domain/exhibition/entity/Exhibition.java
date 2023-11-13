@@ -3,25 +3,15 @@ package com.example.codebase.domain.exhibition.entity;
 import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
 import com.example.codebase.domain.exhibition.dto.ExhibitionUpdateDTO;
 import com.example.codebase.domain.member.entity.Member;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "exhibition")
@@ -77,28 +67,28 @@ public class Exhibition {
 
     public static Exhibition of(ExhbitionCreateDTO dto, Member member) {
         return Exhibition.builder()
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .price(dto.getPrice())
-                .link(dto.getLink())
-                .type(dto.getEventType())
-                .member(member)
-                .createdTime(LocalDateTime.now())
-                .build();
+            .title(dto.getTitle())
+            .description(dto.getDescription())
+            .price(dto.getPrice())
+            .link(dto.getLink())
+            .type(dto.getEventType())
+            .member(member)
+            .createdTime(LocalDateTime.now())
+            .build();
     }
 
     public void update(ExhibitionUpdateDTO exhibitionUpdateDTO) {
         this.title =
-                exhibitionUpdateDTO.getTitle() != null ? exhibitionUpdateDTO.getTitle() : this.title;
+            exhibitionUpdateDTO.getTitle() != null ? exhibitionUpdateDTO.getTitle() : this.title;
         this.description =
-                exhibitionUpdateDTO.getDescription() != null
-                        ? exhibitionUpdateDTO.getDescription()
-                        : this.description;
+            exhibitionUpdateDTO.getDescription() != null
+                ? exhibitionUpdateDTO.getDescription()
+                : this.description;
         this.link = exhibitionUpdateDTO.getLink() != null ? exhibitionUpdateDTO.getLink() : this.link;
         this.type =
-                exhibitionUpdateDTO.getEventType() != null ? exhibitionUpdateDTO.getEventType() : this.type;
+            exhibitionUpdateDTO.getEventType() != null ? exhibitionUpdateDTO.getEventType() : this.type;
         this.price =
-                exhibitionUpdateDTO.getPrice() != null ? exhibitionUpdateDTO.getPrice() : this.price;
+            exhibitionUpdateDTO.getPrice() != null ? exhibitionUpdateDTO.getPrice() : this.price;
         this.updatedTime = LocalDateTime.now();
     }
 
@@ -108,18 +98,18 @@ public class Exhibition {
     }
 
     public void deleteEventSchedules() {
-    this.eventSchedules.forEach(EventSchedule::delete);
-  }
+        this.eventSchedules.forEach(EventSchedule::delete);
+    }
 
-  public void addExhibitionMedia(ExhibitionMedia media) {
-    this.exhibitionMedias.add(media);
-  }
+    public void addExhibitionMedia(ExhibitionMedia media) {
+        this.exhibitionMedias.add(media);
+    }
 
-  public void addEventSchedule(EventSchedule eventSchedule) {
-    this.eventSchedules.add(eventSchedule);
-  }
+    public void addEventSchedule(EventSchedule eventSchedule) {
+        this.eventSchedules.add(eventSchedule);
+    }
 
-  public EventSchedule getFirstEventSchedule() {
-    return this.eventSchedules.get(0);
-  }
+    public EventSchedule getFirstEventSchedule() {
+        return this.eventSchedules.get(0);
+    }
 }

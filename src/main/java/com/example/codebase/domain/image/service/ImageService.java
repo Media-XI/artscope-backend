@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Service
@@ -31,7 +32,7 @@ public class ImageService {
     }
 
     public void uploadMedias(ArtworkCreateDTO dto, List<MultipartFile> mediaFiles)
-            throws IOException {
+        throws IOException {
         if (mediaFiles.size() > Integer.valueOf(fileCount)) {
             throw new RuntimeException("파일은 최대 " + fileCount + "개까지 업로드 가능합니다.");
         }
@@ -44,11 +45,11 @@ public class ImageService {
             ArtworkMediaCreateDTO mediaDto = dto.getMedias().get(i);
 
             if (mediaDto.getMediaType().equals("url")) {
-                String youtubeUrl = new String(mediaFiles.get(i).getBytes(), "UTF-8");
+                String youtubeUrl = new String(mediaFiles.get(i).getBytes(), StandardCharsets.UTF_8);
 
                 if (!youtubeUrl.matches("^(https?\\:\\/\\/)?(www\\.)?(youtube\\.com|youtu\\.?be)\\/.+$")) {
                     throw new RuntimeException(
-                            "유튜브 링크 형식이 올바르지 않습니다. ex) https://www.youtube.com/watch?v=XXXXXXXXXXX 또는 https://youtu.be/XXXXXXXXXXX");
+                        "유튜브 링크 형식이 올바르지 않습니다. ex) https://www.youtube.com/watch?v=XXXXXXXXXXX 또는 https://youtu.be/XXXXXXXXXXX");
                 }
 
                 mediaDto.setMediaUrl(youtubeUrl);
@@ -56,7 +57,7 @@ public class ImageService {
                 // 이미지 파일이면 원본 이미지의 사이즈를 구합니다.
                 if (mediaDto.getMediaType().equals("image")) {
                     BufferedImage bufferedImage =
-                            FileUtil.getBufferedImage(mediaFiles.get(i).getInputStream());
+                        FileUtil.getBufferedImage(mediaFiles.get(i).getInputStream());
                     mediaDto.setImageSize(bufferedImage);
                 }
                 // 파일 업로드
@@ -80,11 +81,11 @@ public class ImageService {
             PostMediaCreateDTO mediaDto = dto.getMedias().get(i);
 
             if (mediaDto.getMediaType().equals("url")) {
-                String youtubeUrl = new String(mediaFiles.get(i).getBytes(), "UTF-8");
+                String youtubeUrl = new String(mediaFiles.get(i).getBytes(), StandardCharsets.UTF_8);
 
                 if (!youtubeUrl.matches("^(https?\\:\\/\\/)?(www\\.)?(youtube\\.com|youtu\\.?be)\\/.+$")) {
                     throw new RuntimeException(
-                            "유튜브 링크 형식이 올바르지 않습니다. ex) https://www.youtube.com/watch?v=XXXXXXXXXXX 또는 https://youtu.be/XXXXXXXXXXX");
+                        "유튜브 링크 형식이 올바르지 않습니다. ex) https://www.youtube.com/watch?v=XXXXXXXXXXX 또는 https://youtu.be/XXXXXXXXXXX");
                 }
 
                 mediaDto.setMediaUrl(youtubeUrl);
@@ -92,7 +93,7 @@ public class ImageService {
                 // 이미지 파일이면 원본 이미지의 사이즈를 구합니다.
                 if (mediaDto.getMediaType().equals("image")) {
                     BufferedImage bufferedImage =
-                            FileUtil.getBufferedImage(mediaFiles.get(i).getInputStream());
+                        FileUtil.getBufferedImage(mediaFiles.get(i).getInputStream());
                     mediaDto.setImageSize(bufferedImage);
                 }
                 // 파일 업로드
@@ -103,7 +104,7 @@ public class ImageService {
     }
 
     public void uploadThumbnail(ArtworkMediaCreateDTO thumbnailDto, MultipartFile thumbnailFile)
-            throws IOException {
+        throws IOException {
         String mediaType = thumbnailDto.getMediaType();
 
         if (!mediaType.equals("image") && FileUtil.validateImageFile(thumbnailFile.getInputStream())) {
@@ -118,7 +119,7 @@ public class ImageService {
     }
 
     public void uploadThumbnail(PostMediaCreateDTO thumbnailDto, MultipartFile thumbnailFile)
-            throws IOException {
+        throws IOException {
         String mediaType = thumbnailDto.getMediaType();
 
         if (!mediaType.equals("image") && FileUtil.validateImageFile(thumbnailFile.getInputStream())) {
@@ -133,7 +134,7 @@ public class ImageService {
     }
 
     public void uploadMedias(ExhbitionCreateDTO dto, List<MultipartFile> mediaFiles)
-            throws IOException {
+        throws IOException {
         if (mediaFiles.size() > Integer.valueOf(fileCount)) {
             throw new RuntimeException("파일은 최대 " + fileCount + "개까지 업로드 가능합니다.");
         }
@@ -146,11 +147,11 @@ public class ImageService {
             ExhibitionMediaCreateDTO mediaDto = dto.getMedias().get(i);
 
             if (mediaDto.getMediaType().equals("url")) {
-                String youtubeUrl = new String(mediaFiles.get(i).getBytes(), "UTF-8");
+                String youtubeUrl = new String(mediaFiles.get(i).getBytes(), StandardCharsets.UTF_8);
 
                 if (!youtubeUrl.matches("^(https?\\:\\/\\/)?(www\\.)?(youtube\\.com|youtu\\.?be)\\/.+$")) {
                     throw new RuntimeException(
-                            "유튜브 링크 형식이 올바르지 않습니다. ex) https://www.youtube.com/watch?v=XXXXXXXXXXX 또는 https://youtu.be/XXXXXXXXXXX");
+                        "유튜브 링크 형식이 올바르지 않습니다. ex) https://www.youtube.com/watch?v=XXXXXXXXXXX 또는 https://youtu.be/XXXXXXXXXXX");
                 }
 
                 mediaDto.setMediaUrl(youtubeUrl);
@@ -164,7 +165,7 @@ public class ImageService {
     }
 
     public void uploadThumbnail(ExhibitionMediaCreateDTO thumbnailDto, MultipartFile thumbnailFile)
-            throws IOException {
+        throws IOException {
         String mediaType = thumbnailDto.getMediaType();
 
         if (!mediaType.equals("image") && FileUtil.validateImageFile(thumbnailFile.getInputStream())) {
@@ -191,11 +192,11 @@ public class ImageService {
             AgoraMediaCreateDTO mediaDto = dto.getMedias().get(i);
 
             if (mediaDto.getMediaType().equals("url")) {
-                String youtubeUrl = new String(mediaFiles.get(i).getBytes(), "UTF-8");
+                String youtubeUrl = new String(mediaFiles.get(i).getBytes(), StandardCharsets.UTF_8);
 
                 if (!youtubeUrl.matches("^(https?\\:\\/\\/)?(www\\.)?(youtube\\.com|youtu\\.?be)\\/.+$")) {
                     throw new RuntimeException(
-                            "유튜브 링크 형식이 올바르지 않습니다. ex) https://www.youtube.com/watch?v=XXXXXXXXXXX 또는 https://youtu.be/XXXXXXXXXXX");
+                        "유튜브 링크 형식이 올바르지 않습니다. ex) https://www.youtube.com/watch?v=XXXXXXXXXXX 또는 https://youtu.be/XXXXXXXXXXX");
                 }
 
                 mediaDto.setMediaUrl(youtubeUrl);

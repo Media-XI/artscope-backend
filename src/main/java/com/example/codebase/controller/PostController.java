@@ -1,36 +1,22 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.image.service.ImageService;
-import com.example.codebase.domain.post.dto.PostCommentCreateDTO;
-import com.example.codebase.domain.post.dto.PostCommentUpdateDTO;
-import com.example.codebase.domain.post.dto.PostCreateDTO;
-import com.example.codebase.domain.post.dto.PostResponseDTO;
-import com.example.codebase.domain.post.dto.PostUpdateDTO;
-import com.example.codebase.domain.post.dto.PostWithLikesResponseDTO;
-import com.example.codebase.domain.post.dto.PostsResponseDTO;
+import com.example.codebase.domain.post.dto.*;
 import com.example.codebase.domain.post.service.PostService;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.annotations.ApiOperation;
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import javax.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.constraints.PositiveOrZero;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 
 @RequestMapping("/api/posts")
 @RestController
@@ -50,9 +36,9 @@ public class PostController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity createPost(
-            @RequestPart(value = "dto") PostCreateDTO postCreateDTO,
-            @RequestPart(value = "mediaFiles", required = false) List<MultipartFile> mediaFiles,
-            @RequestPart(value = "thumbnailFile", required = false) MultipartFile thumbnailFile) throws IOException {
+        @RequestPart(value = "dto") PostCreateDTO postCreateDTO,
+        @RequestPart(value = "mediaFiles", required = false) List<MultipartFile> mediaFiles,
+        @RequestPart(value = "thumbnailFile", required = false) MultipartFile thumbnailFile) throws IOException {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
         // 이미지 파일 업로드

@@ -3,13 +3,14 @@ package com.example.codebase.util;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SerializedString;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.commons.text.translate.AggregateTranslator;
 import org.apache.commons.text.translate.CharSequenceTranslator;
 import org.apache.commons.text.translate.EntityArrays;
 import org.apache.commons.text.translate.LookupTranslator;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HTMLCharacterEscapes extends CharacterEscapes {
 
@@ -39,10 +40,10 @@ public class HTMLCharacterEscapes extends CharacterEscapes {
 
         // XSS 방지 처리 특수 문자 인코딩 값 지정
         translator = new AggregateTranslator(
-                new LookupTranslator(EntityArrays.BASIC_ESCAPE),  // <, >, &, " 는 여기에 포함됨
-                new LookupTranslator(EntityArrays.ISO8859_1_ESCAPE),
-                new LookupTranslator(EntityArrays.HTML40_EXTENDED_ESCAPE),
-                new LookupTranslator(CUSTOM_ESCAPE)
+            new LookupTranslator(EntityArrays.BASIC_ESCAPE),  // <, >, &, " 는 여기에 포함됨
+            new LookupTranslator(EntityArrays.ISO8859_1_ESCAPE),
+            new LookupTranslator(EntityArrays.HTML40_EXTENDED_ESCAPE),
+            new LookupTranslator(CUSTOM_ESCAPE)
         );
 
     }

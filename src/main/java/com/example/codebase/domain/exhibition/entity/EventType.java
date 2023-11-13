@@ -10,20 +10,20 @@ public enum EventType {
 
     public static EventType create(String eventType) {
         switch (eventType) {
-      case "EXHIBITION":
-        return EXHIBITION;
-      case "LECTURE":
-        return LECTURE;
-      case "WORKSHOP":
-        return WORKSHOP;
-      case "SPECIAL":
-        return SPECIAL;
-      case "CONCERT":
-        return CONCERT;
-      case "ALL":
-        return null;
-      default:
-        return STANDARD;
-    }
+            case "EXHIBITION":
+                return EXHIBITION;
+            case "LECTURE":
+                return LECTURE;
+            case "WORKSHOP":
+                return WORKSHOP;
+            case "SPECIAL":
+                return SPECIAL;
+            case "CONCERT":
+                return CONCERT;
+            case "ALL":
+                return null;
+            default:
+                return STANDARD;
+        }
     }
 }

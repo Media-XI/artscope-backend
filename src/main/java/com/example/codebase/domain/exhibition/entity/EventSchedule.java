@@ -59,12 +59,12 @@ public class EventSchedule {
 
     public static EventSchedule from(EventScheduleCreateDTO scheduleDTO) {
         return EventSchedule.builder()
-                .eventDate(scheduleDTO.getEventDate())
-                .startTime(scheduleDTO.getStartTime())
-                .endTime(scheduleDTO.getEndTime())
-                .detailLocation(scheduleDTO.getDetailLocation())
-                .createdTime(LocalDateTime.now())
-                .build();
+            .eventDate(scheduleDTO.getEventDate())
+            .startTime(scheduleDTO.getStartTime())
+            .endTime(scheduleDTO.getEndTime())
+            .detailLocation(scheduleDTO.getDetailLocation())
+            .createdTime(LocalDateTime.now())
+            .build();
     }
 
     // Event 양방향 연관 메소드

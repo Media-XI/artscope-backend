@@ -1,23 +1,24 @@
 package com.example.codebase.filter;
 
-import java.io.IOException;
-import java.util.UUID;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.filter.GenericFilterBean;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import java.io.IOException;
+import java.util.UUID;
+
 @Slf4j
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class MDCLoggingFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+        throws IOException, ServletException {
         final UUID uuid = UUID.randomUUID();
         MDC.put("request_id", uuid.toString());
         chain.doFilter(request, response);

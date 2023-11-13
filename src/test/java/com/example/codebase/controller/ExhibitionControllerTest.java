@@ -84,7 +84,7 @@ class ExhibitionControllerTest {
     @Autowired
     private ResourceLoader resourceLoader;
 
-    private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @BeforeEach
     public void setUp() {

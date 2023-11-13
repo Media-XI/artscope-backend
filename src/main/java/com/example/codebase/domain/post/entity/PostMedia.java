@@ -2,21 +2,13 @@ package com.example.codebase.domain.post.entity;
 
 import com.example.codebase.domain.media.MediaType;
 import com.example.codebase.domain.post.dto.PostMediaCreateDTO;
-import java.time.LocalDateTime;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "post_media")
@@ -50,12 +42,12 @@ public class PostMedia {
 
     public static PostMedia from(PostMediaCreateDTO thumbnail) {
         return PostMedia.builder()
-                .mediaType(MediaType.create(thumbnail.getMediaType()))
-                .mediaUrl(thumbnail.getMediaUrl())
-                .mediaWidth(thumbnail.getWidth())
-                .mediaHeight(thumbnail.getHeight())
-                .createdTime(LocalDateTime.now())
-                .build();
+            .mediaType(MediaType.create(thumbnail.getMediaType()))
+            .mediaUrl(thumbnail.getMediaUrl())
+            .mediaWidth(thumbnail.getWidth())
+            .mediaHeight(thumbnail.getHeight())
+            .createdTime(LocalDateTime.now())
+            .build();
     }
 
 

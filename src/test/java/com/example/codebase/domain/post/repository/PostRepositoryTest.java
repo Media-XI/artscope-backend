@@ -11,7 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 @DataJpaTest
@@ -23,31 +23,31 @@ class PostRepositoryTest {
 
     @Test
     @DisplayName("최근 일주일내 조회수 수가 많은 순으로 포스트 3개 가져온다")
-    void testFindTopByPopular() throws Exception{
+    void testFindTopByPopular() throws Exception {
         // given
         Post pos1 = Post.builder()
-                .content("description")
-                .views(10)
-                .createdTime(LocalDateTime.now())
-                .build();
+            .content("description")
+            .views(10)
+            .createdTime(LocalDateTime.now())
+            .build();
 
         Post pos2 = Post.builder()
-                .content("description1")
-                .createdTime(LocalDateTime.now().minusDays(1))
-                .views(5)
-                .build();
+            .content("description1")
+            .createdTime(LocalDateTime.now().minusDays(1))
+            .views(5)
+            .build();
 
         Post pos3 = Post.builder()
-                .content("description2")
-                .createdTime(LocalDateTime.now().minusDays(2))
-                .views(1)
-                .build();
+            .content("description2")
+            .createdTime(LocalDateTime.now().minusDays(2))
+            .views(1)
+            .build();
 
         Post pos4 = Post.builder()
-                .content("description3")
-                .createdTime(LocalDateTime.now().minusDays(8))
-                .views(100)
-                .build();
+            .content("description3")
+            .createdTime(LocalDateTime.now().minusDays(8))
+            .views(100)
+            .build();
         postRepository.saveAll(List.of(pos1, pos2, pos3, pos4));
 
         // when

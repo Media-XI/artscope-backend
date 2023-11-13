@@ -14,13 +14,13 @@ import java.time.LocalTime;
 @Builder
 public class FeedItemEventResponseDto {
 
-  private EventType eventType;
+    private EventType eventType;
 
-  private String locationName;
+    private String locationName;
 
-  private String locationAddress;
+    private String locationAddress;
 
-  private String detailLocation;
+    private String detailLocation;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate eventDate;

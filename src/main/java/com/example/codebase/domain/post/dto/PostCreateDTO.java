@@ -1,14 +1,11 @@
 package com.example.codebase.domain.post.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
-import javax.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 @Getter
 @Setter

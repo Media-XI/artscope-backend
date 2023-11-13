@@ -1,10 +1,5 @@
 package com.example.codebase.controller;
 
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
@@ -18,14 +13,6 @@ import com.example.codebase.domain.post.entity.Post;
 import com.example.codebase.domain.post.repository.PostRepository;
 import com.example.codebase.s3.S3Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,6 +29,20 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import javax.transaction.Transactional;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -79,14 +80,14 @@ class SearchControllerTest {
     @Autowired
     private S3Service s3Service;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
     }
 
     public Member createOrLoadMember() {
@@ -96,13 +97,13 @@ class SearchControllerTest {
         }
 
         Member dummy = Member.builder()
-                .username("testid")
-                .password(passwordEncoder.encode("1234"))
-                .email("email")
-                .name("test")
-                .activated(true)
-                .createdTime(LocalDateTime.now())
-                .build();
+            .username("testid")
+            .password(passwordEncoder.encode("1234"))
+            .email("email")
+            .name("test")
+            .activated(true)
+            .createdTime(LocalDateTime.now())
+            .build();
 
         MemberAuthority memberAuthority = new MemberAuthority();
         memberAuthority.setAuthority(Authority.of("ROLE_USER"));
@@ -131,26 +132,26 @@ class SearchControllerTest {
         List<ArtworkMedia> artworkMediaList = new ArrayList<>();
         for (int i = 0; i < mediaSize; i++) {
             MockMultipartFile mockMultipartFile = new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg",
-                    createImageFile());
+                createImageFile());
             String url = s3Service.saveUploadFile(mockMultipartFile);
 
             ArtworkMedia artworkMedia = ArtworkMedia.builder()
-                    .artworkMediaType(MediaType.image)
-                    .mediaUrl(url)
-                    .description("미디어 설명")
-                    .build();
+                .artworkMediaType(MediaType.image)
+                .mediaUrl(url)
+                .description("미디어 설명")
+                .build();
             artworkMediaList.add(artworkMedia);
         }
 
         Artwork dummy = Artwork.builder()
-                .title("아트워크_테스트" + index)
-                .description("작품 설명")
-                .tags("태그1,태그2,태그3")
-                .visible(isVisible)
-                .member(createOrLoadMember())
-                .artworkMedia(artworkMediaList)
-                .createdTime(LocalDateTime.now().plusSeconds(index))
-                .build();
+            .title("아트워크_테스트" + index)
+            .description("작품 설명")
+            .tags("태그1,태그2,태그3")
+            .visible(isVisible)
+            .member(createOrLoadMember())
+            .artworkMedia(artworkMediaList)
+            .createdTime(LocalDateTime.now().plusSeconds(index))
+            .build();
 
         return artworkRepository.save(dummy);
     }
@@ -165,10 +166,10 @@ class SearchControllerTest {
 
         for (int i = 0; i < size; i++) {
             Post post = Post.builder()
-                    .content("포스트 내용, 아트워크 좋아용" + i)
-                    .author(loadMember)
-                    .createdTime(LocalDateTime.now())
-                    .build();
+                .content("포스트 내용, 아트워크 좋아용" + i)
+                .author(loadMember)
+                .createdTime(LocalDateTime.now())
+                .build();
 
             postRepository.save(post);
         }
@@ -182,10 +183,10 @@ class SearchControllerTest {
         createPosts(5);
 
         mockMvc.perform(
-                        get("/api/search?keyword=아트워크&page=0&size=10")
+                get("/api/search?keyword=아트워크&page=0&size=10")
 
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
 }

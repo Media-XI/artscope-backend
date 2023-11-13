@@ -4,14 +4,11 @@ import com.example.codebase.domain.exhibition.entity.EventType;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
 import com.example.codebase.domain.exhibition.entity.ExhibitionMedia;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Setter
@@ -48,29 +45,29 @@ public class ExhibitionResponseDTO {
 
         // 썸네일
         ExhibitionMediaResponseDTO thumbnail =
-                medias.stream().findFirst().map(ExhibitionMediaResponseDTO::from).orElse(null);
+            medias.stream().findFirst().map(ExhibitionMediaResponseDTO::from).orElse(null);
 
         // 미디어
         List<ExhibitionMediaResponseDTO> exhibitionMediaResponseDTOS =
-                medias.stream().skip(1).map(ExhibitionMediaResponseDTO::from).collect(Collectors.toList());
+            medias.stream().skip(1).map(ExhibitionMediaResponseDTO::from).collect(Collectors.toList());
 
         List<EventScheduleResponseDTO> eventScheduleDTOS =
-                exhibition.getEventSchedules().stream()
-                        .map(EventScheduleResponseDTO::from)
-                        .collect(Collectors.toList());
+            exhibition.getEventSchedules().stream()
+                .map(EventScheduleResponseDTO::from)
+                .collect(Collectors.toList());
 
         return ExhibitionResponseDTO.builder()
-                .id(exhibition.getId())
-                .title(exhibition.getTitle())
-                .author(exhibition.getMember().getName())
-                .description(exhibition.getDescription())
-                .thumbnail(thumbnail)
-                .medias(exhibitionMediaResponseDTOS)
-                .eventSchedule(eventScheduleDTOS)
-                .link(exhibition.getLink())
-                .eventType(exhibition.getType())
-                .createdTime(exhibition.getCreatedTime())
-                .updatedTime(exhibition.getUpdatedTime())
-                .build();
+            .id(exhibition.getId())
+            .title(exhibition.getTitle())
+            .author(exhibition.getMember().getName())
+            .description(exhibition.getDescription())
+            .thumbnail(thumbnail)
+            .medias(exhibitionMediaResponseDTOS)
+            .eventSchedule(eventScheduleDTOS)
+            .link(exhibition.getLink())
+            .eventType(exhibition.getType())
+            .createdTime(exhibition.getCreatedTime())
+            .updatedTime(exhibition.getUpdatedTime())
+            .build();
     }
 }

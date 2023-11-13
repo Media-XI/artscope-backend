@@ -48,20 +48,20 @@ public class EventScheduleResponseDTO {
 
     public static EventScheduleResponseDTO from(EventSchedule eventSchedule) {
         List<ParticipantInformationResponseDTO> participantInformationResponseDTO =
-                eventSchedule.getExhibitionParticipants().stream()
-                        .map(ParticipantInformationResponseDTO::from)
-                        .collect(Collectors.toList());
+            eventSchedule.getExhibitionParticipants().stream()
+                .map(ParticipantInformationResponseDTO::from)
+                .collect(Collectors.toList());
         return EventScheduleResponseDTO.builder()
-                .id(eventSchedule.getId())
-                .locationName(eventSchedule.getLocation().getName())
-                .locationAddress(eventSchedule.getLocation().getAddress())
-                .detailLocation(eventSchedule.getDetailLocation())
-                .participants(participantInformationResponseDTO)
-                .eventDate(eventSchedule.getEventDate())
-                .startTime(eventSchedule.getStartTime())
-                .endTime(eventSchedule.getEndTime())
-                .createdTime(eventSchedule.getCreatedTime())
-                .updatedTime(eventSchedule.getUpdatedTime())
-                .build();
+            .id(eventSchedule.getId())
+            .locationName(eventSchedule.getLocation().getName())
+            .locationAddress(eventSchedule.getLocation().getAddress())
+            .detailLocation(eventSchedule.getDetailLocation())
+            .participants(participantInformationResponseDTO)
+            .eventDate(eventSchedule.getEventDate())
+            .startTime(eventSchedule.getStartTime())
+            .endTime(eventSchedule.getEndTime())
+            .createdTime(eventSchedule.getCreatedTime())
+            .updatedTime(eventSchedule.getUpdatedTime())
+            .build();
     }
 }
