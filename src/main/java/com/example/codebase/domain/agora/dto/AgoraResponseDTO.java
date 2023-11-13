@@ -92,15 +92,15 @@ public class AgoraResponseDTO {
     }
 
     public static AgoraResponseDTO of(Agora agora, boolean userVoted) {
-        AgoraResponseDTO from = from(agora);
-        from.setIsUserVoteCancle(userVoted);
-        return from;
+        AgoraResponseDTO dto = from(agora);
+        dto.setIsUserVoteCancle(userVoted);
+        return dto;
     }
 
     public static AgoraResponseDTO of(Agora agora, AgoraParticipant agoraParticipant) {
-        AgoraResponseDTO from = from(agora);
-        from.isMine = agora.isAuthor(agoraParticipant.getMember().getUsername());
-        return from;
+        AgoraResponseDTO dto = from(agora);
+        dto.isMine = agora.isAuthor(agoraParticipant.getMember().getUsername());
+        return dto;
     }
 
     public boolean isUserVoteCancle() {
