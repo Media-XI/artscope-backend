@@ -1,21 +1,8 @@
 package com.example.codebase.domain.exhibition.service;
 
 import com.example.codebase.controller.dto.PageInfo;
-import com.example.codebase.domain.exhibition.dto.EventScheduleCreateDTO;
-import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
-import com.example.codebase.domain.exhibition.dto.ExhibitionIntroduceResponseDTO;
-import com.example.codebase.domain.exhibition.dto.ExhibitionMediaCreateDTO;
-import com.example.codebase.domain.exhibition.dto.ExhibitionPageInfoResponseDTO;
-import com.example.codebase.domain.exhibition.dto.ExhibitionResponseDTO;
-import com.example.codebase.domain.exhibition.dto.ExhibitionSearchDTO;
-import com.example.codebase.domain.exhibition.dto.ExhibitionUpdateDTO;
-import com.example.codebase.domain.exhibition.dto.ParticipantInformationDTO;
-import com.example.codebase.domain.exhibition.entity.EventSchedule;
-import com.example.codebase.domain.exhibition.entity.EventType;
-import com.example.codebase.domain.exhibition.entity.Exhibition;
-import com.example.codebase.domain.exhibition.entity.ExhibitionMedia;
-import com.example.codebase.domain.exhibition.entity.ExhibitionParticipant;
-import com.example.codebase.domain.exhibition.entity.SearchEventType;
+import com.example.codebase.domain.exhibition.dto.*;
+import com.example.codebase.domain.exhibition.entity.*;
 import com.example.codebase.domain.exhibition.repository.EventScheduleRepository;
 import com.example.codebase.domain.exhibition.repository.ExhibitionParticipantRepository;
 import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
@@ -25,9 +12,6 @@ import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.exception.NotFoundException;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +19,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ExhibitionService {
@@ -151,7 +139,6 @@ public class ExhibitionService {
   public ExhibitionPageInfoResponseDTO getAllExhibition(
       ExhibitionSearchDTO exhibitionSearchDTO, int page, int size, String sortDirection) {
 
-    exhibitionSearchDTO.convertAndSetLocalDateTimes();
     exhibitionSearchDTO.repeatTimeValidity();
 
     Sort sort = Sort.by(Direction.fromString(sortDirection), "createdTime");
@@ -178,13 +165,13 @@ public class ExhibitionService {
       EventType eventType, ExhibitionSearchDTO exhibitionSearchDTO, PageRequest pageRequest) {
     if (eventType == null) {
       return exhibitionRepository.findExhibitionsWithEventSchedules(
-          exhibitionSearchDTO.getStartLocalDateTime(),
-          exhibitionSearchDTO.getEndLocalDateTime(),
+          exhibitionSearchDTO.getStartDate(),
+          exhibitionSearchDTO.getEndDate(),
           pageRequest);
     }
     return exhibitionRepository.findExhibitionsWithEventSchedules(
-        exhibitionSearchDTO.getStartLocalDateTime(),
-        exhibitionSearchDTO.getEndLocalDateTime(),
+        exhibitionSearchDTO.getStartDate(),
+        exhibitionSearchDTO.getEndDate(),
         eventType,
         pageRequest);
   }

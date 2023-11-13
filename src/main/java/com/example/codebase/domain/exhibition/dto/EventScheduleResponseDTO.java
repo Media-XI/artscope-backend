@@ -2,14 +2,14 @@ package com.example.codebase.domain.exhibition.dto;
 
 import com.example.codebase.domain.exhibition.entity.EventSchedule;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Setter
@@ -28,14 +28,17 @@ public class EventScheduleResponseDTO {
 
     private List<ParticipantInformationResponseDTO> participants;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDateTime eventDate;
+    private LocalDate eventDate;
 
+    @DateTimeFormat(pattern = "HH:mm")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
-    private LocalDateTime startTime;
+    private LocalTime startTime;
 
+    @DateTimeFormat(pattern = "HH:mm")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
-    private LocalDateTime endTime;
+    private LocalTime endTime;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdTime;

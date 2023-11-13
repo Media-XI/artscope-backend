@@ -2,23 +2,17 @@ package com.example.codebase.domain.exhibition.entity;
 
 import com.example.codebase.domain.exhibition.dto.EventScheduleCreateDTO;
 import com.example.codebase.domain.location.entity.Location;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "event_schedule")
@@ -34,13 +28,13 @@ public class EventSchedule {
     private Long id;
 
     @Column(name = "event_date")
-    private LocalDateTime eventDate;
+    private LocalDate eventDate;
 
     @Column(name = "start_time")
-    private LocalDateTime startTime;
+    private LocalTime startTime;
 
     @Column(name = "end_time")
-    private LocalDateTime endTime;
+    private LocalTime endTime;
 
     @ManyToOne
     @JoinColumn(name = "location_id", nullable = false)
