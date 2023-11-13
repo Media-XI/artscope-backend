@@ -5,6 +5,7 @@ import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
 import com.example.codebase.domain.artwork.entity.ArtworkWithIsLike;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
+import com.example.codebase.domain.exhibition.entity.ExhibitionMedia;
 import com.example.codebase.domain.post.entity.Post;
 import com.example.codebase.domain.post.entity.PostMedia;
 import com.example.codebase.domain.post.entity.PostWithIsLiked;
@@ -39,25 +40,27 @@ public class FeedItemResponseDto {
 
     private String authorUsername;
 
-    private String authorName;
+  private String authorName;
 
-    private String authorIntroduction;
+  private String authorIntroduction;
 
-    private String authorProfileImageUrl;
+  private String authorProfileImageUrl;
 
-    private String authorCompanyName;
+  private String authorCompanyName;
 
-    private String authorCompanyRole;
+  private String authorCompanyRole;
 
-    private List<String> tags;
+  private FeedItemEventResponseDto event;
 
-    private String categoryId;
+  private List<String> tags;
 
-    private Integer views;
+  private String categoryId;
 
-    private Integer likes;
+  private Integer views;
 
-    private Integer comments;
+  private Integer likes;
+
+  private Integer comments;
 
     @Builder.Default
     private Boolean isLiked = false;
@@ -148,33 +151,58 @@ public class FeedItemResponseDto {
         return dto;
     }
 
-    public static FeedItemResponseDto from(Exhibition exhibition) {
-        FeedItemResponseDto dto = FeedItemResponseDto.builder()
-                .id(exhibition.getId())
-                .type(FeedType.exhibition)
-                .title(exhibition.getTitle())
-                .content(exhibition.getDescription())
-                .authorName(exhibition.getMember().getName())
-                .authorUsername(exhibition.getMember().getUsername())
-                .authorIntroduction(exhibition.getMember().getIntroduction())
-                .authorProfileImageUrl(exhibition.getMember().getPicture())
-                .authorCompanyName(
-                        exhibition.getMember().getCompanyName() != null ? exhibition.getMember().getCompanyName()
-                                : null)
-                .authorCompanyRole(
-                        exhibition.getMember().getCompanyRole() != null ? exhibition.getMember().getCompanyRole()
-                                : null)
-                .tags(null)
-                .categoryId(FeedType.exhibition.name())
-                .views(0)
-                .likes(0)
-                .mediaUrls(null)
-                .comments(0)
-                .createdTime(exhibition.getCreatedTime())
-                .updatedTime(exhibition.getUpdatedTime())
-                .build();
-        return dto;
+  public static FeedItemResponseDto from(Exhibition exhibition) {
+    FeedItemEventResponseDto eventDto =
+        FeedItemEventResponseDto.builder()
+            .eventType(exhibition.getType())
+            .eventDate(exhibition.getFirstEventSchedule().getEventDate())
+            .startTime(exhibition.getFirstEventSchedule().getStartTime())
+            .endTime(exhibition.getFirstEventSchedule().getEndTime())
+            .locationName(exhibition.getFirstEventSchedule().getLocation().getName())
+            .locationAddress(exhibition.getFirstEventSchedule().getLocation().getAddress())
+            .detailLocation(exhibition.getFirstEventSchedule().getDetailLocation())
+            .build();
+
+    FeedItemResponseDto dto =
+        FeedItemResponseDto.builder()
+            .id(exhibition.getId())
+            .type(FeedType.exhibition)
+            .title(exhibition.getTitle())
+            .content(exhibition.getDescription())
+            .authorName(exhibition.getMember().getName())
+            .authorUsername(exhibition.getMember().getUsername())
+            .authorIntroduction(exhibition.getMember().getIntroduction())
+            .authorProfileImageUrl(exhibition.getMember().getPicture())
+            .authorCompanyName(
+                exhibition.getMember().getCompanyName() != null
+                    ? exhibition.getMember().getCompanyName()
+                    : null)
+            .authorCompanyRole(
+                exhibition.getMember().getCompanyRole() != null
+                    ? exhibition.getMember().getCompanyRole()
+                    : null)
+            .tags(null)
+            .categoryId(FeedType.exhibition.name())
+            .event(eventDto)
+            .views(0)
+            .likes(0)
+            .comments(0)
+            .createdTime(exhibition.getCreatedTime())
+            .updatedTime(exhibition.getUpdatedTime())
+            .build();
+
+    if (exhibition.getExhibitionMedias().size() > 0) {
+      String thumbnailUrl = exhibition.getExhibitionMedias().get(0).getMediaUrl();
+      List<String> mediaUrls =
+          exhibition.getExhibitionMedias().stream()
+              .map(ExhibitionMedia::getMediaUrl)
+              .collect(Collectors.toList());
+      dto.setThumbnailUrl(thumbnailUrl);
+      dto.setMediaUrls(mediaUrls);
     }
+
+    return dto;
+  }
 
     public static FeedItemResponseDto from(ArtworkWithIsLike artworkWithIsLike) {
         FeedItemResponseDto dto = from(artworkWithIsLike.getArtwork());

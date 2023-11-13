@@ -108,14 +108,18 @@ public class Exhibition {
     }
 
     public void deleteEventSchedules() {
-        this.eventSchedules.forEach(EventSchedule::delete);
-    }
+    this.eventSchedules.forEach(EventSchedule::delete);
+  }
 
-    public void addExhibitionMedia(ExhibitionMedia media) {
-        this.exhibitionMedias.add(media);
-    }
+  public void addExhibitionMedia(ExhibitionMedia media) {
+    this.exhibitionMedias.add(media);
+  }
 
-    public void addEventSchedule(EventSchedule eventSchedule) {
-        this.eventSchedules.add(eventSchedule);
-    }
+  public void addEventSchedule(EventSchedule eventSchedule) {
+    this.eventSchedules.add(eventSchedule);
+  }
+
+  public EventSchedule getFirstEventSchedule() {
+    return this.eventSchedules.get(0);
+  }
 }
