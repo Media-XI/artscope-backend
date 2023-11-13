@@ -15,6 +15,8 @@ public class AgoraDetailReponseDTO {
 
     private AgoraResponseDTO agora;
 
+    private String userVoteStatus;
+
     // 찬성 의견
     private List<AgoraOpinionResponseDTO> agreeOpinions;
 
@@ -50,7 +52,13 @@ public class AgoraDetailReponseDTO {
                 .agreeOpinions(agreeOpinions)
                 .naturalOpinions(naturalOpinionsDTOs)
                 .disagreeOpinions(disagreeOpinions)
+                .userVoteStatus(null)
                 .build();
     }
 
+    public static AgoraDetailReponseDTO of(Agora agora, String vote) {
+        AgoraDetailReponseDTO dto = from(agora);
+        dto.setUserVoteStatus(vote);
+        return dto;
+    }
 }

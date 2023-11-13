@@ -153,4 +153,8 @@ public class AgoraParticipant {
     public void removeOpinion(AgoraOpinion agoraOpinion) {
         this.opinions.remove(agoraOpinion);
     }
+
+    public String getVote() {
+        return this.vote;
+    }
 }

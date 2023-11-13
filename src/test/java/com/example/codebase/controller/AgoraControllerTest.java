@@ -859,4 +859,24 @@ class AgoraControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("아고라 투표 후 상세조회 시")
+    @Test
+    public void 아고라_투표후_상세조회 () throws Exception {
+        Agora agora = createOrLoadAgora(true);
+
+        mockMvc.perform(
+                        post("/api/agoras/" + agora.getId() + "/vote")
+                                .content("중립")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        mockMvc.perform(
+                        get("/api/agoras/" + agora.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+    }
 }

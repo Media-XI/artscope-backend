@@ -82,10 +82,19 @@ public class AgoraService {
     }
 
     @Transactional(readOnly = true)
-    public AgoraDetailReponseDTO getAgora(Long agoraId) {
+    public AgoraDetailReponseDTO getAgora(Long agoraId, String username) {
         Agora agora = agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
-        
+
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+
+        AgoraParticipant participant = agoraParticipantRepository.findById(AgoraParticipantIds.of(agora, member))
+                .orElse(null);
+
+        if (participant != null) {
+            return AgoraDetailReponseDTO.of(agora, participant.getVote());
+        }
         return AgoraDetailReponseDTO.from(agora);
     }
 
