@@ -229,7 +229,6 @@ public class FeedItemResponseDto {
         AgoraParticipantResponseDTO agoraParticipantResponseDTO = AgoraParticipantResponseDTO.of(agora.getAuthor(),
                 agora.getIsAnonymous(), 0);
 
-
         FeedItemResponseDto dto = FeedItemResponseDto.builder()
                 .id(agora.getId())
                 .type(FeedType.agora)
@@ -254,8 +253,8 @@ public class FeedItemResponseDto {
                 .updatedTime(agora.getUpdatedTime())
                 .build();
 
-        if (agora.getMedias().size() > 0) {
-            String thumbnailUrl = agora.getMedias().get(0).getMediaUrl();
+        if (agora.getMedias() != null && agora.getMedias().size() > 0) {
+            String thumbnailUrl = agora.getMedias().stream().findFirst().get().getMediaUrl();
             List<String> mediaUrls = agora.getMedias().stream()
                     .map(AgoraMedia::getMediaUrl)
                     .collect(Collectors.toList());
