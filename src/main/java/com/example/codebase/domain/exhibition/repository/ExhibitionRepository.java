@@ -13,7 +13,7 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
   @Query(
       "SELECT e "
           + "FROM Exhibition e INNER JOIN EventSchedule es ON es.exhibition = e "
-          + "WHERE es.startTime >= :startLocalDateTime AND es.endTime <= :endLocalDateTime "
+          + "WHERE es.eventDate BETWEEN :startLocalDateTime AND :endLocalDateTime "
           + "AND e.enabled = true "
           + "ORDER BY es.startTime")
   Page<Exhibition> findExhibitionsWithEventSchedules(
@@ -22,7 +22,7 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
   @Query(
       "SELECT e "
           + "FROM Exhibition e INNER JOIN EventSchedule es ON es.exhibition = e "
-          + "WHERE es.startTime >= :startLocalDateTime AND es.endTime <= :endLocalDateTime "
+          + "WHERE es.eventDate BETWEEN :startLocalDateTime AND :endLocalDateTime "
           + "AND e.enabled = true AND e.type = :eventType  "
           + "ORDER BY es.startTime")
   Page<Exhibition> findExhibitionsWithEventSchedules(
