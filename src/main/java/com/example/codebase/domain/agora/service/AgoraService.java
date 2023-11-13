@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -81,10 +82,23 @@ public class AgoraService {
     }
 
     @Transactional(readOnly = true)
-    public AgoraDetailReponseDTO getAgora(Long agoraId) {
+    public AgoraDetailReponseDTO getAgora(Long agoraId, String username) {
         Agora agora = agoraRepository.findById(agoraId)
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 아고라입니다."));
 
+        Optional<Member> loginMember = memberRepository.findByUsername(username);
+        if (loginMember.isPresent()) {
+            return getAgora(loginMember.get(), agora);
+        }
+        return AgoraDetailReponseDTO.from(agora);
+    }
+
+    private AgoraDetailReponseDTO getAgora(Member loginMember, Agora agora) {
+        Optional<AgoraParticipant> loginParticipant = agoraParticipantRepository.findById(AgoraParticipantIds.of(agora, loginMember));
+
+        if (loginParticipant.isPresent()) {
+            return AgoraDetailReponseDTO.of(agora, loginParticipant.get());
+        }
         return AgoraDetailReponseDTO.from(agora);
     }
 
@@ -151,10 +165,10 @@ public class AgoraService {
         }
 
         boolean isVoteCancle = false;
-        if (participant.hasAgora()) {
+        if (participant.isNew()) {
             participant.setAgoraAndMember(agora, member);
             participant.newSequence();
-            participant.newVote(vote);
+            participant.createVote(vote);
         } else {
             if (participant.isSameVote(vote)) {
                 participant.cancleVote(vote);

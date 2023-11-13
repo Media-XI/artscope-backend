@@ -82,7 +82,7 @@ public class AgoraParticipant {
         updateTime();
     }
 
-    public void newVote(String vote) {
+    public void createVote(String vote) {
         this.vote = vote;
         increaseVoteCount(vote);
     }
@@ -90,7 +90,7 @@ public class AgoraParticipant {
     public void updateVote(String vote) {
         String oldVote = this.vote;
         cancleVote(oldVote);
-        newVote(vote);
+        createVote(vote);
         updateTime();
     }
 
@@ -119,7 +119,7 @@ public class AgoraParticipant {
     /**
      * 새로운 투표자인지 확인
      */
-    public boolean hasAgora() {
+    public boolean isNew() {
         return this.member == null && this.agora == null;
     }
 
@@ -134,8 +134,8 @@ public class AgoraParticipant {
         return this.vote;
     }
 
-    public Member getMember() {
-        return this.member;
+    public String getMemberUsername() {
+        return this.member.getUsername();
     }
 
     public Integer getSequence() {
@@ -152,5 +152,13 @@ public class AgoraParticipant {
 
     public void removeOpinion(AgoraOpinion agoraOpinion) {
         this.opinions.remove(agoraOpinion);
+    }
+
+    public String getVote() {
+        return this.vote;
+    }
+
+    public Member getMember() {
+        return this.member;
     }
 }

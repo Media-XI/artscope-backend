@@ -1,5 +1,9 @@
 package com.example.codebase.controller;
 
+import com.example.codebase.domain.agora.entity.Agora;
+import com.example.codebase.domain.agora.entity.AgoraParticipant;
+import com.example.codebase.domain.agora.repository.AgoraParticipantRepository;
+import com.example.codebase.domain.agora.repository.AgoraRepository;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
@@ -34,6 +38,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -68,19 +73,31 @@ class FeedControllerTest {
     @Autowired
     private ArtworkRepository artworkRepository;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
     private PostRepository postRepository;
+
     @Autowired
     private ExhibitionRepository exhibitionRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+
     @Autowired
     private LocationRepository locationRepository;
+
     @Autowired
     private EventScheduleRepository eventScheduleRepository;
+
     @Autowired
     private ExhibitionParticipantRepository exhibitionParticipantRepository;
+
+    @Autowired
+    private AgoraRepository agoraRepository;
+
+    @Autowired
+    private AgoraParticipantRepository agoraParticipantRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     public void setUp() {
@@ -226,6 +243,37 @@ class FeedControllerTest {
         return exhibition;
     }
 
+    @Transactional
+    public Agora createAgora(int idx, boolean isAnnoymous) {
+        Optional<Agora> agora = agoraRepository.findById(Long.valueOf(idx));
+        if (agora.isPresent()) {
+            return agora.get();
+        }
+
+        Member member = createOrLoadMember();
+
+        Agora dummy = Agora.builder()
+                .title("아고라_테스트" + idx)
+                .content("아고라_테스트_내용" + idx)
+                .agreeText("찬성")
+                .disagreeText("반대")
+                .naturalText("중립")
+                .agreeCount(0)
+                .disagreeCount(0)
+                .naturalCount(0)
+                .isAnonymous(isAnnoymous)
+                .author(member)
+                .createdTime(LocalDateTime.now())
+                .build();
+        agoraRepository.save(dummy);
+
+        AgoraParticipant agoraParticipant = AgoraParticipant.create();
+        agoraParticipant.setAgoraAndMember(dummy, member);
+        agoraParticipantRepository.save(agoraParticipant);
+
+        return dummy;
+    }
+
     @DisplayName("피드 생성")
     @Test
     public void createFeed() throws Exception {
@@ -260,6 +308,40 @@ class FeedControllerTest {
         createOrLoadExhibition(2);
         createOrLoadExhibition(3);
         createOrLoadExhibition(4);
+
+        // Agora
+        createAgora(1, false);
+        createAgora(2, true);
+        createAgora(3, true);
+
+        mockMvc.perform(
+                        post("/api/feed")
+                                .param("page", "0")
+                )
+                .andExpect(status().isCreated())
+                .andDo(print());
+    }
+
+    @DisplayName("피드 생성2")
+    @Test
+    public void createFeed_Agora() throws Exception {
+
+        // 아트워크 생성 및 저장
+        createOrLoadArtwork(1, true, 1);
+        createOrLoadArtwork(2, true, 1);
+
+        // Post 생성 및 저장
+        createPost();
+        createPost();
+
+        // 전시 생성 및 저장
+        createOrLoadExhibition(1);
+        createOrLoadExhibition(2);
+
+        // Agora
+        createAgora(1, false);
+        createAgora(2, true);
+        createAgora(3, true);
 
         mockMvc.perform(
                 post("/api/feed")

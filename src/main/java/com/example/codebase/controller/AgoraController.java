@@ -73,7 +73,8 @@ public class AgoraController {
     public ResponseEntity getAgora(
         @PathVariable Long agoraId
     ) {
-        AgoraDetailReponseDTO agora = agoraService.getAgora(agoraId);
+        String username = SecurityUtil.getCurrentUsername().orElse(null);
+        AgoraDetailReponseDTO agora = agoraService.getAgora(agoraId, username);
         return new ResponseEntity(agora, HttpStatus.OK);
     }
 
