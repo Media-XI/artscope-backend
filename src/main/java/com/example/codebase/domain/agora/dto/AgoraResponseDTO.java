@@ -3,7 +3,7 @@ package com.example.codebase.domain.agora.dto;
 import com.example.codebase.domain.agora.entity.Agora;
 import com.example.codebase.domain.agora.entity.AgoraMedia;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties(value = {"isUserVoteCancle", "userVoteCancle"})
 public class AgoraResponseDTO {
 
     private Long id;
@@ -40,7 +41,6 @@ public class AgoraResponseDTO {
     private Boolean isAnonymous;
 
     @Builder.Default
-    @JsonIgnore
     private Boolean isUserVoteCancle = false; // 현재 유저가 투표했는지 여부
 
     private AgoraParticipantResponseDTO author;
