@@ -2,6 +2,7 @@ package com.example.codebase.domain.agora.dto;
 
 import com.example.codebase.domain.agora.entity.Agora;
 import com.example.codebase.domain.agora.entity.AgoraMedia;
+import com.example.codebase.domain.agora.entity.AgoraParticipant;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
@@ -42,6 +43,9 @@ public class AgoraResponseDTO {
 
     @Builder.Default
     private Boolean isUserVoteCancle = false; // 현재 유저가 투표했는지 여부
+
+    @Builder.Default
+    private Boolean isMine = false;
 
     private AgoraParticipantResponseDTO author;
 
@@ -90,6 +94,12 @@ public class AgoraResponseDTO {
     public static AgoraResponseDTO of(Agora agora, boolean userVoted) {
         AgoraResponseDTO from = from(agora);
         from.setIsUserVoteCancle(userVoted);
+        return from;
+    }
+
+    public static AgoraResponseDTO of(Agora agora, AgoraParticipant agoraParticipant) {
+        AgoraResponseDTO from = from(agora);
+        from.isMine = agora.isAuthor(agoraParticipant.getMember().getUsername());
         return from;
     }
 

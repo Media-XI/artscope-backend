@@ -208,7 +208,8 @@ class AgoraControllerTest {
                 .orElse(null);
 
         if (participant != null) {
-            return participant;
+            participant.newVote(vote);
+            return agoraParticipantRepository.save(participant);
         }
 
         participant = AgoraParticipant.create();
@@ -878,5 +879,37 @@ class AgoraControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("아고라 상세 조회 시 로그인한 사용자의 의견 여부가 보여진다")
+    @Test
+    public void 의견이_있는_아고라_조회3 () throws Exception {
+        Member member1 = createOrLoadMember("user1", "ROLE_USER");
+        Member member2 = createOrLoadMember("user2", "ROLE_USER");
+        Member member3 = createOrLoadMember("user3", "ROLE_USER");
+        Member member4 = createOrLoadMember("user4", "ROLE_USER");
+
+        Agora agora = createOrLoadAgora(true);
+
+        // 의견을 달기 위해선 미리 투표가 되어야한다.
+        AgoraParticipant participant0 = createOrLoadAgoraParticipant(agora, agora.getAuthor(), "찬성");
+        AgoraParticipant participant1 = createOrLoadAgoraParticipant(agora, member1, "찬성");
+        AgoraParticipant participant2 = createOrLoadAgoraParticipant(agora, member2, "중립");
+        AgoraParticipant participant3 = createOrLoadAgoraParticipant(agora, member3, "반대");
+        AgoraParticipant participant4 = createOrLoadAgoraParticipant(agora, member4, "반대");
+
+        // 의견 생성
+        createAgoraOpinion(agora, participant0, "찬성하는 의견입니다 어쩌구");
+        createAgoraOpinion(agora, participant1, "찬성하는 의견입니다 어쩌구");
+        createAgoraOpinion(agora, participant1, "다른 의견입니다 어쩌구");
+        createAgoraOpinion(agora, participant2, "중립하는 의견입니다 어쩌구");
+        createAgoraOpinion(agora, participant3, "반대하는 의견입니다 어쩌구");
+
+        mockMvc.perform(
+                        get("/api/agoras/" + agora.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }

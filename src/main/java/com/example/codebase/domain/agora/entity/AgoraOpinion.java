@@ -110,7 +110,7 @@ public class AgoraOpinion {
         }
     }
 
-    private boolean isAuthor(String username) {
+    public boolean isAuthor(String username) {
         return this.author.getMember().getUsername().equals(username);
     }
 
