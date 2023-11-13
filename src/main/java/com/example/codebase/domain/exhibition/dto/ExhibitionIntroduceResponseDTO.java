@@ -3,12 +3,9 @@ package com.example.codebase.domain.exhibition.dto;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
 import com.example.codebase.domain.location.dto.LocationResponseDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.*;
+
 import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Setter
@@ -35,15 +32,15 @@ public class ExhibitionIntroduceResponseDTO {
         ExhibitionResponseDTO exhibitionList = ExhibitionResponseDTO.from(exhibition);
 
         LocationResponseDTO locationDTO =
-                LocationResponseDTO.from(exhibition.getEventSchedules().get(0));
+            LocationResponseDTO.from(exhibition.getEventSchedules().get(0));
 
         return ExhibitionIntroduceResponseDTO.builder()
-                .exhibitionList(exhibitionList)
-                .detailLocation(exhibition.getEventSchedules().get(0).getDetailLocation())
-                .price(exhibition.getPrice())
-                .location(locationDTO)
-                .createdTime(exhibition.getCreatedTime())
-                .updatedTime(exhibition.getUpdatedTime())
-                .build();
+            .exhibitionList(exhibitionList)
+            .detailLocation(exhibition.getEventSchedules().get(0).getDetailLocation())
+            .price(exhibition.getPrice())
+            .location(locationDTO)
+            .createdTime(exhibition.getCreatedTime())
+            .updatedTime(exhibition.getUpdatedTime())
+            .build();
     }
 }

@@ -1,7 +1,6 @@
 package com.example.codebase.controller.advice;
 
 import com.example.codebase.util.ClientUtil;
-import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -9,6 +8,8 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+
+import java.io.IOException;
 
 @Slf4j
 @RestControllerAdvice
@@ -23,7 +24,7 @@ public class CustomResponseBodyAdviceAdapter implements ResponseBodyAdvice {
                                   Class selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         try {
             long start = System.currentTimeMillis();
-            log.info(ClientUtil.jsonBodyForLogging(body).insert(0, "Response ").toString() + "\n\n");
+            log.info(ClientUtil.jsonBodyForLogging(body).insert(0, "Response ") + "\n\n");
             log.info("beforeBodyWrite execution time: " + (System.currentTimeMillis() - start) + "ms");
         } catch (IOException e) {
             log.info("Error while logging request body: " + e.getMessage());

@@ -25,11 +25,11 @@ public class S3MockConfig {
     @Bean(name = "amazoneS3", destroyMethod = "shutdown")
     public AmazonS3 amazonS3() {
         AwsClientBuilder.EndpointConfiguration endpointConfiguration =
-                new AwsClientBuilder.EndpointConfiguration("http://localhost:8001", Regions.AP_NORTHEAST_2.name());
+            new AwsClientBuilder.EndpointConfiguration("http://localhost:8001", Regions.AP_NORTHEAST_2.name());
         return AmazonS3ClientBuilder.standard()
-                .withPathStyleAccessEnabled(true)
-                .withEndpointConfiguration(endpointConfiguration)
-                .withCredentials(new AWSStaticCredentialsProvider(new AnonymousAWSCredentials()))
-                .build();
+            .withPathStyleAccessEnabled(true)
+            .withEndpointConfiguration(endpointConfiguration)
+            .withCredentials(new AWSStaticCredentialsProvider(new AnonymousAWSCredentials()))
+            .build();
     }
 }

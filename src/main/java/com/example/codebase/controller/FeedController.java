@@ -6,17 +6,14 @@ import com.example.codebase.domain.feed.service.FeedService;
 import com.example.codebase.domain.post.dto.PostResponseDTO;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.annotations.ApiOperation;
-import java.util.List;
-import java.util.Optional;
-import javax.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.constraints.PositiveOrZero;
+import java.util.List;
+import java.util.Optional;
 
 @ApiOperation(value = "피드", notes = "피드 관련 API")
 @RestController
@@ -33,7 +30,7 @@ public class FeedController {
     @ApiOperation(value = "피드 생성", notes = "[ALL] 피드를 생성합니다.")
     @PostMapping
     public ResponseEntity createFeed(
-            @PositiveOrZero @RequestParam(defaultValue = "0") int page
+        @PositiveOrZero @RequestParam(defaultValue = "0") int page
     ) {
         Optional<String> loginUsername = SecurityUtil.getCurrentUsername();
 

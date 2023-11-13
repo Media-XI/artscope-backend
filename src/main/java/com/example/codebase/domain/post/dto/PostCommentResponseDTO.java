@@ -2,15 +2,12 @@ package com.example.codebase.domain.post.dto;
 
 import com.example.codebase.domain.post.entity.PostComment;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Setter
@@ -47,24 +44,24 @@ public class PostCommentResponseDTO {
         Long parentId = Optional.ofNullable(comment.getParent()).map(PostComment::getId).orElse(null);
 
         PostCommentResponseDTO response =
-                PostCommentResponseDTO.builder()
-                        .id(comment.getId())
-                        .content(comment.getContent())
-                        .comments(comment.getComments())
-                        .mentionUsername(comment.getMentionUsername())
-                        .authorUsername(comment.getAuthor().getUsername())
-                        .authorName(comment.getAuthor().getName())
-                        .authorProfileImageUrl(comment.getAuthor().getPicture())
-                        .createdTime(comment.getCreatedTime())
-                        .updatedTime(comment.getUpdatedTime())
-                        .parentCommentId(parentId)
-                        .build();
+            PostCommentResponseDTO.builder()
+                .id(comment.getId())
+                .content(comment.getContent())
+                .comments(comment.getComments())
+                .mentionUsername(comment.getMentionUsername())
+                .authorUsername(comment.getAuthor().getUsername())
+                .authorName(comment.getAuthor().getName())
+                .authorProfileImageUrl(comment.getAuthor().getPicture())
+                .createdTime(comment.getCreatedTime())
+                .updatedTime(comment.getUpdatedTime())
+                .parentCommentId(parentId)
+                .build();
 
         if (Optional.ofNullable(comment.getChildComments()).isPresent()) {
             List<PostCommentResponseDTO> childComments =
-                    comment.getChildComments().stream()
-                            .map(PostCommentResponseDTO::from)
-                            .collect(Collectors.toList());
+                comment.getChildComments().stream()
+                    .map(PostCommentResponseDTO::from)
+                    .collect(Collectors.toList());
             response.setChildComments(childComments);
         }
 

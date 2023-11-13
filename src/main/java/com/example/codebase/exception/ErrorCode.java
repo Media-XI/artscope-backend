@@ -10,10 +10,10 @@ public enum ErrorCode {
     EMAIL("ERROR_CODE_EMAIL", "이메일 형식이 아닙니다.");
 
     @Getter
-    private String code;
+    private final String code;
 
     @Getter
-    private String description;
+    private final String description;
 
     ErrorCode(String code, String description) {
         this.code = code;

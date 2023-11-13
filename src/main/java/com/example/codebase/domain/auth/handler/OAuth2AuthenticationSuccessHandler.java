@@ -1,15 +1,8 @@
 package com.example.codebase.domain.auth.handler;
 
-import static com.example.codebase.util.SecurityUtil.getCookieAccessTokenValue;
-
 import com.example.codebase.domain.auth.dto.TokenResponseDTO;
 import com.example.codebase.filter.JwtFilter;
 import com.example.codebase.jwt.TokenProvider;
-import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,10 +11,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+import static com.example.codebase.util.SecurityUtil.getCookieAccessTokenValue;
+
 @Slf4j
 @Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-    private TokenProvider tokenProvider;
+    private final TokenProvider tokenProvider;
 
     @Value("${app.oauth2-redirect-uri}")
     private String redirectUri;
@@ -64,7 +65,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     }
 
     private void loginSuccess(HttpServletRequest request, HttpServletResponse response, String token)
-            throws IOException {
+        throws IOException {
         // add to refresh token in set-cookie
         String redirect = redirectUri + "?token=" + token;  // state 파라미터를 추가해서 보내줘야 함 (CSRF Attack 방지)
 

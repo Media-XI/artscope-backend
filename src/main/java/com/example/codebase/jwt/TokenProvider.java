@@ -7,20 +7,9 @@ import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.exception.InvalidJwtTokenException;
 import com.example.codebase.exception.NotFoundException;
 import com.example.codebase.util.RedisUtil;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import java.security.Key;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,13 +22,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
+import java.security.Key;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Component
 @Slf4j
 public class TokenProvider implements InitializingBean {
-    private final MemberRepository memberRepository;
-
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private static final String AUTHORITIES_KEY = "auth";
+    private final MemberRepository memberRepository;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final String secret;
     private final Long tokenValidityInMilliseconds;
     private final Long refreshTokenValidityInMilliseconds;
@@ -48,11 +43,11 @@ public class TokenProvider implements InitializingBean {
     private Key key;
 
     public TokenProvider(
-            AuthenticationManagerBuilder authenticationManagerBuilder, @Value("${jwt.secret}") String secret,
-            @Value("${jwt.token-validity-in-seconds}") Long tokenValidityInMilliseconds,
-            @Value("${jwt.refresh-token-validity-in-seconds}") Long refreshTokenValidityInMilliseconds,
-            RedisUtil redisUtil,
-            MemberRepository memberRepository) {
+        AuthenticationManagerBuilder authenticationManagerBuilder, @Value("${jwt.secret}") String secret,
+        @Value("${jwt.token-validity-in-seconds}") Long tokenValidityInMilliseconds,
+        @Value("${jwt.refresh-token-validity-in-seconds}") Long refreshTokenValidityInMilliseconds,
+        RedisUtil redisUtil,
+        MemberRepository memberRepository) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.secret = secret;
         this.tokenValidityInMilliseconds = tokenValidityInMilliseconds * 1000;
@@ -70,15 +65,15 @@ public class TokenProvider implements InitializingBean {
 
     public String createToken(Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.joining(","));
         return createToken(authentication.getName(), authorities);
     }
 
     public String createToken(Member member) {
         String authorities = member.getAuthorities().stream()
-                .map(a -> a.getAuthority().getAuthorityName())
-                .collect(Collectors.joining(","));
+            .map(a -> a.getAuthority().getAuthorityName())
+            .collect(Collectors.joining(","));
 
         return createToken(member.getUsername(), authorities);
     }
@@ -88,12 +83,12 @@ public class TokenProvider implements InitializingBean {
         Date validity = new Date(now + this.tokenValidityInMilliseconds);
 
         return Jwts.builder()
-                .setHeaderParam("typ", "JWT")
-                .setSubject(sub)
-                .claim(AUTHORITIES_KEY, authorities)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(validity)
-                .compact();
+            .setHeaderParam("typ", "JWT")
+            .setSubject(sub)
+            .claim(AUTHORITIES_KEY, authorities)
+            .signWith(key, SignatureAlgorithm.HS512)
+            .setExpiration(validity)
+            .compact();
     }
 
 
@@ -110,12 +105,12 @@ public class TokenProvider implements InitializingBean {
         Date validity = new Date(now + this.refreshTokenValidityInMilliseconds);
 
         return Jwts.builder()
-                .setHeaderParam("typ", "JWT")
-                .setSubject(sub)
-                .claim("typ", "refresh")
-                .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(validity)
-                .compact();
+            .setHeaderParam("typ", "JWT")
+            .setSubject(sub)
+            .claim("typ", "refresh")
+            .signWith(key, SignatureAlgorithm.HS512)
+            .setExpiration(validity)
+            .compact();
     }
 
 
@@ -123,9 +118,9 @@ public class TokenProvider implements InitializingBean {
         Claims claims = getClaims(token); // Token 값
 
         Collection<? extends GrantedAuthority> authorities = Arrays.stream(
-                        claims.get(AUTHORITIES_KEY).toString().split(","))
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+                claims.get(AUTHORITIES_KEY).toString().split(","))
+            .map(SimpleGrantedAuthority::new)
+            .collect(Collectors.toList());
 
         User principal = new User(claims.getSubject(), "", authorities);
 
@@ -134,7 +129,7 @@ public class TokenProvider implements InitializingBean {
 
     public TokenResponseDTO generateToken(LoginDTO loginDTO) {
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword());
+            new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword());
 
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
@@ -152,7 +147,7 @@ public class TokenProvider implements InitializingBean {
 
         // Redis에 Refresh Token 캐싱
         redisUtil.setDataAndExpire(authentication.getName() + "_token", refreshToken,
-                refreshTokenValidityInMilliseconds);
+            refreshTokenValidityInMilliseconds);
 
         TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
         tokenResponseDTO.setAccessToken(accessToken);
@@ -170,7 +165,7 @@ public class TokenProvider implements InitializingBean {
 
         // Redis에 Refresh Token 캐싱
         redisUtil.setDataAndExpire(authentication.getName() + "_token", refreshToken,
-                refreshTokenValidityInMilliseconds);
+            refreshTokenValidityInMilliseconds);
 
         TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
         tokenResponseDTO.setAccessToken(accessToken);
@@ -198,7 +193,7 @@ public class TokenProvider implements InitializingBean {
         }
 
         Member find = memberRepository.findByUsernameOrOauthProviderId(usernameFromToken).orElseThrow(
-                () -> new NotFoundException("존재하지 않는 회원입니다")
+            () -> new NotFoundException("존재하지 않는 회원입니다")
         );
 
         String newAccessToken = createToken(find);
@@ -218,11 +213,11 @@ public class TokenProvider implements InitializingBean {
 
     private Claims getClaims(String token) {
         return Jwts
-                .parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+            .parserBuilder()
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
     }
 
     public boolean isRefreshType(String token) {

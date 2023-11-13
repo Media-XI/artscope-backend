@@ -40,12 +40,12 @@ public class AgoraMedia {
 
     public static AgoraMedia from(AgoraMediaCreateDTO thumbnail) {
         AgoraMedia agoraMedia = AgoraMedia.builder()
-                .mediaType(MediaType.create(thumbnail.getMediaType()))
-                .mediaUrl(thumbnail.getMediaUrl())
-                .mediaWidth(thumbnail.getWidth())
-                .mediaHeight(thumbnail.getHeight())
-                .createdTime(LocalDateTime.now())
-                .build();
+            .mediaType(MediaType.create(thumbnail.getMediaType()))
+            .mediaUrl(thumbnail.getMediaUrl())
+            .mediaWidth(thumbnail.getWidth())
+            .mediaHeight(thumbnail.getHeight())
+            .createdTime(LocalDateTime.now())
+            .build();
         return agoraMedia;
     }
 

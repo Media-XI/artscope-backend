@@ -1,10 +1,11 @@
 package com.example.codebase.domain.post.dto;
 
 import com.example.codebase.domain.post.entity.Post;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor

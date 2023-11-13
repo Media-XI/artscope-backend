@@ -1,33 +1,34 @@
 package com.example.codebase.filter;
 
 import com.example.codebase.jwt.TokenProvider;
-import java.io.IOException;
-import java.util.Arrays;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.Arrays;
+
 @Slf4j
 public class JwtFilter extends GenericFilterBean {
     public static final String AUTHORIZATION_HEADER = "Authorization";
-    private TokenProvider tokenProvider;
+    private final TokenProvider tokenProvider;
 
     public JwtFilter(
-            TokenProvider tokenProvider) {
+        TokenProvider tokenProvider) {
         this.tokenProvider = tokenProvider;
     }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+        throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
         String jwt = resolveToken(httpServletRequest);
@@ -56,9 +57,9 @@ public class JwtFilter extends GenericFilterBean {
             }
 
             Cookie acceeTokenCookie = Arrays.stream(cookies)
-                    .filter(cookie -> cookie.getName().equals("access-token"))
-                    .findFirst()
-                    .orElse(null);
+                .filter(cookie -> cookie.getName().equals("access-token"))
+                .findFirst()
+                .orElse(null);
 
             if (acceeTokenCookie == null) {
                 return null;

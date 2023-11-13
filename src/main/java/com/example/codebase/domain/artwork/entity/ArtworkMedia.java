@@ -2,21 +2,13 @@ package com.example.codebase.domain.artwork.entity;
 
 import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
 import com.example.codebase.domain.media.MediaType;
-import java.time.LocalDateTime;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "artwork_media")
@@ -59,14 +51,14 @@ public class ArtworkMedia {
 
     public static ArtworkMedia of(ArtworkMediaCreateDTO media, Artwork artwork) {
         return ArtworkMedia.builder()
-                .artworkMediaType(MediaType.create(media.getMediaType()))  // create() 메서드를 통해 MediaType을 생성 과 예외처리를 한다.
-                .mediaUrl(media.getMediaUrl())
-                .imageWidth(media.getWidth())
-                .imageHeight(media.getHeight())
-                .description(media.getDescription())
-                .artwork(artwork)
-                .createdTime(LocalDateTime.now())
-                .build();
+            .artworkMediaType(MediaType.create(media.getMediaType()))  // create() 메서드를 통해 MediaType을 생성 과 예외처리를 한다.
+            .mediaUrl(media.getMediaUrl())
+            .imageWidth(media.getWidth())
+            .imageHeight(media.getHeight())
+            .description(media.getDescription())
+            .artwork(artwork)
+            .createdTime(LocalDateTime.now())
+            .build();
     }
 
     public void setArtwork(Artwork artwork) {

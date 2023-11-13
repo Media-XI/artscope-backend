@@ -2,13 +2,14 @@ package com.example.codebase.domain.agora.entity;
 
 import com.example.codebase.domain.agora.dto.AgoraOpinionRequestDTO;
 import com.example.codebase.domain.member.entity.Member;
-import java.time.LocalDateTime;
-import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "agora_opinion")
@@ -41,19 +42,19 @@ public class AgoraOpinion {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns(
-            {
-                    @JoinColumn(name = "agora_id", referencedColumnName = "agora_id"),
-                    @JoinColumn(name = "author_id", referencedColumnName = "member_id")
-            }
+        {
+            @JoinColumn(name = "agora_id", referencedColumnName = "agora_id"),
+            @JoinColumn(name = "author_id", referencedColumnName = "member_id")
+        }
     )
     private AgoraParticipant author;
 
     public static AgoraOpinion from(AgoraOpinionRequestDTO content) {
         return AgoraOpinion.builder()
-                .content(content.getContent())
-                .createdTime(LocalDateTime.now())
-                .isDeleted(false)
-                .build();
+            .content(content.getContent())
+            .createdTime(LocalDateTime.now())
+            .isDeleted(false)
+            .build();
     }
 
     public void setAgoraAndAuthor(Agora agora, AgoraParticipant author) {
@@ -61,16 +62,10 @@ public class AgoraOpinion {
         this.setAuthor(author);
     }
 
-    private void setAgora(Agora agora) {
-    this.agora = agora;
-    agora.addOpinion(this);
-    }
-
     private void setAuthor(AgoraParticipant author) {
         this.author = author;
         author.addOpinion(this);
     }
-
 
     /**
      * <p>SOFT DELETE</p>
@@ -97,9 +92,18 @@ public class AgoraOpinion {
     }
 
 
+    private void setAgora(Agora agora) {
+        this.agora = agora;
+        agora.addOpinion(this);
+    }
+
+    public Member getMember() {
+        return author.getMember();
+    }
+
     /**
      * @param agoraId 아고라의 id
-     * <p>주어진 agoraId가 현재 의견의 agoraId 같은지 확인</p>
+     *                <p>주어진 agoraId가 현재 의견의 agoraId 같은지 확인</p>
      */
     public void checkAgoraId(Long agoraId) {
         if (!this.agora.getId().equals(agoraId)) {
@@ -113,7 +117,7 @@ public class AgoraOpinion {
 
     /**
      * @param username 작성자의 username
-     * <p>주어진 Username 이용해 의견 작성자 본인인지 확인</p>
+     *                 <p>주어진 Username 이용해 의견 작성자 본인인지 확인</p>
      */
     public void checkAuthor(String username) {
         if (!isAuthor(username)) {
@@ -133,7 +137,4 @@ public class AgoraOpinion {
         this.updatedTime = LocalDateTime.now();
     }
 
-    public Member getMember() {
-        return this.author.getMember();
-    }
 }

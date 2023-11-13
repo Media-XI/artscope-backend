@@ -3,12 +3,13 @@ package com.example.codebase.domain.artwork.repository;
 import com.example.codebase.domain.artwork.entity.ArtworkLikeMember;
 import com.example.codebase.domain.artwork.entity.ArtworkLikeMemberId;
 import com.example.codebase.domain.member.entity.Member;
-import java.util.Optional;
-import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+
+import java.util.Optional;
+import java.util.UUID;
 
 public interface ArtworkLikeMemberRepository extends JpaRepository<ArtworkLikeMember, ArtworkLikeMemberId> {
 

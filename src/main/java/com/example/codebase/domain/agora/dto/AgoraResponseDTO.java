@@ -63,32 +63,32 @@ public class AgoraResponseDTO {
         List<AgoraMedia> agoraMedia = agora.getMedias();
 
         List<AgoraMediaResponseDTO> medias =
-                agoraMedia.stream().map(AgoraMediaResponseDTO::from).collect(Collectors.toList());
+            agoraMedia.stream().map(AgoraMediaResponseDTO::from).collect(Collectors.toList());
 
         AgoraMediaResponseDTO thumbnail = medias.stream().findFirst().orElse(null);
 
         AgoraParticipantResponseDTO agoraParticipantResponseDTO = AgoraParticipantResponseDTO.of(agora.getAuthor(),
-                agora.getIsAnonymous(), 0);
+            agora.getIsAnonymous(), 0);
 
         return AgoraResponseDTO.builder()
-                .id(agora.getId())
-                .title(agora.getTitle())
-                .content(agora.getContent())
-                .agreeCount(agora.getAgreeCount())
-                .naturalCount(agora.getNaturalCount())
-                .disagreeCount(agora.getDisagreeCount())
-                .participantCount(agora.getParticipantCount())
-                .agreeText(agora.getAgreeText())
-                .naturalText(agora.getNaturalText())
-                .disagreeText(agora.getDisagreeText())
-                .isUserVoteCancle(false)
-                .isAnonymous(agora.getIsAnonymous())
-                .createdTime(agora.getCreatedTime())
-                .updatedTime(agora.getUpdatedTime())
-                .author(agoraParticipantResponseDTO)
-                .thumbnail(thumbnail)
-                .medias(medias)
-                .build();
+            .id(agora.getId())
+            .title(agora.getTitle())
+            .content(agora.getContent())
+            .agreeCount(agora.getAgreeCount())
+            .naturalCount(agora.getNaturalCount())
+            .disagreeCount(agora.getDisagreeCount())
+            .participantCount(agora.getParticipantCount())
+            .agreeText(agora.getAgreeText())
+            .naturalText(agora.getNaturalText())
+            .disagreeText(agora.getDisagreeText())
+            .isUserVoteCancle(false)
+            .isAnonymous(agora.getIsAnonymous())
+            .createdTime(agora.getCreatedTime())
+            .updatedTime(agora.getUpdatedTime())
+            .author(agoraParticipantResponseDTO)
+            .thumbnail(thumbnail)
+            .medias(medias)
+            .build();
     }
 
     public static AgoraResponseDTO of(Agora agora, boolean userVoted) {

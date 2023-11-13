@@ -30,19 +30,19 @@ public class AgoraDetailReponseDTO {
 
     public static AgoraDetailReponseDTO from(Agora agora) {
         List<AgoraOpinionResponseDTO> agreeOpinionDTOs = agora.getOpinions().stream()
-                .filter(opinion -> opinion.isSameVoteAndNotDeleted(agora.getAgreeText()))
-                .map(AgoraOpinionResponseDTO::from)
-                .collect(Collectors.toList());
+            .filter(opinion -> opinion.isSameVoteAndNotDeleted(agora.getAgreeText()))
+            .map(AgoraOpinionResponseDTO::from)
+            .collect(Collectors.toList());
 
         List<AgoraOpinionResponseDTO> naturalOpinionsDTOs = agora.getOpinions().stream()
-                .filter(opinion -> opinion.isSameVoteAndNotDeleted(agora.getNaturalText()))
-                .map(AgoraOpinionResponseDTO::from)
-                .collect(Collectors.toList());
+            .filter(opinion -> opinion.isSameVoteAndNotDeleted(agora.getNaturalText()))
+            .map(AgoraOpinionResponseDTO::from)
+            .collect(Collectors.toList());
 
         List<AgoraOpinionResponseDTO> disagreeOpinionDTOs = agora.getOpinions().stream()
-                .filter(opinion -> opinion.isSameVoteAndNotDeleted(agora.getDisagreeText()))
-                .map(AgoraOpinionResponseDTO::from)
-                .collect(Collectors.toList());
+            .filter(opinion -> opinion.isSameVoteAndNotDeleted(agora.getDisagreeText()))
+            .map(AgoraOpinionResponseDTO::from)
+            .collect(Collectors.toList());
 
         AgoraResponseDTO agoraDTO = AgoraResponseDTO.from(agora);
         return of(agoraDTO, agreeOpinionDTOs, disagreeOpinionDTOs, naturalOpinionsDTOs);

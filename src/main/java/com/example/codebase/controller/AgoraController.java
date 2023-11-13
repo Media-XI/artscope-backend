@@ -41,9 +41,9 @@ public class AgoraController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity createAgora(
-            @RequestPart(value = "dto") @Valid AgoraCreateDTO dto,
-            @RequestPart(value = "mediaFiles", required = false) List<MultipartFile> mediaFiles,
-            @RequestPart(value = "thumbnailFile", required = false) MultipartFile thumbnailFile
+        @RequestPart(value = "dto") @Valid AgoraCreateDTO dto,
+        @RequestPart(value = "mediaFiles", required = false) List<MultipartFile> mediaFiles,
+        @RequestPart(value = "thumbnailFile", required = false) MultipartFile thumbnailFile
     ) throws IOException {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
 
@@ -58,9 +58,9 @@ public class AgoraController {
     @ApiOperation(value = "아고라 전체 조회", notes = "[페이지네이션] 아고라를 전체 조회합니다.")
     @GetMapping
     public ResponseEntity getAllAgora(
-            @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,
-            @PositiveOrZero @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(defaultValue = "DESC", required = false) String sortDirection
+        @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,
+        @PositiveOrZero @RequestParam(value = "size", defaultValue = "10") int size,
+        @RequestParam(defaultValue = "DESC", required = false) String sortDirection
     ) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
@@ -71,7 +71,7 @@ public class AgoraController {
     @ApiOperation(value = "아고라 상세 조회", notes = "아고라를 상세 조회합니다.")
     @GetMapping("/{agoraId}")
     public ResponseEntity getAgora(
-            @PathVariable Long agoraId
+        @PathVariable Long agoraId
     ) {
         String username = SecurityUtil.getCurrentUsername().orElse(null);
         AgoraDetailReponseDTO agora = agoraService.getAgora(agoraId, username);
@@ -82,8 +82,8 @@ public class AgoraController {
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{agoraId}")
     public ResponseEntity updateAgora(
-            @PathVariable Long agoraId,
-            @RequestBody @Valid AgoraUpdateDTO dto
+        @PathVariable Long agoraId,
+        @RequestBody @Valid AgoraUpdateDTO dto
     ) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
 
@@ -95,7 +95,7 @@ public class AgoraController {
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{agoraId}")
     public ResponseEntity deleteAgora(
-            @PathVariable Long agoraId
+        @PathVariable Long agoraId
     ) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         agoraService.deleteAgora(agoraId, username);
@@ -106,8 +106,8 @@ public class AgoraController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{agoraId}/vote")
     public ResponseEntity voteAgora(
-            @PathVariable Long agoraId,
-            @RequestBody @NotBlank(message = "투표 내용을 작성해주세요.") String vote
+        @PathVariable Long agoraId,
+        @RequestBody @NotBlank(message = "투표 내용을 작성해주세요.") String vote
     ) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         AgoraResponseDTO agora = agoraService.voteAgora(agoraId, vote, username);
@@ -122,8 +122,8 @@ public class AgoraController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{agoraId}/opinions")
     public ResponseEntity createOpinion(
-            @PathVariable Long agoraId,
-            @RequestBody @NotBlank(message = "의견 내용을 작성해주세요.") AgoraOpinionRequestDTO content
+        @PathVariable Long agoraId,
+        @RequestBody @NotBlank(message = "의견 내용을 작성해주세요.") AgoraOpinionRequestDTO content
     ) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         AgoraDetailReponseDTO opinion = agoraService.createOpinion(agoraId, content, username);
@@ -134,9 +134,9 @@ public class AgoraController {
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{agoraId}/opinions/{opinionId}")
     public ResponseEntity updateOpinion(
-            @PathVariable Long agoraId,
-            @PathVariable Long opinionId,
-            @RequestBody @NotBlank(message = "수정할 의견 내용을 작성해주세요.") AgoraOpinionRequestDTO content
+        @PathVariable Long agoraId,
+        @PathVariable Long opinionId,
+        @RequestBody @NotBlank(message = "수정할 의견 내용을 작성해주세요.") AgoraOpinionRequestDTO content
     ) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         AgoraDetailReponseDTO opinion = agoraService.updateOpinion(agoraId, opinionId, content, username);
@@ -147,8 +147,8 @@ public class AgoraController {
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{agoraId}/opinions/{opinionId}")
     public ResponseEntity updateOpinion(
-            @PathVariable Long agoraId,
-            @PathVariable Long opinionId
+        @PathVariable Long agoraId,
+        @PathVariable Long opinionId
     ) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         AgoraDetailReponseDTO opinion = agoraService.deleteOpinion(agoraId, opinionId, username, SecurityUtil.isAdmin());
