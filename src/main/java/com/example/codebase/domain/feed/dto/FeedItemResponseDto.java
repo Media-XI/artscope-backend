@@ -168,17 +168,6 @@ public class FeedItemResponseDto {
     }
 
     public static FeedItemResponseDto from(Exhibition exhibition) {
-        FeedItemEventResponseDto eventDto =
-            FeedItemEventResponseDto.builder()
-                .eventType(exhibition.getType())
-                .eventDate(exhibition.getFirstEventSchedule().getEventDate())
-                .startTime(exhibition.getFirstEventSchedule().getStartTime())
-                .endTime(exhibition.getFirstEventSchedule().getEndTime())
-                .locationName(exhibition.getFirstEventSchedule().getLocation().getName())
-                .locationAddress(exhibition.getFirstEventSchedule().getLocation().getAddress())
-                .detailLocation(exhibition.getFirstEventSchedule().getDetailLocation())
-                .build();
-
         FeedItemResponseDto dto =
             FeedItemResponseDto.builder()
                 .id(exhibition.getId())
@@ -199,13 +188,26 @@ public class FeedItemResponseDto {
                         : null)
                 .tags(null)
                 .categoryId(FeedType.exhibition.name())
-                .event(eventDto)
                 .views(0)
                 .likes(0)
                 .comments(0)
                 .createdTime(exhibition.getCreatedTime())
                 .updatedTime(exhibition.getUpdatedTime())
                 .build();
+
+        if (exhibition.getFirstEventSchedule() != null) {
+            FeedItemEventResponseDto eventDto =
+                    FeedItemEventResponseDto.builder()
+                            .eventType(exhibition.getType())
+                            .eventDate(exhibition.getFirstEventSchedule().getEventDate())
+                            .startTime(exhibition.getFirstEventSchedule().getStartTime())
+                            .endTime(exhibition.getFirstEventSchedule().getEndTime())
+                            .locationName(exhibition.getFirstEventSchedule().getLocation().getName())
+                            .locationAddress(exhibition.getFirstEventSchedule().getLocation().getAddress())
+                            .detailLocation(exhibition.getFirstEventSchedule().getDetailLocation())
+                            .build();
+            dto.setEvent(eventDto);
+        }
 
         if (exhibition.getExhibitionMedias().size() > 0) {
             String thumbnailUrl = exhibition.getExhibitionMedias().get(0).getMediaUrl();
