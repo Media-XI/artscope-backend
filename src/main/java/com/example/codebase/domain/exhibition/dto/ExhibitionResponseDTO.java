@@ -6,7 +6,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -35,9 +34,9 @@ public class ExhibitionResponseDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedTime;
 
-    public static ExhibitionResponseDTO from(ExhibitionWithEventScheduleId exhibitionWithEventScheduleId) {
-        Exhibition exhibition = exhibitionWithEventScheduleId.getExhibition();
-        EventSchedule eventSchedule = exhibitionWithEventScheduleId.getEventSchedule();
+    public static ExhibitionResponseDTO from(ExhibitionWithEventSchedule exhibitionWithEventSchedule) {
+        Exhibition exhibition = exhibitionWithEventSchedule.getExhibition();
+        EventSchedule eventSchedule = exhibitionWithEventSchedule.getEventSchedule();
 
         List<ExhibitionMedia> medias = exhibition.getExhibitionMedias();
 

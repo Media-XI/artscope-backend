@@ -1,6 +1,6 @@
 package com.example.codebase.domain.exhibition.entity;
 
-public interface ExhibitionWithEventScheduleId {
+public interface ExhibitionWithEventSchedule {
     Exhibition getExhibition();
 
     EventSchedule getEventSchedule();

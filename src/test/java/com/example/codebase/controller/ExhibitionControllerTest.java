@@ -399,7 +399,7 @@ class ExhibitionControllerTest {
         createOrLoadExhibition(1, LocalDate.now());
         createOrLoadExhibition(2, LocalDate.now().plusWeeks(1));
         createOrLoadExhibition(3, LocalDate.now().plusDays(1));
-        createOrLoadExhibition(4, LocalDate.now().minusDays(1));
+        createOrLoadExhibition(4, LocalDate.now().minusDays(1), 2);
         createOrLoadExhibition(5, LocalDate.now().plusWeeks(2));
         createOrLoadExhibition(6, LocalDate.now());
 
