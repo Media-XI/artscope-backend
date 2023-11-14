@@ -138,6 +138,7 @@ class ExhibitionControllerTest {
         return createOrLoadExhibition(idx, startDate, startDate.plusWeeks(1), scheduleSize);
     }
 
+    @Transactional
     public Exhibition createOrLoadExhibition(
         int idx, LocalDate startDate, LocalDate endDate, int scheduleSize) {
         Optional<Exhibition> save = exhibitionRepository.findById(Long.valueOf(idx));
@@ -395,12 +396,12 @@ class ExhibitionControllerTest {
     @DisplayName("이벤트 전체 조회 - 성공")
     @Test
     public void 이벤트를_전체_조회합니다() throws Exception {
-        createOrLoadExhibition(1);
-        createOrLoadExhibition(2);
-        createOrLoadExhibition(3);
-        createOrLoadExhibition(4);
-        createOrLoadExhibition(5);
-        createOrLoadExhibition(6);
+        createOrLoadExhibition(1, LocalDate.now());
+        createOrLoadExhibition(2, LocalDate.now().plusWeeks(1));
+        createOrLoadExhibition(3, LocalDate.now().plusDays(1));
+        createOrLoadExhibition(4, LocalDate.now().minusDays(1));
+        createOrLoadExhibition(5, LocalDate.now().plusWeeks(2));
+        createOrLoadExhibition(6, LocalDate.now());
 
         ExhibitionSearchDTO exhibitionSearchDTO =
             ExhibitionSearchDTO.builder()

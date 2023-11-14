@@ -46,7 +46,7 @@ public class ExhibitionController {
         imageService.uploadMedias(dto, mediaFiles);
         imageService.uploadThumbnail(dto.getThumbnail(), thumbnailFile);
 
-        ExhibitionResponseDTO exhibition = exhibitionService.createExhibition(dto, username);
+        ExhibitionDetailResponseDTO exhibition = exhibitionService.createExhibition(dto, username);
 
         return new ResponseEntity(exhibition, HttpStatus.CREATED);
     }
@@ -80,7 +80,7 @@ public class ExhibitionController {
     @ApiOperation(value = "이벤트 상세 조회", notes = "이벤트를 상세 조회합니다.")
     @GetMapping("/{exhibitionId}")
     public ResponseEntity getExhibitionDetail(@PathVariable Long exhibitionId) {
-        ExhibitionIntroduceResponseDTO exhibition = exhibitionService.getExhibitionDetail(exhibitionId);
+        ExhibitionDetailResponseDTO exhibition = exhibitionService.getExhibitionDetail(exhibitionId);
         return new ResponseEntity(exhibition, HttpStatus.OK);
     }
 
@@ -93,7 +93,7 @@ public class ExhibitionController {
         String username =
             SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
-        ExhibitionIntroduceResponseDTO exhibition =
+        ExhibitionDetailResponseDTO exhibition =
             exhibitionService.updateExhibition(exhibitionId, dto, username);
 
         return new ResponseEntity(exhibition, HttpStatus.OK);
