@@ -1,5 +1,6 @@
 package com.example.codebase.domain.exhibition.dto;
 
+import com.example.codebase.domain.exhibition.entity.EventSchedule;
 import com.example.codebase.domain.exhibition.entity.EventType;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
 import com.example.codebase.domain.exhibition.entity.ExhibitionMedia;
@@ -16,23 +17,20 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExhibitionResponseDTO {
+
     private Long id;
 
     private String title;
 
     private String author;
 
-    private String description;
-
     private ExhibitionMediaResponseDTO thumbnail;
-
-    private List<ExhibitionMediaResponseDTO> medias;
-
-    private String link;
 
     private EventType eventType;
 
-    private List<EventScheduleResponseDTO> eventSchedule;
+    private EventScheduleResponseDTO eventSchedule;
+
+    private String location;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdTime;
@@ -45,29 +43,24 @@ public class ExhibitionResponseDTO {
 
         // 썸네일
         ExhibitionMediaResponseDTO thumbnail =
-            medias.stream().findFirst().map(ExhibitionMediaResponseDTO::from).orElse(null);
+                medias.stream().findFirst().map(ExhibitionMediaResponseDTO::from).orElse(null);
 
-        // 미디어
-        List<ExhibitionMediaResponseDTO> exhibitionMediaResponseDTOS =
-            medias.stream().skip(1).map(ExhibitionMediaResponseDTO::from).collect(Collectors.toList());
-
-        List<EventScheduleResponseDTO> eventScheduleDTOS =
-            exhibition.getEventSchedules().stream()
-                .map(EventScheduleResponseDTO::from)
-                .collect(Collectors.toList());
+        // 제일 처음 일정 가져옴
+        EventSchedule eventSchedule = exhibition.getEventSchedules().stream().findFirst().orElse(null);
+        EventScheduleResponseDTO eventScheduleDTO = EventScheduleResponseDTO.from(eventSchedule);
 
         return ExhibitionResponseDTO.builder()
-            .id(exhibition.getId())
-            .title(exhibition.getTitle())
-            .author(exhibition.getMember().getName())
-            .description(exhibition.getDescription())
-            .thumbnail(thumbnail)
-            .medias(exhibitionMediaResponseDTOS)
-            .eventSchedule(eventScheduleDTOS)
-            .link(exhibition.getLink())
-            .eventType(exhibition.getType())
-            .createdTime(exhibition.getCreatedTime())
-            .updatedTime(exhibition.getUpdatedTime())
-            .build();
+                .id(exhibition.getId())
+                .title(exhibition.getTitle())
+                .author(exhibition.getMember().getName())
+                .thumbnail(thumbnail)
+                .eventSchedule(eventScheduleDTO)
+                .eventType(exhibition.getType())
+                .location(eventSchedule.getLocation().getAddress())
+                .createdTime(exhibition.getCreatedTime())
+                .updatedTime(exhibition.getUpdatedTime())
+                .build();
     }
+
+
 }

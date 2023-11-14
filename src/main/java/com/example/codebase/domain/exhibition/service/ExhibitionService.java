@@ -52,7 +52,7 @@ public class ExhibitionService {
     }
 
     @Transactional
-    public ExhibitionResponseDTO createExhibition(ExhbitionCreateDTO dto, String username) {
+    public ExhibitionDetailResponseDTO createExhibition(ExhbitionCreateDTO dto, String username) {
         Member member =
             memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
@@ -87,7 +87,7 @@ public class ExhibitionService {
             createEventSchedule(schedule, location, exhibition);
         }
 
-        return ExhibitionResponseDTO.from(exhibition);
+        return ExhibitionDetailResponseDTO.from(exhibition);
     }
 
     @Transactional
@@ -177,17 +177,17 @@ public class ExhibitionService {
     }
 
     @Transactional(readOnly = true)
-    public ExhibitionIntroduceResponseDTO getExhibitionDetail(Long exhibitionId) {
+    public ExhibitionDetailResponseDTO getExhibitionDetail(Long exhibitionId) {
         Exhibition exhibition =
             exhibitionRepository
                 .findById(exhibitionId)
                 .orElseThrow(() -> new NotFoundException("이벤트를 찾을 수 없습니다."));
 
-        return ExhibitionIntroduceResponseDTO.from(exhibition);
+        return ExhibitionDetailResponseDTO.from(exhibition);
     }
 
     @Transactional
-    public ExhibitionIntroduceResponseDTO updateExhibition(
+    public ExhibitionDetailResponseDTO updateExhibition(
         Long exhibitionId, ExhibitionUpdateDTO dto, String username) {
         Exhibition exhibition =
             exhibitionRepository
@@ -203,7 +203,7 @@ public class ExhibitionService {
 
         exhibition.update(dto);
 
-        return ExhibitionIntroduceResponseDTO.from(exhibition);
+        return ExhibitionDetailResponseDTO.from(exhibition);
     }
 
     @Transactional
