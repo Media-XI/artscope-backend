@@ -147,7 +147,7 @@ public class ExhibitionService {
         SearchEventType searchEventType = SearchEventType.create(exhibitionSearchDTO.getEventType());
         EventType eventType = EventType.create(searchEventType.name());
 
-        Page<Exhibition> exhibitions =
+        Page<ExhibitionWithEventScheduleId> exhibitions =
             findExhibitionsWithEventSchedules(eventType, exhibitionSearchDTO, pageRequest);
 
         PageInfo pageInfo =
@@ -161,7 +161,7 @@ public class ExhibitionService {
         return ExhibitionPageInfoResponseDTO.of(dtos, pageInfo);
     }
 
-    private Page<Exhibition> findExhibitionsWithEventSchedules(
+    private Page<ExhibitionWithEventScheduleId> findExhibitionsWithEventSchedules(
         EventType eventType, ExhibitionSearchDTO exhibitionSearchDTO, PageRequest pageRequest) {
         if (eventType == null) {
             return exhibitionRepository.findExhibitionsWithEventSchedules(

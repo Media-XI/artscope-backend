@@ -2,6 +2,7 @@ package com.example.codebase.domain.exhibition.repository;
 
 import com.example.codebase.domain.exhibition.entity.EventType;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
+import com.example.codebase.domain.exhibition.entity.ExhibitionWithEventScheduleId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,21 +13,21 @@ import java.time.LocalDate;
 public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
 
     @Query(
-            "SELECT e "
+            "SELECT e as Exhibition, es as EventSchedule "
                     + "FROM Exhibition e INNER JOIN EventSchedule es ON es.exhibition = e "
                     + "WHERE es.eventDate BETWEEN :startDate AND :endDate "
                     + "AND e.enabled = true "
                     + "ORDER BY es.eventDate, es.startTime")
-    Page<Exhibition> findExhibitionsWithEventSchedules(
+    Page<ExhibitionWithEventScheduleId> findExhibitionsWithEventSchedules(
             LocalDate startDate, LocalDate endDate, Pageable pageable);
 
     @Query(
-            "SELECT e "
+            "SELECT e as Exhibition, es as EventSchedule "
                     + "FROM Exhibition e INNER JOIN EventSchedule es ON es.exhibition = e "
                     + "WHERE es.eventDate BETWEEN :startDate AND :endDate "
                     + "AND e.enabled = true AND e.type = :eventType  "
                     + "ORDER BY es.eventDate, es.startTime")
-    Page<Exhibition> findExhibitionsWithEventSchedules(
+    Page<ExhibitionWithEventScheduleId> findExhibitionsWithEventSchedules(
             LocalDate startDate, LocalDate endDate,
             EventType eventType,
             Pageable pageable);

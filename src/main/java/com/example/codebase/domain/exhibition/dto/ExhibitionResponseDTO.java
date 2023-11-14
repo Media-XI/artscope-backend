@@ -1,9 +1,6 @@
 package com.example.codebase.domain.exhibition.dto;
 
-import com.example.codebase.domain.exhibition.entity.EventSchedule;
-import com.example.codebase.domain.exhibition.entity.EventType;
-import com.example.codebase.domain.exhibition.entity.Exhibition;
-import com.example.codebase.domain.exhibition.entity.ExhibitionMedia;
+import com.example.codebase.domain.exhibition.entity.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
@@ -38,15 +35,17 @@ public class ExhibitionResponseDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedTime;
 
-    public static ExhibitionResponseDTO from(Exhibition exhibition) {
+    public static ExhibitionResponseDTO from(ExhibitionWithEventScheduleId exhibitionWithEventScheduleId) {
+        Exhibition exhibition = exhibitionWithEventScheduleId.getExhibition();
+        EventSchedule eventSchedule = exhibitionWithEventScheduleId.getEventSchedule();
+
         List<ExhibitionMedia> medias = exhibition.getExhibitionMedias();
 
         // 썸네일
         ExhibitionMediaResponseDTO thumbnail =
                 medias.stream().findFirst().map(ExhibitionMediaResponseDTO::from).orElse(null);
 
-        // 제일 처음 일정 가져옴
-        EventSchedule eventSchedule = exhibition.getEventSchedules().stream().findFirst().orElse(null);
+        // 해당 조회한 스케쥴
         EventScheduleResponseDTO eventScheduleDTO = EventScheduleResponseDTO.from(eventSchedule);
 
         return ExhibitionResponseDTO.builder()
