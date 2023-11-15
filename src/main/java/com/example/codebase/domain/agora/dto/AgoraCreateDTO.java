@@ -1,16 +1,17 @@
 package com.example.codebase.domain.agora.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class AgoraCreateDTO {
 
     @NotBlank(message = "제목은 필수입니다.")
@@ -31,15 +32,10 @@ public class AgoraCreateDTO {
     @NotNull(message = "익명 여부는 필수입니다.")
     private Boolean isAnonymous;
 
+    @Valid
     private List<AgoraMediaCreateDTO> medias;
 
-    // TODO: DTO 안에 Object Validation을 위한 방법을 찾아야 함
+    @Valid
     private AgoraMediaCreateDTO thumbnail;
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private List<MultipartFile> mediaFiles;
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private MultipartFile thumbnailFile;
 
 }

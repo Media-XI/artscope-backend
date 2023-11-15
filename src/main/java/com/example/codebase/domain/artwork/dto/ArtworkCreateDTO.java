@@ -1,11 +1,9 @@
 package com.example.codebase.domain.artwork.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 
 @Getter
@@ -23,14 +21,8 @@ public class ArtworkCreateDTO {
     @NotBlank(message = "노출 여부는 필수입니다.")
     private Boolean visible;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private List<MultipartFile> mediaFiles;
-
     private List<ArtworkMediaCreateDTO> medias;
 
     private ArtworkMediaCreateDTO thumbnail;
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private MultipartFile thumbnailFile;
 
 }

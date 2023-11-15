@@ -1,12 +1,10 @@
 package com.example.codebase.domain.exhibition.dto;
 
 import com.example.codebase.domain.exhibition.entity.EventType;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.*;
 import java.util.List;
 
 @Getter
@@ -32,13 +30,7 @@ public class ExhbitionCreateDTO {
     // 스케쥴 생성 DTO
     private List<EventScheduleCreateDTO> schedule;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private List<MultipartFile> mediaFiles;
-
     private List<ExhibitionMediaCreateDTO> medias;
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private MultipartFile thumbnailFile;
 
     private ExhibitionMediaCreateDTO thumbnail;
 }

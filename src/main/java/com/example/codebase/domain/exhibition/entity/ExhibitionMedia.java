@@ -3,7 +3,7 @@ package com.example.codebase.domain.exhibition.entity;
 import com.example.codebase.domain.exhibition.dto.ExhibitionMediaCreateDTO;
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity

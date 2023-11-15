@@ -7,15 +7,18 @@ import com.example.codebase.jwt.JwtAccessDeniedHandler;
 import com.example.codebase.jwt.JwtAuthenticationEntryPoint;
 import com.example.codebase.jwt.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
 
+@Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+@EnableMethodSecurity
+public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
@@ -23,12 +26,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final String[] permitList = {
-        "/v2/**",
-        "/v3/**",
-        "/configuration/**",
-        "/swagger*/**",
-        "/webjars/**",
-        "/swagger-resources/**"
+            "/v2/**",
+            "/v3/**",
+            "/configuration/**",
+            "/swagger*/**",
+            "/webjars/**",
+            "/swagger-resources/**"
     };
 
     @Autowired
@@ -53,39 +56,45 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .antMatchers(permitList);
 //    }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+/*
+        @Bean
+        public WebSecurityCustomizer webSecurityCustomizer() {
+           return (web) -> web.ignoring().antMatchers("/ignore1", "/ignore2");
+        }
+ */
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf().disable()
-            .formLogin().disable()
-            .httpBasic().disable()
-            .headers().frameOptions().disable()
+                .csrf().disable()
+                .formLogin().disable()
+                .httpBasic().disable()
+                .headers().frameOptions().disable()
 
-            .and()
-            .exceptionHandling()
-            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-            .accessDeniedHandler(jwtAccessDeniedHandler)
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .accessDeniedHandler(jwtAccessDeniedHandler)
 
-            .and()
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
-            .and()
-            .authorizeRequests()
-            .antMatchers("/api/**").permitAll()
-            .antMatchers("/hizz").permitAll()
-            .antMatchers(permitList).hasAnyAuthority("ROLE_ADMIN")
+                .and()
+                .authorizeHttpRequests((authz) ->
+                        authz
+                                .requestMatchers("/api/**", "/hizz").permitAll()
+                                .requestMatchers(permitList).hasAnyAuthority("ROLE_ADMIN")
+                                .anyRequest().authenticated()
+                )
+                .apply(new JwtSecurityConfig(tokenProvider))
 
-            .anyRequest().authenticated()
-
-            .and()
-            .apply(new JwtSecurityConfig(tokenProvider))
-
-            .and()
-            .oauth2Login()  // oidc
-            .successHandler(oAuth2AuthenticationSuccessHandler)
-            .failureHandler(oAuth2AuthenticationFailureHandler)
-            .userInfoEndpoint().userService(customOAuth2UserService);
+                .and()
+                .oauth2Login()  // oidc
+                .successHandler(oAuth2AuthenticationSuccessHandler)
+                .failureHandler(oAuth2AuthenticationFailureHandler)
+                .userInfoEndpoint().userService(customOAuth2UserService);
+        return http.build();
     }
 }
 
