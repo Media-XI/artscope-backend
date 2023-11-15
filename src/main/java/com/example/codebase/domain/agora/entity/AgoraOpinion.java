@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Where(clause = "is_deleted = 0")
+@Where(clause = "is_deleted = false")
 public class AgoraOpinion {
 
     @Id

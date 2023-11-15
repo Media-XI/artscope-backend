@@ -21,7 +21,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Where(clause = "is_deleted = 0")
+@Where(clause = "is_deleted = false")
 public class Agora {
 
     @Id

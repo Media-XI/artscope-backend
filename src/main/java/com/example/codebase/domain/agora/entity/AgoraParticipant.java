@@ -16,7 +16,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Where(clause = "is_deleted = 0")
+@Where(clause = "is_deleted = false")
 @IdClass(AgoraParticipantIds.class)
 public class AgoraParticipant {
 
