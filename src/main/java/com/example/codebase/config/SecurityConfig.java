@@ -81,9 +81,6 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
                 .and()
-                .securityMatcher("/api/**")
-                .securityMatcher("/hizz")
-                .securityMatcher(permitList)
                 .authorizeHttpRequests((authz) ->
                         authz
                                 .requestMatchers("/api/**", "/hizz").permitAll()
