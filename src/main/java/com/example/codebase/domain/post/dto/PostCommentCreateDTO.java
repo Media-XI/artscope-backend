@@ -3,7 +3,7 @@ package com.example.codebase.domain.post.dto;
 
 import lombok.*;
 
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 @Getter
 @Setter
