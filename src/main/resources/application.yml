@@ -18,6 +18,7 @@ server:
   servlet:
     encoding:
       charset: UTF-8
+
   tomcat:
     remote-ip-header: x-forwarded-for # nginx proxy
     protocol-header: x-forwarded-proto # nginx proxy
