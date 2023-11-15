@@ -5,7 +5,8 @@ import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.exception.NotAcceptTypeException;
 import com.example.codebase.util.FileUtil;
 import com.example.codebase.util.SecurityUtil;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 
 @RestController
-@ApiOperation(value = "회원", notes = "회원 관련 API")
+@Tag(name = "Member", description = "회원 API")
 @Validated
 @RequestMapping("/api/members")
 public class MemberController {
@@ -32,14 +33,14 @@ public class MemberController {
         this.memberService = memberService;
     }
 
-    @ApiOperation(value = "회원 가입", notes = "회원 가입을 합니다.")
+    @Operation(summary = "회원 가입", description = "회원 가입을 합니다.")
     @PostMapping
     public ResponseEntity createMember(@Valid @RequestBody CreateMemberDTO createMemberDTO) {
         MemberResponseDTO memberResponseDTO = memberService.createMember(createMemberDTO);
         return new ResponseEntity(memberResponseDTO, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "관리자 가입", notes = "관리자 가입을 합니다.")
+    @Operation(summary = "관리자 정보 입력", description = "[ADMIN] 관리자 정보를 입력합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN')")
     @PostMapping("/admin")
     public ResponseEntity createAdmin(@Valid @RequestBody CreateMemberDTO createMemberDTO) {
@@ -48,7 +49,7 @@ public class MemberController {
     }
 
 
-    @ApiOperation(value = "아티스트 정보 입력", notes = "[USER] 아티스트 정보를 입력합니다.")
+    @Operation(summary = "아티스트 정보 입력", description = "[USER] 아티스트 정보를 입력합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER') and !hasAnyRole('ROLE_ARTIST', 'ROLE_CURATOR')")
     @PostMapping("/artist")
     public ResponseEntity createArtist(@Valid @RequestBody CreateArtistMemberDTO createArtistMemberDTO) {
@@ -57,7 +58,7 @@ public class MemberController {
         return new ResponseEntity(artist, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "기획자 정보 입력", notes = "[USER] 기획자 정보를 입력합니다.")
+    @Operation(summary = "큐레이터 정보 입력", description = "[USER] 큐레이터 정보를 입력합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER') and !hasAnyRole('ROLE_ARTIST', 'ROLE_CURATOR')")
     @PostMapping("/curator")
     public ResponseEntity createCurator(@Valid @RequestBody CreateCuratorMemberDTO createCuratorMemberDTO) {
@@ -66,7 +67,7 @@ public class MemberController {
         return new ResponseEntity(curator, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "내 정보 수정", notes = "[USER] 내 정보를 수정합니다.")
+    @Operation(summary = "회원 정보 수정", description = "[USER] 회원 정보를 수정합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PutMapping("/{uesrname}")
     public ResponseEntity updateMember(@PathVariable String uesrname,
@@ -82,7 +83,7 @@ public class MemberController {
         return new ResponseEntity(member, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "내 프로필 사진 수정", notes = "[USER] 내 프로필 사진을 수정합니다.")
+    @Operation(summary = "프로필 사진 수정", description = "[USER] 프로필 사진을 수정합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PutMapping("/{username}/picture")
     public ResponseEntity updateProfile(
@@ -107,7 +108,7 @@ public class MemberController {
         return new ResponseEntity(member, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "전체 회원 조회", notes = "[ADMIN] 등록된 전체 회원을 조회합니다.")
+    @Operation(summary = "회원 리스트 조회", description = "[ADMIN] 회원 리스트를 조회합니다.")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity getAllMember() {
@@ -115,7 +116,7 @@ public class MemberController {
         return new ResponseEntity(members, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "프로필 조회", notes = "[USER] 로그인한 사용자의 프로필을 조회합니다.")
+    @Operation(summary = "회원 프로필 조회", description = "[USER] 회원의 프로필을 조회합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @GetMapping("/profile")
     public ResponseEntity getProfile() {
@@ -124,14 +125,14 @@ public class MemberController {
         return new ResponseEntity(member, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "해당 사용자 프로필 조회", notes = "해당 사용자의 프로필을 조회합니다.")
+   @Operation(summary = "회원 프로필 조회", description = "[USER] 회원의 프로필을 조회합니다.")
     @GetMapping("/{username}")
     public ResponseEntity getProfile(@PathVariable String username) {
         MemberResponseDTO member = memberService.getProfile(username);
         return new ResponseEntity(member, HttpStatus.OK);
     }
 
-    @ApiOperation("회원 탈퇴")
+   @Operation(summary = "회원 삭제", description = "[USER] 회원을 삭제합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @DeleteMapping("/{username}")
     public ResponseEntity deleteMember(@PathVariable String username) {
@@ -145,7 +146,7 @@ public class MemberController {
         return new ResponseEntity("성공적으로 삭제되었습니다.", HttpStatus.OK);
     }
 
-    @ApiOperation("이메일 중복 확인")
+    @Operation(summary = "이메일 중복 확인", description = "이메일 중복 확인")
     @GetMapping("/email/{email}")
     public ResponseEntity checkEmail(@Valid @Email @PathVariable String email) {
         if (memberService.isExistEmail(email)) {
@@ -154,7 +155,7 @@ public class MemberController {
         return new ResponseEntity("사용 가능한 이메일 입니다.", HttpStatus.OK);
     }
 
-    @ApiOperation("아이디 중복 확인")
+    @Operation(summary = "아이디 중복 확인", description = "아이디 중복 확인")
     @GetMapping("/username/{username}")
     public ResponseEntity checkUsername(@Valid @NotBlank @PathVariable String username) {
         if (memberService.isExistUsername(username)) {
@@ -163,7 +164,7 @@ public class MemberController {
         return new ResponseEntity("사용 가능한 아이디 입니다.", HttpStatus.OK);
     }
 
-    @ApiOperation(value = "사용자 아티스트 상태 수정", notes = "[ADMIN] 사용자의 아티스트 상태를 수정합니다.")
+   @Operation(summary = "아티스트 승인", description = "[ADMIN] 아티스트를 승인합니다.")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/artist/{username}")
     public ResponseEntity updateArtistStatus(@Valid @NotBlank @PathVariable String username,
@@ -172,7 +173,7 @@ public class MemberController {
         return new ResponseEntity(member, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "아이디 수정", notes = "[USER] 아이디를 수정합니다.")
+   @Operation(summary = "큐레이터 승인", description = "[ADMIN] 큐레이터를 승인합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PutMapping("/{username}/username")
     public ResponseEntity updateUsername(@PathVariable String username,
@@ -188,7 +189,7 @@ public class MemberController {
     }
 
 
-    @ApiOperation(value = "비밀번호 변경", notes = "[로그인 사용자] 비밀번호 변경")
+    @Operation(summary = "비밀번호 변경", description = "[USER] 비밀번호를 변경합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @PutMapping("/{username}/password")
     public ResponseEntity updatePassword(@PathVariable String username,
@@ -204,7 +205,7 @@ public class MemberController {
         return new ResponseEntity("비밀번호가 변경되었습니다.", HttpStatus.OK);
     }
 
-    @ApiOperation(value = "관리자 권한 부여", notes = "[관리자] 해당 사용자 관리자 권한 부여")
+   @Operation(summary = "관리자 권한 부여", description = "[ADMIN] 관리자 권한을 부여합니다.")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/{username}/admin")
     public ResponseEntity updateAdmin(@PathVariable String username) {
@@ -212,7 +213,7 @@ public class MemberController {
         return new ResponseEntity(member, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "유저 리스트 조회", notes = "이메일, 이름, 유저 이름으로 유저 리스트 조회")
+    @Operation(summary = "회원 검색", description = "[ADMIN] 회원을 검색합니다.")
     @GetMapping("/search/{username}")
     public ResponseEntity searchMember(@PathVariable String username) {
 

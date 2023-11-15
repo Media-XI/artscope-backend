@@ -4,7 +4,8 @@ import com.example.codebase.domain.image.service.ImageService;
 import com.example.codebase.domain.post.dto.*;
 import com.example.codebase.domain.post.service.PostService;
 import com.example.codebase.util.SecurityUtil;
-import io.swagger.annotations.ApiOperation;
+
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,7 +33,7 @@ public class PostController {
         this.imageService = imageService;
     }
 
-    @ApiOperation(value = "게시글 생성", notes = "[관리자 접근] 게시글을 생성합니다.")
+    @Operation(summary = "게시글 생성", description = "[로그인] 게시글을 생성합니다.")
     @PreAuthorize("isAuthenticated()")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity createPost(
@@ -56,7 +57,7 @@ public class PostController {
         return new ResponseEntity(post, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "게시글 전체 조회", notes = "[페이지네이션] 게시글을 조회합니다.")
+   @Operation(summary = "게시글 목록 조회", description = "[모두] 게시글 목록을 조회합니다.")
     @GetMapping
     public ResponseEntity getPosts(@PositiveOrZero @RequestParam int page,
                                    @PositiveOrZero @RequestParam int size,
@@ -73,7 +74,7 @@ public class PostController {
         return new ResponseEntity(posts, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "게시글 상세 조회", notes = "[모두] 해당 ID의 게시글을 조회합니다.")
+    @Operation(summary = "게시글 상세 조회", description = "[모두] 게시글 상세를 조회합니다.")
     @GetMapping("/{postId}")
     public ResponseEntity getPost(@PathVariable Long postId) {
 
@@ -90,7 +91,7 @@ public class PostController {
     }
 
 
-    @ApiOperation(value = "게시글 수정", notes = "[로그인, 관리자] 게시글을 수정합니다.")
+    @Operation(summary = "게시글 수정", description = "[로그인, 관리자] 게시글을 수정합니다.")
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{postId}")
     public ResponseEntity updatePost(@PathVariable Long postId, @RequestBody PostUpdateDTO postUpdateDTO) {
@@ -101,7 +102,7 @@ public class PostController {
         return new ResponseEntity(post, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "게시글 삭제", notes = "[로그인, 관리자] 게시글을 삭제합니다.")
+    @Operation(summary = "게시글 삭제", description = "[로그인, 관리자] 게시글을 삭제합니다.")
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{postId}")
     public ResponseEntity deletePost(@PathVariable Long postId) {
@@ -112,7 +113,7 @@ public class PostController {
         return new ResponseEntity("게시글 삭제되었습니다.", HttpStatus.OK);
     }
 
-    @ApiOperation(value = "게시글 좋아요", notes = "[로그인] 게시글을 좋아요합니다.")
+   @Operation(summary = "게시글 좋아요", description = "[로그인] 게시글에 좋아요를 누릅니다.")
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{postId}/like")
     public ResponseEntity likePost(@PathVariable Long postId) {
@@ -127,7 +128,7 @@ public class PostController {
         return new ResponseEntity(likedPost, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "댓글 생성", notes = "[로그인] 댓글을 생성합니다.")
+    @Operation(summary = "게시글 좋아요 취소", description = "[로그인] 게시글에 좋아요를 취소합니다.")
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{postId}/comments")
     public ResponseEntity createComment(@PathVariable Long postId, @RequestBody PostCommentCreateDTO commentCreateDTO) {
@@ -138,7 +139,7 @@ public class PostController {
         return new ResponseEntity(post, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "댓글 수정", notes = "[로그인, 관리자] 댓글을 수정합니다.")
+    @Operation(summary = "댓글 수정", description = "[로그인, 관리자] 댓글을 수정합니다.")
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/comments/{commentId}")
     public ResponseEntity updateComment(@PathVariable Long commentId,
@@ -150,7 +151,7 @@ public class PostController {
         return new ResponseEntity(post, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "댓글 삭제", notes = "[로그인, 관리자] 댓글을 삭제합니다.")
+    @Operation(summary = "댓글 삭제", description = "[로그인, 관리자] 댓글을 삭제합니다.")
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/comments/{commentId}")
     public ResponseEntity deleteComment(@PathVariable Long commentId) {

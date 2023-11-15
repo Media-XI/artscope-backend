@@ -2,7 +2,8 @@ package com.example.codebase.controller;
 
 import com.example.codebase.domain.search.SearchService;
 import com.example.codebase.domain.search.dto.SearchResponseDTO;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.constraints.PositiveOrZero;
 
-@ApiOperation(value = "통합 검색", notes = "")
+@Tag(name = "Search", description = "검색 API")
 @RestController
 @RequestMapping("/api/search")
 public class SearchController {
@@ -25,7 +26,7 @@ public class SearchController {
         this.searchService = searchService;
     }
 
-    @ApiOperation(value = "통합 검색 API", notes = "Post, Artwork 통합 검색")
+    @Operation(summary = "전체 검색", description = "[ALL] 전체 검색")
     @GetMapping
     public ResponseEntity totalSearch(
         @RequestParam String keyword,

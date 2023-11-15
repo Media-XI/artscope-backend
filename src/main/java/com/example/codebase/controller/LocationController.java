@@ -5,7 +5,8 @@ import com.example.codebase.domain.location.dto.LocationResponseDTO;
 import com.example.codebase.domain.location.dto.LocationsSearchResponseDTO;
 import com.example.codebase.domain.location.service.LocationService;
 import com.example.codebase.util.SecurityUtil;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.constraints.PositiveOrZero;
 
-@ApiOperation(value = "위치", notes = "위치 관련 API")
+@Tag(name = "Location", description = "장소 API")
 @RestController
 @RequestMapping("/api/location")
 public class LocationController {
@@ -26,7 +27,7 @@ public class LocationController {
         this.locationService = locationService;
     }
 
-    @ApiOperation(value = "특정 장소 추가", notes = "[ADMIN, CURATOR, ARTIST] 특정 장소에 대한 위치 정보를 생성합니다.")
+    @Operation(summary = "장소 생성", description = "[ADMIN, CURATOR, ARTIST] 장소를 생성합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST','ROLE_CURATOR')")
     @PostMapping
     public ResponseEntity createLocation(@RequestBody LocationCreateDTO dto) {
@@ -36,7 +37,7 @@ public class LocationController {
         return new ResponseEntity(location, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "특정 장소 조회", notes = "특정 장소에 대한 위치 정보를 조회합니다.")
+    @Operation(summary = "장소 조회", description = "[모든 사용자] 특정 장소에 대한 정보를 조회합니다.")
     @GetMapping("/{locationId}")
     public ResponseEntity<LocationResponseDTO> getLocation(
         @PathVariable("locationId") Long locationId) {
@@ -44,7 +45,7 @@ public class LocationController {
         return new ResponseEntity<>(location, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 장소 정보 삭제", notes = "[ADMIN] 특정 장소에 대한 위치 정보를 삭제합니다.")
+    @Operation(summary = "장소 수정", description = "[ADMIN, CURATOR, ARTIST] 특정 장소에 대한 정보를 수정합니다.")
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @PostMapping("/{locationId}")
     public ResponseEntity deleteLocation(@PathVariable("locationId") Long locationId) {
@@ -56,7 +57,7 @@ public class LocationController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "특정 장소 검색", notes = "[모든 사용자] 특정 장소에 대한 정보를 검색합니다.")
+    @Operation(summary = "장소 검색", description = "[모든 사용자] 키워드로 장소를 검색합니다.")
     @GetMapping("/search")
     public ResponseEntity findLocationByKeyword(
         @RequestParam String keyword,

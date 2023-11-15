@@ -4,9 +4,10 @@ import com.example.codebase.domain.auth.dto.LoginDTO;
 import com.example.codebase.domain.auth.dto.TokenResponseDTO;
 import com.example.codebase.domain.auth.service.AuthService;
 import com.example.codebase.jwt.TokenProvider;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,7 +18,7 @@ import jakarta.validation.Valid;
 
 import static com.example.codebase.util.SecurityUtil.getCookieAccessTokenValue;
 
-@ApiOperation(value = "인증", notes = "인증 관련 API")
+@Tag(name = "Auth", description = "인증 API")
 @RestController
 @RequestMapping("/api")
 public class AuthController {
@@ -31,7 +32,7 @@ public class AuthController {
         this.authService = authService;
     }
 
-    @ApiOperation(value = "로그인", notes = "로그인")
+    @Operation(summary = "로그인", description = "로그인")
     @PostMapping("/login")
     public ResponseEntity login(@Valid @RequestBody LoginDTO loginDTO) {
         TokenResponseDTO responseDTO = tokenProvider.generateToken(loginDTO);
@@ -42,7 +43,7 @@ public class AuthController {
             .body(responseDTO);
     }
 
-    @ApiOperation(value = "로그아웃", notes = "해당 사용자의 리프레시 토큰을 서버에서 삭제합니다.")
+    @Operation(summary = "로그아웃", description = "로그아웃")
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/logout")
     public ResponseEntity logout() {
@@ -51,7 +52,7 @@ public class AuthController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "토큰 재발급", notes = "토큰 재발급")
+    @Operation(summary = "토큰 재발급", description = "토큰 재발급")
     @PostMapping("/refresh")
     public ResponseEntity refresh(@RequestBody String refreshToken) {
         TokenResponseDTO responseDTO = tokenProvider.regenerateToken(refreshToken);
@@ -60,10 +61,10 @@ public class AuthController {
             .body(responseDTO);
     }
 
-    @ApiOperation(value = "이메일 인증확인 API", notes = "인증코드를 기반으로 이메일 인증 처리")
+    @Operation(summary = "이메일 인증", description = "이메일 인증")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "이메일 인증 성공"),
-        @ApiResponse(code = 400, message = "이메일 인증 실패")
+        @ApiResponse(responseCode = "200", description = "이메일 인증 성공"),
+        @ApiResponse(responseCode = "400", description = "이메일 인증 실패")
     })
     @PreAuthorize("permitAll()")
     @GetMapping("/mail/authenticate")
