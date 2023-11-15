@@ -32,13 +32,7 @@ public class ExhbitionCreateDTO {
     // 스케쥴 생성 DTO
     private List<EventScheduleCreateDTO> schedule;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private List<MultipartFile> mediaFiles;
-
     private List<ExhibitionMediaCreateDTO> medias;
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private MultipartFile thumbnailFile;
 
     private ExhibitionMediaCreateDTO thumbnail;
 }

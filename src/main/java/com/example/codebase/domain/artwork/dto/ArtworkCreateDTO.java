@@ -23,14 +23,8 @@ public class ArtworkCreateDTO {
     @NotBlank(message = "노출 여부는 필수입니다.")
     private Boolean visible;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private List<MultipartFile> mediaFiles;
-
     private List<ArtworkMediaCreateDTO> medias;
 
     private ArtworkMediaCreateDTO thumbnail;
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private MultipartFile thumbnailFile;
 
 }

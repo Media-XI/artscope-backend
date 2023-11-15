@@ -1,5 +1,6 @@
 package com.example.codebase.domain.post.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +24,7 @@ public class PostMediaCreateDTO {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private int height;
 
+    @JsonIgnore
     public void setImageSize(BufferedImage image) {
         this.width = image.getWidth();
         this.height = image.getHeight();

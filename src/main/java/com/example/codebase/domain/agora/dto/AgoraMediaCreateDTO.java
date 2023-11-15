@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
-import java.awt.image.BufferedImage;
 
 @Getter
 @Setter
@@ -25,8 +24,4 @@ public class AgoraMediaCreateDTO { // TODO : MediaCreateDTO는 중복으로 상�
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private int height;
 
-    public void setImageSize(BufferedImage image) {
-        this.width = image.getWidth();
-        this.height = image.getHeight();
-    }
 }

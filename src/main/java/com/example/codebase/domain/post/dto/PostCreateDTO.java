@@ -21,10 +21,4 @@ public class PostCreateDTO {
 
     private PostMediaCreateDTO thumbnail;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private List<MultipartFile> mediaFiles;
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private MultipartFile thumbnailFile;
-
 }

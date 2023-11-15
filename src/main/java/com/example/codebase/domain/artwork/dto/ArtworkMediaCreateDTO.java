@@ -1,5 +1,6 @@
 package com.example.codebase.domain.artwork.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,6 +27,7 @@ public class ArtworkMediaCreateDTO {
     @NotBlank
     private String description;
 
+    @JsonIgnore
     public void setImageSize(BufferedImage image) {
         this.width = image.getWidth();
         this.height = image.getHeight();
