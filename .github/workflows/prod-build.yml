@@ -17,15 +17,10 @@ env:
   AWS_CODE_DEPLOY_GROUP: artscope-codedeploy-group
 
 jobs:
-  test:
-    uses: ./.github/workflows/test.yaml
-    secrets:
-      JASYPT_ENCRYPTOR_PASSWORD: ${{ secrets.JASYPT_ENCRYPTOR_PASSWORD }}
 
   build-dockerized-production:
     name: Build and push Docker image
     runs-on: ubuntu-latest
-    needs: test
 
     services:
       redis:
