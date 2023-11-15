@@ -1,4 +1,5 @@
 spring:
-  redis:
-    host: localhost
-    port: 16379
+  data:
+    redis:
+      host: localhost
+      port: 16379
