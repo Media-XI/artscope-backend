@@ -61,7 +61,7 @@ public class Artwork {
     private LocalDateTime updatedTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", columnDefinition = "BINARY(16)")
     private Member member;
 
     @Builder.Default

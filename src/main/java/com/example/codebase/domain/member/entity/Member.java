@@ -32,8 +32,7 @@ public class Member {
 
     @Id
     @Column(name = "member_id", columnDefinition = "BINARY(16)")
-    @GeneratedValue(generator = "uuid4")
-    @GenericGenerator(name = "UUID", strategy = "uuid4")
+    @GeneratedValue
     private UUID id;
 
     @Column(name = "username", unique = true, length = 50)
