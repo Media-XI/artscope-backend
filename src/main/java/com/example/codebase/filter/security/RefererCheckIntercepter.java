@@ -27,8 +27,10 @@ public class RefererCheckIntercepter implements HandlerInterceptor {
             return true;
         }
 
+        //
+
         // referer가 없거나, host와 다르면 차단
-        if (referer == null || !referer.contains(host) || !referer.contains("artscope.kr")) {
+        if (referer == null || ( !referer.contains("artscope.kr") || !referer.contains(host))) {
             log.info("유효하지 않은 Referer 요청 referer={}, host={}", referer, host);
             return false;
         }
