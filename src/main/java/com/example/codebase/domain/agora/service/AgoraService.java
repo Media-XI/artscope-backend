@@ -51,14 +51,16 @@ public class AgoraService {
         Agora agora = Agora.of(dto, member);
 
         // 썸네일 추가
-        AgoraMedia thumbnail = AgoraMedia.from(dto.getThumbnail());
-        thumbnail.setAgora(agora);
+        if (!dto.isThumbnailNull() && !dto.isMediasNull()) {
+            AgoraMedia thumbnail = AgoraMedia.from(dto.getThumbnail());
+            thumbnail.setAgora(agora);
 
-        // 미디어 추가
-        dto.getMedias().forEach(mediaDTO -> {
-            AgoraMedia agoraMedia = AgoraMedia.from(mediaDTO);
-            agoraMedia.setAgora(agora);
-        });
+            // 미디어 추가
+            dto.getMedias().forEach(mediaDTO -> {
+                AgoraMedia agoraMedia = AgoraMedia.from(mediaDTO);
+                agoraMedia.setAgora(agora);
+            });
+        }
         agoraRepository.save(agora);
 
         // 작성자를 아고라 참여자로 추가

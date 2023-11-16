@@ -1,10 +1,7 @@
 package com.example.codebase.domain.agora.dto;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -59,6 +56,14 @@ public class AgoraCreateDTO {
         if (isSameVoteMessages) {
             throw new IllegalArgumentException("동의, 중립, 반대에 대한 문구는 모두 다른 문구여야 합니다.");
         }
+    }
+
+    public boolean isThumbnailNull() {
+        return this.thumbnail == null;
+    }
+
+    public boolean isMediasNull() {
+        return this.medias == null;
     }
 
 
