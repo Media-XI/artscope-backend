@@ -27,7 +27,7 @@ public class LocationController {
         this.locationService = locationService;
     }
 
-    @Operation(summary = "장소 생성", description = "[ADMIN, CURATOR, ARTIST] 장소를 생성합니다.")
+    @Operation(summary = "장소 생성", description = "장소를 생성합니다.")
     @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity createLocation(@RequestBody LocationCreateDTO dto) {

@@ -56,6 +56,10 @@ public class ExhibitionService {
         Member member =
             memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
+        if (!member.isSubmitedRoleInformation()) {
+            throw new RuntimeException("추가정보 입력한 사용자만 이벤트를 생성할 수 있습니다.");
+        }
+
         // 이벤트 생성
         Exhibition exhibition = Exhibition.of(dto, member);
 
@@ -215,8 +219,9 @@ public class ExhibitionService {
 
         Member member =
             memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+
         if (!member.equals(exhibition.getMember())) {
-            throw new RuntimeException("이벤트를 삭제할 권한이 없습니다.");
+            throw new RuntimeException("해당 이벤트의 작성자가 아닙니다");
         }
 
         exhibition.delete();
@@ -224,7 +229,7 @@ public class ExhibitionService {
     }
 
     @Transactional
-    public void deleteAllEventSchedules(Long exhibitionId, String username) {
+    public void deleteEventSchedule(Long exhibitionId, Long eventScheduleId, String username) {
         Exhibition exhibition =
             exhibitionRepository
                 .findById(exhibitionId)
@@ -236,26 +241,26 @@ public class ExhibitionService {
         if (!member.equals(exhibition.getMember())) {
             throw new RuntimeException("해당 이벤트의 생성자가 아닙니다.");
         }
-
-        List<EventSchedule> eventSchedules = exhibition.getEventSchedules();
         exhibition.deleteEventSchedules();
-
-        eventScheduleRepository.deleteAll(eventSchedules);
+        eventScheduleRepository.deleteById(eventScheduleId);
     }
 
-    public void deleteEventSchedule(Long exhibitionId, Long eventScheduleId, String username) {
+    @Transactional
+    public void deleteAllEventSchedules(Long exhibitionId, String username) {
         Exhibition exhibition =
-            exhibitionRepository
-                .findById(exhibitionId)
-                .orElseThrow(() -> new NotFoundException("이벤트를 찾을 수 없습니다."));
+                exhibitionRepository
+                        .findById(exhibitionId)
+                        .orElseThrow(() -> new NotFoundException("이벤트를 찾을 수 없습니다."));
 
         Member member =
-            memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
         if (!member.equals(exhibition.getMember())) {
             throw new RuntimeException("이벤트 일정을 삭제할 권한이 없습니다.");
         }
+
+        List<EventSchedule> eventSchedules = exhibition.getEventSchedules();
         exhibition.deleteEventSchedules();
-        eventScheduleRepository.deleteById(eventScheduleId);
+        eventScheduleRepository.deleteAll(eventSchedules);
     }
 }

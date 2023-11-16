@@ -33,8 +33,8 @@ public class ExhibitionController {
         this.imageService = imageService;
     }
 
-    @Operation(summary = "이벤트 생성", description = "[ADMIN, CURATOR, ARTIST] 이벤트를 생성합니다.")
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST', 'ROLE_CURATOR')")
+    @Operation(summary = "이벤트 생성", description = " 이벤트를 생성합니다.")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity createExhibition(
         @RequestPart(value = "dto") @Valid ExhbitionCreateDTO dto,
@@ -52,8 +52,8 @@ public class ExhibitionController {
         return new ResponseEntity(exhibition, HttpStatus.CREATED);
     }
 
-    @Operation(summary = "이벤트 일정 생성", description = "[ADMIN, CURATOR, ARTIST] 이벤트 일정을 생성합니다.")
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST', 'ROLE_CURATOR')")
+    @Operation(summary = "이벤트 일정 생성", description = "이벤트 일정을 생성합니다.")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{exhibitionId}/schedule")
     public ResponseEntity createEventSchedule(
         @PathVariable Long exhibitionId, @RequestBody @Valid EventScheduleCreateDTO dto)
@@ -85,8 +85,8 @@ public class ExhibitionController {
         return new ResponseEntity(exhibition, HttpStatus.OK);
     }
 
-    @Operation(summary = "이벤트 수정", description = "[ADMIN, CURATOR, ARTIST] 이벤트를 수정합니다.")
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST', 'ROLE_CURATOR')")
+    @Operation(summary = "이벤트 수정", description = "이벤트를 수정합니다.")
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/{exhibitionId}")
     public ResponseEntity updateExhibition(
         @PathVariable Long exhibitionId, @RequestBody @Valid ExhibitionUpdateDTO dto)
@@ -100,8 +100,8 @@ public class ExhibitionController {
         return new ResponseEntity(exhibition, HttpStatus.OK);
     }
 
-    @Operation(summary = "이벤트 일정 수정", description = "[ADMIN, CURATOR, ARTIST] 이벤트 일정을 수정합니다.")
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST', 'ROLE_CURATOR')")
+    @Operation(summary = "이벤트 일정 수정", description = "이벤트 일정을 수정합니다.")
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{exhibitionId}")
     public ResponseEntity deleteExhibition(@PathVariable Long exhibitionId) {
         String username =
@@ -110,8 +110,8 @@ public class ExhibitionController {
         return new ResponseEntity("이벤트가 삭제되었습니다.", HttpStatus.OK);
     }
 
-    @Operation(summary = "이벤트 일정 전체 조회", description = "이벤트 일정 전체를 조회합니다.")
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST', 'ROLE_CURATOR')")
+    @Operation(summary = "이벤트 일정 삭제", description = "이벤트 일정을 삭제합니다.")
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{exhibitionId}/schedule/{eventScheduleId}")
     public ResponseEntity deleteEventSchedule(
         @PathVariable Long exhibitionId, @PathVariable Long eventScheduleId) {
@@ -122,7 +122,7 @@ public class ExhibitionController {
     }
 
     @Operation(summary = "이벤트 일정 전체 삭제", description = "이벤트 일정 전체를 삭제합니다.")
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST', 'ROLE_CURATOR')")
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{exhibitionId}/all")
     public ResponseEntity deleteAllExhibition(@PathVariable Long exhibitionId) {
         String username =

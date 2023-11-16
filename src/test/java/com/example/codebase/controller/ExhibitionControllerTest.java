@@ -603,4 +603,34 @@ class ExhibitionControllerTest {
             .andDo(print())
             .andExpect(status().isBadRequest());
     }
+
+    @WithMockCustomUser(username = "user", role = "CURATOR")
+    @DisplayName("권한 없는 유저가 이벤트를 생성할시")
+    @Test
+    public void 권한이_없는_유저가_수정_할떄() throws Exception {
+        createOrLoadMember("user", "ROLE_USER");
+
+        ExhbitionCreateDTO dto = mockCreateExhibitionDTO();
+
+        MockMultipartFile dtoFile =
+            new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
+
+        MockMultipartFile mediaFile =
+            new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
+
+        MockMultipartFile thumbnailFile =
+            new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
+
+        mockMvc
+            .perform(
+                multipart("/api/exhibitions")
+                    .file(dtoFile)
+                    .file(mediaFile)
+                    .file(thumbnailFile)
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .characterEncoding("UTF-8"))
+            .andDo(print())
+            .andExpect(status().isBadRequest());
+    }
 }

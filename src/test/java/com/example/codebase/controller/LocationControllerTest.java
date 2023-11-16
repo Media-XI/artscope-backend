@@ -129,7 +129,7 @@ class LocationControllerTest {
         return locationCreateDTO;
     }
 
-    @WithMockCustomUser(username = "testid", role = "ADMIN")
+    @WithMockCustomUser(username = "testid", role = "ARTIST_PENDING")
     @DisplayName("장소 생성 테스트")
     @Test
     public void 장소_등록() throws Exception {
@@ -199,5 +199,22 @@ class LocationControllerTest {
                     .param("size", String.valueOf(size)))
             .andDo(print())
             .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "NONE")
+    @DisplayName("인증안한 유저가 장소등록 테스트")
+    @Test
+    public void 인증_안된_유저가_장소_등록() throws Exception {
+        createOrLoadMember();
+
+        LocationCreateDTO locationCreateDTO = createOrLoadLocationCreateDTO();
+
+        mockMvc
+                .perform(
+                        post("/api/location")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(locationCreateDTO)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 }
