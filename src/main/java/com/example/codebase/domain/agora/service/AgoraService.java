@@ -200,8 +200,8 @@ public class AgoraService {
 
         AgoraOpinion opinion = AgoraOpinion.from(content);
         opinion.setAgoraAndAuthor(agora, participant);
-
         agoraOpinionRepository.save(opinion);
+
         return AgoraDetailReponseDTO.from(agora);
     }
 

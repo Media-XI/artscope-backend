@@ -187,8 +187,6 @@ public class MemberController {
         MemberResponseDTO member = memberService.updateUsername(username, newUsername.getUsername());
         return new ResponseEntity(member, HttpStatus.OK);
     }
-
-
     @Operation(summary = "비밀번호 변경", description = "[USER] 비밀번호를 변경합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @PutMapping("/{username}/password")
