@@ -29,7 +29,7 @@ public class RefererCheckIntercepter implements HandlerInterceptor {
 
         //
 
-        if (referer != null && referer.contains("artscope.kr")) {
+        if (referer == null || referer.contains("artscope.kr")) {
             log.info("Artscope.kr 포함 Referer! referer={}, host={}", referer, host);
             return true;
         }
