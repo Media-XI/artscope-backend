@@ -60,7 +60,7 @@ public class CustomExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity handleRuntimeException(RuntimeException e) {
         log.info(String.valueOf(e.getCause()));
-        log.info(Arrays.toString(e.getStackTrace()));
+        e.printStackTrace();
         RestResponse response = new RestResponse(false, e.getMessage(), HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity(response, HttpStatus.BAD_REQUEST);
     }
