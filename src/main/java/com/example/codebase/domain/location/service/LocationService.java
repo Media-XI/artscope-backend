@@ -44,6 +44,10 @@ public class LocationService {
         Member member =
             memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
+        if (!member.isSubmitedRoleInformation()) {
+            throw new RuntimeException("추가정보 입력한 사용자만 장소를 생성할 수 있습니다.");
+        }
+
         Location location = Location.from(dto);
 
         locationRepository.save(location);

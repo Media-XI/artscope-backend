@@ -28,7 +28,7 @@ public class LocationController {
     }
 
     @Operation(summary = "장소 생성", description = "[ADMIN, CURATOR, ARTIST] 장소를 생성합니다.")
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST','ROLE_CURATOR')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity createLocation(@RequestBody LocationCreateDTO dto) {
         String username =
