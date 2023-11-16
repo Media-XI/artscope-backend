@@ -31,7 +31,7 @@ public class Member {
 
     @Id
     @Column(name = "member_id", columnDefinition = "BINARY(16)")
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "username", unique = true, length = 50)
