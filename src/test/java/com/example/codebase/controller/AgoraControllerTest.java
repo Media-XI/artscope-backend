@@ -163,21 +163,22 @@ class AgoraControllerTest {
 
     @Transactional
     public Agora createOrLoadAgora(int index, int mediaSize, boolean isAnonymous) throws IOException {
-        AgoraCreateDTO dto = new AgoraCreateDTO();
-        dto.setTitle("AI 생성형 이미지 어떻게 생각하십니까");
-        dto.setContent("생성형 이미지를 찬성하는지?");
-        dto.setAgreeText("찬성");
-        dto.setNaturalText("중립");
-        dto.setDisagreeText("반대");
-        dto.setIsAnonymous(isAnonymous);
-        dto.setMedias(Collections.singletonList(AgoraMediaCreateDTO.builder()
-            .mediaType("image")
-            .mediaUrl("test.jpg")
-            .build()));
-        dto.setThumbnail(AgoraMediaCreateDTO.builder()
-            .mediaType("image")
-            .mediaUrl("test.jpg")
-            .build());
+        AgoraCreateDTO dto = AgoraCreateDTO.builder()
+                .title("AI 생성형 이미지 어떻게 생각하십니까")
+                .content("AI 생성형 이미지 어떻게 생각하십니까")
+                .agreeText("찬성")
+                .naturalText("중립")
+                .disagreeText("반대")
+                .isAnonymous(isAnonymous)
+                .medias(Collections.singletonList(AgoraMediaCreateDTO.builder()
+                        .mediaType("image")
+                        .mediaUrl("test.jpg")
+                        .build()))
+                .thumbnail((AgoraMediaCreateDTO.builder()
+                        .mediaType("image")
+                        .mediaUrl("test.jpg")
+                        .build()))
+                .build();
 
         Member member = createOrLoadMember();
 
@@ -265,15 +266,16 @@ class AgoraControllerTest {
         AgoraMediaCreateDTO mediaCreateDTO = new AgoraMediaCreateDTO();
         mediaCreateDTO.setMediaType("image");
 
-        AgoraCreateDTO agoraCreateDTO = new AgoraCreateDTO();
-        agoraCreateDTO.setTitle("AI 생성형 이미지 어떻게 생각하십니까");
-        agoraCreateDTO.setContent("생성형 이미지를 찬성하는지?");
-        agoraCreateDTO.setAgreeText("AI 찬성");
-        agoraCreateDTO.setNaturalText("AI 중립");
-        agoraCreateDTO.setDisagreeText("AI 반대");
-        agoraCreateDTO.setIsAnonymous(true);
-        agoraCreateDTO.setThumbnail(thumbnailCreateDTO);
-        agoraCreateDTO.setMedias(Collections.singletonList(mediaCreateDTO));
+        AgoraCreateDTO agoraCreateDTO = AgoraCreateDTO.builder()
+                .title("AI 생성형 이미지 어떻게 생각하십니까")
+                .content("AI 생성형 이미지 어떻게 생각하십니까")
+                .agreeText("찬성")
+                .naturalText("중립")
+                .disagreeText("반대")
+                .isAnonymous(true)
+                .medias(Collections.singletonList(mediaCreateDTO))
+                .thumbnail((thumbnailCreateDTO))
+                .build();
 
         MockMultipartFile dto = new MockMultipartFile("dto", "", "application/json",
             objectMapper.writeValueAsBytes(agoraCreateDTO));
@@ -311,15 +313,16 @@ class AgoraControllerTest {
         AgoraMediaCreateDTO mediaCreateDTO = new AgoraMediaCreateDTO();
         mediaCreateDTO.setMediaType("image");
 
-        AgoraCreateDTO agoraCreateDTO = new AgoraCreateDTO();
-        agoraCreateDTO.setTitle("AI 생성형 이미지 어떻게 생각하십니까");
-        agoraCreateDTO.setContent("생성형 이미지를 찬성하는지? 실명으로 얘기해봐요 ㅋㅋ");
-        agoraCreateDTO.setAgreeText("AI 찬성");
-        agoraCreateDTO.setNaturalText("AI 중립");
-        agoraCreateDTO.setDisagreeText("AI 반대");
-        agoraCreateDTO.setIsAnonymous(false);
-        agoraCreateDTO.setThumbnail(thumbnailCreateDTO);
-        agoraCreateDTO.setMedias(Collections.singletonList(mediaCreateDTO));
+        AgoraCreateDTO agoraCreateDTO = AgoraCreateDTO.builder()
+                .title("AI 생성형 이미지 어떻게 생각하십니까")
+                .content("AI 생성형 이미지 어떻게 생각하십니까")
+                .agreeText("찬성")
+                .naturalText("중립")
+                .disagreeText("반대")
+                .isAnonymous(false)
+                .medias(Collections.singletonList(mediaCreateDTO))
+                .thumbnail((thumbnailCreateDTO))
+                .build();
 
         MockMultipartFile dto = new MockMultipartFile("dto", "", "application/json",
             objectMapper.writeValueAsBytes(agoraCreateDTO));
@@ -343,6 +346,65 @@ class AgoraControllerTest {
             )
             .andDo(print())
             .andExpect(status().isCreated());
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("아고라 생성 시 투표 메시지가 일부 동일할 시 ")
+    @Test
+    public void 아고라_생성3() throws Exception {
+        createOrLoadMember("admin", "ROLE_ADMIN");
+
+        AgoraMediaCreateDTO thumbnailCreateDTO = new AgoraMediaCreateDTO();
+        thumbnailCreateDTO.setMediaType("image");
+
+        AgoraMediaCreateDTO mediaCreateDTO = new AgoraMediaCreateDTO();
+        mediaCreateDTO.setMediaType("image");
+
+        String agoraCreateDTO = """
+                {
+                  "title" : "AI 생성형 이미지 어떻게 생각하십니까",
+                  "content" : "AI 생성형 이미지 어떻게 생각하십니까",
+                  "agreeText" : "찬성",
+                  "naturalText" : "찬성",
+                  "disagreeText" : "반대",
+                  "isAnonymous" : false,
+                  "medias" : [ {
+                    "mediaType" : "image",
+                    "mediaUrl" : null,
+                    "width" : 0,
+                    "height" : 0
+                  } ],
+                  "thumbnail" : {
+                    "mediaType" : "image",
+                    "mediaUrl" : null,
+                    "width" : 0,
+                    "height" : 0
+                  }
+                }
+                """;
+
+        MockMultipartFile dto = new MockMultipartFile("dto", "", "application/json",
+                agoraCreateDTO.getBytes());
+
+        List<MockMultipartFile> mediaFiles = new ArrayList<>();
+
+        MockMultipartFile thumbnailFile = new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg",
+                createImageFile());
+
+        MockMultipartFile mockMultipartFile = new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg",
+                createImageFile());
+        mediaFiles.add(mockMultipartFile);
+
+        mockMvc.perform(
+                        multipart("/api/agoras")
+                                .file(thumbnailFile)
+                                .file(mockMultipartFile)
+                                .file(dto)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
     @DisplayName("익명 아고라 상세 조회")

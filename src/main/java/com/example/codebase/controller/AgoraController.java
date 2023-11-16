@@ -119,7 +119,7 @@ public class AgoraController {
         return new ResponseEntity(agora, HttpStatus.OK);
     }
 
-    @Operation(summary = "아고라 의견 목록 조회", description = "아고라 의견 목록을 조회합니다.")
+    @Operation(summary = "아고라 의견 생성", description = "아고라 의견을 생성합니다.")
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{agoraId}/opinions")
     public ResponseEntity createOpinion(
