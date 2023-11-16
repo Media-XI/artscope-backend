@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -66,34 +68,32 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
-                .formLogin().disable()
-                .httpBasic().disable()
-                .headers().frameOptions().disable()
+                .csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .headers((headers) -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
 
-                .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                .accessDeniedHandler(jwtAccessDeniedHandler)
+                .oauth2Login((oauth2Login) -> oauth2Login
+                        .successHandler(oAuth2AuthenticationSuccessHandler)
+                        .failureHandler(oAuth2AuthenticationFailureHandler)
+                        .userInfoEndpoint((userInfoEndpointConfig -> userInfoEndpointConfig.userService(customOAuth2UserService))))
 
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .exceptionHandling((exceptionHandler -> exceptionHandler
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler)))
 
-                .and()
-                .authorizeHttpRequests((authz) ->
-                        authz
-                                .requestMatchers("/api/**", "/hizz").permitAll()
-                                .requestMatchers(permitList).hasAnyAuthority("ROLE_ADMIN")
-                                .anyRequest().authenticated()
+                .sessionManagement((httpSecuritySessionManagementConfigurer) -> httpSecuritySessionManagementConfigurer
+                        .sessionFixation().none()
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                .authorizeHttpRequests((authz) -> authz
+                        .requestMatchers("/api/**", "/hizz").permitAll()
+                        .requestMatchers(permitList).hasAnyAuthority("ROLE_ADMIN")
+                        .anyRequest().authenticated()
                 )
-                .apply(new JwtSecurityConfig(tokenProvider))
 
-                .and()
-                .oauth2Login()  // oidc
-                .successHandler(oAuth2AuthenticationSuccessHandler)
-                .failureHandler(oAuth2AuthenticationFailureHandler)
-                .userInfoEndpoint().userService(customOAuth2UserService);
+                .apply(new JwtSecurityConfig(tokenProvider));
+
         return http.build();
     }
 }
