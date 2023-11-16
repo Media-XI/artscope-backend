@@ -3,7 +3,6 @@ package com.example.codebase.domain.artwork.dto;
 import com.example.codebase.controller.dto.PageInfo;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 

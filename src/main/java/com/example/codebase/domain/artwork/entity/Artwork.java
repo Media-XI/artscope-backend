@@ -8,14 +8,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -64,7 +61,7 @@ public class Artwork {
     private LocalDateTime updatedTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", columnDefinition = "BINARY(16)")
     private Member member;
 
     @Builder.Default
@@ -79,21 +76,21 @@ public class Artwork {
     @OneToMany(mappedBy = "artwork", cascade = CascadeType.ALL)
     private List<ArtworkComment> artworkComments = new ArrayList<>();
 
-    public static Artwork of (ArtworkCreateDTO dto, Member member) {
+    public static Artwork of(ArtworkCreateDTO dto, Member member) {
         String tempTags = "";
         if (Optional.ofNullable(dto.getTags()).isPresent()) {
             tempTags = dto.getTags().stream()
-                    .collect(Collectors.joining(","));
+                .collect(Collectors.joining(","));
         }
 
         return Artwork.builder()
-                .title(dto.getTitle())
-                .tags(tempTags)
-                .description(dto.getDescription())
-                .visible(dto.getVisible())
-                .createdTime(LocalDateTime.now())
-                .member(member)
-                .build();
+            .title(dto.getTitle())
+            .tags(tempTags)
+            .description(dto.getDescription())
+            .visible(dto.getVisible())
+            .createdTime(LocalDateTime.now())
+            .member(member)
+            .build();
     }
 
     public void addArtworkMedia(ArtworkMedia artworkMedia) {
@@ -113,7 +110,7 @@ public class Artwork {
         this.title = dto.getTitle();
         if (Optional.ofNullable(dto.getTags()).isPresent()) {
             this.tags = dto.getTags().stream()
-                    .collect(Collectors.joining(","));
+                .collect(Collectors.joining(","));
         }
         this.description = dto.getDescription();
         this.visible = dto.isVisible();
@@ -122,9 +119,9 @@ public class Artwork {
 
     public void updateArtworkMedia(Long mediaId, ArtworkMediaCreateDTO dto) {
         ArtworkMedia artworkMedia = this.artworkMedia.stream()
-                .filter(media -> media.getId().equals(mediaId))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("해당 미디어 파일을 찾을 수 없습니다."));
+            .filter(media -> media.getId().equals(mediaId))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("해당 미디어 파일을 찾을 수 없습니다."));
 
         artworkMedia.update(dto);
     }

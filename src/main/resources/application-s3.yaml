@@ -15,10 +15,10 @@ cloud:
 spring:
   servlet:
     multipart:
-        enabled: true
-        max-file-size: 100MB
-        max-request-size: 100MB
-        resolve-lazily: true  # Error Handling
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
+      resolve-lazily: true  # Error Handling
 
 app:
   file-count: 10

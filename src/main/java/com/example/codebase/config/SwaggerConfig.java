@@ -1,61 +1,50 @@
 package com.example.codebase.config;
 
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.*;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spi.service.contexts.SecurityContext;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Configuration
-@EnableSwagger2
 public class SwaggerConfig {
 
     @Bean
-    public Docket api() {
-        return new Docket(DocumentationType.OAS_30) // OpenAPI 3.0
-                .apiInfo(swaggerInfo())
-                .select()
-                .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.ant("/api/**"))
-                .build()
-                .securityContexts(Arrays.asList(securityContext()))
-                .securitySchemes(Arrays.asList(bearerAuthSecurityScheme()));
-    }
-
-    private ApiInfo swaggerInfo() {
-        return new ApiInfoBuilder().title("Codebase API Documentation")
-                .description("Swagger UI 간단 예제입니다.")
-                .description("Google OAuth2.0 url : oauth2/authorization/google")
+    public GroupedOpenApi api() {
+        return GroupedOpenApi.builder()
+                .group("api")
+                .pathsToMatch("/api/**")
                 .build();
     }
 
-    private HttpAuthenticationScheme bearerAuthSecurityScheme() {
-        return HttpAuthenticationScheme.JWT_BEARER_BUILDER.name("JWT 토큰값").build();
+    @Bean
+    public OpenAPI openAPI() {
+        Info info = new Info()
+                .title("Artscope API 명세서")
+                .description("Artscope API 명세서")
+                .version("v1");
+
+        String jwtTokenScheme = "JWT 토큰값";
+
+        // API 요청 Header에 JWT 토큰값을 넣어야 함을 명시
+        SecurityRequirement securityRequirement = new SecurityRequirement().addList(jwtTokenScheme);
+
+        // Security Schemes 등록
+        Components components = new Components()
+                .addSecuritySchemes(jwtTokenScheme, bearerAuthSecurityScheme(jwtTokenScheme));
+
+        return new OpenAPI()
+                .info(info)
+                .addSecurityItem(securityRequirement)
+                .components(components);
     }
 
-    private SecurityContext securityContext() {
-        return springfox
-                .documentation
-                .spi.service
-                .contexts
-                .SecurityContext
-                .builder()
-                .securityReferences(defaultAuth()).forPaths(PathSelectors.any()).build();
+    private SecurityScheme bearerAuthSecurityScheme(String jwtTokenScheme) {
+        return new SecurityScheme()
+                .name(jwtTokenScheme)
+                .type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT");
     }
-
-    private List<SecurityReference> defaultAuth() {
-        AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
-        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
-        authorizationScopes[0] = authorizationScope;
-        return Arrays.asList(new SecurityReference("JWT 토큰값", authorizationScopes));
-    }
-
 }

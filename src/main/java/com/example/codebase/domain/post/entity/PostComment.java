@@ -3,9 +3,12 @@ package com.example.codebase.domain.post.entity;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.post.dto.PostCommentCreateDTO;
 import com.example.codebase.domain.post.dto.PostCommentUpdateDTO;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,10 +55,10 @@ public class PostComment {
 
     public static PostComment of(PostCommentCreateDTO commentCreateDTO, Member author) {
         return PostComment.builder()
-                .content(commentCreateDTO.getContent())
-                .author(author)
-                .createdTime(LocalDateTime.now())
-                .build();
+            .content(commentCreateDTO.getContent())
+            .author(author)
+            .createdTime(LocalDateTime.now())
+            .build();
     }
 
     public void setMentionUsername(String mentionUsername) {

@@ -1,20 +1,22 @@
 package com.example.codebase.domain.member.entity;
 
+import com.example.codebase.domain.agora.entity.Agora;
 import com.example.codebase.domain.artwork.entity.Artwork;
-import com.example.codebase.domain.artwork.entity.ArtworkLikeMember;
 import com.example.codebase.domain.auth.OAuthAttributes;
 import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
+import com.example.codebase.domain.member.dto.CreateCuratorMemberDTO;
 import com.example.codebase.domain.member.dto.UpdateMemberDTO;
 import com.example.codebase.domain.member.entity.oauth2.oAuthProvider;
 import com.example.codebase.domain.post.entity.Post;
-import com.example.codebase.domain.post.entity.PostLikeMember;
-import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,8 +31,7 @@ public class Member {
 
     @Id
     @Column(name = "member_id", columnDefinition = "BINARY(16)")
-    @GeneratedValue(generator = "uuid4")
-    @GenericGenerator(name = "UUID", strategy = "uuid4")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "username", unique = true, length = 50)
@@ -70,6 +71,12 @@ public class Member {
     @Column(name = "history")
     private String history;
 
+    @Column(name = "company_role")
+    private String companyRole;
+
+    @Column(name = "company_name")
+    private String companyName;
+
     @Column(name = "created_time")
     private LocalDateTime createdTime;
 
@@ -78,8 +85,8 @@ public class Member {
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(name = "artist_status")
-    private ArtistStatus artistStatus = ArtistStatus.NONE;
+    @Column(name = "role_status")
+    private RoleStatus roleStatus = RoleStatus.NONE;
 
     @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
@@ -93,34 +100,30 @@ public class Member {
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     private List<Post> posts = new ArrayList<>();
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void addAuthority(MemberAuthority memberAuthority) {
-        this.authorities.add(memberAuthority);
-    }
+    @Builder.Default
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    private List<Agora> agoras = new ArrayList<>();
 
     public static User toUser(Member member) {
         return new User(member.getUsername(), member.getPassword(), member.getAuthorities().stream()
-                .map(authority -> new SimpleGrantedAuthority(authority.getAuthority().getAuthorityName()))
-                .collect(Collectors.toList()));
+            .map(authority -> new SimpleGrantedAuthority(authority.getAuthority().getAuthorityName()))
+            .collect(Collectors.toList()));
     }
 
     public static Member from(PasswordEncoder passwordEncoder, OAuthAttributes oAuthAttributes) {
         String username = generateUniqueUsernameLikeYT();
 
         return Member.builder()
-                .username(username)
-                .password(passwordEncoder.encode(UUID.randomUUID().toString()))
-                .name(oAuthAttributes.getName())
-                .email(oAuthAttributes.getEmail())
-                .picture(oAuthAttributes.getPicture())
-                .oauthProvider(oAuthAttributes.getRegistrationId())
-                .oauthProviderId(oAuthAttributes.getOAuthProviderId())
-                .createdTime(LocalDateTime.now())
-                .activated(true)
-                .build();
+            .username(username)
+            .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+            .name(oAuthAttributes.getName())
+            .email(oAuthAttributes.getEmail())
+            .picture(oAuthAttributes.getPicture())
+            .oauthProvider(oAuthAttributes.getRegistrationId())
+            .oauthProviderId(oAuthAttributes.getOAuthProviderId())
+            .createdTime(LocalDateTime.now())
+            .activated(true)
+            .build();
     }
 
     private static String generateUniqueUsername() {
@@ -140,7 +143,7 @@ public class Member {
 
         // code :  영소문자1 + 영소문자2 + 숫자 = 26 * 26 * 9 = 6084
         // code1 + code2 + code3 + 영소문자 = 6084 * 6084 * 6084 * 26 = 5,855,189,618,304 경우의 수 (5조)
-        for (int i = 0; i <  3; i++) {
+        for (int i = 0; i < 3; i++) {
             char alphabet1 = (char) ((Math.random() * 26) + 97);
             char alphabet2 = (char) ((Math.random() * 26) + 97);
             int number = (int) ((Math.random() * 9) + 1);
@@ -155,6 +158,14 @@ public class Member {
         return username.toString();
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void addAuthority(MemberAuthority memberAuthority) {
+        this.authorities.add(memberAuthority);
+    }
+
     public Member update(String name, String picture) {
         this.name = name;
         this.picture = picture;
@@ -164,7 +175,8 @@ public class Member {
 
     public Member update(UpdateMemberDTO dto) {
         if (dto.getUsername() != null) {
-            this.username = dto.getUsername();        }
+            this.username = dto.getUsername();
+        }
         if (dto.getName() != null) {
             this.name = dto.getName();
         }
@@ -199,12 +211,12 @@ public class Member {
         this.websiteUrl = dto.getWebsiteUrl();
         this.introduction = dto.getIntroduction();
         this.history = dto.getHistory();
-        this.artistStatus = ArtistStatus.PENDING;
+        this.roleStatus = RoleStatus.ARTIST_PENDING;
         this.updatedTime = LocalDateTime.now();
     }
 
     public void updateArtistStatus(String status) {
-        this.artistStatus = ArtistStatus.create(status);
+        this.roleStatus = RoleStatus.create(status);
         this.updatedTime = LocalDateTime.now();
     }
 
@@ -231,4 +243,22 @@ public class Member {
         this.artworks.add(artwork);
     }
 
+    public void setCurator(CreateCuratorMemberDTO createCuratorMemberDTO) {
+        this.snsUrl = createCuratorMemberDTO.getSnsUrl();
+        this.websiteUrl = createCuratorMemberDTO.getWebsiteUrl();
+        this.introduction = createCuratorMemberDTO.getIntroduction();
+        this.history = createCuratorMemberDTO.getHistory();
+        this.companyRole = createCuratorMemberDTO.getCompanyRole();
+        this.companyName = createCuratorMemberDTO.getCompanyName();
+        this.roleStatus = RoleStatus.CURATOR_PENDING;
+        this.updatedTime = LocalDateTime.now();
+    }
+
+    public void addAgora(Agora agora) {
+        this.agoras.add(agora);
+    }
+
+    public boolean equalsUsername(String username) {
+        return this.username.equals(username);
+    }
 }

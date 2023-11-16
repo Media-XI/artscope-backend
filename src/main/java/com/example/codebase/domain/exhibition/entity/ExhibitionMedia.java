@@ -1,13 +1,9 @@
 package com.example.codebase.domain.exhibition.entity;
 
-import com.example.codebase.domain.artwork.entity.Artwork;
-import com.example.codebase.domain.artwork.entity.ArtworkMedia;
-import com.example.codebase.domain.artwork.entity.ArtworkMediaType;
 import com.example.codebase.domain.exhibition.dto.ExhibitionMediaCreateDTO;
 import lombok.*;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -43,10 +39,10 @@ public class ExhibitionMedia {
 
     public static ExhibitionMedia of(ExhibitionMediaCreateDTO mediaCreateDTO, Exhibition exhibition) {
         return ExhibitionMedia.builder()
-                .exhibtionMediaType(ExhibtionMediaType.create(mediaCreateDTO.getMediaType()))
-                .mediaUrl(mediaCreateDTO.getMediaUrl())
-                .exhibition(exhibition)
-                .createdTime(LocalDateTime.now())
-                .build();
+            .exhibtionMediaType(ExhibtionMediaType.create(mediaCreateDTO.getMediaType()))
+            .mediaUrl(mediaCreateDTO.getMediaUrl())
+            .exhibition(exhibition)
+            .createdTime(LocalDateTime.now())
+            .build();
     }
 }

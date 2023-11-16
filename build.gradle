@@ -1,12 +1,12 @@
 plugins {
-    id 'org.springframework.boot' version '2.6.6'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.springframework.boot' version '3.1.5'
+    id 'io.spring.dependency-management' version '1.1.4'
     id 'java'
 }
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+sourceCompatibility = '17'
 
 configurations {
     compileOnly {
@@ -16,7 +16,6 @@ configurations {
     all {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
     }
-
 }
 
 repositories {
@@ -26,19 +25,28 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'io.springfox:springfox-boot-starter:3.0.0'
-    implementation 'org.springframework.boot:spring-boot-starter-security:2.6.7'
-    implementation 'org.springframework.boot:spring-boot-starter-validation:2.6.7'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client:2.6.7'
-    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-security:'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-mail' // email
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    // Swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+
+    // thymeleaf
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
     // https://mvnrepository.com/artifact/org.apache.tika/tika-core
     implementation 'org.apache.tika:tika-core:2.7.0'    // Image Validation
 
-    implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.3'
-    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.3'
-    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.3'
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // XSS Protection
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-text
+    implementation 'org.apache.commons:commons-text:1.11.0'
 
     // Env Security
     implementation("com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5")
@@ -47,24 +55,26 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    runtimeOnly 'com.h2database:h2'
-    runtimeOnly 'mysql:mysql-connector-java'
+    runtimeOnly 'com.mysql:mysql-connector-j'
     implementation 'org.flywaydb:flyway-core'
-//    implementation 'org.postgresql:postgresql:42.5.0'
+    implementation 'org.flywaydb:flyway-mysql'
+
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-    implementation 'org.springframework.security:spring-security-test:5.6.7'
+    implementation 'org.springframework.security:spring-security-test'
 
     // Log
     implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
     implementation("org.springframework.boot:spring-boot-starter-log4j2")
 
-    testCompileOnly 'org.projectlombok:lombok:1.18.22'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.findify:s3mock_2.13:0.2.6'
+    testImplementation 'com.h2database:h2'
+
 }
 
-tasks.named('test') {
+test {
     useJUnitPlatform()
 }

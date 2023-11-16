@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -27,20 +27,20 @@ class MemberRepositoryTest {
         List<Member> members = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             Member member = Member.builder()
-                    .username("test" + i)
-                    .email("test" + i + "@test.com")
-                    .activated(false)
-                    .createdTime(LocalDateTime.now().minusMinutes(30 + i))
-                    .build();
+                .username("test" + i)
+                .email("test" + i + "@test.com")
+                .activated(false)
+                .createdTime(LocalDateTime.now().minusMinutes(30 + i))
+                .build();
             members.add(member);
         }
         for (int i = 0; i < 3; i++) {
             Member member = Member.builder()
-                    .username("test2" + i)
-                    .email("test2" + i + "@test.com")
-                    .activated(false)
-                    .createdTime(LocalDateTime.now().minusMinutes(i * 10))
-                    .build();
+                .username("test2" + i)
+                .email("test2" + i + "@test.com")
+                .activated(false)
+                .createdTime(LocalDateTime.now().minusMinutes(i * 10))
+                .build();
             members.add(member);
         }
         memberRepository.saveAll(members);

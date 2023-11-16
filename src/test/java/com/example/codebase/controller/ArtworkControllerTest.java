@@ -9,8 +9,6 @@ import com.example.codebase.domain.artwork.dto.ArtworkUpdateDTO;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkComment;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
-import com.example.codebase.domain.artwork.entity.ArtworkMediaType;
-import com.example.codebase.domain.artwork.repository.ArtworkCommentRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.auth.WithMockCustomUser;
 import com.example.codebase.domain.member.entity.Authority;
@@ -22,11 +20,8 @@ import com.example.codebase.s3.S3Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.findify.s3mock.S3Mock;
-import lombok.With;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.validator.internal.metadata.aggregated.rule.VoidMethodsMustNotBeReturnValueConstrained;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,22 +29,14 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.mock.web.MockPart;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
-import javax.imageio.ImageIO;
-import javax.transaction.Transactional;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
+import jakarta.transaction.Transactional;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
@@ -92,15 +79,7 @@ class ArtworkControllerTest {
     @Autowired
     private S3Service s3Service;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
-
-    @BeforeEach
-    public void setUp() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
-    }
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeAll
     static void setUp(@Autowired S3Mock s3Mock,
@@ -118,25 +97,40 @@ class ArtworkControllerTest {
         s3Mock.stop();
     }
 
+    @BeforeEach
+    public void setUp() {
+        mockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+        objectMapper.registerModule(new JavaTimeModule());
+    }
+
     public Member createOrLoadMember() {
-        Optional<Member> testMember = memberRepository.findByUsername("testid");
+        return createOrLoadMember("testid", "ROLE_USER");
+    }
+
+    @Transactional
+    public Member createOrLoadMember(String username, String... authorities) {
+        Optional<Member> testMember = memberRepository.findByUsername(username);
         if (testMember.isPresent()) {
             return testMember.get();
         }
 
         Member dummy = Member.builder()
-                .username("testid")
-                .password(passwordEncoder.encode("1234"))
-                .email("email")
-                .name("test")
-                .activated(true)
-                .createdTime(LocalDateTime.now())
-                .build();
+            .username(username)
+            .password(passwordEncoder.encode("1234"))
+            .email(username + "@test.com")
+            .name(username)
+            .activated(true)
+            .createdTime(LocalDateTime.now())
+            .build();
 
-        MemberAuthority memberAuthority = new MemberAuthority();
-        memberAuthority.setAuthority(Authority.of("ROLE_USER"));
-        memberAuthority.setMember(dummy);
-        dummy.addAuthority(memberAuthority);
+        for (String authority : authorities) {
+            MemberAuthority memberAuthority = new MemberAuthority();
+            memberAuthority.setAuthority(Authority.of(authority));
+            memberAuthority.setMember(dummy);
+        }
 
         Member save = memberRepository.save(dummy);
         return save;
@@ -160,40 +154,41 @@ class ArtworkControllerTest {
         List<ArtworkMedia> artworkMediaList = new ArrayList<>();
         for (int i = 0; i < mediaSize; i++) {
             MockMultipartFile mockMultipartFile = new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg",
-                    createImageFile());
+                createImageFile());
             String url = s3Service.saveUploadFile(mockMultipartFile);
 
             ArtworkMedia artworkMedia = ArtworkMedia.builder()
-                    .artworkMediaType(ArtworkMediaType.image)
-                    .mediaUrl(url)
-                    .description("미디어 설명")
-                    .build();
+                .artworkMediaType(com.example.codebase.domain.media.MediaType.image)
+                .mediaUrl(url)
+                .description("미디어 설명")
+                .build();
             artworkMediaList.add(artworkMedia);
         }
 
         Artwork dummy = Artwork.builder()
-                .title("아트워크_테스트" + index)
-                .description("작품 설명")
-                .tags("태그1,태그2,태그3")
-                .visible(isVisible)
-                .member(createOrLoadMember())
-                .artworkMedia(artworkMediaList)
-                .createdTime(LocalDateTime.now().plusSeconds(index))
-                .build();
+            .title("아트워크_테스트" + index)
+            .description("작품 설명")
+            .tags("태그1,태그2,태그3")
+            .visible(isVisible)
+            .member(createOrLoadMember())
+            .artworkMedia(artworkMediaList)
+            .createdTime(LocalDateTime.now().plusSeconds(index))
+            .build();
 
         return artworkRepository.save(dummy);
     }
 
+    @Transactional
     public Artwork createArtworkWithComment(int commentSize) throws IOException {
         Artwork artwork = createOrLoadArtwork();
 
         for (int i = 0; i < commentSize; i++) {
             ArtworkComment artworkComment = ArtworkComment.builder()
-                    .artwork(artwork)
-                    .author(createOrLoadMember())
-                    .content("댓글 내용" + i)
-                    .createdTime(LocalDateTime.now().plusMinutes(i))
-                    .build();
+                .artwork(artwork)
+                .author(createOrLoadMember())
+                .content("댓글 내용" + i)
+                .createdTime(LocalDateTime.now().plusMinutes(i))
+                .build();
             artwork.addArtworkComment(artworkComment);
         }
         artworkRepository.save(artwork);
@@ -212,11 +207,11 @@ class ArtworkControllerTest {
         createOrLoadMember();
 
         ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
-        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         thumbnailCreateDTO.setDescription("썸네일 설명");
 
         ArtworkMediaCreateDTO mediaCreateDTO = new ArtworkMediaCreateDTO();
-        mediaCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        mediaCreateDTO.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         mediaCreateDTO.setDescription("미디어 설명");
 
         ArtworkCreateDTO dto = new ArtworkCreateDTO();
@@ -228,25 +223,25 @@ class ArtworkControllerTest {
         dto.setMedias(Collections.singletonList(mediaCreateDTO));
 
         MockMultipartFile thumbnailFile = new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg",
-                createImageFile());
+            createImageFile());
 
         List<MockMultipartFile> mediaFiles = new ArrayList<>();
         MockMultipartFile mockMultipartFile = new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg",
-                createImageFile());
+            createImageFile());
         mediaFiles.add(mockMultipartFile);
 
         mockMvc.perform(
-                        multipart("/api/artworks")
-                                .file(mediaFiles.get(0))
-                                .file(thumbnailFile)
-                                .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
-                                .contentType(MediaType.MULTIPART_FORM_DATA)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .characterEncoding("UTF-8")
+                multipart("/api/artworks")
+                    .file(mediaFiles.get(0))
+                    .file(thumbnailFile)
+                    .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .characterEncoding("UTF-8")
 
-                )
-                .andDo(print())
-                .andExpect(status().isCreated());
+            )
+            .andDo(print())
+            .andExpect(status().isCreated());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -256,17 +251,17 @@ class ArtworkControllerTest {
         createOrLoadMember();
 
         ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
-        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         thumbnailCreateDTO.setDescription("썸네일 설명");
 
         List<ArtworkMediaCreateDTO> mediaCreateDTOList = new ArrayList<>();
         ArtworkMediaCreateDTO mediaCreateDTO1 = new ArtworkMediaCreateDTO();
-        mediaCreateDTO1.setMediaType(ArtworkMediaType.url.toString());
+        mediaCreateDTO1.setMediaType(com.example.codebase.domain.media.MediaType.url.toString());
         mediaCreateDTO1.setDescription("url 미디어 설명");
         mediaCreateDTOList.add(mediaCreateDTO1);
 
         ArtworkMediaCreateDTO mediaCreateDTO2 = new ArtworkMediaCreateDTO();
-        mediaCreateDTO2.setMediaType(ArtworkMediaType.image.toString());
+        mediaCreateDTO2.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         mediaCreateDTO2.setDescription("미디어 설명2");
         mediaCreateDTOList.add(mediaCreateDTO2);
 
@@ -279,29 +274,29 @@ class ArtworkControllerTest {
         dto.setMedias(mediaCreateDTOList);
 
         MockMultipartFile thumbnailFile = new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg",
-                createImageFile());
+            createImageFile());
 
         List<MockMultipartFile> mediaFiles = new ArrayList<>();
         MockMultipartFile mockMultipartFile1 = new MockMultipartFile("mediaFiles", "url", "text/plane",
-                "https://www.youtube.com/watch?v=95YLHDzsg8A".getBytes());
+            "https://www.youtube.com/watch?v=95YLHDzsg8A".getBytes());
         MockMultipartFile mockMultipartFile2 = new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg",
-                createImageFile());
+            createImageFile());
         mediaFiles.add(mockMultipartFile1);
         mediaFiles.add(mockMultipartFile2);
 
         mockMvc.perform(
-                        multipart("/api/artworks")
-                                .file(mediaFiles.get(0))
-                                .file(mediaFiles.get(1))
-                                .file(thumbnailFile)
-                                .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
-                                .contentType(MediaType.MULTIPART_FORM_DATA)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .characterEncoding("UTF-8")
+                multipart("/api/artworks")
+                    .file(mediaFiles.get(0))
+                    .file(mediaFiles.get(1))
+                    .file(thumbnailFile)
+                    .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .characterEncoding("UTF-8")
 
-                )
-                .andDo(print())
-                .andExpect(status().isCreated());
+            )
+            .andDo(print())
+            .andExpect(status().isCreated());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -311,12 +306,12 @@ class ArtworkControllerTest {
         createOrLoadMember();
 
         ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
-        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         thumbnailCreateDTO.setDescription("썸네일 설명");
 
         List<ArtworkMediaCreateDTO> mediaCreateDTOList = new ArrayList<>();
         ArtworkMediaCreateDTO mediaCreateDTO1 = new ArtworkMediaCreateDTO();
-        mediaCreateDTO1.setMediaType(ArtworkMediaType.url.toString());
+        mediaCreateDTO1.setMediaType(com.example.codebase.domain.media.MediaType.url.toString());
         mediaCreateDTO1.setDescription("url 미디어 설명");
         mediaCreateDTOList.add(mediaCreateDTO1);
 
@@ -329,25 +324,25 @@ class ArtworkControllerTest {
         dto.setMedias(mediaCreateDTOList);
 
         MockMultipartFile thumbnailFile = new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg",
-                createImageFile());
+            createImageFile());
 
         List<MockMultipartFile> mediaFiles = new ArrayList<>();
         MockMultipartFile mockMultipartFile1 = new MockMultipartFile("mediaFiles", "image.jpg", "text/plain",
-                "https://youtu.be/95YLHDzsg8A?t=153".getBytes());
+            "https://youtu.be/95YLHDzsg8A?t=153".getBytes());
         mediaFiles.add(mockMultipartFile1);
 
         mockMvc.perform(
-                        multipart("/api/artworks")
-                                .file(mediaFiles.get(0))
-                                .file(thumbnailFile)
-                                .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
-                                .contentType(MediaType.MULTIPART_FORM_DATA)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .characterEncoding("UTF-8")
+                multipart("/api/artworks")
+                    .file(mediaFiles.get(0))
+                    .file(thumbnailFile)
+                    .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .characterEncoding("UTF-8")
 
-                )
-                .andDo(print())
-                .andExpect(status().isCreated());
+            )
+            .andDo(print())
+            .andExpect(status().isCreated());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -357,12 +352,12 @@ class ArtworkControllerTest {
         createOrLoadMember();
 
         ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
-        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         thumbnailCreateDTO.setDescription("썸네일 설명");
 
         List<ArtworkMediaCreateDTO> mediaCreateDTOList = new ArrayList<>();
         ArtworkMediaCreateDTO mediaCreateDTO1 = new ArtworkMediaCreateDTO();
-        mediaCreateDTO1.setMediaType(ArtworkMediaType.url.toString());
+        mediaCreateDTO1.setMediaType(com.example.codebase.domain.media.MediaType.url.toString());
         mediaCreateDTO1.setDescription("url 미디어 설명");
         mediaCreateDTOList.add(mediaCreateDTO1);
 
@@ -375,24 +370,24 @@ class ArtworkControllerTest {
         dto.setMedias(mediaCreateDTOList);
 
         MockMultipartFile thumbnailFile = new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg",
-                createImageFile());
+            createImageFile());
 
         List<MockMultipartFile> mediaFiles = new ArrayList<>();
         MockMultipartFile mockMultipartFile1 = new MockMultipartFile("mediaFiles", "url", "text/plane",
-                "https://www.youtube.com".getBytes());
+            "https://www.youtube.com".getBytes());
         mediaFiles.add(mockMultipartFile1);
 
         mockMvc.perform(
-                        multipart("/api/artworks")
-                                .file(mediaFiles.get(0))
-                                .file(thumbnailFile)
-                                .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
-                                .contentType(MediaType.MULTIPART_FORM_DATA)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .characterEncoding("UTF-8")
-                )
-                .andDo(print())
-                .andExpect(status().isBadRequest());
+                multipart("/api/artworks")
+                    .file(mediaFiles.get(0))
+                    .file(thumbnailFile)
+                    .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .characterEncoding("UTF-8")
+            )
+            .andDo(print())
+            .andExpect(status().isBadRequest());
     }
 
 
@@ -405,26 +400,26 @@ class ArtworkControllerTest {
         List<ArtworkMediaCreateDTO> mediaCreateDTOList = new ArrayList<>();
 
         ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
-        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         thumbnailCreateDTO.setDescription("썸네일 설명");
 
         ArtworkMediaCreateDTO mediaCreateDTO1 = new ArtworkMediaCreateDTO();
-        mediaCreateDTO1.setMediaType(ArtworkMediaType.image.toString());
+        mediaCreateDTO1.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         mediaCreateDTO1.setDescription("미디어 설명1");
         mediaCreateDTOList.add(mediaCreateDTO1);
         ArtworkMediaCreateDTO mediaCreateDTO2 = new ArtworkMediaCreateDTO();
-        mediaCreateDTO2.setMediaType(ArtworkMediaType.video.toString());
+        mediaCreateDTO2.setMediaType(com.example.codebase.domain.media.MediaType.video.toString());
         mediaCreateDTO2.setDescription("미디어 설명2");
         mediaCreateDTOList.add(mediaCreateDTO2);
 
         MockMultipartFile thumbnailFile = new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg",
-                createImageFile());
+            createImageFile());
 
         List<MockMultipartFile> mediaFiles = new ArrayList<>();
         MockMultipartFile mockMultipartFile1 = new MockMultipartFile("mediaFiles", "image1.jpg", "image/jpg",
-                createImageFile());
+            createImageFile());
         MockMultipartFile mockMultipartFile2 = new MockMultipartFile("mediaFiles", "image2.jpg", "image/jpg",
-                createImageFile());
+            createImageFile());
 
         mediaFiles.add(mockMultipartFile1);
         mediaFiles.add(mockMultipartFile2);
@@ -437,17 +432,17 @@ class ArtworkControllerTest {
         dto.setMedias(mediaCreateDTOList);
 
         mockMvc.perform(
-                        multipart("/api/artworks")
-                                .file(mediaFiles.get(0))
-                                .file(mediaFiles.get(1))
-                                .file(thumbnailFile)
-                                .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
-                                .contentType(MediaType.MULTIPART_FORM_DATA)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .characterEncoding("UTF-8")
-                )
-                .andDo(print())
-                .andExpect(status().isCreated());
+                multipart("/api/artworks")
+                    .file(mediaFiles.get(0))
+                    .file(mediaFiles.get(1))
+                    .file(thumbnailFile)
+                    .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .characterEncoding("UTF-8")
+            )
+            .andDo(print())
+            .andExpect(status().isCreated());
     }
 
     @DisplayName("아트워크 4개 전체 조회")
@@ -459,11 +454,11 @@ class ArtworkControllerTest {
         createOrLoadArtwork(13, true, 1);
 
         mockMvc.perform(
-                        get("/api/artworks?page=0&size=10")
-                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get("/api/artworks?page=0&size=10")
+                    .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
 
     @DisplayName("아트워크 상세 조회")
@@ -472,10 +467,10 @@ class ArtworkControllerTest {
         Artwork artwork = createOrLoadArtwork();
 
         mockMvc.perform(
-                        get(String.format("/api/artworks/%d", artwork.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get(String.format("/api/artworks/%d", artwork.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -485,7 +480,7 @@ class ArtworkControllerTest {
         createOrLoadMember();
 
         ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
-        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         thumbnailCreateDTO.setDescription("썸네일 설명");
 
         ArtworkMediaCreateDTO mediaCreateDTO = new ArtworkMediaCreateDTO();
@@ -497,7 +492,7 @@ class ArtworkControllerTest {
         mediaFiles.add(new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", "test".getBytes()));
 
         MockMultipartFile thumbnailFile = new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg",
-                createImageFile());
+            createImageFile());
 
         ArtworkCreateDTO dto = new ArtworkCreateDTO();
         dto.setTitle("아트워크_테스트");
@@ -507,16 +502,16 @@ class ArtworkControllerTest {
         dto.setMedias(Collections.singletonList(mediaCreateDTO));
 
         mockMvc.perform(
-                        multipart("/api/artworks")
-                                .file(mediaFiles.get(0))
-                                .file(thumbnailFile)
-                                .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
-                                .contentType(MediaType.MULTIPART_FORM_DATA)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .characterEncoding("UTF-8")
-                )
-                .andDo(print())
-                .andExpect(status().isInternalServerError());
+                multipart("/api/artworks")
+                    .file(mediaFiles.get(0))
+                    .file(thumbnailFile)
+                    .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .characterEncoding("UTF-8")
+            )
+            .andDo(print())
+            .andExpect(status().isInternalServerError());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -531,12 +526,12 @@ class ArtworkControllerTest {
         dto.setVisible(true);
 
         mockMvc.perform(
-                        put(String.format("/api/artworks/%d", artwork.getId()))
-                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                put(String.format("/api/artworks/%d", artwork.getId()))
+                    .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(dto))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "user", role = "USER")
@@ -551,12 +546,33 @@ class ArtworkControllerTest {
         dto.setVisible(true);
 
         mockMvc.perform(
-                        put(String.format("/api/artworks/%d", artwork.getId()))
-                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
-                )
-                .andDo(print())
-                .andExpect(status().isForbidden());
+                put(String.format("/api/artworks/%d", artwork.getId()))
+                    .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(dto))
+            )
+            .andDo(print())
+            .andExpect(status().isBadRequest());
+    }
+
+    @WithMockCustomUser(username = "user", role = "ADMIN")
+    @DisplayName("관리자가 아트워크 수정 시")
+    @Test
+    public void 관리자_아트워크_수정() throws Exception {
+        createOrLoadMember("user", "ROLE_ADMIN", "ROLE_USER");
+        Artwork artwork = createOrLoadArtwork();
+
+        ArtworkUpdateDTO dto = new ArtworkUpdateDTO();
+        dto.setTitle("아트워크_수정");
+        dto.setDescription("작품 수정함 설명");
+        dto.setVisible(true);
+
+        mockMvc.perform(
+                put(String.format("/api/artworks/%d", artwork.getId()))
+                    .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(dto))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -566,18 +582,18 @@ class ArtworkControllerTest {
         Artwork artwork = createOrLoadArtwork();
 
         ArtworkMediaCreateDTO dto = new ArtworkMediaCreateDTO();
-        dto.setMediaType(ArtworkMediaType.image.toString());
+        dto.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         dto.setMediaUrl("수정한 URL");
         dto.setDescription("수정한 설명");
 
         mockMvc.perform(
-                        put(String.format("/api/artworks/%d/media/%d", artwork.getId(),
-                                artwork.getArtworkMedia().get(0).getId()))
-                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                put(String.format("/api/artworks/%d/media/%d", artwork.getId(),
+                    artwork.getArtworkMedia().get(0).getId()))
+                    .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(dto))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -592,14 +608,14 @@ class ArtworkControllerTest {
         dto.setVisible(true);
 
         mockMvc.perform(
-                        multipart("/api/artworks")
-                                .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
-                                .contentType(MediaType.MULTIPART_FORM_DATA)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .characterEncoding("UTF-8")
-                )
-                .andDo(print())
-                .andExpect(status().isBadRequest());
+                multipart("/api/artworks")
+                    .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .characterEncoding("UTF-8")
+            )
+            .andDo(print())
+            .andExpect(status().isBadRequest());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -609,11 +625,11 @@ class ArtworkControllerTest {
         createOrLoadMember();
 
         ArtworkMediaCreateDTO thumbnailCreateDTO = new ArtworkMediaCreateDTO();
-        thumbnailCreateDTO.setMediaType(ArtworkMediaType.image.toString());
+        thumbnailCreateDTO.setMediaType(com.example.codebase.domain.media.MediaType.image.toString());
         thumbnailCreateDTO.setDescription("썸네일 설명");
 
         ArtworkMediaCreateDTO mediaCreateDTO = new ArtworkMediaCreateDTO();
-        mediaCreateDTO.setMediaType(ArtworkMediaType.audio.toString());
+        mediaCreateDTO.setMediaType(com.example.codebase.domain.media.MediaType.audio.toString());
         mediaCreateDTO.setDescription("미디어 설명");
 
         ArtworkCreateDTO dto = new ArtworkCreateDTO();
@@ -625,38 +641,53 @@ class ArtworkControllerTest {
 
         List<MockMultipartFile> mediaFiles = new ArrayList<>();
         MockMultipartFile mockMultipartFile = new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg",
-                createImageFile());
+            createImageFile());
         mediaFiles.add(mockMultipartFile);
 
         MockMultipartFile thumbnailFile = new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg",
-                createImageFile());
+            createImageFile());
 
         mockMvc.perform(
-                        multipart("/api/artworks")
-                                .file(mediaFiles.get(0))
-                                .file(thumbnailFile)
-                                .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
-                                .contentType(MediaType.MULTIPART_FORM_DATA)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .characterEncoding("UTF-8")
+                multipart("/api/artworks")
+                    .file(mediaFiles.get(0))
+                    .file(thumbnailFile)
+                    .file(new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto)))
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .characterEncoding("UTF-8")
 
-                )
-                .andDo(print())
-                .andExpect(status().isCreated());
+            )
+            .andDo(print())
+            .andExpect(status().isCreated());
     }
 
 
     @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("일반 사용자 아트워크 삭제")
+    @DisplayName("아트워크 삭제 시")
     @Test
     public void 일반사용자_아트워크_삭제() throws Exception {
         Artwork artwork = createOrLoadArtwork();
 
         mockMvc.perform(
-                        delete(String.format("/api/artworks/%d", artwork.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                delete(String.format("/api/artworks/%d", artwork.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "user", role = "USER")
+    @DisplayName("작성자가 아닌데 아트워크 삭제 시")
+    @Test
+    public void 작성자가아닌데_아트워크_삭제() throws Exception {
+        createOrLoadMember("user", "ROLE_USER");
+
+        Artwork artwork = createOrLoadArtwork();
+
+        mockMvc.perform(
+                delete(String.format("/api/artworks/%d", artwork.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isBadRequest());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -666,10 +697,10 @@ class ArtworkControllerTest {
         Artwork artwork = createOrLoadArtwork(1, false, 3);
 
         mockMvc.perform(
-                        delete(String.format("/api/artworks/%d", artwork.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                delete(String.format("/api/artworks/%d", artwork.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
 
 
@@ -680,10 +711,10 @@ class ArtworkControllerTest {
         Artwork artwork = createOrLoadArtwork();
 
         mockMvc.perform(
-                        delete(String.format("/api/artworks/%d", artwork.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                delete(String.format("/api/artworks/%d", artwork.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
 
     @DisplayName("해당 사용자 아트워크 오래된 순으로 조회")
@@ -694,10 +725,10 @@ class ArtworkControllerTest {
         String username = artwork1.getMember().getUsername();
 
         mockMvc.perform(
-                        get(String.format("/api/artworks/member/%s?size=10&page=0&sortDirection=ASC", username))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get(String.format("/api/artworks/member/%s?size=10&page=0&sortDirection=ASC", username))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -708,17 +739,17 @@ class ArtworkControllerTest {
 
         // 좋아요 발생
         mockMvc.perform(
-                        post(String.format("/api/artworks/%d/like", artwork.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                post(String.format("/api/artworks/%d/like", artwork.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
 
         // 좋아요 취소
         mockMvc.perform(
-                        post(String.format("/api/artworks/%d/like", artwork.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isNoContent());
+                post(String.format("/api/artworks/%d/like", artwork.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isNoContent());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -731,22 +762,22 @@ class ArtworkControllerTest {
 
         // 좋아요 발생
         mockMvc.perform(
-                        post(String.format("/api/artworks/%d/like", artwork1.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                post(String.format("/api/artworks/%d/like", artwork1.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
 
         mockMvc.perform(
-                        post(String.format("/api/artworks/%d/like", artwork2.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                post(String.format("/api/artworks/%d/like", artwork2.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
 
         mockMvc.perform(
-                        get(String.format("/api/artworks/member/%s/likes", username))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get(String.format("/api/artworks/member/%s/likes", username))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
 
     }
 
@@ -762,23 +793,23 @@ class ArtworkControllerTest {
 
         // 좋아요 발생
         mockMvc.perform(
-                        post(String.format("/api/artworks/%d/like", artwork1.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                post(String.format("/api/artworks/%d/like", artwork1.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
 
         mockMvc.perform(
-                        post(String.format("/api/artworks/%d/like", artwork2.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                post(String.format("/api/artworks/%d/like", artwork2.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
 
         // 로그인한 사용자의 좋아요 여부와 함께 아트워크 전체 조회
         mockMvc.perform(
-                        get(String.format("/api/artworks/likes", username))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get(String.format("/api/artworks/likes", username))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -790,17 +821,17 @@ class ArtworkControllerTest {
 
         // 좋아요 발생
         mockMvc.perform(
-                        post(String.format("/api/artworks/%d/like", artwork1.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                post(String.format("/api/artworks/%d/like", artwork1.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
 
         // 좋아요 표시한 사용자들 조회
         mockMvc.perform(
-                        get(String.format("/api/artworks/%d/likes", artwork1.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get(String.format("/api/artworks/%d/likes", artwork1.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -814,17 +845,17 @@ class ArtworkControllerTest {
 
         // 좋아요 발생
         mockMvc.perform(
-                        post(String.format("/api/artworks/%d/like", artwork1.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                post(String.format("/api/artworks/%d/like", artwork1.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
 
         // 좋아요 표시한 사용자들 조회
         mockMvc.perform(
-                        get(String.format("/api/artworks"))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get("/api/artworks")
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
 
     @DisplayName("비회원이 전체 아트워크 조회 시 좋아요 여부와 함께 조회")
@@ -837,10 +868,10 @@ class ArtworkControllerTest {
 
         // 좋아요 표시한 사용자들 조회
         mockMvc.perform(
-                        get(String.format("/api/artworks"))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get("/api/artworks")
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
 
 
@@ -855,24 +886,24 @@ class ArtworkControllerTest {
 
         // 좋아요 발생
         mockMvc.perform(
-                        post(String.format("/api/artworks/%d/like", artwork1.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                post(String.format("/api/artworks/%d/like", artwork1.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
 
         // 좋아요 표시한 아트워크
         mockMvc.perform(
-                        get(String.format("/api/artworks/%d", artwork1.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get(String.format("/api/artworks/%d", artwork1.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
 
         // 좋아요 안한 표시한 아트워크
         mockMvc.perform(
-                        get(String.format("/api/artworks/%d", artwork2.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get(String.format("/api/artworks/%d", artwork2.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
 
     }
 
@@ -887,23 +918,23 @@ class ArtworkControllerTest {
 
         // 좋아요 발생
         mockMvc.perform(
-                        post(String.format("/api/artworks/%d/like", artwork1.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                post(String.format("/api/artworks/%d/like", artwork1.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
 
         // 특정 아트워크 좋아요 여부
         mockMvc.perform(
-                        get(String.format("/api/artworks/%d/member/likes", artwork1.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get(String.format("/api/artworks/%d/member/likes", artwork1.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
 
         mockMvc.perform(
-                        get(String.format("/api/artworks/%d/member/likes", artwork2.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get(String.format("/api/artworks/%d/member/likes", artwork2.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
 
     }
 
@@ -916,10 +947,10 @@ class ArtworkControllerTest {
 
         // 좋아요 표시한 사용자들 조회
         mockMvc.perform(
-                        get(String.format("/api/artworks/%d", artwork1.getId()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get(String.format("/api/artworks/%d", artwork1.getId()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
 
     @DisplayName("아트워크 작품명, 태그명, 작가명으로 각각 검색 시")
@@ -932,22 +963,22 @@ class ArtworkControllerTest {
 
         // 좋아요 표시한 사용자들 조회
         mockMvc.perform(
-                        get(String.format("/api/artworks/search?keyword=%s", artwork1.getTitle()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get(String.format("/api/artworks/search?keyword=%s", artwork1.getTitle()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
 
         mockMvc.perform(
-                        get(String.format("/api/artworks/search?keyword=%s", artwork1.getTags().split(",")[0]))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get(String.format("/api/artworks/search?keyword=%s", artwork1.getTags().split(",")[0]))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
 
         mockMvc.perform(
-                        get(String.format("/api/artworks/search?keyword=%s", artwork1.getMember().getName()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get(String.format("/api/artworks/search?keyword=%s", artwork1.getMember().getName()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
 
 
@@ -958,10 +989,10 @@ class ArtworkControllerTest {
         Artwork artwork = createOrLoadArtwork(1, false);
 
         mockMvc.perform(
-                        get(String.format("/api/artworks/member/%s", artwork.getMember().getUsername()))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get(String.format("/api/artworks/member/%s", artwork.getMember().getUsername()))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "testid", role = "ADMIN")
@@ -972,11 +1003,24 @@ class ArtworkControllerTest {
         Artwork artwork2 = createOrLoadArtwork(2, false);
 
         mockMvc.perform(
-                        get(String.format("/api/artworks"))
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get("/api/artworks")
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
+
+    @DisplayName("비공개 아트워크 조회 시")
+    @Test
+    public void 비공개_조회_시() throws Exception {
+        Artwork artwork1 = createOrLoadArtwork(1, false);
+
+        mockMvc.perform(
+                get("/api/artworks/" + artwork1.getId())
+            )
+            .andDo(print())
+            .andExpect(status().isBadRequest());
+    }
+
 
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("아트워크 댓글 생성 시")
@@ -987,13 +1031,73 @@ class ArtworkControllerTest {
         commentCreateDTO.setContent("댓글 내용");
 
         mockMvc.perform(
-                        post("/api/artworks/" + artwork.getId() + "/comments")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(commentCreateDTO))
-                )
-                .andDo(print())
-                .andExpect(status().isCreated());
+                post("/api/artworks/" + artwork.getId() + "/comments")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(commentCreateDTO))
+            )
+            .andDo(print())
+            .andExpect(status().isCreated());
     }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("아트워크 댓글 수정 시")
+    @Test
+    public void 아트워크_댓글_수정_시() throws Exception {
+        Artwork artwork = createArtworkWithComment(2);
+        Long commentId = artwork.getArtworkComments().get(0).getId();
+
+        ArtworkCommentCreateDTO commentCreateDTO = new ArtworkCommentCreateDTO();
+        commentCreateDTO.setContent("수정된 댓글 내용");
+
+        mockMvc.perform(
+                put("/api/artworks/" + artwork.getId() + "/comments/" + commentId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(commentCreateDTO))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "user", role = "USER")
+    @DisplayName("작성자가 아닌 아트워크 댓글 수정 시")
+    @Test
+    public void 작성자아닌_아트워크_댓글_수정_시() throws Exception {
+        createOrLoadMember("user", "ROLE_USER");
+        Artwork artwork = createArtworkWithComment(2);
+        Long commentId = artwork.getArtworkComments().get(0).getId();
+
+        ArtworkCommentCreateDTO commentCreateDTO = new ArtworkCommentCreateDTO();
+        commentCreateDTO.setContent("수정된 댓글 내용");
+
+        mockMvc.perform(
+                put("/api/artworks/" + artwork.getId() + "/comments/" + commentId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(commentCreateDTO))
+            )
+            .andDo(print())
+            .andExpect(status().isBadRequest());
+    }
+
+    @WithMockCustomUser(username = "user", role = "ADMIN")
+    @DisplayName("관리자가 아트워크 댓글 수정 시")
+    @Test
+    public void 관리자_아트워크_댓글_수정_시() throws Exception {
+        createOrLoadMember("user", "ROLE_ADMIN");
+        Artwork artwork = createArtworkWithComment(2);
+        Long commentId = artwork.getArtworkComments().get(0).getId();
+
+        ArtworkCommentCreateDTO commentCreateDTO = new ArtworkCommentCreateDTO();
+        commentCreateDTO.setContent("수정된 댓글 내용");
+
+        mockMvc.perform(
+                put("/api/artworks/" + artwork.getId() + "/comments/" + commentId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(commentCreateDTO))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
+    }
+
 
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("아트워크 댓글 삭제 시")
@@ -1003,11 +1107,42 @@ class ArtworkControllerTest {
         Long commentId = artwork.getArtworkComments().get(0).getId();
 
         mockMvc.perform(
-                        delete("/api/artworks/" + artwork.getId() + "/comments/" + commentId)
-                )
-                .andDo(print())
-                .andExpect(status().isNoContent());
+                delete("/api/artworks/" + artwork.getId() + "/comments/" + commentId)
+            )
+            .andDo(print())
+            .andExpect(status().isNoContent());
     }
+
+    @WithMockCustomUser(username = "user", role = "USER")
+    @DisplayName("작성자가 아닌데 아트워크 댓글 삭제 시")
+    @Test
+    public void 작성자가아닌_아트워크_댓글_삭제_시() throws Exception {
+        createOrLoadMember("user", "ROLE_USER");
+        Artwork artwork = createArtworkWithComment(5);
+        Long commentId = artwork.getArtworkComments().get(0).getId();
+
+        mockMvc.perform(
+                delete("/api/artworks/" + artwork.getId() + "/comments/" + commentId)
+            )
+            .andDo(print())
+            .andExpect(status().isBadRequest());
+    }
+
+    @WithMockCustomUser(username = "user", role = "ADMIN")
+    @DisplayName("관리자가 아트워크 댓글 삭제 시")
+    @Test
+    public void 관리자_아트워크_댓글_삭제_시() throws Exception {
+        createOrLoadMember("user", "ROLE_ADMIN");
+        Artwork artwork = createArtworkWithComment(5);
+        Long commentId = artwork.getArtworkComments().get(0).getId();
+
+        mockMvc.perform(
+                delete("/api/artworks/" + artwork.getId() + "/comments/" + commentId)
+            )
+            .andDo(print())
+            .andExpect(status().isNoContent());
+    }
+
 
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("아트워크 상세 조회 시 댓글도 같이 조회 된다")
@@ -1016,10 +1151,10 @@ class ArtworkControllerTest {
         Artwork artwork = createArtworkWithComment(5);
 
         mockMvc.perform(
-                        get("/api/artworks/" + artwork.getId())
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get("/api/artworks/" + artwork.getId())
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "testuser", role = "USER")
@@ -1029,10 +1164,10 @@ class ArtworkControllerTest {
         Artwork artwork = createOrLoadArtwork(1, false);
 
         mockMvc.perform(
-                        get("/api/artworks/" + artwork.getId())
-                )
-                .andDo(print())
-                .andExpect(status().isBadRequest());
+                get("/api/artworks/" + artwork.getId())
+            )
+            .andDo(print())
+            .andExpect(status().isBadRequest());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -1042,10 +1177,10 @@ class ArtworkControllerTest {
         Artwork artwork = createOrLoadArtwork(1, false);
 
         mockMvc.perform(
-                        get("/api/artworks/" + artwork.getId())
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
+                get("/api/artworks/" + artwork.getId())
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
     }
 
 }

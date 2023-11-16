@@ -1,7 +1,5 @@
 package com.example.codebase.domain.feed.dto;
 
-import com.example.codebase.controller.dto.PageInfo;
-import com.example.codebase.domain.artwork.entity.Artwork;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -2,12 +2,8 @@ package com.example.codebase.domain.member.service;
 
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
-import com.example.codebase.domain.artwork.repository.ArtworkMediaRepository;
 import com.example.codebase.domain.auth.OAuthAttributes;
-import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
-import com.example.codebase.domain.member.dto.CreateMemberDTO;
-import com.example.codebase.domain.member.dto.MemberResponseDTO;
-import com.example.codebase.domain.member.dto.UpdateMemberDTO;
+import com.example.codebase.domain.member.dto.*;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
@@ -18,14 +14,18 @@ import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.s3.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,7 +37,11 @@ public class MemberService {
     private final S3Service s3Service;
 
     @Autowired
-    public MemberService(PasswordEncoder passwordEncoder, MemberRepository memberRepository, MemberAuthorityRepository memberAuthorityRepository, S3Service s3Service) {
+    public MemberService(
+        PasswordEncoder passwordEncoder,
+        MemberRepository memberRepository,
+        MemberAuthorityRepository memberAuthorityRepository,
+        S3Service s3Service) {
         this.passwordEncoder = passwordEncoder;
         this.memberRepository = memberRepository;
         this.memberAuthorityRepository = memberAuthorityRepository;
@@ -54,11 +58,10 @@ public class MemberService {
             throw new ExistsEmailException();
         }
 
-        Authority authority = Authority.builder()
-                .authorityName("ROLE_GUEST")
-                .build();
+        Authority authority = Authority.builder().authorityName("ROLE_GUEST").build();
 
-        Member newMember = Member.builder()
+        Member newMember =
+            Member.builder()
                 .username(member.getUsername())
                 .password(passwordEncoder.encode(member.getPassword()))
                 .name(member.getName())
@@ -67,10 +70,8 @@ public class MemberService {
                 .activated(false)
                 .build();
 
-        MemberAuthority memberAuthority = MemberAuthority.builder()
-                .authority(authority)
-                .member(newMember)
-                .build();
+        MemberAuthority memberAuthority =
+            MemberAuthority.builder().authority(authority).member(newMember).build();
         newMember.addAuthority(memberAuthority);
 
         Member save = memberRepository.save(newMember);
@@ -83,7 +84,8 @@ public class MemberService {
             throw new ExistMemberException();
         }
 
-        Member newMember = Member.builder()
+        Member newMember =
+            Member.builder()
                 .username(member.getUsername())
                 .password(passwordEncoder.encode(member.getPassword()))
                 .name(member.getName())
@@ -92,16 +94,12 @@ public class MemberService {
                 .activated(true)
                 .build();
 
-        MemberAuthority userAuthority = MemberAuthority.builder()
-                .authority(Authority.of("ROLE_USER"))
-                .member(newMember)
-                .build();
+        MemberAuthority userAuthority =
+            MemberAuthority.builder().authority(Authority.of("ROLE_USER")).member(newMember).build();
         newMember.addAuthority(userAuthority);
 
-        MemberAuthority adminAuthority = MemberAuthority.builder()
-                .authority(Authority.of("ROLE_ADMIN"))
-                .member(newMember)
-                .build();
+        MemberAuthority adminAuthority =
+            MemberAuthority.builder().authority(Authority.of("ROLE_ADMIN")).member(newMember).build();
         newMember.addAuthority(adminAuthority);
 
         return MemberResponseDTO.from(memberRepository.save(newMember));
@@ -122,10 +120,8 @@ public class MemberService {
         authority.setAuthorityName("ROLE_USER");
 
         Member newMember = Member.from(passwordEncoder, oAuthAttributes);
-        MemberAuthority memberAuthority = MemberAuthority.builder()
-                .authority(authority)
-                .member(newMember)
-                .build();
+        MemberAuthority memberAuthority =
+            MemberAuthority.builder().authority(authority).member(newMember).build();
         newMember.addAuthority(memberAuthority);
 
         Member save = memberRepository.save(newMember);
@@ -134,13 +130,14 @@ public class MemberService {
 
     public List<MemberResponseDTO> getAllMember() {
         return memberRepository.findAll().stream()
-                .map(MemberResponseDTO::from)
-                .collect(Collectors.toList());
+            .map(MemberResponseDTO::from)
+            .collect(Collectors.toList());
     }
 
     @Transactional
     public MemberResponseDTO createArtist(CreateArtistMemberDTO createArtistMemberDTO) {
-        Member member = memberRepository
+        Member member =
+            memberRepository
                 .findByUsername(createArtistMemberDTO.getUsername())
                 .orElseThrow(NotFoundMemberException::new);
         member.setArtist(createArtistMemberDTO);
@@ -148,18 +145,27 @@ public class MemberService {
         return MemberResponseDTO.from(member);
     }
 
-    public MemberResponseDTO getProfile(String username) {
-        Member member = memberRepository
-                .findByUsername(username)
+    @Transactional
+    public MemberResponseDTO createCurator(CreateCuratorMemberDTO createCuratorMemberDTO) {
+        Member member =
+            memberRepository
+                .findByUsername(createCuratorMemberDTO.getUsername())
                 .orElseThrow(NotFoundMemberException::new);
+        member.setCurator(createCuratorMemberDTO);
+
+        return MemberResponseDTO.from(member);
+    }
+
+    public MemberResponseDTO getProfile(String username) {
+        Member member =
+            memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
         return MemberResponseDTO.from(member);
     }
 
     @Transactional
     public MemberResponseDTO updateMember(String username, UpdateMemberDTO updateMemberDTO) {
-        Member member = memberRepository
-                .findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
+        Member member =
+            memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
         member.update(updateMemberDTO);
 
@@ -168,9 +174,8 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDTO updateProfile(String username, MultipartFile multipartFile) {
-        Member member = memberRepository
-                .findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
+        Member member =
+            memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
         try {
             String fileUrl = s3Service.saveUploadFile(multipartFile);
@@ -183,12 +188,12 @@ public class MemberService {
     }
 
     public void deleteMember(String username) {
-        Member member = memberRepository
-                .findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
+        Member member =
+            memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
         // S3 오브젝트 삭제
-        if (Optional.ofNullable(member.getPicture()).isPresent() && member.getPicture().startsWith(s3Service.getDir())) {
+        if (Optional.ofNullable(member.getPicture()).isPresent()
+            && member.getPicture().startsWith(s3Service.getDir())) {
             s3Service.deleteObject(member.getPicture());
         }
 
@@ -203,9 +208,8 @@ public class MemberService {
     public void deleteMemberAllArtworkMedias(List<Artwork> artworks) {
         for (Artwork artwork : artworks) {
             List<ArtworkMedia> artworkMedias = artwork.getArtworkMedia();
-            List<String> urls = artworkMedias.stream()
-                    .map(ArtworkMedia::getMediaUrl)
-                    .collect(Collectors.toList());
+            List<String> urls =
+                artworkMedias.stream().map(ArtworkMedia::getMediaUrl).collect(Collectors.toList());
 
             if (urls.size() > 0) {
                 s3Service.deleteObjects(urls);
@@ -223,9 +227,8 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDTO updateArtistStatus(String username, String status) {
-        Member member = memberRepository
-                .findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
+        Member member =
+            memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
         member.updateArtistStatus(status);
 
@@ -234,9 +237,8 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDTO updateUsername(String username, String newUsername) {
-        Member member = memberRepository
-                .findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
+        Member member =
+            memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
         Boolean existsByUsername = memberRepository.existsByUsername(newUsername);
         if (existsByUsername) {
@@ -250,18 +252,16 @@ public class MemberService {
 
     @Transactional
     public void updatePassword(String username, String password) {
-        Member member = memberRepository
-                .findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
+        Member member =
+            memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
         member.updatePassword(passwordEncoder.encode(password));
     }
 
     @Transactional
     public MemberResponseDTO updateAdmin(String username) {
-        Member member = memberRepository
-                .findByUsername(username)
-                .orElseThrow(NotFoundMemberException::new);
+        Member member =
+            memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
         MemberAuthority adminAuthority = new MemberAuthority();
         adminAuthority.setAuthority(Authority.of("ROLE_ADMIN"));
@@ -270,5 +270,23 @@ public class MemberService {
         member.addAuthority(adminAuthority);
 
         return MemberResponseDTO.from(member);
+    }
+
+    public List<MemberSearchResponseDTO> searchMember(String username) {
+        Page<Member> searchResults = null;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        String regex =
+            "^([\\w\\.\\_\\-])*[a-zA-Z0-9]+([\\w\\.\\_\\-])*([a-zA-Z0-9])+([\\w\\.\\_\\-])+@([a-zA-Z0-9]+\\.)+[a-zA-Z0-9]{2,8}$";
+        if (username.matches(regex)) {
+            searchResults = memberRepository.searchByEmail(username, pageable);
+        } else if (username.startsWith("@")) {
+            username = username.substring(1);
+            searchResults = memberRepository.searchByUsername(username, pageable);
+        } else {
+            searchResults = memberRepository.searchByName(username, pageable);
+        }
+
+        return searchResults.stream().map(MemberSearchResponseDTO::from).collect(Collectors.toList());
     }
 }

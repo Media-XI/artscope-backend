@@ -1,28 +1,22 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.artwork.dto.ArtworkResponseDTO;
-import com.example.codebase.domain.artwork.dto.ArtworksResponseDTO;
 import com.example.codebase.domain.feed.dto.FeedResponseDto;
 import com.example.codebase.domain.feed.service.FeedService;
 import com.example.codebase.domain.post.dto.PostResponseDTO;
 import com.example.codebase.util.SecurityUtil;
-import io.swagger.annotations.ApiOperation;
-import java.util.List;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.Option;
-import javax.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.PositiveOrZero;
+import java.util.List;
 import java.util.Optional;
 
-@ApiOperation(value = "피드", notes = "피드 관련 API")
+@Tag(name = "Feed", description = "피드 API")
 @RestController
 @RequestMapping("/api/feed")
 public class FeedController {
@@ -34,10 +28,10 @@ public class FeedController {
         this.feedService = feedService;
     }
 
-    @ApiOperation(value = "피드 생성", notes = "[ALL] 피드를 생성합니다.")
+    @Operation(summary = "피드 조회", description = "[ALL] 피드를 조회합니다.")
     @PostMapping
     public ResponseEntity createFeed(
-            @PositiveOrZero @RequestParam(defaultValue = "0") int page
+        @PositiveOrZero @RequestParam(defaultValue = "0") int page
     ) {
         Optional<String> loginUsername = SecurityUtil.getCurrentUsername();
 
@@ -51,7 +45,7 @@ public class FeedController {
         return new ResponseEntity(dto, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "최근 일주일 간 좋아요를 많이받은 Post 조회", notes = "[ALL] 최근 일주일간 좋아요를 받은 순으로 Post를 10개 조회합니다.")
+    @Operation(summary = "최근 일주일 간 좋아요를 많이받은 Post 조회", description = "[ALL} 최근 일주일 간 좋아요를 많이 받은 순으로 Post 10개 조회")
     @GetMapping("/posts/like-rank")
     public ResponseEntity getPostLikeRankFromWeek() {
 
@@ -60,7 +54,7 @@ public class FeedController {
         return new ResponseEntity(posts, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "최근 일주일 간 좋아요를 많이받은 Artwork 조회", notes = "[ALL} 최근 일주일 간 좋아요를 많이 받은 순으로 Artwork 10개 조회")
+    @Operation(summary = "최근 일주일 간 좋아요를 많이받은 Artwork 조회", description = "[ALL} 최근 일주일 간 좋아요를 많이 받은 순으로 Artwork 10개 조회")
     @GetMapping("/artworks/like-rank")
     public ResponseEntity getArtworkLikeRankFromWeek() {
 

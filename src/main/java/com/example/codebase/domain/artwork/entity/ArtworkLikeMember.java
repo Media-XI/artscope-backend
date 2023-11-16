@@ -5,13 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Table(name = "artwork_like_member")
@@ -20,11 +16,11 @@ import java.util.UUID;
 @Getter
 @Builder
 @IdClass(ArtworkLikeMemberId.class)
-public class ArtworkLikeMember implements Serializable {
+public class ArtworkLikeMember {
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", columnDefinition = "BINARY(16)")
     private Member member;
 
     @Id
@@ -37,10 +33,10 @@ public class ArtworkLikeMember implements Serializable {
 
     public static ArtworkLikeMember of(Artwork artwork, Member member) {
         return ArtworkLikeMember.builder()
-                .artwork(artwork)
-                .member(member)
-                .likedTime(LocalDateTime.now())
-                .build();
+            .artwork(artwork)
+            .member(member)
+            .likedTime(LocalDateTime.now())
+            .build();
     }
 
 

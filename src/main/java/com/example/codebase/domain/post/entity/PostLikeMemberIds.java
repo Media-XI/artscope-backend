@@ -16,11 +16,12 @@ public class PostLikeMemberIds implements Serializable {
     private UUID member;
 
     private Long post;
-    public static PostLikeMemberIds of (Member member, Post post) {
+
+    public static PostLikeMemberIds of(Member member, Post post) {
         return new PostLikeMemberIds(member.getId(), post.getId());
     }
 
-    public static PostLikeMemberIds of (Member member, Long postId) {
+    public static PostLikeMemberIds of(Member member, Long postId) {
         return new PostLikeMemberIds(member.getId(), postId);
     }
 

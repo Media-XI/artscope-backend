@@ -2,18 +2,16 @@ package com.example.codebase.controller.dto;
 
 import lombok.Getter;
 
-import java.util.Optional;
-
 @Getter
 public class RestResponse {
 
-    private boolean success;
+    private final boolean success;
 
-    private String message;
+    private final String message;
 
     private String detail;
 
-    private String code;
+    private final String code;
 
     public RestResponse(boolean success, String message, String code) {
         this.success = success;
@@ -37,8 +35,8 @@ public class RestResponse {
     @Override
     public String toString() {
         return "success=" + success +
-                ", message='" + message + '\'' +
-                ", detail='" + detail  + '\'' +
-                ", code='" + code;
+            ", message='" + message + '\'' +
+            ", detail='" + detail + '\'' +
+            ", code='" + code;
     }
 }

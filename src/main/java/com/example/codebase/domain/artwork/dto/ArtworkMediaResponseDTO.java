@@ -19,14 +19,14 @@ public class ArtworkMediaResponseDTO {
 
     private String description;
 
-    public static ArtworkMediaResponseDTO from (ArtworkMedia artworkMedia) {
+    public static ArtworkMediaResponseDTO from(ArtworkMedia artworkMedia) {
         return ArtworkMediaResponseDTO.builder()
-                .id(artworkMedia.getId())
-                .mediaType(artworkMedia.getArtworkMediaType().name())
-                .mediaUrl(artworkMedia.getMediaUrl())
-                .imageWidth(artworkMedia.getImageWidth())
-                .imageHeight(artworkMedia.getImageHeight())
-                .description(artworkMedia.getDescription())
-                .build();
+            .id(artworkMedia.getId())
+            .mediaType(artworkMedia.getArtworkMediaType().name())
+            .mediaUrl(artworkMedia.getMediaUrl())
+            .imageWidth(artworkMedia.getImageWidth())
+            .imageHeight(artworkMedia.getImageHeight())
+            .description(artworkMedia.getDescription())
+            .build();
     }
 }

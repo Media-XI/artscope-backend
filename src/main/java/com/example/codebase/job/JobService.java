@@ -21,14 +21,16 @@ public class JobService {
         this.memberRepository = memberRepository;
     }
 
-     @Scheduled(cron = "0 0/30 * * * *") // 매 30분마다 삭제
+    @Scheduled(cron = "0 0/30 * * * *") // 매 30분마다 삭제
     public void deleteNoneActivatedMembers() {
         log.info("[DeleteNoneActivatedMembers JoB] 비활성 시간이 30분이 지난 회원 삭제!");
-        List<Member> members = memberRepository.findMembersByNoneActrivatedAndCreatedTimeAfter(false, LocalDateTime.now().minusMinutes(30));
+        List<Member> members = memberRepository.findMembersByNoneActrivatedAndCreatedTimeAfter(false,
+            LocalDateTime.now().minusMinutes(30));
 
         log.info("[DeleteNoneActivatedMembers JoB] 총 {} 개의 회원 삭제", members.size());
         for (Member member : members) {
-            log.info("[DeleteNoneActivatedMembers JoB] username: {} email: {} 가입시간: {} 활성여부: {} 삭제합니다.", member.getUsername(), member.getEmail(), member.getCreatedTime(), member.isActivated());
+            log.info("[DeleteNoneActivatedMembers JoB] username: {} email: {} 가입시간: {} 활성여부: {} 삭제합니다.",
+                member.getUsername(), member.getEmail(), member.getCreatedTime(), member.isActivated());
             memberRepository.delete(member);
         }
     }

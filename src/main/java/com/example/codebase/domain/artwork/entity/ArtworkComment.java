@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,16 +52,21 @@ public class ArtworkComment {
 
     public static ArtworkComment of(ArtworkCommentCreateDTO commentCreateDTO, Artwork artwork, Member member) {
         return ArtworkComment.builder()
-                .content(commentCreateDTO.getContent())
-                .artwork(artwork)
-                .author(member)
-                .createdTime(LocalDateTime.now())
-                .updatedTime(LocalDateTime.now())
-                .build();
+            .content(commentCreateDTO.getContent())
+            .artwork(artwork)
+            .author(member)
+            .createdTime(LocalDateTime.now())
+            .updatedTime(LocalDateTime.now())
+            .build();
     }
 
     public void addChildComment(ArtworkComment childComment) {
         this.childComments.add(childComment);
         childComment.parentComment = this;
+    }
+
+    public void update(ArtworkCommentCreateDTO commentCreateDTO) {
+        this.content = commentCreateDTO.getContent();
+        this.updatedTime = LocalDateTime.now();
     }
 }

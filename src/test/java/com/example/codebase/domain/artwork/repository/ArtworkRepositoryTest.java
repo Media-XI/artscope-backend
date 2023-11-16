@@ -26,39 +26,39 @@ class ArtworkRepositoryTest {
 
     @Test
     @DisplayName("최근 일주일내 조회수 수가 많은 순으로 아트워크 3개 가져온다")
-    void testFindTopByPopular() throws Exception{
+    void testFindTopByPopular() throws Exception {
         // given
         Artwork artwork = Artwork.builder()
-                .title("title")
-                .description("description")
-                .visible(true)
-                .views(10)
-                .createdTime(LocalDateTime.now())
-                .build();
+            .title("title")
+            .description("description")
+            .visible(true)
+            .views(10)
+            .createdTime(LocalDateTime.now())
+            .build();
 
         Artwork artwork1 = Artwork.builder()
-                .title("title1")
-                .description("description1")
-                .createdTime(LocalDateTime.now().minusDays(1))
-                .visible(true)
-                .views(5)
-                .build();
+            .title("title1")
+            .description("description1")
+            .createdTime(LocalDateTime.now().minusDays(1))
+            .visible(true)
+            .views(5)
+            .build();
 
         Artwork artwork2 = Artwork.builder()
-                .title("title2")
-                .description("description2")
-                .createdTime(LocalDateTime.now().minusDays(2))
-                .visible(true)
-                .views(1)
-                .build();
+            .title("title2")
+            .description("description2")
+            .createdTime(LocalDateTime.now().minusDays(2))
+            .visible(true)
+            .views(1)
+            .build();
 
         Artwork artwork3 = Artwork.builder()
-                .title("title3")
-                .description("description3")
-                .createdTime(LocalDateTime.now().minusDays(8))
-                .visible(true)
-                .views(100)
-                .build();
+            .title("title3")
+            .description("description3")
+            .createdTime(LocalDateTime.now().minusDays(8))
+            .visible(true)
+            .views(100)
+            .build();
         artworkRepository.saveAll(List.of(artwork, artwork1, artwork2, artwork3));
 
         // when
@@ -74,32 +74,32 @@ class ArtworkRepositoryTest {
 
     @Test
     @DisplayName("키워드에 공백이 들어간 경우")
-    void 검색_쿼리() throws Exception{
+    void 검색_쿼리() throws Exception {
         // given
 
         Artwork artwork1 = Artwork.builder()
-                .title("유진")
-                .description("description1")
-                .createdTime(LocalDateTime.now().minusDays(1))
-                .visible(true)
-                .views(5)
-                .build();
+            .title("유진")
+            .description("description1")
+            .createdTime(LocalDateTime.now().minusDays(1))
+            .visible(true)
+            .views(5)
+            .build();
 
         Artwork artwork2 = Artwork.builder()
-                .title("유 진")
-                .description("description2")
-                .createdTime(LocalDateTime.now().minusDays(2))
-                .visible(true)
-                .views(1)
-                .build();
+            .title("유 진")
+            .description("description2")
+            .createdTime(LocalDateTime.now().minusDays(2))
+            .visible(true)
+            .views(1)
+            .build();
 
         Artwork artwork3 = Artwork.builder()
-                .title("공 백 이 이렇게")
-                .description("description2")
-                .createdTime(LocalDateTime.now().minusDays(2))
-                .visible(true)
-                .views(1)
-                .build();
+            .title("공 백 이 이렇게")
+            .description("description2")
+            .createdTime(LocalDateTime.now().minusDays(2))
+            .visible(true)
+            .views(1)
+            .build();
 
         artworkRepository.saveAll(List.of(artwork1, artwork2, artwork3));
 
@@ -123,32 +123,32 @@ class ArtworkRepositoryTest {
 
     @Test
     @DisplayName("내용 검색 시 ")
-    void 검색_쿼리2 () throws Exception{
+    void 검색_쿼리2() throws Exception {
         // given
 
         Artwork artwork1 = Artwork.builder()
-                .title("유진")
-                .description("description1")
-                .createdTime(LocalDateTime.now().minusDays(1))
-                .visible(true)
-                .views(5)
-                .build();
+            .title("유진")
+            .description("description1")
+            .createdTime(LocalDateTime.now().minusDays(1))
+            .visible(true)
+            .views(5)
+            .build();
 
         Artwork artwork2 = Artwork.builder()
-                .title("유 진")
-                .description("description2")
-                .createdTime(LocalDateTime.now().minusDays(2))
-                .visible(true)
-                .views(1)
-                .build();
+            .title("유 진")
+            .description("description2")
+            .createdTime(LocalDateTime.now().minusDays(2))
+            .visible(true)
+            .views(1)
+            .build();
 
         Artwork artwork3 = Artwork.builder()
-                .title("공 백 이 이렇게")
-                .description("description2")
-                .createdTime(LocalDateTime.now().minusDays(2))
-                .visible(true)
-                .views(1)
-                .build();
+            .title("공 백 이 이렇게")
+            .description("description2")
+            .createdTime(LocalDateTime.now().minusDays(2))
+            .visible(true)
+            .views(1)
+            .build();
 
         artworkRepository.saveAll(List.of(artwork1, artwork2, artwork3));
 

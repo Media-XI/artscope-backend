@@ -37,7 +37,8 @@ public class ArtworkWithIsLikeResponseDTO {
         return artworkWithIsLikeResponseDTO;
     }
 
-    public static ArtworkWithIsLikeResponseDTO from(Artwork artwork, List<ArtworkCommentResponseDTO> comments, boolean existLike) {
+    public static ArtworkWithIsLikeResponseDTO from(Artwork artwork, List<ArtworkCommentResponseDTO> comments,
+                                                    boolean existLike) {
         ArtworkWithIsLikeResponseDTO artworkWithIsLikeResponseDTO = new ArtworkWithIsLikeResponseDTO();
         artworkWithIsLikeResponseDTO.setArtwork(ArtworkResponseDTO.of(artwork, comments));
         artworkWithIsLikeResponseDTO.setIsLiked(existLike);

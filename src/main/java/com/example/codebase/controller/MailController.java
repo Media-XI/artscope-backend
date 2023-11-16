@@ -1,11 +1,14 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.mail.service.MailService;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/mail")
@@ -17,7 +20,7 @@ public class MailController {
         this.mailService = mailService;
     }
 
-    @ApiOperation(value = "이메일 인증링크 전송 API", notes = "해당 메일을 인증하기 위해 인증링크를 전송합니다.")
+    @Operation(summary = "이메일 인증링크 전송 API", description = "해당 메일을 인증하기 위해 인증링크를 전송합니다.")
     @PreAuthorize("permitAll()")
     @PostMapping("/authenticate")
     public ResponseEntity authenticateMail(@RequestParam String email) {

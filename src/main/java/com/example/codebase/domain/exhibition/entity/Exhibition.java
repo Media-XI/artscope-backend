@@ -1,13 +1,14 @@
 package com.example.codebase.domain.exhibition.entity;
 
-import com.example.codebase.domain.exhibition.dto.CreateExhibitionDTO;
+import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionUpdateDTO;
 import com.example.codebase.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,14 +32,19 @@ public class Exhibition {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "link")
+    @Column(name = "price", nullable = false)
+    private int price;
+
+    @Column(name = "link", nullable = false, length = 500)
     private String link;
 
-    @Column(name = "start_date")
-    private LocalDateTime startDate;
+    @Builder.Default
+    @OneToMany(mappedBy = "exhibition", cascade = CascadeType.ALL)
+    private List<ExhibitionMedia> exhibitionMedias = new ArrayList<>();
 
-    @Column(name = "end_date")
-    private LocalDateTime endDate;
+    @Builder.Default
+    @OneToMany(mappedBy = "exhibition", cascade = CascadeType.ALL)
+    private List<EventSchedule> eventSchedules = new ArrayList<>();
 
     @Column(name = "created_time")
     private LocalDateTime createdTime;
@@ -47,42 +53,63 @@ public class Exhibition {
     private LocalDateTime updatedTime;
 
     @Builder.Default
-    @Column(name = "enabled")
-    private boolean enabled = true;    // 공모전 활성상태 -> 삭제 여부와 같음
+    @Column(name = "type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private EventType type = EventType.STANDARD;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", columnDefinition = "BINARY(16)", nullable = false)
     private Member member;
 
     @Builder.Default
-    @OneToMany(mappedBy = "exhibition", cascade = CascadeType.ALL)
-    private List<ExhibitionMedia> exhibitionMedias = new ArrayList<>();
+    @Column(name = "enabled")
+    private boolean enabled = true; // 공모전 활성상태 -> 삭제 여부와 같음
 
-    public static Exhibition of(CreateExhibitionDTO dto, Member member) {
+    public static Exhibition of(ExhbitionCreateDTO dto, Member member) {
         return Exhibition.builder()
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .link(dto.getLink())
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
-                .createdTime(LocalDateTime.now())
-                .member(member)
-                .build();
+            .title(dto.getTitle())
+            .description(dto.getDescription())
+            .price(dto.getPrice())
+            .link(dto.getLink())
+            .type(dto.getEventType())
+            .member(member)
+            .createdTime(LocalDateTime.now())
+            .build();
     }
 
-    public void update(CreateExhibitionDTO createExhibitionDTO) {
-        this.title = createExhibitionDTO.getTitle();
-        this.description = createExhibitionDTO.getDescription();
-        this.startDate = createExhibitionDTO.getStartDate();
-        this.endDate = createExhibitionDTO.getEndDate();
+    public void update(ExhibitionUpdateDTO exhibitionUpdateDTO) {
+        this.title =
+            exhibitionUpdateDTO.getTitle() != null ? exhibitionUpdateDTO.getTitle() : this.title;
+        this.description =
+            exhibitionUpdateDTO.getDescription() != null
+                ? exhibitionUpdateDTO.getDescription()
+                : this.description;
+        this.link = exhibitionUpdateDTO.getLink() != null ? exhibitionUpdateDTO.getLink() : this.link;
+        this.type =
+            exhibitionUpdateDTO.getEventType() != null ? exhibitionUpdateDTO.getEventType() : this.type;
+        this.price =
+            exhibitionUpdateDTO.getPrice() != null ? exhibitionUpdateDTO.getPrice() : this.price;
         this.updatedTime = LocalDateTime.now();
     }
 
     public void delete() {
         this.enabled = false;
+        deleteEventSchedules();
+    }
+
+    public void deleteEventSchedules() {
+        this.eventSchedules.forEach(EventSchedule::delete);
     }
 
     public void addExhibitionMedia(ExhibitionMedia media) {
         this.exhibitionMedias.add(media);
+    }
+
+    public void addEventSchedule(EventSchedule eventSchedule) {
+        this.eventSchedules.add(eventSchedule);
+    }
+
+    public EventSchedule getFirstEventSchedule() {
+        return this.eventSchedules.get(0);
     }
 }

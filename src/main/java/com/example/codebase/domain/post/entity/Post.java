@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,12 +59,16 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PostComment> postComment = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<PostMedia> postMedias = new ArrayList<>();
+
     public static Post of(PostCreateDTO postCreateDTO, Member author) {
         return Post.builder()
-                .content(postCreateDTO.getContent())
-                .author(author)
-                .createdTime(LocalDateTime.now())
-                .build();
+            .content(postCreateDTO.getContent())
+            .author(author)
+            .createdTime(LocalDateTime.now())
+            .build();
     }
 
     public void update(PostUpdateDTO postUpdateDTO) {
@@ -96,5 +100,13 @@ public class Post {
     public void removeComment(PostComment comment) {
         this.postComment.remove(comment);
         this.comments = postComment.size() - comment.getComments();
+    }
+
+    public void addMedia(PostMedia postMedia) {
+        this.postMedias.add(postMedia);
+    }
+
+    public void removeMedia(PostMedia postMedia) {
+        this.postMedias.remove(postMedia);
     }
 }

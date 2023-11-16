@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Page</title>
+    <script>
+        async function login(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const formDataObject = Object.fromEntries(formData.entries());
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formDataObject)
+            });
+
+            if (response.ok) {
+                window.location.href = '/swagger-ui.html';
+            } else {
+                alert('Login failed!');
+            }
+        }
+    </script>
+</head>
+<body>
+<form onsubmit="login(event)">
+    <input name="username" placeholder="아이디" required type="text">
+    <input name="password" placeholder="비밀번호    " required type="password">
+    <input type="submit" value="Login">
+</form>
+</body>
+</html>

@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,7 +20,7 @@ public class PostLikeMember {
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", columnDefinition = "BINARY(16)")
     private Member member;
 
     @Id
@@ -33,9 +33,9 @@ public class PostLikeMember {
 
     public static PostLikeMember of(Post post, Member member) {
         return PostLikeMember.builder()
-                .member(member)
-                .post(post)
-                .likedTime(LocalDateTime.now())
-                .build();
+            .member(member)
+            .post(post)
+            .likedTime(LocalDateTime.now())
+            .build();
     }
 }

@@ -17,11 +17,11 @@ public class WithMockCustomUserSecurityContextFactory implements WithSecurityCon
 
         String[] roles = annotation.role().split(",");
         final List<SimpleGrantedAuthority> authorities = Arrays.stream(roles)
-                .map((role) -> new SimpleGrantedAuthority("ROLE_" + role))
-                .collect(Collectors.toList());
+            .map((role) -> new SimpleGrantedAuthority("ROLE_" + role))
+            .collect(Collectors.toList());
 
         final UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                annotation.username(), "password", authorities);
+            annotation.username(), "password", authorities);
         context.setAuthentication(authenticationToken);
         return context;
     }
