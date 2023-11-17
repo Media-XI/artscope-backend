@@ -51,7 +51,7 @@ public class AgoraService {
         Agora agora = Agora.of(dto, member);
 
         // 썸네일 추가
-        if (!dto.isThumbnailNull() && !dto.isMediasNull()) {
+        if (!dto.isThumbnailEmpty() && !dto.isMediaEmpty()) {
             AgoraMedia thumbnail = AgoraMedia.from(dto.getThumbnail());
             thumbnail.setAgora(agora);
 

@@ -1,16 +1,19 @@
 package com.example.codebase.domain.agora.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.Getter;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.beans.ConstructorProperties;
 import java.util.List;
 
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true) // 선언한 필드 이외 모든 요소 직렬화 제외
 public class AgoraCreateDTO {
 
     @NotBlank(message = "제목은 필수입니다.")
@@ -58,14 +61,11 @@ public class AgoraCreateDTO {
         }
     }
 
-    public boolean isThumbnailNull() {
+    public boolean isThumbnailEmpty() {
         return this.thumbnail == null;
     }
 
-    public boolean isMediasNull() {
+    public boolean isMediaEmpty() {
         return this.medias == null;
     }
-
-
-
 }
