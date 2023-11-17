@@ -11,6 +11,7 @@ import com.example.codebase.domain.location.repository.LocationRepository;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberRepository;
+import com.example.codebase.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,6 +45,10 @@ public class LocationService {
         Member member =
             memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
+        if (!member.isSubmitedRoleInformation()) {
+            throw new RuntimeException("추가정보 입력한 사용자만 장소를 생성할 수 있습니다.");
+        }
+
         Location location = Location.from(dto);
 
         locationRepository.save(location);
@@ -67,6 +72,13 @@ public class LocationService {
     public void deleteLocation(Long locationId, String username) {
         Member member =
             memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+
+        if (!SecurityUtil.isAdmin()) {
+            throw new RuntimeException("관리자만 장소를 삭제할 수 있습니다.");
+        }
+
+        Location location =
+            locationRepository.findById(locationId).orElseThrow(() -> new RuntimeException("존재하지 않는 장소입니다."));
 
         throw new RuntimeException("deleteLocation 구현 안됨"); // TODO: 현재 장소에 대한 삭제 로직 구현 필요
     }

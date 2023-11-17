@@ -261,4 +261,8 @@ public class Member {
     public boolean equalsUsername(String username) {
         return this.username.equals(username);
     }
+
+    public boolean isSubmitedRoleInformation() {
+        return this.roleStatus == RoleStatus.ARTIST_PENDING || this.roleStatus == RoleStatus.CURATOR_PENDING || this.roleStatus == RoleStatus.ARTIST || this.roleStatus == RoleStatus.CURATOR;
+    }
 }

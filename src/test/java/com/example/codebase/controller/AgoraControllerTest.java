@@ -274,7 +274,7 @@ class AgoraControllerTest {
                 .disagreeText("반대")
                 .isAnonymous(true)
                 .medias(Collections.singletonList(mediaCreateDTO))
-                .thumbnail((thumbnailCreateDTO))
+                .thumbnail(thumbnailCreateDTO)
                 .build();
 
         MockMultipartFile dto = new MockMultipartFile("dto", "", "application/json",

@@ -33,6 +33,7 @@ public class Location {
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
+    // TODO: NULLABLE
     @Column(name = "english_name", length = 255)
     private String englishName;
 

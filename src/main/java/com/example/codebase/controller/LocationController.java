@@ -27,8 +27,8 @@ public class LocationController {
         this.locationService = locationService;
     }
 
-    @Operation(summary = "장소 생성", description = "[ADMIN, CURATOR, ARTIST] 장소를 생성합니다.")
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN', 'ROLE_ARTIST','ROLE_CURATOR')")
+    @Operation(summary = "장소 생성", description = "장소를 생성합니다.")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity createLocation(@RequestBody LocationCreateDTO dto) {
         String username =
@@ -45,9 +45,9 @@ public class LocationController {
         return new ResponseEntity<>(location, HttpStatus.OK);
     }
 
-    @Operation(summary = "장소 수정", description = "[ADMIN, CURATOR, ARTIST] 특정 장소에 대한 정보를 수정합니다.")
+    @Operation(summary = "장소 삭제", description = "[ADMIN, CURATOR, ARTIST] 특정 장소를 삭제합니다.")
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
-    @PostMapping("/{locationId}")
+    @DeleteMapping("/{locationId}")
     public ResponseEntity deleteLocation(@PathVariable("locationId") Long locationId) {
         String username =
             SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
