@@ -11,6 +11,7 @@ import com.example.codebase.domain.location.repository.LocationRepository;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
+import com.example.codebase.domain.member.entity.RoleStatus;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -92,24 +93,25 @@ class ExhibitionControllerTest {
     }
 
     public Member createOrLoadMember() {
-        return createOrLoadMember("testid", "ROLE_CURATOR");
+        return createOrLoadMember("testid", RoleStatus.CURATOR,"ROLE_CURATOR");
     }
 
-    public Member createOrLoadMember(String username, String... authorities) {
+    public Member createOrLoadMember(String username, RoleStatus roleStatus, String... authorities){
         Optional<Member> testMember = memberRepository.findByUsername(username);
         if (testMember.isPresent()) {
             return testMember.get();
         }
 
         Member dummy =
-            Member.builder()
-                .username(username)
-                .password(passwordEncoder.encode("1234"))
-                .email(username + "@test.com")
-                .name(username)
-                .activated(true)
-                .createdTime(LocalDateTime.now())
-                .build();
+                Member.builder()
+                        .username(username)
+                        .password(passwordEncoder.encode("1234"))
+                        .email(username + "@test.com")
+                        .name(username)
+                        .activated(true)
+                        .createdTime(LocalDateTime.now())
+                        .roleStatus(roleStatus)
+                        .build();
 
         for (String authority : authorities) {
             MemberAuthority memberAuthority = new MemberAuthority();
@@ -140,68 +142,68 @@ class ExhibitionControllerTest {
 
     @Transactional
     public Exhibition createOrLoadExhibition(
-        int idx, LocalDate startDate, LocalDate endDate, int scheduleSize) {
+            int idx, LocalDate startDate, LocalDate endDate, int scheduleSize) {
         Optional<Exhibition> save = exhibitionRepository.findById(Long.valueOf(idx));
         if (save.isPresent()) {
             return save.get();
         }
 
         Exhibition exhibition =
-            Exhibition.builder()
-                .title("이벤트 제목" + idx)
-                .description("이벤트 설명" + idx)
-                .link("링크" + idx)
-                .price(10000 + idx)
-                .type(EventType.STANDARD)
-                .createdTime(LocalDateTime.now())
-                .member(createOrLoadMember())
-                .build();
+                Exhibition.builder()
+                        .title("이벤트 제목" + idx)
+                        .description("이벤트 설명" + idx)
+                        .link("링크" + idx)
+                        .price(10000 + idx)
+                        .type(EventType.STANDARD)
+                        .createdTime(LocalDateTime.now())
+                        .member(createOrLoadMember())
+                        .build();
 
         ExhibitionMedia thumbnail =
-            ExhibitionMedia.builder()
-                .mediaUrl("url" + idx)
-                .exhibtionMediaType(ExhibtionMediaType.image)
-                .createdTime(LocalDateTime.now())
-                .build();
+                ExhibitionMedia.builder()
+                        .mediaUrl("url" + idx)
+                        .exhibtionMediaType(ExhibtionMediaType.image)
+                        .createdTime(LocalDateTime.now())
+                        .build();
         exhibition.addExhibitionMedia(thumbnail);
 
         ExhibitionMedia media =
-            ExhibitionMedia.builder()
-                .mediaUrl("url" + idx)
-                .exhibtionMediaType(ExhibtionMediaType.image)
-                .createdTime(LocalDateTime.now())
-                .build();
+                ExhibitionMedia.builder()
+                        .mediaUrl("url" + idx)
+                        .exhibtionMediaType(ExhibtionMediaType.image)
+                        .createdTime(LocalDateTime.now())
+                        .build();
         exhibition.addExhibitionMedia(media);
 
         exhibitionRepository.save(exhibition);
 
         Location location =
-            Location.builder()
-                .latitude(123.123)
-                .longitude(123.123)
-                .address("주소")
-                .name("장소 이름")
-                .englishName("장소 영어 이름")
-                .phoneNumber("010-1234-1234")
-                .webSiteUrl("test.com")
-                .snsUrl("test.com")
-                .build();
+                Location.builder()
+                        .latitude(123.123)
+                        .longitude(123.123)
+                        .address("주소")
+                        .name("장소 이름")
+                        .englishName("장소 영어 이름")
+                        .phoneNumber("010-1234-1234")
+                        .webSiteUrl("test.com")
+                        .snsUrl("test.com")
+                        .build();
         locationRepository.save(location);
 
         for (int i = 0; i < scheduleSize; i++) {
             EventSchedule eventSchedule =
-                EventSchedule.builder()
-                    .eventDate(startDate.plusDays(i))
-                    .startTime(startDate.atTime(9, 0).toLocalTime())
-                    .endTime(endDate.atTime(11, 0).toLocalTime())
-                    .detailLocation("상세 위치")
-                    .createdTime(LocalDateTime.now())
-                    .build();
+                    EventSchedule.builder()
+                            .eventDate(startDate.plusDays(i))
+                            .startTime(startDate.atTime(9, 0).toLocalTime())
+                            .endTime(endDate.atTime(11, 0).toLocalTime())
+                            .detailLocation("상세 위치")
+                            .createdTime(LocalDateTime.now())
+                            .build();
             eventSchedule.setEvent(exhibition);
             eventSchedule.setLocation(location);
 
             ExhibitionParticipant exhibitionParticipant =
-                ExhibitionParticipant.builder().member(createOrLoadMember()).build();
+                    ExhibitionParticipant.builder().member(createOrLoadMember()).build();
             exhibitionParticipant.setEventSchedule(eventSchedule);
             exhibitionParticipantRepository.save(exhibitionParticipant);
 
@@ -214,16 +216,16 @@ class ExhibitionControllerTest {
     public Location createMockLocation() {
         // Localtion
         Location location =
-            Location.builder()
-                .latitude(123.123)
-                .longitude(123.123)
-                .address("주소")
-                .name("장소 이름")
-                .englishName("장소 영어 이름")
-                .phoneNumber("010-1234-1234")
-                .webSiteUrl("test.com")
-                .snsUrl("test.com")
-                .build();
+                Location.builder()
+                        .latitude(123.123)
+                        .longitude(123.123)
+                        .address("주소")
+                        .name("장소 이름")
+                        .englishName("장소 영어 이름")
+                        .phoneNumber("010-1234-1234")
+                        .webSiteUrl("test.com")
+                        .snsUrl("test.com")
+                        .build();
         return locationRepository.save(location);
     }
 
@@ -266,7 +268,7 @@ class ExhibitionControllerTest {
 
     private byte[] createImageFile() throws IOException {
         File file =
-            resourceLoader.getResource("classpath:test/img.jpg").getFile(); // TODO : 테스트용 이미지 파일
+                resourceLoader.getResource("classpath:test/img.jpg").getFile(); // TODO : 테스트용 이미지 파일
         return Files.readAllBytes(file.toPath());
     }
 
@@ -274,97 +276,97 @@ class ExhibitionControllerTest {
     @DisplayName("이벤트 등록")
     @Test
     public void 이벤트_등록() throws Exception {
-        createOrLoadMember("user", "ROLE_CURATOR");
+        createOrLoadMember("user", RoleStatus.CURATOR,"ROLE_CURATOR");
 
         ExhbitionCreateDTO dto = mockCreateExhibitionDTO();
 
         MockMultipartFile dtoFile =
-            new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
+                new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
 
         MockMultipartFile mediaFile =
-            new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
+                new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
 
         MockMultipartFile thumbnailFile =
-            new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
+                new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
 
         mockMvc
-            .perform(
-                multipart("/api/exhibitions")
-                    .file(dtoFile)
-                    .file(mediaFile)
-                    .file(thumbnailFile)
-                    .contentType(MediaType.MULTIPART_FORM_DATA)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .characterEncoding("UTF-8"))
-            .andDo(print())
-            .andExpect(status().isCreated());
+                .perform(
+                        multipart("/api/exhibitions")
+                                .file(dtoFile)
+                                .file(mediaFile)
+                                .file(thumbnailFile)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding("UTF-8"))
+                .andDo(print())
+                .andExpect(status().isCreated());
     }
 
     @WithMockCustomUser(username = "user", role = "CURATOR")
     @DisplayName("스케줄이 없는 이벤트 등록 시")
     @Test
     public void 스케줄이_없는_이벤트_등록() throws Exception {
-        createOrLoadMember("user", "ROLE_CURATOR");
+        createOrLoadMember("user", RoleStatus.CURATOR,"ROLE_CURATOR");
 
         ExhbitionCreateDTO dto = mockCreateExhibitionDTO(0);
 
         MockMultipartFile dtoFile =
-            new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
+                new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
 
         MockMultipartFile mediaFile =
-            new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
+                new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
 
         MockMultipartFile thumbnailFile =
-            new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
+                new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
 
         mockMvc
-            .perform(
-                multipart("/api/exhibitions")
-                    .file(dtoFile)
-                    .file(mediaFile)
-                    .file(thumbnailFile)
-                    .contentType(MediaType.MULTIPART_FORM_DATA)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .characterEncoding("UTF-8"))
-            .andDo(print())
-            .andExpect(status().isBadRequest());
+                .perform(
+                        multipart("/api/exhibitions")
+                                .file(dtoFile)
+                                .file(mediaFile)
+                                .file(thumbnailFile)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding("UTF-8"))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
     @WithMockCustomUser(username = "user", role = "CURATOR")
     @DisplayName("스케줄이 5개인 이벤트 등록 시")
     @Test
     public void 스케줄이_5개인_이벤트_등록() throws Exception {
-        createOrLoadMember("user", "ROLE_CURATOR");
+        createOrLoadMember("user", RoleStatus.CURATOR,"ROLE_CURATOR");
 
         ExhbitionCreateDTO dto = mockCreateExhibitionDTO(5);
 
         MockMultipartFile dtoFile =
-            new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
+                new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
 
         MockMultipartFile mediaFile =
-            new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
+                new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
 
         MockMultipartFile thumbnailFile =
-            new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
+                new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
 
         mockMvc
-            .perform(
-                multipart("/api/exhibitions")
-                    .file(dtoFile)
-                    .file(mediaFile)
-                    .file(thumbnailFile)
-                    .contentType(MediaType.MULTIPART_FORM_DATA)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .characterEncoding("UTF-8"))
-            .andDo(print())
-            .andExpect(status().isCreated());
+                .perform(
+                        multipart("/api/exhibitions")
+                                .file(dtoFile)
+                                .file(mediaFile)
+                                .file(thumbnailFile)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding("UTF-8"))
+                .andDo(print())
+                .andExpect(status().isCreated());
     }
 
-    @WithMockCustomUser(username = "user", role = "CURATOR")
+    @WithMockCustomUser(username = "admin", role = "CURATOR")
     @DisplayName("스케줄 시작시간이 종료시간보다 빠를시")
     @Test
     public void 스케줄이_시작시간이_더_빠른경우_이벤트등록() throws Exception {
-        createOrLoadMember("user", "ROLE_CURATOR");
+        createOrLoadMember("admin", RoleStatus.CURATOR,"ROLE_CURATOR");
 
         ExhbitionCreateDTO dto = mockCreateExhibitionDTO(1);
         EventScheduleCreateDTO eventScheduleCreateDTO = dto.getSchedule().get(0);
@@ -372,25 +374,25 @@ class ExhibitionControllerTest {
         eventScheduleCreateDTO.setEndTime(LocalTime.now().minusHours(1));
 
         MockMultipartFile dtoFile =
-            new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
+                new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
 
         MockMultipartFile mediaFile =
-            new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
+                new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
 
         MockMultipartFile thumbnailFile =
-            new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
+                new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
 
         mockMvc
-            .perform(
-                multipart("/api/exhibitions")
-                    .file(dtoFile)
-                    .file(mediaFile)
-                    .file(thumbnailFile)
-                    .contentType(MediaType.MULTIPART_FORM_DATA)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .characterEncoding("UTF-8"))
-            .andDo(print())
-            .andExpect(status().isCreated());
+                .perform(
+                        multipart("/api/exhibitions")
+                                .file(dtoFile)
+                                .file(mediaFile)
+                                .file(thumbnailFile)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding("UTF-8"))
+                .andDo(print())
+                .andExpect(status().isCreated());
     }
 
     @DisplayName("이벤트 전체 조회 - 성공")
@@ -404,34 +406,34 @@ class ExhibitionControllerTest {
         createOrLoadExhibition(6, LocalDate.now());
 
         ExhibitionSearchDTO exhibitionSearchDTO =
-            ExhibitionSearchDTO.builder()
-                .startDate(LocalDate.now())
-                .endDate(LocalDate.now().plusMonths(1))
-                .eventType(EventType.STANDARD.name())
-                .build();
+                ExhibitionSearchDTO.builder()
+                        .startDate(LocalDate.now())
+                        .endDate(LocalDate.now().plusMonths(1))
+                        .eventType(EventType.STANDARD.name())
+                        .build();
 
         int page = 0;
         int size = 10;
         String sortDirection = "DESC";
 
         mockMvc
-            .perform(
-                get("/api/exhibitions")
-                    .param("startDate", exhibitionSearchDTO.getStartDate().toString())
-                    .param("endDate", exhibitionSearchDTO.getEndDate().toString())
-                    .param("eventType", exhibitionSearchDTO.getEventType())
-                    .param("page", String.valueOf(page))
-                    .param("size", String.valueOf(size))
-                    .param("sortDirection", sortDirection))
-            .andDo(print())
-            .andExpect(status().isOk());
+                .perform(
+                        get("/api/exhibitions")
+                                .param("startDate", exhibitionSearchDTO.getStartDate().toString())
+                                .param("endDate", exhibitionSearchDTO.getEndDate().toString())
+                                .param("eventType", exhibitionSearchDTO.getEventType())
+                                .param("page", String.valueOf(page))
+                                .param("size", String.valueOf(size))
+                                .param("sortDirection", sortDirection))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "testid", role = "CURATOR")
     @DisplayName("공모전 수정")
     @Test
     public void 공모전_수정() throws Exception {
-        createOrLoadMember("testid", "ROLE_CURATOR");
+        createOrLoadMember("testid", RoleStatus.CURATOR,"ROLE_CURATOR");
         Exhibition exhibition = createOrLoadExhibition();
 
         ExhibitionUpdateDTO dto = new ExhibitionUpdateDTO();
@@ -439,38 +441,38 @@ class ExhibitionControllerTest {
         dto.setDescription("수정된 설명 꽁자");
 
         mockMvc
-            .perform(
-                put(String.format("/api/exhibitions/%d", exhibition.getId()))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(dto)))
-            .andDo(print())
-            .andExpect(status().isOk());
+                .perform(
+                        put(String.format("/api/exhibitions/%d", exhibition.getId()))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto)))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "testid", role = "CURATOR")
     @DisplayName("가격을 음수로 이벤트 수정 시")
     @Test
     public void 공모전_가격_음수로_수정시() throws Exception {
-        createOrLoadMember("testid", "ROLE_CURATOR");
+        createOrLoadMember("testid", RoleStatus.CURATOR,"ROLE_CURATOR");
         Exhibition exhibition = createOrLoadExhibition();
 
         ExhibitionUpdateDTO dto = new ExhibitionUpdateDTO();
         dto.setPrice(-10000);
 
         mockMvc
-            .perform(
-                put(String.format("/api/exhibitions/%d", exhibition.getId()))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(dto)))
-            .andDo(print())
-            .andExpect(status().isBadRequest());
+                .perform(
+                        put(String.format("/api/exhibitions/%d", exhibition.getId()))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
     @WithMockCustomUser(username = "user", role = "CURATOR")
     @DisplayName("작성자가 아닐 시 이벤트 수정")
     @Test
     public void 작성자가_아닌_유저가_공모전_수정() throws Exception {
-        createOrLoadMember("user", "ROLE_CURATOR");
+        createOrLoadMember("user", RoleStatus.CURATOR,"ROLE_CURATOR");
         Exhibition exhibition = createOrLoadExhibition(); // testid 사용자가 만듬
 
         ExhibitionUpdateDTO dto = new ExhibitionUpdateDTO();
@@ -479,12 +481,12 @@ class ExhibitionControllerTest {
         dto.setPrice(3200);
 
         mockMvc
-            .perform(
-                put(String.format("/api/exhibitions/%d", exhibition.getId()))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(dto)))
-            .andDo(print())
-            .andExpect(status().isBadRequest());
+                .perform(
+                        put(String.format("/api/exhibitions/%d", exhibition.getId()))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
     @WithMockCustomUser(username = "testid", role = "CURATOR")
@@ -494,9 +496,9 @@ class ExhibitionControllerTest {
         Exhibition exhibition = createOrLoadExhibition();
 
         mockMvc
-            .perform(delete(String.format("/api/exhibitions/%d", exhibition.getId())))
-            .andDo(print())
-            .andExpect(status().isOk());
+                .perform(delete(String.format("/api/exhibitions/%d", exhibition.getId())))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @DisplayName("공모전 전체 조회 - 시작일과 종료일이 같을떄")
@@ -507,27 +509,27 @@ class ExhibitionControllerTest {
         createOrLoadExhibition(3, LocalDate.now().plusDays(2));
 
         ExhibitionSearchDTO exhibitionSearchDTO =
-            ExhibitionSearchDTO.builder()
-                .startDate(LocalDate.now().minusWeeks(1))
-                .endDate(LocalDate.now().plusMonths(1))
-                .eventType(SearchEventType.ALL.name())
-                .build();
+                ExhibitionSearchDTO.builder()
+                        .startDate(LocalDate.now().minusWeeks(1))
+                        .endDate(LocalDate.now().plusMonths(1))
+                        .eventType(SearchEventType.ALL.name())
+                        .build();
 
         int page = 0;
         int size = 10;
         String sortDirection = "DESC";
 
         mockMvc
-            .perform(
-                get("/api/exhibitions")
-                    .param("startDate", exhibitionSearchDTO.getStartDate().toString())
-                    .param("endDate", exhibitionSearchDTO.getEndDate().toString())
-                    .param("eventType", exhibitionSearchDTO.getEventType())
-                    .param("page", String.valueOf(page))
-                    .param("size", String.valueOf(size))
-                    .param("sortDirection", sortDirection))
-            .andDo(print())
-            .andExpect(status().isOk());
+                .perform(
+                        get("/api/exhibitions")
+                                .param("startDate", exhibitionSearchDTO.getStartDate().toString())
+                                .param("endDate", exhibitionSearchDTO.getEndDate().toString())
+                                .param("eventType", exhibitionSearchDTO.getEventType())
+                                .param("page", String.valueOf(page))
+                                .param("size", String.valueOf(size))
+                                .param("sortDirection", sortDirection))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @DisplayName("공모전 전체 조회 - 시작일이 종료일보다 빠를때")
@@ -538,26 +540,26 @@ class ExhibitionControllerTest {
         createOrLoadExhibition(3);
 
         ExhibitionSearchDTO exhibitionSearchDTO =
-            ExhibitionSearchDTO.builder()
-                .startDate(LocalDate.now().plusDays(1))
-                .endDate(LocalDate.now())
-                .eventType(EventType.STANDARD.name())
-                .build();
+                ExhibitionSearchDTO.builder()
+                        .startDate(LocalDate.now().plusDays(1))
+                        .endDate(LocalDate.now())
+                        .eventType(EventType.STANDARD.name())
+                        .build();
         int page = 0;
         int size = 10;
         String sortDirection = "DESC";
 
         mockMvc
-            .perform(
-                get("/api/exhibitions")
-                    .param("startDate", exhibitionSearchDTO.getStartDate().toString())
-                    .param("endDate", exhibitionSearchDTO.getEndDate().toString())
-                    .param("eventType", exhibitionSearchDTO.getEventType())
-                    .param("page", String.valueOf(page))
-                    .param("size", String.valueOf(size))
-                    .param("sortDirection", sortDirection))
-            .andDo(print())
-            .andExpect(status().isBadRequest());
+                .perform(
+                        get("/api/exhibitions")
+                                .param("startDate", exhibitionSearchDTO.getStartDate().toString())
+                                .param("endDate", exhibitionSearchDTO.getEndDate().toString())
+                                .param("eventType", exhibitionSearchDTO.getEventType())
+                                .param("page", String.valueOf(page))
+                                .param("size", String.valueOf(size))
+                                .param("sortDirection", sortDirection))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
     @DisplayName("공모전 상세 조회")
@@ -566,16 +568,16 @@ class ExhibitionControllerTest {
         Exhibition exhibition = createOrLoadExhibition(3, LocalDate.now(), 3);
 
         mockMvc
-            .perform(get("/api/exhibitions/{exhibitionId}", exhibition.getId()))
-            .andDo(print())
-            .andExpect(status().isOk());
+                .perform(get("/api/exhibitions/{exhibitionId}", exhibition.getId()))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "user", role = "CURATOR")
     @DisplayName("스케줄 시작시간과 종료시간이 같을시")
     @Test
     public void 스케줄시간과_종료시간이_같은경우_이벤트등록() throws Exception {
-        createOrLoadMember("user", "ROLE_CURATOR");
+        createOrLoadMember("user", RoleStatus.CURATOR,"ROLE_CURATOR");
 
         ExhbitionCreateDTO dto = mockCreateExhibitionDTO(1);
         EventScheduleCreateDTO eventScheduleCreateDTO = dto.getSchedule().get(0);
@@ -583,54 +585,54 @@ class ExhibitionControllerTest {
         eventScheduleCreateDTO.setStartTime(LocalTime.now());
 
         MockMultipartFile dtoFile =
-            new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
+                new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
 
         MockMultipartFile mediaFile =
-            new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
+                new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
 
         MockMultipartFile thumbnailFile =
-            new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
+                new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
 
         mockMvc
-            .perform(
-                multipart("/api/exhibitions")
-                    .file(dtoFile)
-                    .file(mediaFile)
-                    .file(thumbnailFile)
-                    .contentType(MediaType.MULTIPART_FORM_DATA)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .characterEncoding("UTF-8"))
-            .andDo(print())
-            .andExpect(status().isBadRequest());
+                .perform(
+                        multipart("/api/exhibitions")
+                                .file(dtoFile)
+                                .file(mediaFile)
+                                .file(thumbnailFile)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding("UTF-8"))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
     @WithMockCustomUser(username = "user", role = "CURATOR")
     @DisplayName("권한 없는 유저가 이벤트를 생성할시")
     @Test
     public void 권한이_없는_유저가_수정_할떄() throws Exception {
-        createOrLoadMember("user", "ROLE_USER");
+        createOrLoadMember("user", RoleStatus.NONE,"ROLE_USER");
 
         ExhbitionCreateDTO dto = mockCreateExhibitionDTO();
 
         MockMultipartFile dtoFile =
-            new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
+                new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
 
         MockMultipartFile mediaFile =
-            new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
+                new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
 
         MockMultipartFile thumbnailFile =
-            new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
+                new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
 
         mockMvc
-            .perform(
-                multipart("/api/exhibitions")
-                    .file(dtoFile)
-                    .file(mediaFile)
-                    .file(thumbnailFile)
-                    .contentType(MediaType.MULTIPART_FORM_DATA)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .characterEncoding("UTF-8"))
-            .andDo(print())
-            .andExpect(status().isBadRequest());
+                .perform(
+                        multipart("/api/exhibitions")
+                                .file(dtoFile)
+                                .file(mediaFile)
+                                .file(thumbnailFile)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding("UTF-8"))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 }

@@ -1,5 +1,6 @@
 package com.example.codebase.domain.agora.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -58,10 +59,12 @@ public class AgoraCreateDTO {
         }
     }
 
+    @JsonIgnore
     public boolean isThumbnailNull() {
         return this.thumbnail == null;
     }
 
+    @JsonIgnore
     public boolean isMediasNull() {
         return this.medias == null;
     }
