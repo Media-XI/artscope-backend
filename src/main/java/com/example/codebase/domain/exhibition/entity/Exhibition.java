@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Where;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Where(clause = "enabled = true")
 public class Exhibition {
 
     @Id
@@ -63,7 +66,7 @@ public class Exhibition {
 
     @Builder.Default
     @Column(name = "enabled")
-    private boolean enabled = true; // 공모전 활성상태 -> 삭제 여부와 같음
+    private boolean enabled = true;
 
     public static Exhibition of(ExhbitionCreateDTO dto, Member member) {
         return Exhibition.builder()
@@ -94,11 +97,6 @@ public class Exhibition {
 
     public void delete() {
         this.enabled = false;
-        deleteEventSchedules();
-    }
-
-    public void deleteEventSchedules() {
-        this.eventSchedules.forEach(EventSchedule::delete);
     }
 
     public void addExhibitionMedia(ExhibitionMedia media) {
@@ -111,5 +109,9 @@ public class Exhibition {
 
     public EventSchedule getFirstEventSchedule() {
         return this.eventSchedules.get(0);
+    }
+
+    public Boolean equalUsername(String username) {
+        return this.member.getUsername().equals(username);
     }
 }

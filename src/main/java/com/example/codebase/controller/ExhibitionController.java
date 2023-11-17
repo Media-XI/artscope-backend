@@ -100,7 +100,7 @@ public class ExhibitionController {
         return new ResponseEntity(exhibition, HttpStatus.OK);
     }
 
-    @Operation(summary = "이벤트 일정 수정", description = "이벤트 일정을 수정합니다.")
+    @Operation(summary = "이벤트 삭제", description = "이벤트를 삭제 합니다.")
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{exhibitionId}")
     public ResponseEntity deleteExhibition(@PathVariable Long exhibitionId) {
