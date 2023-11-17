@@ -202,7 +202,7 @@ public class ExhibitionService {
         Member member =
                 memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
-        if (!member.equals(exhibition.getMember())) {
+        if (!SecurityUtil.isAdmin() && !member.equals(exhibition.getMember())) {
             throw new RuntimeException("이벤트의 작성자가 아닙니다.");
         }
 
@@ -239,7 +239,7 @@ public class ExhibitionService {
             throw new RuntimeException("해당 이벤트의 일정이 아닙니다.");
         }
 
-        if (!exhibition.equalUsername(username)) {
+        if (!SecurityUtil.isAdmin() && !exhibition.equalUsername(username)) {
             throw new RuntimeException("해당 이벤트의 생성자가 아닙니다.");
         }
         eventScheduleRepository.deleteById(eventScheduleId);
@@ -255,7 +255,7 @@ public class ExhibitionService {
         Member member =
                 memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
-        if ((!member.equals(exhibition.getMember()))) {
+        if (!SecurityUtil.isAdmin() && (!member.equals(exhibition.getMember()))) {
             throw new RuntimeException("이벤트 일정을 삭제할 권한이 없습니다.");
         }
 
