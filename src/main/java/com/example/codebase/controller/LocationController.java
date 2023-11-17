@@ -47,7 +47,7 @@ public class LocationController {
 
     @Operation(summary = "장소 삭제", description = "[ADMIN, CURATOR, ARTIST] 특정 장소를 삭제합니다.")
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
-    @PostMapping("/{locationId}")
+    @DeleteMapping("/{locationId}")
     public ResponseEntity deleteLocation(@PathVariable("locationId") Long locationId) {
         String username =
             SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
