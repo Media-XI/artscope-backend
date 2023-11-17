@@ -7,6 +7,7 @@ import com.example.codebase.domain.location.repository.LocationRepository;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
+import com.example.codebase.domain.member.entity.RoleStatus;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +29,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import jakarta.transaction.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -66,24 +68,25 @@ class LocationControllerTest {
     }
 
     public Member createOrLoadMember() {
-        return createOrLoadMember("testid", "ROLE_ADMIN");
+        return createOrLoadMember("testid", RoleStatus.CURATOR,"ROLE_ADMIN");
     }
 
-    public Member createOrLoadMember(String username, String... authorities) {
+    public Member createOrLoadMember(String username, RoleStatus roleStatus, String... authorities) {
         Optional<Member> testMember = memberRepository.findByUsername(username);
         if (testMember.isPresent()) {
             return testMember.get();
         }
 
         Member dummy =
-            Member.builder()
-                .username(username)
-                .password(passwordEncoder.encode("1234"))
-                .email(username + "@test.com")
-                .name(username)
-                .activated(true)
-                .createdTime(LocalDateTime.now())
-                .build();
+                Member.builder()
+                        .username(username)
+                        .password(passwordEncoder.encode("1234"))
+                        .email(username + "@test.com")
+                        .name(username)
+                        .activated(true)
+                        .createdTime(LocalDateTime.now())
+                        .roleStatus(roleStatus)
+                        .build();
 
         for (String authority : authorities) {
             MemberAuthority memberAuthority = new MemberAuthority();
@@ -101,16 +104,16 @@ class LocationControllerTest {
 
     public Location createOrLoadLocation(int index) {
         Location location =
-            Location.builder()
-                .latitude(37.123456 + index)
-                .longitude(127.123456 + index)
-                .address("경기도 용인시 수지구 죽전동" + index)
-                .name("테스트 장소" + index)
-                .englishName("Test Location" + index)
-                .phoneNumber("010-1234-5678" + index)
-                .webSiteUrl("https://test.com" + index)
-                .snsUrl("https://test.com" + index)
-                .build();
+                Location.builder()
+                        .latitude(37.123456 + index)
+                        .longitude(127.123456 + index)
+                        .address("경기도 용인시 수지구 죽전동" + index)
+                        .name("테스트 장소" + index)
+                        .englishName("Test Location" + index)
+                        .phoneNumber("010-1234-5678" + index)
+                        .webSiteUrl("https://test.com" + index)
+                        .snsUrl("https://test.com" + index)
+                        .build();
 
         return locationRepository.save(location);
     }
@@ -129,7 +132,7 @@ class LocationControllerTest {
         return locationCreateDTO;
     }
 
-    @WithMockCustomUser(username = "testid", role = "ADMIN")
+    @WithMockCustomUser(username = "testid", role = "ARTIST_PENDING")
     @DisplayName("장소 생성 테스트")
     @Test
     public void 장소_등록() throws Exception {
@@ -138,12 +141,12 @@ class LocationControllerTest {
         LocationCreateDTO locationCreateDTO = createOrLoadLocationCreateDTO();
 
         mockMvc
-            .perform(
-                post("/api/location")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(locationCreateDTO)))
-            .andDo(print())
-            .andExpect(status().isCreated());
+                .perform(
+                        post("/api/location")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(locationCreateDTO)))
+                .andDo(print())
+                .andExpect(status().isCreated());
     }
 
     @DisplayName("특정 장소 상세 조회 테스트")
@@ -152,9 +155,9 @@ class LocationControllerTest {
         Location location = createOrLoadLocation();
 
         mockMvc
-            .perform(get("/api/location/{locationId}", location.getId()))
-            .andDo(print())
-            .andExpect(status().isOk());
+                .perform(get("/api/location/{locationId}", location.getId()))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @DisplayName("이름으로 장소 검색 테스트")
@@ -170,13 +173,13 @@ class LocationControllerTest {
         int size = 10;
 
         mockMvc
-            .perform(
-                get("/api/location/search")
-                    .param("keyword", location.getName())
-                    .param("page", String.valueOf(page))
-                    .param("size", String.valueOf(size)))
-            .andDo(print())
-            .andExpect(status().isOk());
+                .perform(
+                        get("/api/location/search")
+                                .param("keyword", location.getName())
+                                .param("page", String.valueOf(page))
+                                .param("size", String.valueOf(size)))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @DisplayName("주소로 장소 검색 테스트")
@@ -192,12 +195,29 @@ class LocationControllerTest {
         int size = 10;
 
         mockMvc
-            .perform(
-                get("/api/location/search")
-                    .param("keyword", "경기도")
-                    .param("page", String.valueOf(page))
-                    .param("size", String.valueOf(size)))
-            .andDo(print())
-            .andExpect(status().isOk());
+                .perform(
+                        get("/api/location/search")
+                                .param("keyword", "경기도")
+                                .param("page", String.valueOf(page))
+                                .param("size", String.valueOf(size)))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "NONE")
+    @DisplayName("인증안한 유저가 장소등록 테스트")
+    @Test
+    public void 인증_안된_유저가_장소_등록() throws Exception {
+        createOrLoadMember("testid", RoleStatus.NONE,"ROLE_ADMIN");
+
+        LocationCreateDTO locationCreateDTO = createOrLoadLocationCreateDTO();
+
+        mockMvc
+                .perform(
+                        post("/api/location")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(locationCreateDTO)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 }
