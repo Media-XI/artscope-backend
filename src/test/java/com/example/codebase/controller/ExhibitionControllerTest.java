@@ -34,6 +34,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import jakarta.transaction.Transactional;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -191,7 +192,9 @@ class ExhibitionControllerTest {
         locationRepository.save(location);
 
         for (int i = 0; i < scheduleSize; i++) {
-            LocalDateTime defaultStartDateTime = LocalDateTime.now(); // TODO : 테스트용 시작시간 설정?
+            LocalDateTime defaultStartDateTime = LocalDateTime.now()
+                    .withSecond(0)
+                    .withNano(0);
 
             EventSchedule eventSchedule =
                     EventSchedule.builder()
