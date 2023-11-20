@@ -191,7 +191,7 @@ class ExhibitionControllerTest {
         locationRepository.save(location);
 
         for (int i = 0; i < scheduleSize; i++) {
-            LocalDateTime defaultStartDateTime = LocalDateTime.of(2023, 10, 20, 10, 0); // October 20, 2023 at 10:00 AM
+            LocalDateTime defaultStartDateTime = LocalDateTime.now(); // TODO : 테스트용 시작시간 설정?
 
             EventSchedule eventSchedule =
                     EventSchedule.builder()
@@ -407,9 +407,8 @@ class ExhibitionControllerTest {
 
         ExhibitionSearchDTO exhibitionSearchDTO =
                 ExhibitionSearchDTO.builder()
-                        .startDateTime(LocalDateTime.now())
-                        .endDateTime(LocalDateTime.now().plusMonths(1))
-                        .eventType(EventType.STANDARD.name())
+                        .startDate(LocalDate.now())
+                        .endDate(LocalDate.now().plusMonths(3))
                         .build();
 
         int page = 0;
@@ -419,9 +418,9 @@ class ExhibitionControllerTest {
         mockMvc
                 .perform(
                         get("/api/exhibitions")
-                                .param("startDate", exhibitionSearchDTO.getStartDateTime().toString())
-                                .param("endDate", exhibitionSearchDTO.getEndDateTime().toString())
-                                .param("eventType", exhibitionSearchDTO.getEventType())
+                                .param("startDate", exhibitionSearchDTO.getStartDate().toString())
+                                .param("endDate", exhibitionSearchDTO.getEndDate().toString())
+                                .param("eventType", "ALL")
                                 .param("page", String.valueOf(page))
                                 .param("size", String.valueOf(size))
                                 .param("sortDirection", sortDirection))
@@ -510,8 +509,8 @@ class ExhibitionControllerTest {
 
         ExhibitionSearchDTO exhibitionSearchDTO =
                 ExhibitionSearchDTO.builder()
-                        .startDateTime(LocalDateTime.now().minusWeeks(1))
-                        .endDateTime(LocalDateTime.now().plusMonths(1))
+                        .startDate(LocalDate.now().minusWeeks(1))
+                        .endDate(LocalDate.now().plusMonths(1))
                         .eventType(SearchEventType.ALL.name())
                         .build();
 
@@ -522,8 +521,8 @@ class ExhibitionControllerTest {
         mockMvc
                 .perform(
                         get("/api/exhibitions")
-                                .param("startDate", exhibitionSearchDTO.getStartDateTime().toString())
-                                .param("endDate", exhibitionSearchDTO.getEndDateTime().toString())
+                                .param("startDate", exhibitionSearchDTO.getStartDate().toString())
+                                .param("endDate", exhibitionSearchDTO.getEndDate().toString())
                                 .param("eventType", exhibitionSearchDTO.getEventType())
                                 .param("page", String.valueOf(page))
                                 .param("size", String.valueOf(size))
@@ -541,8 +540,8 @@ class ExhibitionControllerTest {
 
         ExhibitionSearchDTO exhibitionSearchDTO =
                 ExhibitionSearchDTO.builder()
-                        .startDateTime(LocalDateTime.now().plusDays(1))
-                        .endDateTime(LocalDateTime.now())
+                        .startDate(LocalDate.now().plusDays(1))
+                        .endDate(LocalDate.now())
                         .eventType(EventType.STANDARD.name())
                         .build();
         int page = 0;
@@ -552,8 +551,8 @@ class ExhibitionControllerTest {
         mockMvc
                 .perform(
                         get("/api/exhibitions")
-                                .param("startDateTime", exhibitionSearchDTO.getStartDateTime().toString())
-                                .param("endDateTime", exhibitionSearchDTO.getEndDateTime().toString())
+                                .param("startDate", exhibitionSearchDTO.getStartDate().toString())
+                                .param("endDate", exhibitionSearchDTO.getEndDate().toString())
                                 .param("eventType", exhibitionSearchDTO.getEventType())
                                 .param("page", String.valueOf(page))
                                 .param("size", String.valueOf(size))

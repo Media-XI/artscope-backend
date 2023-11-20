@@ -14,13 +14,18 @@ public class ParticipantInformationResponseDTO {
 
     private String name;
 
-    // TODO : 뭐가 더 필요하지..
-
     public static ParticipantInformationResponseDTO from(
-        ExhibitionParticipant exhibitionParticipant) {
+            ExhibitionParticipant exhibitionParticipant) {
+        String username = null;
+        if (exhibitionParticipant.getMember() != null) {
+            username = exhibitionParticipant.getMember().getUsername();
+        }
+
+        String name = exhibitionParticipant.getName();
+
         return ParticipantInformationResponseDTO.builder()
-            .username(exhibitionParticipant.getMember().getUsername())
-            .name(exhibitionParticipant.getName())
-            .build();
+                .username(username)
+                .name(name)
+                .build();
     }
 }
