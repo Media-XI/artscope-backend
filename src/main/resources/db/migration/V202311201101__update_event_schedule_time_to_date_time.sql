@@ -1,0 +1,2 @@
+UPDATE event_schedule SET event_schedule.start_date_time = DATE_ADD(event_date, INTERVAL TIME_TO_SEC(start_date_time) SECOND);
+UPDATE event_schedule SET event_schedule.end_date_time = DATE_ADD(event_date, INTERVAL TIME_TO_SEC(end_date_time) SECOND);

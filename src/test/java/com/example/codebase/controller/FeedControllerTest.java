@@ -210,13 +210,12 @@ class FeedControllerTest {
         exhibitionRepository.save(exhibition);
 
         EventSchedule eventSchedule =
-                EventSchedule.builder()
-                        .eventDate(LocalDate.now())
-                        .startTime(LocalTime.now())
-                        .endTime(LocalTime.now().plusHours(2))
-                        .detailLocation("상세 위치")
-                        .createdTime(LocalDateTime.now())
-                        .build();
+            EventSchedule.builder()
+                .startDateTime(LocalDateTime.now())
+                .endDateTime(LocalDateTime.now().plusHours(2))
+                .detailLocation("상세 위치")
+                .createdTime(LocalDateTime.now())
+                .build();
         eventSchedule.setEvent(exhibition);
 
         Location location =
