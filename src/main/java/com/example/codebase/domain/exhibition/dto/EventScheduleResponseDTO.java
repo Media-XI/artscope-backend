@@ -28,17 +28,13 @@ public class EventScheduleResponseDTO {
 
     private List<ParticipantInformationResponseDTO> participants;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate eventDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime startTime;
 
-    @DateTimeFormat(pattern = "HH:mm")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
-    private LocalTime startTime;
-
-    @DateTimeFormat(pattern = "HH:mm")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
-    private LocalTime endTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime endTime;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdTime;
@@ -48,20 +44,19 @@ public class EventScheduleResponseDTO {
 
     public static EventScheduleResponseDTO from(EventSchedule eventSchedule) {
         List<ParticipantInformationResponseDTO> participantInformationResponseDTO =
-            eventSchedule.getExhibitionParticipants().stream()
-                .map(ParticipantInformationResponseDTO::from)
-                .collect(Collectors.toList());
+                eventSchedule.getExhibitionParticipants().stream()
+                        .map(ParticipantInformationResponseDTO::from)
+                        .collect(Collectors.toList());
         return EventScheduleResponseDTO.builder()
-            .id(eventSchedule.getId())
-            .locationName(eventSchedule.getLocation().getName())
-            .locationAddress(eventSchedule.getLocation().getAddress())
-            .detailLocation(eventSchedule.getDetailLocation())
-            .participants(participantInformationResponseDTO)
-            .eventDate(eventSchedule.getEventDate())
-            .startTime(eventSchedule.getStartTime())
-            .endTime(eventSchedule.getEndTime())
-            .createdTime(eventSchedule.getCreatedTime())
-            .updatedTime(eventSchedule.getUpdatedTime())
-            .build();
+                .id(eventSchedule.getId())
+                .locationName(eventSchedule.getLocation().getName())
+                .locationAddress(eventSchedule.getLocation().getAddress())
+                .detailLocation(eventSchedule.getDetailLocation())
+                .participants(participantInformationResponseDTO)
+                .startTime(eventSchedule.getStartTime())
+                .endTime(eventSchedule.getEndTime())
+                .createdTime(eventSchedule.getCreatedTime())
+                .updatedTime(eventSchedule.getUpdatedTime())
+                .build();
     }
 }

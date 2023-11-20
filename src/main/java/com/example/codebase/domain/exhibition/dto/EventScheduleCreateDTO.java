@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -14,19 +15,14 @@ import java.util.List;
 @Setter
 public class EventScheduleCreateDTO {
 
-    @NotBlank(message = "날짜 지정은 필수입니다.")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate eventDate;
-
     @NotBlank(message = "시작시간은 필수입니다.")
-    @DateTimeFormat(pattern = "HH:mm")
-    @JsonFormat(pattern = "HH:mm")
-    private LocalTime startTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    private LocalDateTime startTime;
 
-    @NotBlank(message = "종료시간은 필수입니다.")
-    @DateTimeFormat(pattern = "HH:mm")
-    @JsonFormat(pattern = "HH:mm")
-    private LocalTime endTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    private LocalDateTime endTime;
 
     @NotBlank(message = "장소는 필수입니다.")
     private Long locationId;

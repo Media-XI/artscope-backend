@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -27,15 +28,17 @@ public class EventSchedule {
     @Column(name = "event_schedule_id")
     private Long id;
 
-    @Column(name = "event_date")
-    private LocalDate eventDate;
+    //TODO: 삭제
+//    @Column(name = "event_date")
+//    private LocalDate eventDate;
 
-    @Column(name = "start_time")
-    private LocalTime startTime;
+    @Column(name = "start_time", nullable = false)
+    private LocalDateTime startTime;
 
     @Column(name = "end_time")
-    private LocalTime endTime;
+    private LocalDateTime endTime;
 
+    @Getter
     @ManyToOne
     @JoinColumn(name = "location_id", nullable = false)
     private Location location;
@@ -59,12 +62,11 @@ public class EventSchedule {
 
     public static EventSchedule from(EventScheduleCreateDTO scheduleDTO) {
         return EventSchedule.builder()
-            .eventDate(scheduleDTO.getEventDate())
-            .startTime(scheduleDTO.getStartTime())
-            .endTime(scheduleDTO.getEndTime())
-            .detailLocation(scheduleDTO.getDetailLocation())
-            .createdTime(LocalDateTime.now())
-            .build();
+                .startTime(scheduleDTO.getStartTime())
+                .endTime(scheduleDTO.getEndTime())
+                .detailLocation(scheduleDTO.getDetailLocation())
+                .createdTime(LocalDateTime.now())
+                .build();
     }
 
     // Event 양방향 연관 메소드
@@ -73,17 +75,8 @@ public class EventSchedule {
         exhibition.addEventSchedule(this);
     }
 
-    public Location getLocation() {
-        return this.location;
-    }
-
-    // Location 단방향 연관 메소드
     public void setLocation(Location location) {
         this.location = location;
-    }
-
-    public void getDetailLocation(String detailLocation) {
-        this.detailLocation = detailLocation;
     }
 
     public void delete() {
