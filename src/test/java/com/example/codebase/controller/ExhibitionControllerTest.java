@@ -191,11 +191,12 @@ class ExhibitionControllerTest {
         locationRepository.save(location);
 
         for (int i = 0; i < scheduleSize; i++) {
+            LocalDateTime defaultStartDateTime = LocalDateTime.of(2023, 10, 20, 10, 0); // October 20, 2023 at 10:00 AM
+
             EventSchedule eventSchedule =
                     EventSchedule.builder()
-                            .eventDate(startDate.plusDays(i))
-                            .startTime(startDate.atTime(9, 0).toLocalTime())
-                            .endTime(endDate.atTime(11, 0).toLocalTime())
+                            .startTime(defaultStartDateTime.plusDays(i))
+                            .endTime(defaultStartDateTime.plusDays(i).plusHours(2))
                             .detailLocation("상세 위치")
                             .createdTime(LocalDateTime.now())
                             .build();
@@ -245,9 +246,8 @@ class ExhibitionControllerTest {
         List<EventScheduleCreateDTO> scuheduleDTOs = new ArrayList<>();
         for (int i = 0; i < scheduleSize; i++) {
             EventScheduleCreateDTO scuheduleDTO = new EventScheduleCreateDTO();
-            scuheduleDTO.setEventDate(LocalDate.now().plusDays(i));
-            scuheduleDTO.setStartTime(LocalTime.now().plusMinutes(i));
-            scuheduleDTO.setEndTime(LocalTime.now().plusHours(2).plusMinutes(i));
+            scuheduleDTO.setStartTime(LocalDateTime.now().plusMinutes(i));
+            scuheduleDTO.setEndTime(LocalDateTime.now().plusHours(2).plusMinutes(i));
             scuheduleDTO.setLocationId(createMockLocation().getId());
             scuheduleDTO.setDetailLocation("상세 위치" + i);
             scuheduleDTOs.add(scuheduleDTO);
@@ -370,8 +370,8 @@ class ExhibitionControllerTest {
 
         ExhbitionCreateDTO dto = mockCreateExhibitionDTO(1);
         EventScheduleCreateDTO eventScheduleCreateDTO = dto.getSchedule().get(0);
-        eventScheduleCreateDTO.setStartTime(LocalTime.now());
-        eventScheduleCreateDTO.setEndTime(LocalTime.now().minusHours(1));
+        eventScheduleCreateDTO.setStartTime(LocalDateTime.now());
+        eventScheduleCreateDTO.setEndTime(LocalDateTime.now().minusHours(1));
 
         MockMultipartFile dtoFile =
                 new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
@@ -407,8 +407,8 @@ class ExhibitionControllerTest {
 
         ExhibitionSearchDTO exhibitionSearchDTO =
                 ExhibitionSearchDTO.builder()
-                        .startDate(LocalDate.now())
-                        .endDate(LocalDate.now().plusMonths(1))
+                        .startDate(LocalDateTime.now())
+                        .endDate(LocalDateTime.now().plusMonths(1))
                         .eventType(EventType.STANDARD.name())
                         .build();
 
@@ -510,8 +510,8 @@ class ExhibitionControllerTest {
 
         ExhibitionSearchDTO exhibitionSearchDTO =
                 ExhibitionSearchDTO.builder()
-                        .startDate(LocalDate.now().minusWeeks(1))
-                        .endDate(LocalDate.now().plusMonths(1))
+                        .startDate(LocalDateTime.now().minusWeeks(1))
+                        .endDate(LocalDateTime.now().plusMonths(1))
                         .eventType(SearchEventType.ALL.name())
                         .build();
 
@@ -541,8 +541,8 @@ class ExhibitionControllerTest {
 
         ExhibitionSearchDTO exhibitionSearchDTO =
                 ExhibitionSearchDTO.builder()
-                        .startDate(LocalDate.now().plusDays(1))
-                        .endDate(LocalDate.now())
+                        .startDate(LocalDateTime.now().plusDays(1))
+                        .endDate(LocalDateTime.now())
                         .eventType(EventType.STANDARD.name())
                         .build();
         int page = 0;
@@ -581,8 +581,8 @@ class ExhibitionControllerTest {
 
         ExhbitionCreateDTO dto = mockCreateExhibitionDTO(1);
         EventScheduleCreateDTO eventScheduleCreateDTO = dto.getSchedule().get(0);
-        eventScheduleCreateDTO.setEndTime(LocalTime.now());
-        eventScheduleCreateDTO.setStartTime(LocalTime.now());
+        eventScheduleCreateDTO.setEndTime(LocalDateTime.now());
+        eventScheduleCreateDTO.setStartTime(LocalDateTime.now());
 
         MockMultipartFile dtoFile =
                 new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
@@ -634,5 +634,38 @@ class ExhibitionControllerTest {
                                 .characterEncoding("UTF-8"))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
+    }
+
+    @WithMockCustomUser(username = "user", role = "CURATOR")
+    @DisplayName("스케줄 종료시간이 없을시")
+    @Test
+    public void 스케줄_생성시_종료시간이_없는_경우() throws Exception {
+        createOrLoadMember("user", RoleStatus.CURATOR,"ROLE_CURATOR");
+
+        ExhbitionCreateDTO dto = mockCreateExhibitionDTO(1);
+        EventScheduleCreateDTO eventScheduleCreateDTO = dto.getSchedule().get(0);
+        eventScheduleCreateDTO.setEndTime(null);
+        eventScheduleCreateDTO.setStartTime(LocalDateTime.now());
+
+        MockMultipartFile dtoFile =
+                new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
+
+        MockMultipartFile mediaFile =
+                new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
+
+        MockMultipartFile thumbnailFile =
+                new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
+
+        mockMvc
+                .perform(
+                        multipart("/api/exhibitions")
+                                .file(dtoFile)
+                                .file(mediaFile)
+                                .file(thumbnailFile)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding("UTF-8"))
+                .andDo(print())
+                .andExpect(status().isCreated());
     }
 }
