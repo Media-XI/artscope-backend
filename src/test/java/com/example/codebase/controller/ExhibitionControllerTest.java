@@ -246,8 +246,8 @@ class ExhibitionControllerTest {
         List<EventScheduleCreateDTO> scuheduleDTOs = new ArrayList<>();
         for (int i = 0; i < scheduleSize; i++) {
             EventScheduleCreateDTO scuheduleDTO = new EventScheduleCreateDTO();
-            scuheduleDTO.setStartTime(LocalDateTime.now().plusMinutes(i));
-            scuheduleDTO.setEndTime(LocalDateTime.now().plusHours(2).plusMinutes(i));
+            scuheduleDTO.setStartDateTime(LocalDateTime.now().plusMinutes(i));
+            scuheduleDTO.setEndDateTime(LocalDateTime.now().plusHours(2).plusMinutes(i));
             scuheduleDTO.setLocationId(createMockLocation().getId());
             scuheduleDTO.setDetailLocation("상세 위치" + i);
             scuheduleDTOs.add(scuheduleDTO);
@@ -370,8 +370,8 @@ class ExhibitionControllerTest {
 
         ExhbitionCreateDTO dto = mockCreateExhibitionDTO(1);
         EventScheduleCreateDTO eventScheduleCreateDTO = dto.getSchedule().get(0);
-        eventScheduleCreateDTO.setStartTime(LocalDateTime.now());
-        eventScheduleCreateDTO.setEndTime(LocalDateTime.now().minusHours(1));
+        eventScheduleCreateDTO.setStartDateTime(LocalDateTime.now());
+        eventScheduleCreateDTO.setEndDateTime(LocalDateTime.now().minusHours(1));
 
         MockMultipartFile dtoFile =
                 new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
@@ -581,8 +581,8 @@ class ExhibitionControllerTest {
 
         ExhbitionCreateDTO dto = mockCreateExhibitionDTO(1);
         EventScheduleCreateDTO eventScheduleCreateDTO = dto.getSchedule().get(0);
-        eventScheduleCreateDTO.setEndTime(LocalDateTime.now());
-        eventScheduleCreateDTO.setStartTime(LocalDateTime.now());
+        eventScheduleCreateDTO.setEndDateTime(LocalDateTime.now());
+        eventScheduleCreateDTO.setStartDateTime(LocalDateTime.now());
 
         MockMultipartFile dtoFile =
                 new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
@@ -644,8 +644,8 @@ class ExhibitionControllerTest {
 
         ExhbitionCreateDTO dto = mockCreateExhibitionDTO(1);
         EventScheduleCreateDTO eventScheduleCreateDTO = dto.getSchedule().get(0);
-        eventScheduleCreateDTO.setEndTime(null);
-        eventScheduleCreateDTO.setStartTime(LocalDateTime.now());
+        eventScheduleCreateDTO.setEndDateTime(null);
+        eventScheduleCreateDTO.setStartDateTime(LocalDateTime.now());
 
         MockMultipartFile dtoFile =
                 new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));

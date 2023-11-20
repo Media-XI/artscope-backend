@@ -58,8 +58,8 @@ public class EventSchedule {
 
     public static EventSchedule from(EventScheduleCreateDTO scheduleDTO) {
         return EventSchedule.builder()
-                .startTime(scheduleDTO.getStartTime())
-                .endTime(scheduleDTO.getEndTime())
+                .startTime(scheduleDTO.getStartDateTime())
+                .endTime(scheduleDTO.getEndDateTime())
                 .detailLocation(scheduleDTO.getDetailLocation())
                 .createdTime(LocalDateTime.now())
                 .build();

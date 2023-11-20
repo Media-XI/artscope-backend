@@ -18,11 +18,11 @@ public class EventScheduleCreateDTO {
     @NotBlank(message = "시작시간은 필수입니다.")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-    private LocalDateTime startTime;
+    private LocalDateTime startDateTime;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-    private LocalDateTime endTime;
+    private LocalDateTime endDateTime;
 
     @NotBlank(message = "장소는 필수입니다.")
     private Long locationId;
@@ -32,7 +32,7 @@ public class EventScheduleCreateDTO {
     private List<ParticipantInformationDTO> participants;
 
     public void checkTimeValidity() {
-        if (this.startTime.equals(this.endTime)) {
+        if (this.startDateTime.equals(this.endDateTime)) {
             throw new RuntimeException("시작시간과 종료시간이 같을 수 없습니다.");
         }
     }
