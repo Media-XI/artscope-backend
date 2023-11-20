@@ -24,9 +24,9 @@ public class FeedItemEventResponseDto {
     private String detailLocation;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
-    private LocalDateTime startTime;
+    private LocalDateTime startDateTime;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
-    private LocalDateTime endTime;
+    private LocalDateTime endDateTime;
 
 }
