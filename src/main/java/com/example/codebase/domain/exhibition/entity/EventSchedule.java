@@ -28,10 +28,6 @@ public class EventSchedule {
     @Column(name = "event_schedule_id")
     private Long id;
 
-    //TODO: 삭제
-//    @Column(name = "event_date")
-//    private LocalDate eventDate;
-
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
 
