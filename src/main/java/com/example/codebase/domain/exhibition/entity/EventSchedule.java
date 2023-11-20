@@ -34,7 +34,6 @@ public class EventSchedule {
     @Column(name = "end_date_time")
     private LocalDateTime endDateTime;
 
-    @Getter
     @ManyToOne
     @JoinColumn(name = "location_id", nullable = false)
     private Location location;
