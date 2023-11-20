@@ -76,7 +76,7 @@ public class AgoraOpinion {
     }
 
     public String getAuthorVote() {
-        return this.author.getVoteText();
+        return this.author.getVote();
     }
 
     public Integer getAuthorSequence() {
