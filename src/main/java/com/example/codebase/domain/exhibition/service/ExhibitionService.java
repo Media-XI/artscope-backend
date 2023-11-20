@@ -170,13 +170,13 @@ public class ExhibitionService {
             EventType eventType, ExhibitionSearchDTO exhibitionSearchDTO, PageRequest pageRequest) {
         if (eventType == null) {
             return exhibitionRepository.findExhibitionsWithEventSchedules(
-                    exhibitionSearchDTO.getStartDate(),
-                    exhibitionSearchDTO.getEndDate(),
+                    exhibitionSearchDTO.getStartDateTime(),
+                    exhibitionSearchDTO.getEndDateTime(),
                     pageRequest);
         }
         return exhibitionRepository.findExhibitionsWithEventSchedules(
-                exhibitionSearchDTO.getStartDate(),
-                exhibitionSearchDTO.getEndDate(),
+                exhibitionSearchDTO.getStartDateTime(),
+                exhibitionSearchDTO.getEndDateTime(),
                 eventType,
                 pageRequest);
     }
