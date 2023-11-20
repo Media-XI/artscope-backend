@@ -65,7 +65,6 @@ public class EventSchedule {
                 .build();
     }
 
-    // Event 양방향 연관 메소드
     public void setEvent(Exhibition exhibition) {
         this.exhibition = exhibition;
         exhibition.addEventSchedule(this);
@@ -76,6 +75,7 @@ public class EventSchedule {
     }
 
     public void delete() {
+        this.exhibition.removeEventSchedule(this);
         this.exhibition = null;
     }
 }

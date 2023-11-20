@@ -114,4 +114,8 @@ public class Exhibition {
     public Boolean equalUsername(String username) {
         return this.member.getUsername().equals(username);
     }
+
+    public void removeEventSchedule(EventSchedule eventSchedule) {
+        this.eventSchedules.remove(eventSchedule);
+    }
 }
