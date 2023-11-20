@@ -199,8 +199,8 @@ public class FeedItemResponseDto {
             FeedItemEventResponseDto eventDto =
                     FeedItemEventResponseDto.builder()
                             .eventType(exhibition.getType())
-                            .startTime(exhibition.getFirstEventSchedule().getStartDateTime())
-                            .endTime(exhibition.getFirstEventSchedule().getEndDateTime())
+                            .startDateTime(exhibition.getFirstEventSchedule().getStartDateTime())
+                            .endDateTime(exhibition.getFirstEventSchedule().getEndDateTime())
                             .locationName(exhibition.getFirstEventSchedule().getLocation().getName())
                             .locationAddress(exhibition.getFirstEventSchedule().getLocation().getAddress())
                             .detailLocation(exhibition.getFirstEventSchedule().getDetailLocation())
