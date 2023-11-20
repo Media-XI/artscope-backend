@@ -1,0 +1,2 @@
+ALTER TABLE event_schedule MODIFY COLUMN endDateTime DATETIME NULL;
+ALTER TABLE event_schedule MODIFY COLUMN startDateTime DATETIME NOT NULL;

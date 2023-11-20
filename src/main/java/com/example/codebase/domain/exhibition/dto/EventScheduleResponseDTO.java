@@ -5,9 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,8 +51,8 @@ public class EventScheduleResponseDTO {
                 .locationAddress(eventSchedule.getLocation().getAddress())
                 .detailLocation(eventSchedule.getDetailLocation())
                 .participants(participantInformationResponseDTO)
-                .startTime(eventSchedule.getStartTime())
-                .endTime(eventSchedule.getEndTime())
+                .startTime(eventSchedule.getStartDateTime())
+                .endTime(eventSchedule.getEndDateTime())
                 .createdTime(eventSchedule.getCreatedTime())
                 .updatedTime(eventSchedule.getUpdatedTime())
                 .build();

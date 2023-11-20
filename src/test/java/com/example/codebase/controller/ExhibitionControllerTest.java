@@ -195,8 +195,8 @@ class ExhibitionControllerTest {
 
             EventSchedule eventSchedule =
                     EventSchedule.builder()
-                            .startTime(defaultStartDateTime.plusDays(i))
-                            .endTime(defaultStartDateTime.plusDays(i).plusHours(2))
+                            .startDateTime(defaultStartDateTime.plusDays(i))
+                            .endDateTime(defaultStartDateTime.plusDays(i).plusHours(2))
                             .detailLocation("상세 위치")
                             .createdTime(LocalDateTime.now())
                             .build();

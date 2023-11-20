@@ -212,8 +212,8 @@ class FeedControllerTest {
 
         EventSchedule eventSchedule =
             EventSchedule.builder()
-                .startTime(LocalDateTime.now())
-                .endTime(LocalDateTime.now().plusHours(2))
+                .startDateTime(LocalDateTime.now())
+                .endDateTime(LocalDateTime.now().plusHours(2))
                 .detailLocation("상세 위치")
                 .createdTime(LocalDateTime.now())
                 .build();

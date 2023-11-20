@@ -28,11 +28,11 @@ public class EventSchedule {
     @Column(name = "event_schedule_id")
     private Long id;
 
-    @Column(name = "start_time", nullable = false)
-    private LocalDateTime startTime;
+    @Column(name = "start_date_time", nullable = false)
+    private LocalDateTime startDateTime;
 
-    @Column(name = "end_time")
-    private LocalDateTime endTime;
+    @Column(name = "end_date_time")
+    private LocalDateTime endDateTime;
 
     @Getter
     @ManyToOne
@@ -58,8 +58,8 @@ public class EventSchedule {
 
     public static EventSchedule from(EventScheduleCreateDTO scheduleDTO) {
         return EventSchedule.builder()
-                .startTime(scheduleDTO.getStartDateTime())
-                .endTime(scheduleDTO.getEndDateTime())
+                .startDateTime(scheduleDTO.getStartDateTime())
+                .endDateTime(scheduleDTO.getEndDateTime())
                 .detailLocation(scheduleDTO.getDetailLocation())
                 .createdTime(LocalDateTime.now())
                 .build();
