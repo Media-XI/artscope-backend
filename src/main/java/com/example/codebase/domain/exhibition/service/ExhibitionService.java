@@ -121,29 +121,34 @@ public class ExhibitionService {
         eventSchedule.setLocation(location);
         eventSchedule.setEvent(exhibition);
 
+        eventScheduleRepository.save(eventSchedule);
+
         List<ParticipantInformationDTO> participants =
                 schedule.getParticipants() != null ? schedule.getParticipants() : Collections.emptyList();
         for (ParticipantInformationDTO participant : participants) {
+            participant.checkParticipantValidity();
             ExhibitionParticipant exhibitionParticipant = new ExhibitionParticipant();
 
-            if (participant.getUsername() != null) {
+            if (participant.getUsername() != null ) {
                 Member participantMember =
                         memberRepository
                                 .findByUsername(participant.getUsername())
                                 .orElseThrow(NotFoundMemberException::new);
                 exhibitionParticipant.setMember(participantMember);
             }
+            else{
+                exhibitionParticipant.setName(participant.getName());
+            }
             exhibitionParticipant.setEventSchedule(eventSchedule);
             exhibitionParticipantRepository.save(exhibitionParticipant);
         }
-
-        eventScheduleRepository.save(eventSchedule);
     }
 
     @Transactional(readOnly = true)
     public ExhibitionPageInfoResponseDTO getAllExhibition(
             ExhibitionSearchDTO exhibitionSearchDTO, int page, int size, String sortDirection) {
 
+        exhibitionSearchDTO.changeTimeFormat();
         exhibitionSearchDTO.repeatTimeValidity();
 
         Sort sort = Sort.by(Direction.fromString(sortDirection), "createdTime");
