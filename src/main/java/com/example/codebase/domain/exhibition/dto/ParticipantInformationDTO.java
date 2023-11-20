@@ -11,3 +11,5 @@ public class ParticipantInformationDTO {
 
     private String name;
 }
+
+

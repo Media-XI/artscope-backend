@@ -1,0 +1,1 @@
+ALTER TABLE event_schedule MODIFY COLUMN end_time DATETIME NULL;

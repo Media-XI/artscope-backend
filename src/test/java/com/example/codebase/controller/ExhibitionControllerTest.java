@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -93,10 +92,10 @@ class ExhibitionControllerTest {
     }
 
     public Member createOrLoadMember() {
-        return createOrLoadMember("testid", RoleStatus.CURATOR,"ROLE_CURATOR");
+        return createOrLoadMember("testid", RoleStatus.CURATOR, "ROLE_CURATOR");
     }
 
-    public Member createOrLoadMember(String username, RoleStatus roleStatus, String... authorities){
+    public Member createOrLoadMember(String username, RoleStatus roleStatus, String... authorities) {
         Optional<Member> testMember = memberRepository.findByUsername(username);
         if (testMember.isPresent()) {
             return testMember.get();
@@ -139,6 +138,7 @@ class ExhibitionControllerTest {
     public Exhibition createOrLoadExhibition(int idx, LocalDate startDate, int scheduleSize) {
         return createOrLoadExhibition(idx, startDate, startDate.plusWeeks(1), scheduleSize);
     }
+
 
     @Transactional
     public Exhibition createOrLoadExhibition(
@@ -191,11 +191,12 @@ class ExhibitionControllerTest {
         locationRepository.save(location);
 
         for (int i = 0; i < scheduleSize; i++) {
+            LocalDateTime defaultStartDateTime = LocalDateTime.of(2023, 10, 20, 10, 0); // October 20, 2023 at 10:00 AM
+
             EventSchedule eventSchedule =
                     EventSchedule.builder()
-                            .eventDate(startDate.plusDays(i))
-                            .startTime(startDate.atTime(9, 0).toLocalTime())
-                            .endTime(endDate.atTime(11, 0).toLocalTime())
+                            .startDateTime(defaultStartDateTime.plusDays(i))
+                            .endDateTime(defaultStartDateTime.plusDays(i).plusHours(2))
                             .detailLocation("상세 위치")
                             .createdTime(LocalDateTime.now())
                             .build();
@@ -245,9 +246,8 @@ class ExhibitionControllerTest {
         List<EventScheduleCreateDTO> scuheduleDTOs = new ArrayList<>();
         for (int i = 0; i < scheduleSize; i++) {
             EventScheduleCreateDTO scuheduleDTO = new EventScheduleCreateDTO();
-            scuheduleDTO.setEventDate(LocalDate.now().plusDays(i));
-            scuheduleDTO.setStartTime(LocalTime.now().plusMinutes(i));
-            scuheduleDTO.setEndTime(LocalTime.now().plusHours(2).plusMinutes(i));
+            scuheduleDTO.setStartDateTime(LocalDateTime.now().plusMinutes(i));
+            scuheduleDTO.setEndDateTime(LocalDateTime.now().plusHours(2).plusMinutes(i));
             scuheduleDTO.setLocationId(createMockLocation().getId());
             scuheduleDTO.setDetailLocation("상세 위치" + i);
             scuheduleDTOs.add(scuheduleDTO);
@@ -276,7 +276,7 @@ class ExhibitionControllerTest {
     @DisplayName("이벤트 등록")
     @Test
     public void 이벤트_등록() throws Exception {
-        createOrLoadMember("user", RoleStatus.CURATOR,"ROLE_CURATOR");
+        createOrLoadMember("user", RoleStatus.CURATOR, "ROLE_CURATOR");
 
         ExhbitionCreateDTO dto = mockCreateExhibitionDTO();
 
@@ -306,7 +306,7 @@ class ExhibitionControllerTest {
     @DisplayName("스케줄이 없는 이벤트 등록 시")
     @Test
     public void 스케줄이_없는_이벤트_등록() throws Exception {
-        createOrLoadMember("user", RoleStatus.CURATOR,"ROLE_CURATOR");
+        createOrLoadMember("user", RoleStatus.CURATOR, "ROLE_CURATOR");
 
         ExhbitionCreateDTO dto = mockCreateExhibitionDTO(0);
 
@@ -336,7 +336,7 @@ class ExhibitionControllerTest {
     @DisplayName("스케줄이 5개인 이벤트 등록 시")
     @Test
     public void 스케줄이_5개인_이벤트_등록() throws Exception {
-        createOrLoadMember("user", RoleStatus.CURATOR,"ROLE_CURATOR");
+        createOrLoadMember("user", RoleStatus.CURATOR, "ROLE_CURATOR");
 
         ExhbitionCreateDTO dto = mockCreateExhibitionDTO(5);
 
@@ -366,12 +366,12 @@ class ExhibitionControllerTest {
     @DisplayName("스케줄 시작시간이 종료시간보다 빠를시")
     @Test
     public void 스케줄이_시작시간이_더_빠른경우_이벤트등록() throws Exception {
-        createOrLoadMember("admin", RoleStatus.CURATOR,"ROLE_CURATOR");
+        createOrLoadMember("admin", RoleStatus.CURATOR, "ROLE_CURATOR");
 
         ExhbitionCreateDTO dto = mockCreateExhibitionDTO(1);
         EventScheduleCreateDTO eventScheduleCreateDTO = dto.getSchedule().get(0);
-        eventScheduleCreateDTO.setStartTime(LocalTime.now());
-        eventScheduleCreateDTO.setEndTime(LocalTime.now().minusHours(1));
+        eventScheduleCreateDTO.setStartDateTime(LocalDateTime.now());
+        eventScheduleCreateDTO.setEndDateTime(LocalDateTime.now().minusHours(1));
 
         MockMultipartFile dtoFile =
                 new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
@@ -407,8 +407,8 @@ class ExhibitionControllerTest {
 
         ExhibitionSearchDTO exhibitionSearchDTO =
                 ExhibitionSearchDTO.builder()
-                        .startDate(LocalDate.now())
-                        .endDate(LocalDate.now().plusMonths(1))
+                        .startDateTime(LocalDateTime.now())
+                        .endDateTime(LocalDateTime.now().plusMonths(1))
                         .eventType(EventType.STANDARD.name())
                         .build();
 
@@ -419,8 +419,8 @@ class ExhibitionControllerTest {
         mockMvc
                 .perform(
                         get("/api/exhibitions")
-                                .param("startDate", exhibitionSearchDTO.getStartDate().toString())
-                                .param("endDate", exhibitionSearchDTO.getEndDate().toString())
+                                .param("startDate", exhibitionSearchDTO.getStartDateTime().toString())
+                                .param("endDate", exhibitionSearchDTO.getEndDateTime().toString())
                                 .param("eventType", exhibitionSearchDTO.getEventType())
                                 .param("page", String.valueOf(page))
                                 .param("size", String.valueOf(size))
@@ -433,7 +433,7 @@ class ExhibitionControllerTest {
     @DisplayName("공모전 수정")
     @Test
     public void 공모전_수정() throws Exception {
-        createOrLoadMember("testid", RoleStatus.CURATOR,"ROLE_CURATOR");
+        createOrLoadMember("testid", RoleStatus.CURATOR, "ROLE_CURATOR");
         Exhibition exhibition = createOrLoadExhibition();
 
         ExhibitionUpdateDTO dto = new ExhibitionUpdateDTO();
@@ -453,7 +453,7 @@ class ExhibitionControllerTest {
     @DisplayName("가격을 음수로 이벤트 수정 시")
     @Test
     public void 공모전_가격_음수로_수정시() throws Exception {
-        createOrLoadMember("testid", RoleStatus.CURATOR,"ROLE_CURATOR");
+        createOrLoadMember("testid", RoleStatus.CURATOR, "ROLE_CURATOR");
         Exhibition exhibition = createOrLoadExhibition();
 
         ExhibitionUpdateDTO dto = new ExhibitionUpdateDTO();
@@ -472,7 +472,7 @@ class ExhibitionControllerTest {
     @DisplayName("작성자가 아닐 시 이벤트 수정")
     @Test
     public void 작성자가_아닌_유저가_공모전_수정() throws Exception {
-        createOrLoadMember("user", RoleStatus.CURATOR,"ROLE_CURATOR");
+        createOrLoadMember("user", RoleStatus.CURATOR, "ROLE_CURATOR");
         Exhibition exhibition = createOrLoadExhibition(); // testid 사용자가 만듬
 
         ExhibitionUpdateDTO dto = new ExhibitionUpdateDTO();
@@ -510,8 +510,8 @@ class ExhibitionControllerTest {
 
         ExhibitionSearchDTO exhibitionSearchDTO =
                 ExhibitionSearchDTO.builder()
-                        .startDate(LocalDate.now().minusWeeks(1))
-                        .endDate(LocalDate.now().plusMonths(1))
+                        .startDateTime(LocalDateTime.now().minusWeeks(1))
+                        .endDateTime(LocalDateTime.now().plusMonths(1))
                         .eventType(SearchEventType.ALL.name())
                         .build();
 
@@ -522,8 +522,8 @@ class ExhibitionControllerTest {
         mockMvc
                 .perform(
                         get("/api/exhibitions")
-                                .param("startDate", exhibitionSearchDTO.getStartDate().toString())
-                                .param("endDate", exhibitionSearchDTO.getEndDate().toString())
+                                .param("startDate", exhibitionSearchDTO.getStartDateTime().toString())
+                                .param("endDate", exhibitionSearchDTO.getEndDateTime().toString())
                                 .param("eventType", exhibitionSearchDTO.getEventType())
                                 .param("page", String.valueOf(page))
                                 .param("size", String.valueOf(size))
@@ -541,8 +541,8 @@ class ExhibitionControllerTest {
 
         ExhibitionSearchDTO exhibitionSearchDTO =
                 ExhibitionSearchDTO.builder()
-                        .startDate(LocalDate.now().plusDays(1))
-                        .endDate(LocalDate.now())
+                        .startDateTime(LocalDateTime.now().plusDays(1))
+                        .endDateTime(LocalDateTime.now())
                         .eventType(EventType.STANDARD.name())
                         .build();
         int page = 0;
@@ -552,8 +552,8 @@ class ExhibitionControllerTest {
         mockMvc
                 .perform(
                         get("/api/exhibitions")
-                                .param("startDate", exhibitionSearchDTO.getStartDate().toString())
-                                .param("endDate", exhibitionSearchDTO.getEndDate().toString())
+                                .param("startDateTime", exhibitionSearchDTO.getStartDateTime().toString())
+                                .param("endDateTime", exhibitionSearchDTO.getEndDateTime().toString())
                                 .param("eventType", exhibitionSearchDTO.getEventType())
                                 .param("page", String.valueOf(page))
                                 .param("size", String.valueOf(size))
@@ -577,12 +577,12 @@ class ExhibitionControllerTest {
     @DisplayName("스케줄 시작시간과 종료시간이 같을시")
     @Test
     public void 스케줄시간과_종료시간이_같은경우_이벤트등록() throws Exception {
-        createOrLoadMember("user", RoleStatus.CURATOR,"ROLE_CURATOR");
+        createOrLoadMember("user", RoleStatus.CURATOR, "ROLE_CURATOR");
 
         ExhbitionCreateDTO dto = mockCreateExhibitionDTO(1);
         EventScheduleCreateDTO eventScheduleCreateDTO = dto.getSchedule().get(0);
-        eventScheduleCreateDTO.setEndTime(LocalTime.now());
-        eventScheduleCreateDTO.setStartTime(LocalTime.now());
+        eventScheduleCreateDTO.setEndDateTime(LocalDateTime.now());
+        eventScheduleCreateDTO.setStartDateTime(LocalDateTime.now());
 
         MockMultipartFile dtoFile =
                 new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
@@ -610,7 +610,7 @@ class ExhibitionControllerTest {
     @DisplayName("권한 없는 유저가 이벤트를 생성할시")
     @Test
     public void 권한이_없는_유저가_수정_할떄() throws Exception {
-        createOrLoadMember("user", RoleStatus.NONE,"ROLE_USER");
+        createOrLoadMember("user", RoleStatus.NONE, "ROLE_USER");
 
         ExhbitionCreateDTO dto = mockCreateExhibitionDTO();
 
@@ -635,4 +635,68 @@ class ExhibitionControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
+
+    @WithMockCustomUser(username = "user", role = "CURATOR")
+    @DisplayName("스케줄 종료시간이 없을시")
+    @Test
+    public void 스케줄_생성시_종료시간이_없는_경우() throws Exception {
+        createOrLoadMember("user", RoleStatus.CURATOR, "ROLE_CURATOR");
+
+        ExhbitionCreateDTO dto = mockCreateExhibitionDTO(1);
+        EventScheduleCreateDTO eventScheduleCreateDTO = dto.getSchedule().get(0);
+        eventScheduleCreateDTO.setEndDateTime(null);
+        eventScheduleCreateDTO.setStartDateTime(LocalDateTime.now());
+
+        MockMultipartFile dtoFile =
+                new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
+
+        MockMultipartFile mediaFile =
+                new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
+
+        MockMultipartFile thumbnailFile =
+                new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
+
+        mockMvc
+                .perform(
+                        multipart("/api/exhibitions")
+                                .file(dtoFile)
+                                .file(mediaFile)
+                                .file(thumbnailFile)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding("UTF-8"))
+                .andDo(print())
+                .andExpect(status().isCreated());
+    }
+
+
+    @WithMockCustomUser(username = "testid", role = "ROLE_CURATOR")
+    @DisplayName("이벤트 스케줄 삭제시")
+    @Test
+    public void 이벤트_스케줄_삭제시() throws Exception {
+        Member member = createOrLoadMember("user", RoleStatus.CURATOR, "ROLE_CURATOR");
+
+        Exhibition exhbition = createOrLoadExhibition(1, LocalDate.now(), 10);
+        EventSchedule eventSchedule = exhbition.getFirstEventSchedule();
+
+        mockMvc
+                .perform(delete(String.format("/api/exhibitions/%d/schedule/%d", exhbition.getId(), eventSchedule.getId())))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "user", role = "CURATOR")
+    @DisplayName("이벤트 권한이 없는 유저가 이벤트 스케줄 삭제시")
+    @Test
+    public void 이벤트_권한이_없는_유저가_이벤트_스케줄_삭제시() throws Exception {
+
+        Exhibition exhbition = createOrLoadExhibition(1, LocalDate.now());
+        EventSchedule eventSchedule = exhbition.getFirstEventSchedule();
+
+        mockMvc
+                .perform(delete(String.format("/api/exhibitions/%d/schedule/%d", exhbition.getId(), eventSchedule.getId())))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
 }

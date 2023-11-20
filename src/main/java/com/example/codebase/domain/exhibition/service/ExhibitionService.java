@@ -170,13 +170,13 @@ public class ExhibitionService {
             EventType eventType, ExhibitionSearchDTO exhibitionSearchDTO, PageRequest pageRequest) {
         if (eventType == null) {
             return exhibitionRepository.findExhibitionsWithEventSchedules(
-                    exhibitionSearchDTO.getStartDate(),
-                    exhibitionSearchDTO.getEndDate(),
+                    exhibitionSearchDTO.getStartDateTime(),
+                    exhibitionSearchDTO.getEndDateTime(),
                     pageRequest);
         }
         return exhibitionRepository.findExhibitionsWithEventSchedules(
-                exhibitionSearchDTO.getStartDate(),
-                exhibitionSearchDTO.getEndDate(),
+                exhibitionSearchDTO.getStartDateTime(),
+                exhibitionSearchDTO.getEndDateTime(),
                 eventType,
                 pageRequest);
     }
@@ -242,7 +242,9 @@ public class ExhibitionService {
         if (!SecurityUtil.isAdmin() && !exhibition.equalUsername(username)) {
             throw new RuntimeException("해당 이벤트의 생성자가 아닙니다.");
         }
-        eventScheduleRepository.deleteById(eventScheduleId);
+
+        eventSchedule.delete();
+        eventScheduleRepository.delete(eventSchedule);
     }
 
     @Transactional
@@ -260,6 +262,9 @@ public class ExhibitionService {
         }
 
         List<EventSchedule> eventSchedules = exhibition.getEventSchedules();
+        for (EventSchedule eventSchedule : eventSchedules) {
+            eventSchedule.delete();
+        }
         eventScheduleRepository.deleteAll(eventSchedules);
     }
 }
