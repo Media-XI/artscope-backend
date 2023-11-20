@@ -28,11 +28,11 @@ public class EventScheduleResponseDTO {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
-    private LocalDateTime startTime;
+    private LocalDateTime startDateTime;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
-    private LocalDateTime endTime;
+    private LocalDateTime endDateTime;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdTime;
@@ -51,8 +51,8 @@ public class EventScheduleResponseDTO {
                 .locationAddress(eventSchedule.getLocation().getAddress())
                 .detailLocation(eventSchedule.getDetailLocation())
                 .participants(participantInformationResponseDTO)
-                .startTime(eventSchedule.getStartDateTime())
-                .endTime(eventSchedule.getEndDateTime())
+                .startDateTime(eventSchedule.getStartDateTime())
+                .endDateTime(eventSchedule.getEndDateTime())
                 .createdTime(eventSchedule.getCreatedTime())
                 .updatedTime(eventSchedule.getUpdatedTime())
                 .build();
