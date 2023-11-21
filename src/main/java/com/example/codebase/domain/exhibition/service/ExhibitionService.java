@@ -146,9 +146,6 @@ public class ExhibitionService {
     @Transactional(readOnly = true)
     public ExhibitionPageInfoResponseDTO getAllExhibition(
             ExhibitionSearchDTO exhibitionSearchDTO, int page, int size, String sortDirection) {
-
-        exhibitionSearchDTO.repeatTimeValidity();
-
         Sort sort = Sort.by(Direction.fromString(sortDirection), "createdTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
