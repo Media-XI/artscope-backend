@@ -22,7 +22,11 @@ public class ExhibitionDetailResponseDTO {
 
     private String title;
 
-    private String author;
+    private String authorName;
+
+    private String authorUserName;
+
+    private String authorProfileImage;
 
     private String description;
 
@@ -70,7 +74,9 @@ public class ExhibitionDetailResponseDTO {
         return ExhibitionDetailResponseDTO.builder()
                 .id(exhibition.getId())
                 .title(exhibition.getTitle())
-                .author(exhibition.getMember().getName())
+                .authorName(exhibition.getMember().getName())
+                .authorUserName(exhibition.getMember().getUsername())
+                .authorProfileImage(exhibition.getMember().getPicture())
                 .description(exhibition.getDescription())
                 .thumbnail(thumbnail)
                 .medias(exhibitionMediaResponseDTOS)

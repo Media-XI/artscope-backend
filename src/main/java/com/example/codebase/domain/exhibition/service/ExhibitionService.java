@@ -121,9 +121,12 @@ public class ExhibitionService {
         eventSchedule.setLocation(location);
         eventSchedule.setEvent(exhibition);
 
+        eventScheduleRepository.save(eventSchedule);
+
         List<ParticipantInformationDTO> participants =
                 schedule.getParticipants() != null ? schedule.getParticipants() : Collections.emptyList();
         for (ParticipantInformationDTO participant : participants) {
+            participant.checkParticipantValidity();
             ExhibitionParticipant exhibitionParticipant = new ExhibitionParticipant();
 
             if (participant.getUsername() != null) {
@@ -132,12 +135,12 @@ public class ExhibitionService {
                                 .findByUsername(participant.getUsername())
                                 .orElseThrow(NotFoundMemberException::new);
                 exhibitionParticipant.setMember(participantMember);
+            } else {
+                exhibitionParticipant.setName(participant.getName());
             }
             exhibitionParticipant.setEventSchedule(eventSchedule);
             exhibitionParticipantRepository.save(exhibitionParticipant);
         }
-
-        eventScheduleRepository.save(eventSchedule);
     }
 
     @Transactional(readOnly = true)
