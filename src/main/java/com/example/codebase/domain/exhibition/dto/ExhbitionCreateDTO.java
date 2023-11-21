@@ -1,6 +1,7 @@
 package com.example.codebase.domain.exhibition.dto;
 
 import com.example.codebase.domain.exhibition.entity.EventType;
+import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,9 +29,12 @@ public class ExhbitionCreateDTO {
     private EventType eventType;
 
     // 스케쥴 생성 DTO
+    @Valid
     private List<EventScheduleCreateDTO> schedule;
 
+    @Valid
     private List<ExhibitionMediaCreateDTO> medias;
 
+    @Valid
     private ExhibitionMediaCreateDTO thumbnail;
 }
