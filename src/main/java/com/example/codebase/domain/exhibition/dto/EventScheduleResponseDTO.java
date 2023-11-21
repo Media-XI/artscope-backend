@@ -5,9 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,17 +26,13 @@ public class EventScheduleResponseDTO {
 
     private List<ParticipantInformationResponseDTO> participants;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate eventDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime startDateTime;
 
-    @DateTimeFormat(pattern = "HH:mm")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
-    private LocalTime startTime;
-
-    @DateTimeFormat(pattern = "HH:mm")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
-    private LocalTime endTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime endDateTime;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdTime;
@@ -48,20 +42,19 @@ public class EventScheduleResponseDTO {
 
     public static EventScheduleResponseDTO from(EventSchedule eventSchedule) {
         List<ParticipantInformationResponseDTO> participantInformationResponseDTO =
-            eventSchedule.getExhibitionParticipants().stream()
-                .map(ParticipantInformationResponseDTO::from)
-                .collect(Collectors.toList());
+                eventSchedule.getExhibitionParticipants().stream()
+                        .map(ParticipantInformationResponseDTO::from)
+                        .collect(Collectors.toList());
         return EventScheduleResponseDTO.builder()
-            .id(eventSchedule.getId())
-            .locationName(eventSchedule.getLocation().getName())
-            .locationAddress(eventSchedule.getLocation().getAddress())
-            .detailLocation(eventSchedule.getDetailLocation())
-            .participants(participantInformationResponseDTO)
-            .eventDate(eventSchedule.getEventDate())
-            .startTime(eventSchedule.getStartTime())
-            .endTime(eventSchedule.getEndTime())
-            .createdTime(eventSchedule.getCreatedTime())
-            .updatedTime(eventSchedule.getUpdatedTime())
-            .build();
+                .id(eventSchedule.getId())
+                .locationName(eventSchedule.getLocation().getName())
+                .locationAddress(eventSchedule.getLocation().getAddress())
+                .detailLocation(eventSchedule.getDetailLocation())
+                .participants(participantInformationResponseDTO)
+                .startDateTime(eventSchedule.getStartDateTime())
+                .endDateTime(eventSchedule.getEndDateTime())
+                .createdTime(eventSchedule.getCreatedTime())
+                .updatedTime(eventSchedule.getUpdatedTime())
+                .build();
     }
 }

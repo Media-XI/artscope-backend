@@ -23,6 +23,7 @@ import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.domain.post.entity.Post;
 import com.example.codebase.domain.post.repository.PostRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,9 +37,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import jakarta.transaction.Transactional;
 import java.io.IOException;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -112,13 +111,13 @@ class FeedControllerTest {
         }
 
         Member dummy = Member.builder()
-            .username("testid")
-            .password(passwordEncoder.encode("1234"))
-            .email("email")
-            .name("test")
-            .activated(true)
-            .createdTime(LocalDateTime.now())
-            .build();
+                .username("testid")
+                .password(passwordEncoder.encode("1234"))
+                .email("email")
+                .name("test")
+                .activated(true)
+                .createdTime(LocalDateTime.now())
+                .build();
 
         MemberAuthority memberAuthority = new MemberAuthority();
         memberAuthority.setAuthority(Authority.of("ROLE_USER"));
@@ -142,22 +141,22 @@ class FeedControllerTest {
             String url = "https://test.com/image.jpg";
 
             ArtworkMedia artworkMedia = ArtworkMedia.builder()
-                .artworkMediaType(MediaType.image)
-                .mediaUrl(url)
-                .description("미디어 설명")
-                .build();
+                    .artworkMediaType(MediaType.image)
+                    .mediaUrl(url)
+                    .description("미디어 설명")
+                    .build();
             artworkMediaList.add(artworkMedia);
         }
 
         Artwork dummy = Artwork.builder()
-            .title("아트워크_테스트" + index)
-            .description("작품 설명")
-            .tags("태그1,태그2,태그3")
-            .visible(isVisible)
-            .member(createOrLoadMember())
-            .artworkMedia(artworkMediaList)
-            .createdTime(LocalDateTime.now().plusSeconds(index))
-            .build();
+                .title("아트워크_테스트" + index)
+                .description("작품 설명")
+                .tags("태그1,태그2,태그3")
+                .visible(isVisible)
+                .member(createOrLoadMember())
+                .artworkMedia(artworkMediaList)
+                .createdTime(LocalDateTime.now().plusSeconds(index))
+                .build();
 
         return artworkRepository.save(dummy);
     }
@@ -167,10 +166,10 @@ class FeedControllerTest {
         Member loadMember = createOrLoadMember();
 
         Post post = Post.builder()
-            .content("content")
-            .author(loadMember)
-            .createdTime(LocalDateTime.now())
-            .build();
+                .content("content")
+                .author(loadMember)
+                .createdTime(LocalDateTime.now())
+                .build();
         return postRepository.save(post);
     }
 
@@ -182,60 +181,59 @@ class FeedControllerTest {
         }
 
         Exhibition exhibition =
-            Exhibition.builder()
-                .title("공모전 제목" + idx)
-                .description("공모전 설명" + idx)
-                .link("링크" + idx)
-                .price(10000 + idx)
-                .type(EventType.STANDARD)
-                .createdTime(LocalDateTime.now())
-                .member(createOrLoadMember())
-                .build();
+                Exhibition.builder()
+                        .title("공모전 제목" + idx)
+                        .description("공모전 설명" + idx)
+                        .link("링크" + idx)
+                        .price(10000 + idx)
+                        .type(EventType.STANDARD)
+                        .createdTime(LocalDateTime.now())
+                        .member(createOrLoadMember())
+                        .build();
 
         ExhibitionMedia thumbnail =
-            ExhibitionMedia.builder()
-                .mediaUrl("url" + idx)
-                .exhibtionMediaType(ExhibtionMediaType.image)
-                .createdTime(LocalDateTime.now())
-                .build();
+                ExhibitionMedia.builder()
+                        .mediaUrl("url" + idx)
+                        .exhibtionMediaType(ExhibtionMediaType.image)
+                        .createdTime(LocalDateTime.now())
+                        .build();
         exhibition.addExhibitionMedia(thumbnail);
 
         ExhibitionMedia media =
-            ExhibitionMedia.builder()
-                .mediaUrl("url" + idx)
-                .exhibtionMediaType(ExhibtionMediaType.image)
-                .createdTime(LocalDateTime.now())
-                .build();
+                ExhibitionMedia.builder()
+                        .mediaUrl("url" + idx)
+                        .exhibtionMediaType(ExhibtionMediaType.image)
+                        .createdTime(LocalDateTime.now())
+                        .build();
         exhibition.addExhibitionMedia(media);
 
         exhibitionRepository.save(exhibition);
 
         EventSchedule eventSchedule =
             EventSchedule.builder()
-                .eventDate(LocalDate.now())
-                .startTime(LocalTime.now())
-                .endTime(LocalTime.now().plusHours(2))
+                .startDateTime(LocalDateTime.now())
+                .endDateTime(LocalDateTime.now().plusHours(2))
                 .detailLocation("상세 위치")
                 .createdTime(LocalDateTime.now())
                 .build();
         eventSchedule.setEvent(exhibition);
 
         Location location =
-            Location.builder()
-                .latitude(123.123)
-                .longitude(123.123)
-                .address("주소")
-                .name("장소 이름")
-                .englishName("장소 영어 이름")
-                .phoneNumber("010-1234-1234")
-                .webSiteUrl("test.com")
-                .snsUrl("test.com")
-                .build();
+                Location.builder()
+                        .latitude(123.123)
+                        .longitude(123.123)
+                        .address("주소")
+                        .name("장소 이름")
+                        .englishName("장소 영어 이름")
+                        .phoneNumber("010-1234-1234")
+                        .webSiteUrl("test.com")
+                        .snsUrl("test.com")
+                        .build();
         eventSchedule.setLocation(location);
         locationRepository.save(location);
 
         ExhibitionParticipant exhibitionParticipant =
-            ExhibitionParticipant.builder().member(createOrLoadMember()).build();
+                ExhibitionParticipant.builder().member(createOrLoadMember()).build();
         exhibitionParticipant.setEventSchedule(eventSchedule);
         exhibitionParticipantRepository.save(exhibitionParticipant);
 
@@ -272,6 +270,14 @@ class FeedControllerTest {
         agoraParticipantRepository.save(agoraParticipant);
 
         return dummy;
+    }
+
+    @Transactional
+    public void voteAgora(Agora agora, Member member, String voteText) {
+        AgoraParticipant agoraParticipant = AgoraParticipant.create();
+        agoraParticipant.setAgoraAndMember(agora, member);
+        agoraParticipant.createVote(voteText);
+        agoraParticipantRepository.save(agoraParticipant);
     }
 
     @DisplayName("피드 생성")
@@ -344,11 +350,11 @@ class FeedControllerTest {
         createAgora(3, true);
 
         mockMvc.perform(
-                post("/api/feed")
-                    .param("page", "0")
-            )
-            .andExpect(status().isCreated())
-            .andDo(print());
+                        post("/api/feed")
+                                .param("page", "0")
+                )
+                .andExpect(status().isCreated())
+                .andDo(print());
     }
 
     @DisplayName("피드 생성 시 일부 데이터 없을 떄 ")
@@ -372,11 +378,11 @@ class FeedControllerTest {
         createPost();
 
         mockMvc.perform(
-                post("/api/feed")
-                    .param("page", "1")
-            )
-            .andExpect(status().isCreated())
-            .andDo(print());
+                        post("/api/feed")
+                                .param("page", "1")
+                )
+                .andExpect(status().isCreated())
+                .andDo(print());
     }
 
     @DisplayName("피드 생성 시 일부 데이터가 없다면 ")
@@ -390,11 +396,11 @@ class FeedControllerTest {
         createOrLoadExhibition(1);
 
         mockMvc.perform(
-                post("/api/feed")
-                    .param("page", "0")
-            )
-            .andExpect(status().isCreated())
-            .andDo(print());
+                        post("/api/feed")
+                                .param("page", "0")
+                )
+                .andExpect(status().isCreated())
+                .andDo(print());
     }
 
     @DisplayName("피드 생성 시 전체 데이터가 없다면 ")
@@ -402,11 +408,11 @@ class FeedControllerTest {
     public void createFeed3() throws Exception {
 
         mockMvc.perform(
-                post("/api/feed")
-                    .param("page", "0")
-            )
-            .andExpect(status().isCreated())
-            .andDo(print());
+                        post("/api/feed")
+                                .param("page", "0")
+                )
+                .andExpect(status().isCreated())
+                .andDo(print());
     }
 
     @DisplayName("피드 조회 시 page가 0이면 에러 발생")
@@ -423,11 +429,11 @@ class FeedControllerTest {
         createOrLoadExhibition(1);
 
         mockMvc.perform(
-                post("/api/feed")
-                    .param("page", "0")
-            )
-            .andExpect(status().isCreated())
-            .andDo(print());
+                        post("/api/feed")
+                                .param("page", "0")
+                )
+                .andExpect(status().isCreated())
+                .andDo(print());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -444,24 +450,69 @@ class FeedControllerTest {
         createOrLoadExhibition(1);
 
         mockMvc.perform(
-                post("/api/posts/" + post.getId() + "/like")
-            )
-            .andDo(print())
-            .andExpect(status().isOk());
+                        post("/api/posts/" + post.getId() + "/like")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
 
         mockMvc.perform(
-                post("/api/artworks/" + artwork.getId() + "/like")
-            )
-            .andDo(print())
-            .andExpect(status().isOk());
+                        post("/api/artworks/" + artwork.getId() + "/like")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
 
         mockMvc.perform(
-                post("/api/feed")
-                    .param("page", "0")
-            )
-            .andDo(print())
-            .andExpect(status().isCreated());
+                        post("/api/feed")
+                                .param("page", "0")
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
     }
 
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("일부 아고라 투표 여부에 따른 피드 조회")
+    @Test
+    public void createFeed6() throws Exception {
+        Member member = createOrLoadMember();
+        Artwork artwork = createOrLoadArtwork(1, true, 1);
+        createOrLoadArtwork(2, true, 1);
 
+        // Post 생성 및 저장
+        Post post = createPost();
+        createPost();
+
+        createOrLoadExhibition(1);
+
+        // Agora
+        Agora agora1 = createAgora(1, false);
+        createAgora(2, true);
+        createAgora(3, true);
+
+        mockMvc.perform(
+                        post("/api/posts/" + post.getId() + "/like")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        mockMvc.perform(
+                        post("/api/artworks/" + artwork.getId() + "/like")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        mockMvc.perform(
+                        post("/api/agoras/" + agora1.getId() + "/vote")
+                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                                .content(agora1.getAgreeText())
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        mockMvc.perform(
+                        post("/api/feed")
+                                .param("page", "0")
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
+    }
 }

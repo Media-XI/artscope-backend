@@ -130,10 +130,6 @@ public class AgoraParticipant {
         return isVoted() && this.vote.equals(vote);
     }
 
-    public String getVoteText() {
-        return this.vote;
-    }
-
     public String getMemberUsername() {
         return this.member.getUsername();
     }

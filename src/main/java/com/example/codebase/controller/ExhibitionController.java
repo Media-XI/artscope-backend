@@ -37,12 +37,12 @@ public class ExhibitionController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity createExhibition(
-        @RequestPart(value = "dto") @Valid ExhbitionCreateDTO dto,
-        @RequestPart(value = "mediaFiles") List<MultipartFile> mediaFiles,
-        @RequestPart(value = "thumbnailFile") MultipartFile thumbnailFile)
-        throws Exception {
+            @RequestPart(value = "dto") @Valid ExhbitionCreateDTO dto,
+            @RequestPart(value = "mediaFiles") List<MultipartFile> mediaFiles,
+            @RequestPart(value = "thumbnailFile") MultipartFile thumbnailFile)
+            throws Exception {
         String username =
-            SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+                SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
         imageService.uploadMedias(dto, mediaFiles);
         imageService.uploadThumbnail(dto.getThumbnail(), thumbnailFile);
@@ -56,10 +56,10 @@ public class ExhibitionController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{exhibitionId}/schedule")
     public ResponseEntity createEventSchedule(
-        @PathVariable Long exhibitionId, @RequestBody @Valid EventScheduleCreateDTO dto)
-        throws Exception {
+            @PathVariable Long exhibitionId, @RequestBody @Valid EventScheduleCreateDTO dto)
+            throws Exception {
         String username =
-            SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+                SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
         exhibitionService.createEventSchedule(exhibitionId, dto, username);
 
@@ -69,12 +69,14 @@ public class ExhibitionController {
     @Operation(summary = "이벤트 목록 조회", description = "이벤트 목록을 조회합니다.")
     @GetMapping
     public ResponseEntity getExhibition(
-        @ModelAttribute @Valid ExhibitionSearchDTO exhibitionSearchDTO,
-        @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,
-        @PositiveOrZero @RequestParam(value = "size", defaultValue = "10") int size,
-        @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
+            @ModelAttribute @Valid ExhibitionSearchDTO exhibitionSearchDTO,
+            @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,
+            @PositiveOrZero @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
+        exhibitionSearchDTO.repeatTimeValidity();
+
         ExhibitionPageInfoResponseDTO dtos =
-            exhibitionService.getAllExhibition(exhibitionSearchDTO, page, size, sortDirection);
+                exhibitionService.getAllExhibition(exhibitionSearchDTO, page, size, sortDirection);
         return new ResponseEntity(dtos, HttpStatus.OK);
     }
 
@@ -89,13 +91,12 @@ public class ExhibitionController {
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{exhibitionId}")
     public ResponseEntity updateExhibition(
-        @PathVariable Long exhibitionId, @RequestBody @Valid ExhibitionUpdateDTO dto)
-        throws Exception {
+            @PathVariable Long exhibitionId, @RequestBody @Valid ExhibitionUpdateDTO dto)
+            throws Exception {
         String username =
-            SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
-
+                SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
         ExhibitionDetailResponseDTO exhibition =
-            exhibitionService.updateExhibition(exhibitionId, dto, username);
+                exhibitionService.updateExhibition(exhibitionId, dto, username);
 
         return new ResponseEntity(exhibition, HttpStatus.OK);
     }
@@ -105,7 +106,7 @@ public class ExhibitionController {
     @DeleteMapping("/{exhibitionId}")
     public ResponseEntity deleteExhibition(@PathVariable Long exhibitionId) {
         String username =
-            SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+                SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
         exhibitionService.deleteExhibition(exhibitionId, username);
         return new ResponseEntity("이벤트가 삭제되었습니다.", HttpStatus.OK);
     }
@@ -114,9 +115,9 @@ public class ExhibitionController {
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{exhibitionId}/schedule/{eventScheduleId}")
     public ResponseEntity deleteEventSchedule(
-        @PathVariable Long exhibitionId, @PathVariable Long eventScheduleId) {
+            @PathVariable Long exhibitionId, @PathVariable Long eventScheduleId) {
         String username =
-            SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+                SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
         exhibitionService.deleteEventSchedule(exhibitionId, eventScheduleId, username);
         return new ResponseEntity("이벤트 일정이 삭제되었습니다.", HttpStatus.OK);
     }
@@ -126,7 +127,7 @@ public class ExhibitionController {
     @DeleteMapping("/{exhibitionId}/all")
     public ResponseEntity deleteAllExhibition(@PathVariable Long exhibitionId) {
         String username =
-            SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+                SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
         exhibitionService.deleteAllEventSchedules(exhibitionId, username);
         return new ResponseEntity("이벤트 일정이 전체 삭제되었습니다.", HttpStatus.OK);
     }

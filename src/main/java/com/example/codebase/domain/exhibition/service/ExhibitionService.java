@@ -121,9 +121,12 @@ public class ExhibitionService {
         eventSchedule.setLocation(location);
         eventSchedule.setEvent(exhibition);
 
+        eventScheduleRepository.save(eventSchedule);
+
         List<ParticipantInformationDTO> participants =
                 schedule.getParticipants() != null ? schedule.getParticipants() : Collections.emptyList();
         for (ParticipantInformationDTO participant : participants) {
+            participant.checkParticipantValidity();
             ExhibitionParticipant exhibitionParticipant = new ExhibitionParticipant();
 
             if (participant.getUsername() != null) {
@@ -132,20 +135,17 @@ public class ExhibitionService {
                                 .findByUsername(participant.getUsername())
                                 .orElseThrow(NotFoundMemberException::new);
                 exhibitionParticipant.setMember(participantMember);
+            } else {
+                exhibitionParticipant.setName(participant.getName());
             }
             exhibitionParticipant.setEventSchedule(eventSchedule);
             exhibitionParticipantRepository.save(exhibitionParticipant);
         }
-
-        eventScheduleRepository.save(eventSchedule);
     }
 
     @Transactional(readOnly = true)
     public ExhibitionPageInfoResponseDTO getAllExhibition(
             ExhibitionSearchDTO exhibitionSearchDTO, int page, int size, String sortDirection) {
-
-        exhibitionSearchDTO.repeatTimeValidity();
-
         Sort sort = Sort.by(Direction.fromString(sortDirection), "createdTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
@@ -170,13 +170,13 @@ public class ExhibitionService {
             EventType eventType, ExhibitionSearchDTO exhibitionSearchDTO, PageRequest pageRequest) {
         if (eventType == null) {
             return exhibitionRepository.findExhibitionsWithEventSchedules(
-                    exhibitionSearchDTO.getStartDate(),
-                    exhibitionSearchDTO.getEndDate(),
+                    exhibitionSearchDTO.getStartDateTime(),
+                    exhibitionSearchDTO.getEndDateTime(),
                     pageRequest);
         }
         return exhibitionRepository.findExhibitionsWithEventSchedules(
-                exhibitionSearchDTO.getStartDate(),
-                exhibitionSearchDTO.getEndDate(),
+                exhibitionSearchDTO.getStartDateTime(),
+                exhibitionSearchDTO.getEndDateTime(),
                 eventType,
                 pageRequest);
     }
@@ -242,7 +242,9 @@ public class ExhibitionService {
         if (!SecurityUtil.isAdmin() && !exhibition.equalUsername(username)) {
             throw new RuntimeException("해당 이벤트의 생성자가 아닙니다.");
         }
-        eventScheduleRepository.deleteById(eventScheduleId);
+
+        eventSchedule.delete();
+        eventScheduleRepository.delete(eventSchedule);
     }
 
     @Transactional
@@ -260,6 +262,9 @@ public class ExhibitionService {
         }
 
         List<EventSchedule> eventSchedules = exhibition.getEventSchedules();
+        for (EventSchedule eventSchedule : eventSchedules) {
+            eventSchedule.delete();
+        }
         eventScheduleRepository.deleteAll(eventSchedules);
     }
 }
