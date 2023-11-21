@@ -1,6 +1,7 @@
 package com.example.codebase.domain.exhibition.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +14,7 @@ import java.util.List;
 @Setter
 public class EventScheduleCreateDTO {
 
-    @NotNull(message = "시작시간은 필수입니다.")
+    @NotBlank(message = "시작시간은 필수입니다.")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime startDateTime;
