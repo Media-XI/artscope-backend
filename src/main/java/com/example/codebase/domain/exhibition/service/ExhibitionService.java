@@ -129,14 +129,13 @@ public class ExhibitionService {
             participant.checkParticipantValidity();
             ExhibitionParticipant exhibitionParticipant = new ExhibitionParticipant();
 
-            if (participant.getUsername() != null ) {
+            if (participant.getUsername() != null) {
                 Member participantMember =
                         memberRepository
                                 .findByUsername(participant.getUsername())
                                 .orElseThrow(NotFoundMemberException::new);
                 exhibitionParticipant.setMember(participantMember);
-            }
-            else{
+            } else {
                 exhibitionParticipant.setName(participant.getName());
             }
             exhibitionParticipant.setEventSchedule(eventSchedule);
@@ -148,7 +147,6 @@ public class ExhibitionService {
     public ExhibitionPageInfoResponseDTO getAllExhibition(
             ExhibitionSearchDTO exhibitionSearchDTO, int page, int size, String sortDirection) {
 
-        exhibitionSearchDTO.changeTimeFormat();
         exhibitionSearchDTO.repeatTimeValidity();
 
         Sort sort = Sort.by(Direction.fromString(sortDirection), "createdTime");

@@ -1,10 +1,11 @@
 package com.example.codebase.domain.exhibition.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -27,10 +28,10 @@ public class ExhibitionSearchDTO {
     @NotNull
     private String eventType;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonIgnore
     private LocalDateTime startDateTime;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonIgnore
     private LocalDateTime endDateTime;
 
     public void repeatTimeValidity() {
@@ -39,8 +40,14 @@ public class ExhibitionSearchDTO {
         }
     }
 
-    public void changeTimeFormat() {
-        this.startDateTime = this.startDate.atStartOfDay();
-        this.endDateTime = LocalDateTime.of(this.endDate, LocalTime.MAX);
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+        this.startDateTime = startDate.atStartOfDay();
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+        this.endDateTime = LocalDateTime.of(endDate, LocalTime.MAX);
     }
 }

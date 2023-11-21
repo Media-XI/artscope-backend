@@ -196,6 +196,8 @@ class ExhibitionControllerTest {
                     .withSecond(0)
                     .withNano(0);
 
+            long time = System.currentTimeMillis();
+
             EventSchedule eventSchedule =
                     EventSchedule.builder()
                             .startDateTime(defaultStartDateTime.plusDays(i))
@@ -271,7 +273,7 @@ class ExhibitionControllerTest {
 
     private byte[] createImageFile() throws IOException {
         File file =
-                resourceLoader.getResource("classpath:test/img.jpg").getFile(); // TODO : 테스트용 이미지 파일
+                resourceLoader.getResource("classpath:test/img.jpg").getFile();
         return Files.readAllBytes(file.toPath());
     }
 
