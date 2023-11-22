@@ -1,11 +1,14 @@
 package com.example.codebase.domain.member.repository;
 
 import com.example.codebase.domain.member.entity.Member;
+import com.example.codebase.domain.member.entity.RoleStatus;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import javax.management.relation.Role;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -52,4 +55,11 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
 
     @Query("SELECT m FROM Member m WHERE m.name LIKE ?1%")
     Page<Member> searchByName(String username, Pageable pageable);
+
+    @Query("SELECT m FROM Member m WHERE m.roleStatus = :roleStatus")
+    Page<Member> findAllByRoleStatus(RoleStatus roleStatus, Pageable pageable);
+
+    @Query("SELECT m FROM Member m WHERE m.roleStatus = ?1 OR m.roleStatus = ?2")
+    Page<Member> findAllByRoleStatus(RoleStatus pending1, RoleStatus pending2, Pageable pageable);
+
 }

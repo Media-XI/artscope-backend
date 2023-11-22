@@ -1,16 +1,20 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.member.dto.*;
+import com.example.codebase.domain.member.entity.RoleStatus;
 import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.exception.NotAcceptTypeException;
 import com.example.codebase.util.FileUtil;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -108,15 +112,42 @@ public class MemberController {
         return new ResponseEntity(member, HttpStatus.OK);
     }
 
-    @Operation(summary = "회원 리스트 조회", description = "[ADMIN] 회원 리스트를 조회합니다.")
+    @Operation(summary = "회원 전체 조회", description = "[ADMIN] 회원 리스트를 조회합니다.")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping
-    public ResponseEntity getAllMember() {
-        List<MemberResponseDTO> members = memberService.getAllMember();
+    public ResponseEntity getAllMember(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "DESC", required = false) String sortDirection
+    ) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        MembersResponseDTO members = memberService.getAllMember(pageRequest);
         return new ResponseEntity(members, HttpStatus.OK);
     }
 
-    @Operation(summary = "회원 프로필 조회", description = "[USER] 회원의 프로필을 조회합니다.")
+    @Operation(summary = "역활 상태로 회원 전체 조회", description = "[ADMIN] 역활 상태로 회원 전체 조회합니다.",
+            parameters = @Parameter(
+                    name = "roleStatus",
+                    description = "역활 상태",
+                    example = "NONE | PENDING | REJECTED | ARTIST | CURATOR")
+    )
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/role-status")
+    public ResponseEntity getAllRoleStatusMember(
+            @RequestParam(defaultValue = "NONE") String roleStatus,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "DESC", required = false) String sortDirection
+    ) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        MembersResponseDTO members = memberService.getAllRoleStatusMember(roleStatus, pageRequest);
+        return new ResponseEntity(members, HttpStatus.OK);
+    }
+
+    @Operation(summary = "내 프로필 조회", description = "[USER] 내 프로필을 조회합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @GetMapping("/profile")
     public ResponseEntity getProfile() {
@@ -165,17 +196,22 @@ public class MemberController {
         return new ResponseEntity("사용 가능한 아이디 입니다.", HttpStatus.OK);
     }
 
-    @Operation(summary = "아티스트 승인", description = "[ADMIN] 아티스트를 승인합니다.")
+    @Operation(summary = "회원 역활 상태 변경", description = "[ADMIN] 해당 회원의 역활 상태를 변경합니다.",
+            parameters = @Parameter(
+                    name = "roleStatus",
+                    description = "역활 상태",
+                    example = "NONE | ARTIST_PENDING | ARTIST_REJECTED | ARTIST | CURATOR_PENDING | CURATOR_REJECTED | CURATOR")
+    )
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    @PutMapping("/artist/{username}")
-    public ResponseEntity updateArtistStatus(@Valid @NotBlank @PathVariable String username,
-                                             @Valid @NotBlank @RequestParam String status) {
-        MemberResponseDTO member = memberService.updateArtistStatus(username, status);
+    @PutMapping("/{username}/role-status")
+    public ResponseEntity updateRoleStatus(@Valid @NotBlank @PathVariable String username,
+                                           @Valid @NotBlank @RequestParam RoleStatus roleStatus) {
+        MemberResponseDTO member = memberService.updateRoleStatus(username, roleStatus);
         return new ResponseEntity(member, HttpStatus.OK);
     }
 
-    @Operation(summary = "큐레이터 승인", description = "[ADMIN] 큐레이터를 승인합니다.")
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN')")
+    @Operation(summary = "닉네임 변경", description = "[USER] 닉네임을 변경합니다.")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PutMapping("/{username}/username")
     public ResponseEntity updateUsername(@PathVariable String username,
                                          @Valid @RequestParam UsernameDTO newUsername) {
@@ -184,7 +220,6 @@ public class MemberController {
         if (!SecurityUtil.isAdmin() && !currentUsername.equals(username)) { // 관리자가 아니고, 본인의 아이디가 아닐 경우
             throw new RuntimeException("본인의 정보만 수정할 수 있습니다.");
         }
-
         MemberResponseDTO member = memberService.updateUsername(username, newUsername.getUsername());
         return new ResponseEntity(member, HttpStatus.OK);
     }
