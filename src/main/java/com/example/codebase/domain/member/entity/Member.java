@@ -166,6 +166,13 @@ public class Member {
         this.authorities.add(memberAuthority);
     }
 
+    public void addAuthority(Authority authority) {
+        this.authorities.add(MemberAuthority.builder()
+            .member(this)
+            .authority(authority)
+            .build());
+    }
+
     public Member update(String name, String picture) {
         this.name = name;
         this.picture = picture;
@@ -215,8 +222,8 @@ public class Member {
         this.updatedTime = LocalDateTime.now();
     }
 
-    public void updateArtistStatus(String status) {
-        this.roleStatus = RoleStatus.create(status);
+    public void updateRoleStatus(RoleStatus roleStatus) {
+        this.roleStatus = roleStatus;
         this.updatedTime = LocalDateTime.now();
     }
 
