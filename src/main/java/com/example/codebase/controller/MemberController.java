@@ -7,6 +7,9 @@ import com.example.codebase.util.FileUtil;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +18,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 
 @RestController
@@ -73,7 +73,7 @@ public class MemberController {
     public ResponseEntity updateMember(@PathVariable String uesrname,
                                        @Valid @RequestBody UpdateMemberDTO updateMemberDTO) {
         String loginUsername = SecurityUtil.getCurrentUsername()
-            .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
         if (!uesrname.equals(loginUsername)) {
             throw new RuntimeException("본인의 정보만 수정할 수 있습니다.");
@@ -87,11 +87,11 @@ public class MemberController {
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PutMapping("/{username}/picture")
     public ResponseEntity updateProfile(
-        @PathVariable String username,
-        @RequestPart MultipartFile profile
+            @PathVariable String username,
+            @RequestPart MultipartFile profile
     ) throws Exception {
         String currentUsername = SecurityUtil.getCurrentUsername()
-            .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
         if (!currentUsername.equals(username)) {
             throw new RuntimeException("본인의 프로필 사진만 수정할 수 있습니다.");
         }
@@ -125,19 +125,20 @@ public class MemberController {
         return new ResponseEntity(member, HttpStatus.OK);
     }
 
-   @Operation(summary = "회원 프로필 조회", description = "[USER] 회원의 프로필을 조회합니다.")
+    @Operation(summary = "회원 프로필 조회", description = "[USER] 회원의 프로필을 조회합니다.")
     @GetMapping("/{username}")
     public ResponseEntity getProfile(@PathVariable String username) {
         MemberResponseDTO member = memberService.getProfile(username);
         return new ResponseEntity(member, HttpStatus.OK);
     }
 
-   @Operation(summary = "회원 삭제", description = "[USER] 회원을 삭제합니다.")
+    @Operation(summary = "회원 삭제", description = "[USER] 회원을 삭제합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @DeleteMapping("/{username}")
     public ResponseEntity deleteMember(@PathVariable String username) {
         String currentUsername = SecurityUtil.getCurrentUsername()
-            .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+
         if (!currentUsername.equals(username)) {
             throw new RuntimeException("본인의 정보만 삭제할 수 있습니다.");
         }
@@ -164,7 +165,7 @@ public class MemberController {
         return new ResponseEntity("사용 가능한 아이디 입니다.", HttpStatus.OK);
     }
 
-   @Operation(summary = "아티스트 승인", description = "[ADMIN] 아티스트를 승인합니다.")
+    @Operation(summary = "아티스트 승인", description = "[ADMIN] 아티스트를 승인합니다.")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/artist/{username}")
     public ResponseEntity updateArtistStatus(@Valid @NotBlank @PathVariable String username,
@@ -173,13 +174,13 @@ public class MemberController {
         return new ResponseEntity(member, HttpStatus.OK);
     }
 
-   @Operation(summary = "큐레이터 승인", description = "[ADMIN] 큐레이터를 승인합니다.")
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
+    @Operation(summary = "큐레이터 승인", description = "[ADMIN] 큐레이터를 승인합니다.")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/{username}/username")
     public ResponseEntity updateUsername(@PathVariable String username,
                                          @Valid @RequestParam UsernameDTO newUsername) {
         String currentUsername = SecurityUtil.getCurrentUsername()
-            .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
         if (!SecurityUtil.isAdmin() && !currentUsername.equals(username)) { // 관리자가 아니고, 본인의 아이디가 아닐 경우
             throw new RuntimeException("본인의 정보만 수정할 수 있습니다.");
         }
@@ -187,13 +188,14 @@ public class MemberController {
         MemberResponseDTO member = memberService.updateUsername(username, newUsername.getUsername());
         return new ResponseEntity(member, HttpStatus.OK);
     }
+
     @Operation(summary = "비밀번호 변경", description = "[USER] 비밀번호를 변경합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @PutMapping("/{username}/password")
     public ResponseEntity updatePassword(@PathVariable String username,
                                          @NotBlank @RequestParam(value = "newPassword") String newPassword) {
         String currentUsername = SecurityUtil.getCurrentUsername()
-            .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
         if (!SecurityUtil.isAdmin() && !currentUsername.equals(username)) {
             throw new RuntimeException("본인의 정보만 수정할 수 있습니다.");
@@ -203,7 +205,7 @@ public class MemberController {
         return new ResponseEntity("비밀번호가 변경되었습니다.", HttpStatus.OK);
     }
 
-   @Operation(summary = "관리자 권한 부여", description = "[ADMIN] 관리자 권한을 부여합니다.")
+    @Operation(summary = "관리자 권한 부여", description = "[ADMIN] 관리자 권한을 부여합니다.")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/{username}/admin")
     public ResponseEntity updateAdmin(@PathVariable String username) {
