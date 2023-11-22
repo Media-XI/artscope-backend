@@ -3,19 +3,16 @@ package com.example.codebase.domain.member.repository;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.RoleStatus;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import javax.management.relation.Role;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface MemberRepository extends JpaRepository<Member, UUID> {
-
 
     Optional<Member> findByUsername(String username);
 
@@ -25,8 +22,6 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
     Optional<Member> findByUsernameOrOauthProviderId(String username);
 
     Optional<Member> findByOauthProviderId(String oauthProviderId);
-
-    Optional<Member> findByOauthProviderIdAndEmail(String oauthProviderId, String email);
 
     Boolean existsByEmail(String email);
 

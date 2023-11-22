@@ -347,14 +347,14 @@ class MemberControllerTest {
         String status = "ARTIST";
 
         mockMvc.perform(
-                        put(String.format("/api/members/artist/%s?status=%s", "testid1", status))
+                        put(String.format("/api/members/%s/role-status?roleStatus=%s", "testid1", status))
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
-    @DisplayName("사용자 잘못된 값으로 아티스트 승인 시")
+    @DisplayName("사용자 잘못된 값으로 아티스트 역활 승인 시")
     @Test
     void 아티스트_승인_잘못된값() throws Exception {
         createOrLoadMember();
@@ -362,7 +362,8 @@ class MemberControllerTest {
         String status = "asd";
 
         mockMvc.perform(
-                        put(String.format("/api/members/artist/%s?status=%s", "testid1", status))
+                        put("/api/members/testid1/role-status")
+                                .param("roleStatus", status)
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest());
