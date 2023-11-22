@@ -136,7 +136,7 @@ public class MemberController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/role-status")
     public ResponseEntity getAllRoleStatusMember(
-            @RequestParam(defaultValue = "NONE") String roleStatus,
+            @RequestParam(defaultValue = "NONE") @NotBlank(message = "역활 상태는 필수입니다.") String roleStatus,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "DESC", required = false) String sortDirection
@@ -204,9 +204,9 @@ public class MemberController {
     )
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/{username}/role-status")
-    public ResponseEntity updateRoleStatus(@Valid @NotBlank @PathVariable String username,
-                                           @Valid @NotBlank @RequestParam RoleStatus roleStatus) {
-        MemberResponseDTO member = memberService.updateRoleStatus(username, roleStatus);
+    public ResponseEntity updateRoleStatus(@PathVariable @Valid @NotBlank String username,
+                                           @RequestParam @Valid @NotBlank(message = "역활 상태는 필수입니다.") String roleStatus) {
+        MemberResponseDTO member = memberService.updateRoleStatus(username, RoleStatus.create(roleStatus));
         return new ResponseEntity(member, HttpStatus.OK);
     }
 
