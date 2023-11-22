@@ -1,7 +1,9 @@
 package com.example.codebase.domain.member.dto;
 
 import com.example.codebase.controller.dto.PageInfo;
+import com.example.codebase.domain.member.entity.Member;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -17,5 +19,13 @@ public class MembersResponseDTO {
         dto.members = members;
         dto.pageInfo = pageInfo;
         return dto;
+    }
+
+    public static MembersResponseDTO from(Page<Member> members) {
+        PageInfo pageInfo = PageInfo.from(members);
+        List<MemberResponseDTO> dtos = members.stream()
+                .map(MemberResponseDTO::from)
+                .toList();
+        return MembersResponseDTO.of(dtos, pageInfo);
     }
 }

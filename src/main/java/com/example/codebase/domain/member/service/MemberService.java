@@ -132,12 +132,7 @@ public class MemberService {
 
     public MembersResponseDTO getAllMember(PageRequest pageRequest) {
         Page<Member> members = memberRepository.findAll(pageRequest);
-
-        PageInfo pageInfo = PageInfo.from(members);
-        List<MemberResponseDTO> memberDtos = members.stream()
-                .map(MemberResponseDTO::from)
-                .toList();
-        return MembersResponseDTO.of(memberDtos, pageInfo);
+        return MembersResponseDTO.from(members);
     }
 
     @Transactional
@@ -309,7 +304,7 @@ public class MemberService {
         }
 
         Page<Member> members = memberRepository.findAllByRoleStatus(RoleStatus.create(roleStatus), pageRequest);
-        return pageToDTO(members);
+        return MembersResponseDTO.from(members);
     }
 
     private MembersResponseDTO getRoleStatusMember(String roleStatus, PageRequest pageRequest) {
@@ -325,14 +320,7 @@ public class MemberService {
         }
 
         Page<Member> members = memberRepository.findAllByRoleStatus(roleStatusEnums[0], roleStatusEnums[1], pageRequest);
-        return pageToDTO(members);
+        return MembersResponseDTO.from(members);
     }
 
-    private MembersResponseDTO pageToDTO(Page<Member> members) {
-        PageInfo pageInfo = PageInfo.from(members);
-        List<MemberResponseDTO> dtos = members.stream()
-                .map(MemberResponseDTO::from)
-                .toList();
-        return MembersResponseDTO.of(dtos, pageInfo);
-    }
 }
