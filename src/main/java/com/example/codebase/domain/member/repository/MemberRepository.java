@@ -1,6 +1,7 @@
 package com.example.codebase.domain.member.repository;
 
 import com.example.codebase.domain.member.entity.Member;
+import com.example.codebase.domain.member.entity.RoleStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,13 +14,6 @@ import java.util.UUID;
 
 public interface MemberRepository extends JpaRepository<Member, UUID> {
 
-    /*
-     * Deprecated!
-     * Authorities를 Fetch.Lazy 에서 Eager로 변경하여 지연 로딩 없이 가져오므로
-     * 해당 메소드는 사용하지 않아도 됨.
-     */
-    Optional<Member> findOneWithAuthoritiesByUsername(String username);
-
     Optional<Member> findByUsername(String username);
 
     @Query(" SELECT m " +
@@ -28,8 +22,6 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
     Optional<Member> findByUsernameOrOauthProviderId(String username);
 
     Optional<Member> findByOauthProviderId(String oauthProviderId);
-
-    Optional<Member> findByOauthProviderIdAndEmail(String oauthProviderId, String email);
 
     Boolean existsByEmail(String email);
 
@@ -52,4 +44,11 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
 
     @Query("SELECT m FROM Member m WHERE m.name LIKE ?1%")
     Page<Member> searchByName(String username, Pageable pageable);
+
+    @Query("SELECT m FROM Member m WHERE m.roleStatus = :roleStatus")
+    Page<Member> findAllByRoleStatus(RoleStatus roleStatus, Pageable pageable);
+
+    @Query("SELECT m FROM Member m WHERE m.roleStatus = ?1 OR m.roleStatus = ?2")
+    Page<Member> findAllByRoleStatus(RoleStatus pending1, RoleStatus pending2, Pageable pageable);
+
 }
