@@ -13,7 +13,7 @@ public enum RoleStatus {
         return Stream.of(RoleStatus.values())
                 .filter(status -> status.name().equals(roleStatus))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("부적절한 역활 상태 입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("부적절한 역할 상태 입니다."));
     }
 
 }

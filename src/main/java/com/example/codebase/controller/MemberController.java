@@ -130,16 +130,16 @@ public class MemberController {
         return new ResponseEntity(members, HttpStatus.OK);
     }
 
-    @Operation(summary = "역활 상태로 회원 전체 조회", description = "[ADMIN] 역활 상태로 회원 전체 조회합니다.",
+    @Operation(summary = "역할 상태로 회원 전체 조회", description = "[ADMIN] 역할 상태로 회원 전체 조회합니다.",
             parameters = @Parameter(
                     name = "roleStatus",
-                    description = "역활 상태",
+                    description = "역할 상태",
                     example = "NONE | PENDING | REJECTED | ARTIST | CURATOR")
     )
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/role-status")
     public ResponseEntity getAllRoleStatusMember(
-            @RequestParam(defaultValue = "NONE") @NotBlank(message = "역활 상태는 필수입니다.") String roleStatus,
+            @RequestParam(defaultValue = "NONE") @NotBlank(message = "역할 상태는 필수입니다.") String roleStatus,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "DESC", required = false) String sortDirection
@@ -199,16 +199,16 @@ public class MemberController {
         return new ResponseEntity("사용 가능한 아이디 입니다.", HttpStatus.OK);
     }
 
-    @Operation(summary = "회원 역활 상태 변경", description = "[ADMIN] 해당 회원의 역활 상태를 변경합니다.",
+    @Operation(summary = "회원 역할 상태 변경", description = "[ADMIN] 해당 회원의 역할 상태를 변경합니다.",
             parameters = @Parameter(
                     name = "roleStatus",
-                    description = "역활 상태",
+                    description = "역할 상태",
                     example = "NONE | ARTIST_PENDING | ARTIST_REJECTED | ARTIST | CURATOR_PENDING | CURATOR_REJECTED | CURATOR")
     )
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/{username}/role-status")
     public ResponseEntity updateRoleStatus(@PathVariable @Valid @NotBlank String username,
-                                           @RequestParam @Valid @NotBlank(message = "역활 상태는 필수입니다.") String roleStatus) {
+                                           @RequestParam @Valid @NotBlank(message = "역할 상태는 필수입니다.") String roleStatus) {
         MemberResponseDTO member = memberService.updateRoleStatus(username, RoleStatus.create(roleStatus));
         return new ResponseEntity(member, HttpStatus.OK);
     }

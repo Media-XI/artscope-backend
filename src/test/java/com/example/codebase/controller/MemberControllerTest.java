@@ -354,7 +354,7 @@ class MemberControllerTest {
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
-    @DisplayName("사용자 잘못된 값으로 아티스트 역활 승인 시")
+    @DisplayName("사용자 잘못된 값으로 아티스트 역할 승인 시")
     @Test
     void 아티스트_승인_잘못된값() throws Exception {
         createOrLoadMember();
@@ -516,7 +516,7 @@ class MemberControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @DisplayName("역활 상태 별 회원 전체 조회")
+    @DisplayName("역 상태 별 회원 전체 조회")
     @WithMockCustomUser(username = "admin", role = "ADMIN")
     @Test
     void 승인_대기_회원_전체_조회() throws Exception {
@@ -538,7 +538,7 @@ class MemberControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @DisplayName("역활 상태 별 회원 전체 조회 - 잘못된 상태 전달 시")
+    @DisplayName("역할 상태 별 회원 전체 조회 - 잘못된 상태 전달 시")
     @WithMockCustomUser(username = "admin", role = "ADMIN")
     @Test
     void 승인_대기_회원_전체_조회2() throws Exception {
