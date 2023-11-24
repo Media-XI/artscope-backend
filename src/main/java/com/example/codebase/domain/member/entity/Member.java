@@ -122,6 +122,7 @@ public class Member {
             .oauthProvider(oAuthAttributes.getRegistrationId())
             .oauthProviderId(oAuthAttributes.getOAuthProviderId())
             .createdTime(LocalDateTime.now())
+            .updatedTime(LocalDateTime.now())
             .activated(true)
             .build();
     }

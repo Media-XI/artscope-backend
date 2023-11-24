@@ -89,6 +89,7 @@ public class Artwork {
             .description(dto.getDescription())
             .visible(dto.getVisible())
             .createdTime(LocalDateTime.now())
+            .updatedTime(LocalDateTime.now())
             .member(member)
             .build();
     }
