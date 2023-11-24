@@ -53,6 +53,7 @@ public class AgoraOpinion {
         return AgoraOpinion.builder()
             .content(content.getContent())
             .createdTime(LocalDateTime.now())
+            .updatedTime(LocalDateTime.now())
             .isDeleted(false)
             .build();
     }

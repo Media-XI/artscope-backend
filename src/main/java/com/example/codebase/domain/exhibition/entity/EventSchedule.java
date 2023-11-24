@@ -61,6 +61,7 @@ public class EventSchedule {
                 .endDateTime(scheduleDTO.getEndDateTime())
                 .detailLocation(scheduleDTO.getDetailLocation())
                 .createdTime(LocalDateTime.now())
+                .updatedTime(LocalDateTime.now())
                 .build();
     }
 

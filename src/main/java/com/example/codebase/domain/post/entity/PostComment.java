@@ -58,6 +58,7 @@ public class PostComment {
             .content(commentCreateDTO.getContent())
             .author(author)
             .createdTime(LocalDateTime.now())
+            .updatedTime(LocalDateTime.now())
             .build();
     }
 

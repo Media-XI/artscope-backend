@@ -68,6 +68,7 @@ public class Post {
             .content(postCreateDTO.getContent())
             .author(author)
             .createdTime(LocalDateTime.now())
+            .updatedTime(LocalDateTime.now())
             .build();
     }
 
