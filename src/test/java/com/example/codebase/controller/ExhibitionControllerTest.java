@@ -397,7 +397,7 @@ class ExhibitionControllerTest {
                                 .accept(MediaType.APPLICATION_JSON)
                                 .characterEncoding("UTF-8"))
                 .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(status().isBadRequest());
     }
 
     @DisplayName("이벤트 전체 조회 - 성공")
@@ -699,6 +699,39 @@ class ExhibitionControllerTest {
 
         mockMvc
                 .perform(delete(String.format("/api/exhibitions/%d/schedule/%d", exhbition.getId(), eventSchedule.getId())))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @WithMockCustomUser(username = "user", role = "CURATOR")
+    @DisplayName("스케줄 종료시간이 시작시간보다 빠를시")
+    @Test
+    public void 스케줄_생성시_종료시간이_시작시간보다_빠른경우() throws Exception {
+        createOrLoadMember("user", RoleStatus.CURATOR, "ROLE_CURATOR");
+
+        ExhbitionCreateDTO dto = mockCreateExhibitionDTO(1);
+        EventScheduleCreateDTO eventScheduleCreateDTO = dto.getSchedule().get(0);
+        eventScheduleCreateDTO.setEndDateTime(LocalDateTime.now().minusHours(1));
+        eventScheduleCreateDTO.setStartDateTime(LocalDateTime.now());
+
+        MockMultipartFile dtoFile =
+                new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
+
+        MockMultipartFile mediaFile =
+                new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
+
+        MockMultipartFile thumbnailFile =
+                new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
+
+        mockMvc
+                .perform(
+                        multipart("/api/exhibitions")
+                                .file(dtoFile)
+                                .file(mediaFile)
+                                .file(thumbnailFile)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding("UTF-8"))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
