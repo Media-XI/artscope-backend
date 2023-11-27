@@ -1,5 +1,6 @@
 package com.example.codebase.domain.artwork.dto;
 
+import com.example.codebase.domain.artwork.document.ArtworkDocument;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -54,6 +55,17 @@ public class ArtworkResponseDTO {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedTime;
+
+    public static ArtworkResponseDTO from (ArtworkDocument artworkDocument) {
+        return ArtworkResponseDTO.builder()
+            .id(artworkDocument.getId())
+            .title(artworkDocument.getTitle())
+            .tags(List.of(artworkDocument.getTags().split(",")))
+            .description(artworkDocument.getDescription())
+            .createdTime(artworkDocument.getCreatedTime())
+            .updatedTime(artworkDocument.getUpdatedTime())
+            .build();
+    }
 
     public static ArtworkResponseDTO from(Artwork artwork) {
         List<ArtworkMedia> artworkMedia = artwork.getArtworkMedia();
