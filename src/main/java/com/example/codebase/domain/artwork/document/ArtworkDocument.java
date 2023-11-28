@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 public class ArtworkDocument {
 
     @Id
-    @Field(name = "artwork_id")
     private Long id;
 
     @Field(name = "title", type = FieldType.Text, analyzer = "my_nori_analyzer")
@@ -30,10 +29,10 @@ public class ArtworkDocument {
 
     // TODO : visible 검색 조건 제외
 
-    @Field(name = "created_time", type = FieldType.Date, format = DateFormat.date_hour_minute_second)
+    @Field(name = "created_time", type = FieldType.Date, format = DateFormat.date_time)
     private LocalDateTime createdTime;
 
-    @Field(name = "updated_time", type = FieldType.Date, format = DateFormat.date_hour_minute_second)
+    @Field(name = "updated_time", type = FieldType.Date, format = DateFormat.date_time)
     private LocalDateTime updatedTime;
 
     @Builder
