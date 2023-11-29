@@ -63,19 +63,25 @@ public class SearchService {
         return SearchResponseDTO.of(artworksResponseDTO, postsResponseDTO);
     }
 
-    public List<ArtworkResponseDTO> artworkSearch(String keyword, PageRequest pageRequest) {
+    public ArtworksResponseDTO artworkSearch(String keyword, PageRequest pageRequest) {
         Query query = QueryBuilders.multiMatch()
                 .fields("title", "tags", "description")
                 .query(keyword)
                 .build()._toQuery();
         NativeQuery nativeQuery = NativeQuery.builder()
                 .withQuery(query)
+                .withPageable(pageRequest)
                 .build();
+
         SearchHits<ArtworkDocument> searched = elasticsearchOperations.search(nativeQuery, ArtworkDocument.class);
-        return searched
-                .stream()
+
+        List<ArtworkResponseDTO> dtos = searched.stream()
                 .map(SearchHit::getContent)
                 .map(ArtworkResponseDTO::from)
                 .toList();
+
+        PageInfo pageInfo = PageInfo.of(pageRequest.getPageNumber(), pageRequest.getPageSize(),
+                searched.getTotalHits());
+        return ArtworksResponseDTO.of(dtos, pageInfo);
     }
 }

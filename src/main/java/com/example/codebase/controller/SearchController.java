@@ -1,6 +1,7 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.artwork.dto.ArtworkResponseDTO;
+import com.example.codebase.domain.artwork.dto.ArtworksResponseDTO;
 import com.example.codebase.domain.search.SearchService;
 import com.example.codebase.domain.search.dto.SearchResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,7 +57,7 @@ public class SearchController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
-        List<ArtworkResponseDTO> dto = searchService.artworkSearch(keyword, pageRequest);
+        ArtworksResponseDTO dto = searchService.artworkSearch(keyword, pageRequest);
 
         return new ResponseEntity(dto, HttpStatus.OK);
     }
