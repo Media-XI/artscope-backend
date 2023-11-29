@@ -4,6 +4,7 @@ import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.exhibition.dto.*;
 import com.example.codebase.domain.exhibition.entity.*;
 import com.example.codebase.domain.exhibition.repository.EventScheduleRepository;
+import com.example.codebase.domain.exhibition.repository.ExhibitionDocumentRepository;
 import com.example.codebase.domain.exhibition.repository.ExhibitionParticipantRepository;
 import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
 import com.example.codebase.domain.location.entity.Location;
@@ -34,6 +35,8 @@ public class ExhibitionService {
 
     private final EventScheduleRepository eventScheduleRepository;
 
+    private final ExhibitionDocumentRepository exhibitionDocumentRepository;
+
     private final MemberRepository memberRepository;
 
     private final LocationRepository locationRepository;
@@ -43,11 +46,12 @@ public class ExhibitionService {
             ExhibitionRepository exhibitionRepository,
             ExhibitionParticipantRepository exhibitionParticipantRepository,
             EventScheduleRepository eventScheduleRepository,
-            MemberRepository memberRepository,
+            ExhibitionDocumentRepository exhibitionDocumentRepository, MemberRepository memberRepository,
             LocationRepository locationRepository) {
         this.exhibitionRepository = exhibitionRepository;
         this.exhibitionParticipantRepository = exhibitionParticipantRepository;
         this.eventScheduleRepository = eventScheduleRepository;
+        this.exhibitionDocumentRepository = exhibitionDocumentRepository;
         this.memberRepository = memberRepository;
         this.locationRepository = locationRepository;
     }
@@ -222,6 +226,7 @@ public class ExhibitionService {
             throw new RuntimeException("해당 이벤트의 작성자가 아닙니다");
         }
         exhibition.delete();
+        exhibitionDocumentRepository.deleteById(exhibitionId);
         eventScheduleRepository.deleteAll(exhibition.getEventSchedules());
     }
 
