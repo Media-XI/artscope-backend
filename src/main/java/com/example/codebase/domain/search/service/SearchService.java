@@ -58,15 +58,19 @@ public class SearchService {
     public SearchResponseDTO totalSearch(String keyword, PageRequest pageRequest) {
         ArtworksResponseDTO artworksResponseDTO = new ArtworksResponseDTO();
         PostsResponseDTO postsResponseDTO = new PostsResponseDTO();
+        AgorasResponseDTO agorasResponseDTO = new AgorasResponseDTO();
+        ExhibitionPageInfoResponseDTO exhibitionPageInfoResponseDTO = new ExhibitionPageInfoResponseDTO();
 
         NativeQuery artworkNativeQuery = makeNativeQuery(keyword, pageRequest, "title", "tags", "description");
         NativeQuery postNativeQuery = makeNativeQuery(keyword, pageRequest, "content");
+        NativeQuery agoraNativeQuery = makeNativeQuery(keyword, pageRequest, "title", "content");
+        NativeQuery exhibitionNativeQuery = makeNativeQuery(keyword, pageRequest, "title", "description");
 
-        List<NativeQuery> nativeQueries = List.of(artworkNativeQuery, postNativeQuery);
-        List<Class<?>> classes = List.of(ArtworkDocument.class, PostDocument.class);
-        IndexCoordinates indexCoordinates = IndexCoordinates.of("artworks", "posts");
+        List<NativeQuery> nativeQueries = List.of(artworkNativeQuery, postNativeQuery, agoraNativeQuery, exhibitionNativeQuery);
+        List<Class<?>> classes = List.of(ArtworkDocument.class, PostDocument.class, AgoraDocument.class, ExhibitionDocument.class);
 
-        List<SearchHits<?>> hits = elasticsearchOperations.multiSearch(nativeQueries, classes, indexCoordinates);
+        List<SearchHits<?>> hits = elasticsearchOperations.multiSearch(nativeQueries, classes);
+
         long totalHits = 0;
         for (SearchHits<?> searchHits : hits) {
             totalHits += searchHits.getTotalHits();
@@ -78,12 +82,18 @@ public class SearchService {
                 } else if (content instanceof PostDocument) {
                     postsResponseDTO.addPost(PostResponseDTO.from((PostDocument) content));
                     postsResponseDTO.setPageInfo(PageInfo.of(pageRequest.getPageNumber(), pageRequest.getPageSize(), searchHits.getTotalHits()));
+                } else if (content instanceof AgoraDocument) {
+                    agorasResponseDTO.addAgora(AgoraResponseDTO.from((AgoraDocument) content));
+                    agorasResponseDTO.setPageInfo(PageInfo.of(pageRequest.getPageNumber(), pageRequest.getPageSize(), searchHits.getTotalHits()));
+                } else if (content instanceof ExhibitionDocument) {
+                    exhibitionPageInfoResponseDTO.addExhibition(ExhibitionResponseDTO.from((ExhibitionDocument) content));
+                    exhibitionPageInfoResponseDTO.setPageInfo(PageInfo.of(pageRequest.getPageNumber(), pageRequest.getPageSize(), searchHits.getTotalHits()));
                 }
             }
         }
 
         PageInfo pageInfo = PageInfo.of(pageRequest.getPageNumber(), pageRequest.getPageSize(), totalHits);
-        return SearchResponseDTO.of(artworksResponseDTO, postsResponseDTO, pageInfo);
+        return SearchResponseDTO.of(artworksResponseDTO, postsResponseDTO, agorasResponseDTO, exhibitionPageInfoResponseDTO, pageInfo);
     }
 
     public ArtworksResponseDTO artworkSearch(String keyword, PageRequest pageRequest) {

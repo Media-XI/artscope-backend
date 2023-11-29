@@ -34,7 +34,7 @@ public class SearchController {
         this.searchService = searchService;
     }
 
-    @Operation(summary = "전체 검색", description = "[ALL] 전체 검색", parameters = {
+    @Operation(summary = "통합 검색", description = "[ALL] Artwork, Post, Agora, Exhibition 통합 검색", parameters = {
             @Parameter(name = "keyword", description = "검색어", required = true),
             @Parameter(name = "page", description = "페이지 번호"),
             @Parameter(name = "size", description = "페이지 사이즈"),
