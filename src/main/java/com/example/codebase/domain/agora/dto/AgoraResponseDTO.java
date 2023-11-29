@@ -1,5 +1,6 @@
 package com.example.codebase.domain.agora.dto;
 
+import com.example.codebase.domain.agora.document.AgoraDocument;
 import com.example.codebase.domain.agora.entity.Agora;
 import com.example.codebase.domain.agora.entity.AgoraMedia;
 import com.example.codebase.domain.agora.entity.AgoraParticipant;
@@ -88,6 +89,16 @@ public class AgoraResponseDTO {
             .author(agoraParticipantResponseDTO)
             .thumbnail(thumbnail)
             .medias(medias)
+            .build();
+    }
+
+    public static AgoraResponseDTO from(AgoraDocument agoraDocument) {
+        return AgoraResponseDTO.builder()
+            .id(agoraDocument.getId())
+            .title(agoraDocument.getTitle())
+            .content(agoraDocument.getContent())
+            .createdTime(agoraDocument.getCreatedTime())
+            .updatedTime(agoraDocument.getUpdatedTime())
             .build();
     }
 

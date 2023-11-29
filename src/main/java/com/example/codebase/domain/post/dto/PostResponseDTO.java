@@ -1,5 +1,6 @@
 package com.example.codebase.domain.post.dto;
 
+import com.example.codebase.domain.post.document.PostDocument;
 import com.example.codebase.domain.post.entity.Post;
 import com.example.codebase.domain.post.entity.PostWithIsLiked;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -142,5 +143,14 @@ public class PostResponseDTO {
         PostResponseDTO dto = from(post);
         dto.setIsLiked(isLiked);
         return dto;
+    }
+
+    public static PostResponseDTO from(PostDocument postDocument) {
+        return PostResponseDTO.builder()
+            .id(postDocument.getId())
+            .content(postDocument.getContent())
+            .createdTime(postDocument.getCreatedTime())
+            .updatedTime(postDocument.getUpdatedTime())
+            .build();
     }
 }
