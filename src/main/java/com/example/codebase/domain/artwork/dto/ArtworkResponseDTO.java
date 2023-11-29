@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -57,14 +58,21 @@ public class ArtworkResponseDTO {
     private LocalDateTime updatedTime;
 
     public static ArtworkResponseDTO from (ArtworkDocument artworkDocument) {
-        return ArtworkResponseDTO.builder()
-            .id(artworkDocument.getId())
-            .title(artworkDocument.getTitle())
-            .tags(List.of(artworkDocument.getTags().split(",")))
-            .description(artworkDocument.getDescription())
-            .createdTime(artworkDocument.getCreatedTime())
-            .updatedTime(artworkDocument.getUpdatedTime())
-            .build();
+        ArtworkResponseDTO dto = ArtworkResponseDTO.builder()
+                .id(artworkDocument.getId())
+                .title(artworkDocument.getTitle())
+                .tags(Collections.emptyList())
+                .description(artworkDocument.getDescription())
+                .createdTime(artworkDocument.getCreatedTime())
+                .updatedTime(artworkDocument.getUpdatedTime())
+                .build();
+
+        if (artworkDocument.getTags() != null) {
+            String[] split = artworkDocument.getTags().split(",");
+            dto.setTags(List.of(split));
+        }
+
+        return dto;
     }
 
     public static ArtworkResponseDTO from(Artwork artwork) {
