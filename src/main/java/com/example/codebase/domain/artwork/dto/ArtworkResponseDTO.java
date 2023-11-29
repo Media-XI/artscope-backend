@@ -57,11 +57,15 @@ public class ArtworkResponseDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedTime;
 
-    public static ArtworkResponseDTO from (ArtworkDocument artworkDocument) {
+    public static ArtworkResponseDTO from(ArtworkDocument artworkDocument) {
         ArtworkResponseDTO dto = ArtworkResponseDTO.builder()
                 .id(artworkDocument.getId())
                 .title(artworkDocument.getTitle())
                 .tags(Collections.emptyList())
+                .authorName(artworkDocument.getName())
+                .authorCompanyName(artworkDocument.getCompanyName())
+                .authorCompanyRole(artworkDocument.getCompanyRole())
+                .thumbnail(ArtworkMediaResponseDTO.builder().mediaUrl(artworkDocument.getMediaUrl()).build())
                 .description(artworkDocument.getDescription())
                 .createdTime(artworkDocument.getCreatedTime())
                 .updatedTime(artworkDocument.getUpdatedTime())
@@ -79,13 +83,13 @@ public class ArtworkResponseDTO {
         List<ArtworkMedia> artworkMedia = artwork.getArtworkMedia();
 
         ArtworkMediaResponseDTO thumbnail =
-            artworkMedia.stream().findFirst().map(ArtworkMediaResponseDTO::from).orElse(null);
+                artworkMedia.stream().findFirst().map(ArtworkMediaResponseDTO::from).orElse(null);
 
         List<ArtworkMediaResponseDTO> artworkMediaResponseDTOS =
-            artworkMedia.stream()
-                .skip(1)
-                .map(ArtworkMediaResponseDTO::from)
-                .collect(Collectors.toList());
+                artworkMedia.stream()
+                        .skip(1)
+                        .map(ArtworkMediaResponseDTO::from)
+                        .collect(Collectors.toList());
 
         List<String> tags = null;
         if (Optional.ofNullable(artwork.getTags()).isPresent()) {
@@ -94,30 +98,30 @@ public class ArtworkResponseDTO {
         }
 
         return ArtworkResponseDTO.builder()
-            .id(artwork.getId())
-            .title(artwork.getTitle())
-            .tags(tags)
-            .description(artwork.getDescription())
-            .views(artwork.getViews())
-            .likes(artwork.getLikes())
-            .comments(artwork.getComments())
-            .authorName(artwork.getMember().getName())
-            .authorUsername(artwork.getMember().getUsername())
-            .authorIntroduction(artwork.getMember().getIntroduction())
-            .authorProfileImage(artwork.getMember().getPicture() != null ? artwork.getMember().getPicture() : null)
-            .authorCompanyName(
-                artwork.getMember().getCompanyName() != null ? artwork.getMember().getCompanyName() : null)
-            .authorCompanyRole(
-                artwork.getMember().getCompanyRole() != null ? artwork.getMember().getCompanyRole() : null)
-            .thumbnail(thumbnail)
-            .artworkMedias(artworkMediaResponseDTOS)
-            .createdTime(artwork.getCreatedTime())
-            .updatedTime(artwork.getUpdatedTime())
-            .build();
+                .id(artwork.getId())
+                .title(artwork.getTitle())
+                .tags(tags)
+                .description(artwork.getDescription())
+                .views(artwork.getViews())
+                .likes(artwork.getLikes())
+                .comments(artwork.getComments())
+                .authorName(artwork.getMember().getName())
+                .authorUsername(artwork.getMember().getUsername())
+                .authorIntroduction(artwork.getMember().getIntroduction())
+                .authorProfileImage(artwork.getMember().getPicture() != null ? artwork.getMember().getPicture() : null)
+                .authorCompanyName(
+                        artwork.getMember().getCompanyName() != null ? artwork.getMember().getCompanyName() : null)
+                .authorCompanyRole(
+                        artwork.getMember().getCompanyRole() != null ? artwork.getMember().getCompanyRole() : null)
+                .thumbnail(thumbnail)
+                .artworkMedias(artworkMediaResponseDTOS)
+                .createdTime(artwork.getCreatedTime())
+                .updatedTime(artwork.getUpdatedTime())
+                .build();
     }
 
     public static ArtworkResponseDTO of(
-        Artwork artwork, List<ArtworkCommentResponseDTO> artworkComments) {
+            Artwork artwork, List<ArtworkCommentResponseDTO> artworkComments) {
         ArtworkResponseDTO artworkResponseDTO = from(artwork);
         artworkResponseDTO.setArtworkComments(artworkComments);
         return artworkResponseDTO;

@@ -62,9 +62,17 @@ public class ExhibitionResponseDTO {
     }
 
     public static ExhibitionResponseDTO from(ExhibitionDocument exhibitionDocument) {
+
+        ExhibitionMediaResponseDTO media = new ExhibitionMediaResponseDTO();
+        if (exhibitionDocument.getMediaUrl() != null) {
+            media.setMediaUrl(exhibitionDocument.getMediaUrl());
+        }
+
         return ExhibitionResponseDTO.builder()
                 .id(exhibitionDocument.getId())
                 .title(exhibitionDocument.getTitle())
+                .author(exhibitionDocument.getName())
+                .thumbnail(media)
                 .createdTime(exhibitionDocument.getCreatedTime())
                 .updatedTime(exhibitionDocument.getUpdatedTime())
                 .build();
