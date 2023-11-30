@@ -1,5 +1,6 @@
 package com.example.codebase.controller;
 
+import com.example.codebase.controller.dto.PageRequestMaker;
 import com.example.codebase.domain.agora.dto.AgorasResponseDTO;
 import com.example.codebase.domain.artwork.dto.ArtworksResponseDTO;
 import com.example.codebase.domain.exhibition.dto.ExhibitionPageInfoResponseDTO;
@@ -47,12 +48,9 @@ public class SearchController {
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
-        SearchSortType searchSortType = SearchSortType.create(sortType);
-        Sort sort = Sort.by(Sort.Direction.DESC, searchSortType.getValue());
-        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
         SearchResponseDTO dto = searchService.totalSearch(keyword, pageRequest);
-
         return new ResponseEntity(dto, HttpStatus.OK);
     }
 
@@ -69,9 +67,7 @@ public class SearchController {
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
-        SearchSortType searchSortType = SearchSortType.create(sortType);
-        Sort sort = Sort.by(Sort.Direction.DESC, searchSortType.getValue());
-        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
         ArtworksResponseDTO dto = searchService.artworkSearch(keyword, pageRequest);
 
@@ -91,9 +87,7 @@ public class SearchController {
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
-        SearchSortType searchSortType = SearchSortType.create(sortType);
-        Sort sort = Sort.by(Sort.Direction.DESC, searchSortType.getValue());
-        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
         PostsResponseDTO dto = searchService.postSearch(keyword, pageRequest);
 
@@ -113,9 +107,7 @@ public class SearchController {
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
-        SearchSortType searchSortType = SearchSortType.create(sortType);
-        Sort sort = Sort.by(Sort.Direction.DESC, searchSortType.getValue());
-        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
         AgorasResponseDTO dto = searchService.agoraSearch(keyword, pageRequest);
 
@@ -135,9 +127,7 @@ public class SearchController {
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
-        SearchSortType searchSortType = SearchSortType.create(sortType);
-        Sort sort = Sort.by(Sort.Direction.DESC, searchSortType.getValue());
-        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
         ExhibitionPageInfoResponseDTO dto = searchService.eventSearch(keyword, pageRequest);
 
