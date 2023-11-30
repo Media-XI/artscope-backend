@@ -42,7 +42,7 @@ public class SearchController {
             @Parameter(name = "sortType", description = "정렬 방식 (정확도순, 최신순)", example = "정확도순")
     })
     @GetMapping
-    public ResponseEntity totalSearch(
+    public ResponseEntity searchTotal(
             @RequestParam String keyword,
             @PositiveOrZero @RequestParam(defaultValue = "0") int page,
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
@@ -50,7 +50,7 @@ public class SearchController {
     ) {
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
-        SearchResponseDTO dto = searchService.totalSearch(keyword, pageRequest);
+        SearchResponseDTO dto = searchService.searchTotal(keyword, pageRequest);
         return new ResponseEntity(dto, HttpStatus.OK);
     }
 
@@ -61,7 +61,7 @@ public class SearchController {
             @Parameter(name = "sortType", description = "정렬 방식 (정확도순, 최신순)", example = "정확도순")
     })
     @GetMapping("/artwork")
-    public ResponseEntity artworkSearch(
+    public ResponseEntity searchArtwork(
             @RequestParam String keyword,
             @PositiveOrZero @RequestParam(defaultValue = "0") int page,
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
@@ -69,7 +69,7 @@ public class SearchController {
     ) {
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
-        ArtworksResponseDTO dto = searchService.artworkSearch(keyword, pageRequest);
+        ArtworksResponseDTO dto = searchService.searchArtwork(keyword, pageRequest);
 
         return new ResponseEntity(dto, HttpStatus.OK);
     }
@@ -81,7 +81,7 @@ public class SearchController {
             @Parameter(name = "sortType", description = "정렬 방식 (정확도순, 최신순)", example = "정확도순")
     })
     @GetMapping("/post")
-    public ResponseEntity postSearch(
+    public ResponseEntity searchPost(
             @RequestParam String keyword,
             @PositiveOrZero @RequestParam(defaultValue = "0") int page,
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
@@ -89,7 +89,7 @@ public class SearchController {
     ) {
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
-        PostsResponseDTO dto = searchService.postSearch(keyword, pageRequest);
+        PostsResponseDTO dto = searchService.searchPost(keyword, pageRequest);
 
         return new ResponseEntity(dto, HttpStatus.OK);
     }
@@ -101,7 +101,7 @@ public class SearchController {
             @Parameter(name = "sortType", description = "정렬 방식 (정확도순, 최신순)", example = "정확도순")
     })
     @GetMapping("/agora")
-    public ResponseEntity agoraSearch(
+    public ResponseEntity searchAgora(
             @RequestParam String keyword,
             @PositiveOrZero @RequestParam(defaultValue = "0") int page,
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
@@ -109,7 +109,7 @@ public class SearchController {
     ) {
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
-        AgorasResponseDTO dto = searchService.agoraSearch(keyword, pageRequest);
+        AgorasResponseDTO dto = searchService.searchAgora(keyword, pageRequest);
 
         return new ResponseEntity(dto, HttpStatus.OK);
     }
@@ -121,7 +121,7 @@ public class SearchController {
             @Parameter(name = "sortType", description = "정렬 방식 (정확도순, 최신순)", example = "정확도순")
     })
     @GetMapping("/event")
-    public ResponseEntity eventSearch(
+    public ResponseEntity searchEvent(
             @RequestParam String keyword,
             @PositiveOrZero @RequestParam(defaultValue = "0") int page,
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
@@ -129,7 +129,7 @@ public class SearchController {
     ) {
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
-        ExhibitionPageInfoResponseDTO dto = searchService.eventSearch(keyword, pageRequest);
+        ExhibitionPageInfoResponseDTO dto = searchService.searchEvent(keyword, pageRequest);
 
         return new ResponseEntity(dto, HttpStatus.OK);
     }

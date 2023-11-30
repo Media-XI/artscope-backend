@@ -55,7 +55,7 @@ public class SearchService {
                 .build();
     }
 
-    public SearchResponseDTO totalSearch(String keyword, PageRequest pageRequest) {
+    public SearchResponseDTO searchTotal(String keyword, PageRequest pageRequest) {
         ArtworksResponseDTO artworksResponseDTO = new ArtworksResponseDTO();
         PostsResponseDTO postsResponseDTO = new PostsResponseDTO();
         AgorasResponseDTO agorasResponseDTO = new AgorasResponseDTO();
@@ -96,7 +96,7 @@ public class SearchService {
         return SearchResponseDTO.of(artworksResponseDTO, postsResponseDTO, agorasResponseDTO, exhibitionPageInfoResponseDTO, pageInfo);
     }
 
-    public ArtworksResponseDTO artworkSearch(String keyword, PageRequest pageRequest) {
+    public ArtworksResponseDTO searchArtwork(String keyword, PageRequest pageRequest) {
         NativeQuery nativeQuery = makeNativeQuery(keyword, pageRequest, "title", "tags", "description");
         SearchHits<ArtworkDocument> searched = elasticsearchOperations.search(nativeQuery, ArtworkDocument.class);
 
@@ -110,7 +110,7 @@ public class SearchService {
         return ArtworksResponseDTO.of(dtos, pageInfo);
     }
 
-    public PostsResponseDTO postSearch(String keyword, PageRequest pageRequest) {
+    public PostsResponseDTO searchPost(String keyword, PageRequest pageRequest) {
         NativeQuery nativeQuery = makeNativeQuery(keyword, pageRequest, "content");
         SearchHits<PostDocument> searched = elasticsearchOperations.search(nativeQuery, PostDocument.class);
 
@@ -125,7 +125,7 @@ public class SearchService {
     }
 
 
-    public AgorasResponseDTO agoraSearch(String keyword, PageRequest pageRequest) {
+    public AgorasResponseDTO searchAgora(String keyword, PageRequest pageRequest) {
         NativeQuery nativeQuery = makeNativeQuery(keyword, pageRequest, "title", "content");
         SearchHits<AgoraDocument> searched = elasticsearchOperations.search(nativeQuery, AgoraDocument.class);
 
@@ -139,7 +139,7 @@ public class SearchService {
         return AgorasResponseDTO.of(dtos, pageInfo);
     }
 
-    public ExhibitionPageInfoResponseDTO eventSearch(String keyword, PageRequest pageRequest) {
+    public ExhibitionPageInfoResponseDTO searchEvent(String keyword, PageRequest pageRequest) {
         NativeQuery nativeQuery = makeNativeQuery(keyword, pageRequest, "title", "description");
         SearchHits<ExhibitionDocument> searched = elasticsearchOperations.search(nativeQuery, ExhibitionDocument.class);
 
