@@ -17,15 +17,15 @@ import java.time.Duration;
 @RequiredArgsConstructor
 @Configuration
 public class WebConfig {
-    
+
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
         return restTemplateBuilder
                 .requestFactory(() ->
                         new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory())
                 )
-                .setConnectTimeout(Duration.ofMillis(5000))
-                .setReadTimeout(Duration.ofMillis(5000))
+                .setConnectTimeout(Duration.ofMillis(10000))
+                .setReadTimeout(Duration.ofMillis(10000))
                 .build();
     }
 }
