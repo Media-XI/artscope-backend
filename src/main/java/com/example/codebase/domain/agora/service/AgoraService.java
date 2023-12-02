@@ -3,10 +3,7 @@ package com.example.codebase.domain.agora.service;
 import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.agora.dto.*;
 import com.example.codebase.domain.agora.entity.*;
-import com.example.codebase.domain.agora.repository.AgoraMediaRepository;
-import com.example.codebase.domain.agora.repository.AgoraOpinionRepository;
-import com.example.codebase.domain.agora.repository.AgoraParticipantRepository;
-import com.example.codebase.domain.agora.repository.AgoraRepository;
+import com.example.codebase.domain.agora.repository.*;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberRepository;
@@ -29,17 +26,18 @@ public class AgoraService {
     private final AgoraRepository agoraRepository;
     private final AgoraParticipantRepository agoraParticipantRepository;
     private final AgoraMediaRepository agoraMediaRepository;
-
     private final AgoraOpinionRepository agoraOpinionRepository;
+    private final AgoraDocumentRepository agoraDocumentRepository;
     private final S3Service s3Service;
 
     @Autowired
-    public AgoraService(MemberRepository memberRepository, AgoraRepository agoraRepository, AgoraParticipantRepository agoraParticipantRepository, AgoraMediaRepository agoraMediaRepository, AgoraOpinionRepository agoraOpinionRepository, S3Service s3Service) {
+    public AgoraService(MemberRepository memberRepository, AgoraRepository agoraRepository, AgoraParticipantRepository agoraParticipantRepository, AgoraMediaRepository agoraMediaRepository, AgoraOpinionRepository agoraOpinionRepository, AgoraDocumentRepository agoraDocumentRepository, S3Service s3Service) {
         this.memberRepository = memberRepository;
         this.agoraRepository = agoraRepository;
         this.agoraParticipantRepository = agoraParticipantRepository;
         this.agoraMediaRepository = agoraMediaRepository;
         this.agoraOpinionRepository = agoraOpinionRepository;
+        this.agoraDocumentRepository = agoraDocumentRepository;
         this.s3Service = s3Service;
     }
 
@@ -144,6 +142,7 @@ public class AgoraService {
 
         agora.delete();
         agoraRepository.save(agora);
+        agoraDocumentRepository.deleteById(agoraId);
     }
 
 

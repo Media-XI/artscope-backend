@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ExhibitionMediaResponseDTO {
+
     private String mediaType;
 
     private String mediaUrl;

@@ -4,12 +4,14 @@ import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.artwork.dto.*;
 import com.example.codebase.domain.artwork.entity.*;
 import com.example.codebase.domain.artwork.repository.ArtworkCommentRepository;
+import com.example.codebase.domain.artwork.repository.ArtworkDocumentRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkLikeMemberRepository;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.auth.exception.BadRequestException;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberRepository;
+import com.example.codebase.domain.post.repository.PostDocumentRepository;
 import com.example.codebase.exception.NotFoundException;
 import com.example.codebase.s3.S3Service;
 import com.example.codebase.util.SecurityUtil;
@@ -29,16 +31,18 @@ public class ArtworkService {
     private final ArtworkRepository artworkRepository;
     private final ArtworkCommentRepository artworkCommentRepository;
     private final ArtworkLikeMemberRepository artworkLikeMemberRepository;
+    private final ArtworkDocumentRepository artworkDocumentRepository;
     private final S3Service s3Service;
     private final MemberRepository memberRepository;
 
     @Autowired
     public ArtworkService(ArtworkRepository artworkRepository, ArtworkCommentRepository artworkCommentRepository,
-                          ArtworkLikeMemberRepository artworkLikeMemberRepository, S3Service s3Service,
+                          ArtworkLikeMemberRepository artworkLikeMemberRepository, ArtworkDocumentRepository artworkDocumentRepository, S3Service s3Service,
                           MemberRepository memberRepository) {
         this.artworkRepository = artworkRepository;
         this.artworkCommentRepository = artworkCommentRepository;
         this.artworkLikeMemberRepository = artworkLikeMemberRepository;
+        this.artworkDocumentRepository = artworkDocumentRepository;
         this.s3Service = s3Service;
         this.memberRepository = memberRepository;
     }
@@ -152,6 +156,7 @@ public class ArtworkService {
         s3Service.deleteArtworkMediaS3Objects(artworkMedias);
 
         artworkRepository.delete(artwork);
+        artworkDocumentRepository.deleteById(id);
     }
 
     public ArtworkResponseDTO updateArtworkMedia(Long id, Long mediaId, ArtworkMediaCreateDTO dto, String username) {

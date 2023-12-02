@@ -48,4 +48,20 @@ public class AgoraParticipantResponseDTO {
 
         return AgoraParticipantResponseDTO.of(member, isAnonymous, agoraSequence);
     }
+
+    public static AgoraParticipantResponseDTO of(String name, Boolean isAnonymous) {
+        // 익명 여부에 따른 이름 설정
+        String authorName = name;
+
+        if (isAnonymous) {
+            authorName = "익명 작성자";
+        }
+
+        AgoraParticipantResponseDTO agoraParticipantResponseDTO = new AgoraParticipantResponseDTO();
+        agoraParticipantResponseDTO.setName(authorName);
+        agoraParticipantResponseDTO.setUsername("");
+        agoraParticipantResponseDTO.setProfileImageUrl("");
+        return agoraParticipantResponseDTO;
+    }
+
 }

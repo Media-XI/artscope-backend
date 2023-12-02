@@ -1,11 +1,13 @@
 package com.example.codebase.domain.post.dto;
 
+import com.example.codebase.domain.post.document.PostDocument;
 import com.example.codebase.domain.post.entity.Post;
 import com.example.codebase.domain.post.entity.PostWithIsLiked;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,15 +68,15 @@ public class PostResponseDTO {
         this.isLiked = false;
 
         this.medias = post.getPostMedias().stream()
-            .map(PostMediaResponseDTO::from)
-            .collect(Collectors.toList());
+                .map(PostMediaResponseDTO::from)
+                .collect(Collectors.toList());
 
         if (post.getPostComment() != null) {
             this.commentPosts = post.getPostComment().stream()
-                .filter(comment -> comment.getParent() == null)
-                .filter(comment -> comment.getChildComments() != null)
-                .map(PostCommentResponseDTO::from)
-                .collect(Collectors.toList());
+                    .filter(comment -> comment.getParent() == null)
+                    .filter(comment -> comment.getChildComments() != null)
+                    .map(PostCommentResponseDTO::from)
+                    .collect(Collectors.toList());
         }
 
         // TODO : 후처리 리팩터링
@@ -89,28 +91,28 @@ public class PostResponseDTO {
 
     public static PostResponseDTO from(Post post) {
         PostResponseDTO response =
-            PostResponseDTO.builder()
-                .id(post.getId())
-                .content(post.getContent())
-                .views(post.getViews())
-                .likes(post.getLikes())
-                .comments(post.getComments())
-                .authorUsername(post.getAuthor().getUsername())
-                .authorName(post.getAuthor().getName())
-                .authorIntroduction(post.getAuthor().getIntroduction()) // TODO : introduction이 맞는지 확인
-                .authorProfileImageUrl(post.getAuthor().getPicture())
-                .createdTime(post.getCreatedTime())
-                .updatedTime(post.getUpdatedTime())
-                .build();
+                PostResponseDTO.builder()
+                        .id(post.getId())
+                        .content(post.getContent())
+                        .views(post.getViews())
+                        .likes(post.getLikes())
+                        .comments(post.getComments())
+                        .authorUsername(post.getAuthor().getUsername())
+                        .authorName(post.getAuthor().getName())
+                        .authorIntroduction(post.getAuthor().getIntroduction()) // TODO : introduction이 맞는지 확인
+                        .authorProfileImageUrl(post.getAuthor().getPicture())
+                        .createdTime(post.getCreatedTime())
+                        .updatedTime(post.getUpdatedTime())
+                        .build();
 
         // TODO: 후처리 리팩터링
         if (post.getPostComment() != null) {
             List<PostCommentResponseDTO> commentResponse =
-                post.getPostComment().stream()
-                    .filter(comment -> comment.getParent() == null)
-                    .filter(comment -> comment.getChildComments() != null)
-                    .map(PostCommentResponseDTO::from)
-                    .collect(Collectors.toList());
+                    post.getPostComment().stream()
+                            .filter(comment -> comment.getParent() == null)
+                            .filter(comment -> comment.getChildComments() != null)
+                            .map(PostCommentResponseDTO::from)
+                            .collect(Collectors.toList());
 
             response.setCommentPosts(commentResponse);
         }
@@ -124,9 +126,9 @@ public class PostResponseDTO {
         }
 
         List<PostMediaResponseDTO> mediaResponse =
-            post.getPostMedias().stream()
-                .map(PostMediaResponseDTO::from)
-                .collect(Collectors.toList());
+                post.getPostMedias().stream()
+                        .map(PostMediaResponseDTO::from)
+                        .collect(Collectors.toList());
         response.setMedias(mediaResponse);
 
         return response;
@@ -142,5 +144,27 @@ public class PostResponseDTO {
         PostResponseDTO dto = from(post);
         dto.setIsLiked(isLiked);
         return dto;
+    }
+
+    public static PostResponseDTO from(PostDocument postDocument) {
+        List<PostMediaResponseDTO> medias = new ArrayList<>();
+
+        if (postDocument.getMediaUrl() != null) {
+            medias.add(PostMediaResponseDTO.builder()
+                    .mediaUrl(postDocument.getMediaUrl())
+                    .build()
+            );
+        }
+
+        return PostResponseDTO.builder()
+                .id(postDocument.getId())
+                .content(postDocument.getContent())
+                .authorName(postDocument.getName())
+                .authorCompanyName(postDocument.getCompanyName())
+                .authorCompanyRole(postDocument.getCompanyRole())
+                .medias(medias)
+                .createdTime(postDocument.getCreatedTime())
+                .updatedTime(postDocument.getUpdatedTime())
+                .build();
     }
 }

@@ -27,4 +27,14 @@ public class PageInfo {
         pageInfo.setTotalElements(totalElements);
         return pageInfo;
     }
+
+    public static PageInfo of(int page, int size, long totalElements) {
+        PageInfo pageInfo = new PageInfo();
+        pageInfo.setPage(page);
+        pageInfo.setSize(size);
+        pageInfo.setTotalPages((int) Math.ceil((double) totalElements / size));
+        pageInfo.setTotalElements(totalElements);
+        return pageInfo;
+    }
+
 }
