@@ -26,7 +26,7 @@ public class MailController {
     @PreAuthorize("permitAll()")
     @PostMapping("/authenticate")
     public ResponseEntity authenticateMail(@RequestParam @Email(message = "올바른 이메일을 입력해주세요") String email) {
-        mailService.sendMail(email);
+        mailService.sendAuthenticateMail(email);
         return new ResponseEntity("인증링크가 전송되었습니다.", HttpStatus.OK);
     }
 

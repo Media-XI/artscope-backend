@@ -35,21 +35,15 @@ public class MailService {
         this.memberRepository = memberRepository;
     }
 
-    public void sendMail(String email) {
+    public void sendAuthenticateMail(String email) {
         // Member가 activate false가 아니면 이미 인증된 회원이므로 인증코드를 보낼 필요가 없음
         memberRepository.findByEmailAndActivated(email, false)
             .orElseThrow(() -> new RuntimeException("이메일 인증된 회원이거나 존재하지 않는 회원입니다."));
 
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        try {
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
-            mimeMessageHelper.setTo(email);
-            mimeMessageHelper.setSubject("[ArtScope] 이메일 인증번호");
+        String code = UUID.randomUUID().toString().replace("-", "");
+        redisUtil.setDataAndExpire(code, email, 60 * 1000 * 5);
 
-            String code = UUID.randomUUID().toString().replace("-", "");
-            redisUtil.setDataAndExpire(code, email, 60 * 1000 * 5);
-
-            String sb = "<img src=\"" +
+        String message = "<img src=\"" +
                 randomUrl() +
                 "\"/>" +
                 "<h1>이메일 인증</h1>" +
@@ -62,61 +56,30 @@ public class MailService {
                 "</a></h3>" +
                 "<h3>인증링크는 5분간 유효합니다.</h3>";
 
-            mimeMessageHelper.setText(sb, true);
-            javaMailSender.send(mimeMessage);
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void sendMail(String email, String title, String message) {
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        try {
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
-            mimeMessageHelper.setTo(email);
-            mimeMessageHelper.setSubject("[ArtScope] " + title);
-
-            String sb = "<h1>" + title + "</h1>"
-                    + "<h3>" + message + "</h3>";
-
-            mimeMessageHelper.setText(sb, true);
-            javaMailSender.send(mimeMessage);
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        }
+        sendMail(email, "이메일 인증", message);
     }
 
     public void sendPasswordResetMail(String email) {
         memberRepository.findByEmail(email)
                 .orElseThrow(NotFoundMemberException::new);
 
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        try {
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
-            mimeMessageHelper.setTo(email);
-            mimeMessageHelper.setSubject("[ArtScope] 비밀번호 재설정");
+        String code = UUID.randomUUID().toString().replace("-", "");
+        redisUtil.setDataAndExpire(code, email, 60 * 1000 * 5);
 
-            String code = UUID.randomUUID().toString().replace("-", "");
-            redisUtil.setDataAndExpire(code, email, 60 * 1000 * 5);
+        String message = "<img src=\"" +
+                randomUrl() +
+                "\"/>" +
+                "<h1>비밀번호 재설정</h1>" +
+                "<h3>아래의 링크를 접속해주세요. </3>" +
+                "<h3>재설정 링크: " +
+                "<a href=\"" +
+                PASSWORD_RESET_CALLBACK + "?code=" + code +
+                "\">" +
+                PASSWORD_RESET_CALLBACK + "?code=" + code +
+                "</a></h3>" +
+                "<h3>인증링크는 5분간 유효합니다.</h3>";
 
-            String sb = "<img src=\"" +
-                    randomUrl() +
-                    "\"/>" +
-                    "<h1>비밀번호 재설정</h1>" +
-                    "<h3>아래의 링크를 접속해주세요. </3>" +
-                    "<h3>재설정 링크: " +
-                    "<a href=\"" +
-                    PASSWORD_RESET_CALLBACK + "?code=" + code +
-                    "\">" +
-                    PASSWORD_RESET_CALLBACK + "?code=" + code +
-                    "</a></h3>" +
-                    "<h3>인증링크는 5분간 유효합니다.</h3>";
-
-            mimeMessageHelper.setText(sb, true);
-            javaMailSender.send(mimeMessage);
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        }
+        sendMail(email, "비밀번호 재설정", message);
     }
 
     public void sendUsernameMail(String email, String title) {
@@ -127,11 +90,22 @@ public class MailService {
         sendMail(email, title, message);
     }
 
+    private void sendMail(String email, String title, String message) {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+            mimeMessageHelper.setTo(email);
+            mimeMessageHelper.setSubject("[ArtScope] " + title);
+            mimeMessageHelper.setText(message, true);
+            javaMailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private Integer generateRandomNumber() {
         return (int) (Math.random() * 999999) + 100000;
     }
-
 
     private String randomUrl() {
         int num = (int) (Math.random() * 3);
