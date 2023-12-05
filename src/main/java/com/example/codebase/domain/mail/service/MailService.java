@@ -64,6 +64,23 @@ public class MailService {
         }
     }
 
+    public void sendMail(String email, String title, String message) {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+            mimeMessageHelper.setTo(email);
+            mimeMessageHelper.setSubject("[ArtScope] " + title);
+
+            String sb = "<h1>" + title + "</h1>"
+                    + "<h3>" + message + "</h3>";
+
+            mimeMessageHelper.setText(sb, true);
+            javaMailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private Integer generateRandomNumber() {
         return (int) (Math.random() * 999999) + 100000;
     }
