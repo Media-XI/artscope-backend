@@ -77,11 +77,12 @@ public class Member {
     @Column(name = "company_name")
     private String companyName;
 
-    @Column(name = "created_time")
+    @Column(name = "created_time", nullable = false)
     private LocalDateTime createdTime;
 
-    @Column(name = "updated_time")
-    private LocalDateTime updatedTime;
+    @Builder.Default
+    @Column(name = "updated_time", nullable = false)
+    private LocalDateTime updatedTime = LocalDateTime.now();
 
     @Builder.Default
     @Enumerated(EnumType.STRING)

@@ -1,6 +1,5 @@
 package com.example.codebase.domain.member.service;
 
-import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
 import com.example.codebase.domain.auth.OAuthAttributes;
@@ -15,6 +14,7 @@ import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.s3.S3Service;
+import com.example.codebase.util.RedisUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -38,16 +38,19 @@ public class MemberService {
     private final MemberAuthorityRepository memberAuthorityRepository;
     private final S3Service s3Service;
 
+    private final RedisUtil redisUtil;
+
     @Autowired
     public MemberService(
             PasswordEncoder passwordEncoder,
             MemberRepository memberRepository,
             MemberAuthorityRepository memberAuthorityRepository,
-            S3Service s3Service) {
+            S3Service s3Service, RedisUtil redisUtil) {
         this.passwordEncoder = passwordEncoder;
         this.memberRepository = memberRepository;
         this.memberAuthorityRepository = memberAuthorityRepository;
         this.s3Service = s3Service;
+        this.redisUtil = redisUtil;
     }
 
     @Transactional
@@ -323,4 +326,16 @@ public class MemberService {
         return MembersResponseDTO.from(members);
     }
 
+    @Transactional
+    public void resetPassword(String code, String newPassword) {
+        String email = redisUtil.getData(code)
+                .orElseThrow(() -> new RuntimeException("인증 코드가 유효하지 않습니다."));
+        redisUtil.deleteData(code);
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
+
+        String newPasswordEncoded = passwordEncoder.encode(newPassword);
+        member.updatePassword(newPasswordEncoded);
+    }
 }
