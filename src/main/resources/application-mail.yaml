@@ -17,7 +17,7 @@ spring:
 mail:
   callback.url: http://localhost:3000/user/auth/confirm
   password:
-    callback.url: http://localhost:3000/reset-password
+    callback.url: http://localhost:3000/user/reset/password
 
 ---
 spring:
@@ -29,7 +29,7 @@ spring:
 mail:
   callback.url: https://dev.artscope.kr/user/auth/confirm
   password:
-    callback.url: http://dev.artscope.kr/reset-password
+    callback.url: http://dev.artscope.kr/user/reset/password
 
 
 ---
@@ -43,4 +43,4 @@ spring:
 mail:
   callback.url: https://artscope.kr/user/auth/confirm
   password:
-    callback.url: http://artscope.kr/reset-password
+    callback.url: http://artscope.kr/user/reset/password
