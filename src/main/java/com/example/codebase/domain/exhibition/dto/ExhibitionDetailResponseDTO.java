@@ -42,7 +42,7 @@ public class ExhibitionDetailResponseDTO {
 
     private String detailLocation;
 
-    private int price;
+    private String price;
 
     private LocationResponseDTO location;
 

@@ -1,6 +1,6 @@
 package com.example.codebase.domain.exhibition.entity;
 
-import com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionResponse.PerforInfo;
+import com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionResponse.XmlDetailExhibitionData;
 import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
 import com.example.codebase.domain.exhibition.dto.ExhibitionUpdateDTO;
 import com.example.codebase.domain.member.entity.Member;
@@ -83,10 +83,11 @@ public class Exhibition {
                 .type(dto.getEventType())
                 .member(member)
                 .createdTime(LocalDateTime.now())
+                .updatedTime(LocalDateTime.now())
                 .build();
     }
 
-    public static Exhibition of(PerforInfo perforInfo, Member member) {
+    public static Exhibition of(XmlDetailExhibitionData perforInfo, Member member) {
         return Exhibition.builder()
                 .title(perforInfo.getTitle())
                 .description(perforInfo.getContents1() + "\n" + perforInfo.getContents2())
@@ -145,7 +146,7 @@ public class Exhibition {
         this.type = eventType;
     }
 
-    public Exhibition update(PerforInfo perforInfo, Member member) {
+    public Exhibition update(XmlDetailExhibitionData perforInfo, Member member) {
         this.title = perforInfo.getTitle();
         this.description = perforInfo.getContents1() + "\n" + perforInfo.getContents2();
         this.price = perforInfo.getPrice();
@@ -156,14 +157,14 @@ public class Exhibition {
         return this;
     }
 
-    public boolean hasChanged(PerforInfo perforInfo) {
+    public boolean hasChanged(XmlDetailExhibitionData perforInfo) {
         if (hasEventScheduleChanged(perforInfo)) {
             return true;
         }
         return hasChangedExhibition(perforInfo);
     }
 
-    private boolean hasEventScheduleChanged(PerforInfo perforInfo) {
+    private boolean hasEventScheduleChanged(XmlDetailExhibitionData perforInfo) {
         LocalDate startDate = LocalDate.parse(perforInfo.getStartDate(), DateTimeFormatter.ofPattern("yyyyMMdd"));
         LocalDate endDate = LocalDate.parse(perforInfo.getEndDate(), DateTimeFormatter.ofPattern("yyyyMMdd"));
 
@@ -172,7 +173,7 @@ public class Exhibition {
     }
 
 
-        private boolean hasChangedExhibition(PerforInfo perforInfo){
+        private boolean hasChangedExhibition(XmlDetailExhibitionData perforInfo){
             return !this.title.equals(perforInfo.getTitle())
                     || !this.description.equals(perforInfo.getContents1() + "\n" + perforInfo.getContents2())
                     || !this.price.equals(perforInfo.getPrice())

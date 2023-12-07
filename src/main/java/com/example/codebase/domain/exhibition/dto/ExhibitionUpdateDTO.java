@@ -18,8 +18,7 @@ public class ExhibitionUpdateDTO {
     @Parameter(required = false)
     private String description;
 
-    @PositiveOrZero(message = "가격은 0원 이상이어야 합니다.")
-    private Integer price;
+    private String price;
 
     @Parameter(required = false)
     @Pattern(regexp = "^(http|https)://.*", message = "웹사이트 주소를 입력해주세요. ")
