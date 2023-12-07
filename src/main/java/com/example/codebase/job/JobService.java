@@ -54,7 +54,6 @@ public class JobService {
         }
     }
 
-    @PostConstruct
     @Scheduled(cron = "0 3 * * * WED")
     public void getExhibitionListScheduler() {
         log.info("[getExhibitionListScheduler JoB] 전시회 리스트 크롤링 시작");

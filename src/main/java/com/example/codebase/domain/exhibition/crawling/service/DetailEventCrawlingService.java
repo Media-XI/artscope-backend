@@ -106,7 +106,6 @@ public class DetailEventCrawlingService {
                     exhibition.addExhibitionMedia(exhibitionMedia);
 
                     exhibitionRepository.save(exhibition);
-//
 
                 })
                 .exceptionally(ex -> {
