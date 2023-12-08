@@ -34,7 +34,7 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
         boolean activated, LocalDateTime afterTime);
 
     @Query("SELECT m FROM Member m WHERE m.email = ?1")
-    Member findByEmail(String email);
+    Optional<Member> findByEmail(String email);
 
     @Query("SELECT m FROM Member m WHERE m.email LIKE  ?1%")
     Page<Member> searchByEmail(String email, Pageable pageable);

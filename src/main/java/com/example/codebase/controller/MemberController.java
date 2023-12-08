@@ -1,5 +1,6 @@
 package com.example.codebase.controller;
 
+import com.example.codebase.domain.mail.service.MailService;
 import com.example.codebase.domain.member.dto.*;
 import com.example.codebase.domain.member.entity.RoleStatus;
 import com.example.codebase.domain.member.service.MemberService;
@@ -22,9 +23,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 
 @RestController
@@ -257,5 +255,15 @@ public class MemberController {
 
         List<MemberSearchResponseDTO> memberList = memberService.searchMember(username);
         return new ResponseEntity(memberList, HttpStatus.OK);
+    }
+
+    @Operation(summary = "비밀번호 재설정", description = "비밀번호 재설정 합니다.")
+    @PostMapping("/reset-password")
+    public ResponseEntity resetPassword(@RequestParam @NotBlank String code,
+                                        @RequestBody @NotBlank String password) {
+
+        memberService.resetPassword(code, password);
+
+        return new ResponseEntity("비밀번호가 재설정 되었습니다.", HttpStatus.OK);
     }
 }

@@ -9,6 +9,7 @@ spring:
       - oauth
       - s3
       - mail
+      - es
 
   mvc:
     pathmatch:
