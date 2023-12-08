@@ -1,6 +1,5 @@
 package com.example.codebase.job;
 
-import com.example.codebase.discord.DiscordMsgService;
 import com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionResponse.XmlDetailExhibitionResponse;
 import com.example.codebase.domain.exhibition.crawling.dto.exhibitionResponse.XmlExhibitionData;
 import com.example.codebase.domain.exhibition.crawling.dto.exhibitionResponse.XmlExhibitionResponse;
@@ -32,16 +31,14 @@ public class JobService {
 
     private final ExhibitionRepository exhibitionRepository;
 
-    private final DiscordMsgService discordMsgService;
 
     @Autowired
     public JobService(MemberRepository memberRepository,
-                      ExhibitionCrawlingService exhibitionCrawlingService, DetailEventCrawlingService detailEventCrawlingService, ExhibitionRepository exhibitionRepository, DiscordMsgService discordMsgService) {
+                      ExhibitionCrawlingService exhibitionCrawlingService, DetailEventCrawlingService detailEventCrawlingService, ExhibitionRepository exhibitionRepository) {
         this.memberRepository = memberRepository;
         this.exhibitionCrawlingService = exhibitionCrawlingService;
         this.detailEventCrawlingService = detailEventCrawlingService;
         this.exhibitionRepository = exhibitionRepository;
-        this.discordMsgService = discordMsgService;
     }
 
     @Scheduled(cron = "0 0/30 * * * *") // 매 30분마다 삭제
