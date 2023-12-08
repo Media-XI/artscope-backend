@@ -24,20 +24,20 @@ public class UpdateMemberDTO {
     private String email;
 
     @Parameter(required = false)
-    @Size(min = 1, max = 120, message = "주소는 1~120자 이내로 입력해주세요.")
+    @Size(min = 1, max = 120, message = "SNS 주소는 1~120자 이내로 입력해주세요.")
     @Pattern(regexp = "^(http|https)://.*", message = "SNS 주소를 입력해주세요.")
     private String snsUrl;
 
     @Parameter(required = false)
-    @Size(min = 1, max = 120, message = "주소는 1~120자 이내로 입력해주세요.")
+    @Size(min = 1, max = 120, message = "사이트 주소는 1~120자 이내로 입력해주세요.")
     @Pattern(regexp = "^(http|https)://.*", message = "웹사이트 주소를 입력해주세요.")
     private String websiteUrl;
 
     @Parameter(required = false)
-    @Size(min = 1, max = 250, message = "소개는 1~250자 이내로 입력해주세요.")
+    @Size(min = 1, max = 1000, message = "소개는 1~1000자 이내로 입력해주세요.")
     private String introduction;
 
     @Parameter(required = false)
-    @Size(min = 1, max = 250, message = "히스토리는 1~250자 이내로 입력해주세요.")
+    @Size(min = 1, max = 1000, message = "히스토리는 1~1000자 이내로 입력해주세요.")
     private String history;
 }
