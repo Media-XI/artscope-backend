@@ -281,4 +281,11 @@ public class MemberController {
         String message = memberService.updateEmailReceive(username, emailReceive);
         return new ResponseEntity(message, HttpStatus.OK);
     }
+
+    @Operation(summary = "회원 아이디 전체 조회", description = "검색엔진 노출 용 회원 아이디 리스트를 조회합니다.")
+    @GetMapping("/username")
+    public ResponseEntity getAllUsername() {
+        List<String> usernameList = memberService.getAllUsername();
+        return new ResponseEntity(usernameList, HttpStatus.OK);
+    }
 }

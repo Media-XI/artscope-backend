@@ -51,4 +51,6 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
     @Query("SELECT m FROM Member m WHERE m.roleStatus = ?1 OR m.roleStatus = ?2")
     Page<Member> findAllByRoleStatus(RoleStatus pending1, RoleStatus pending2, Pageable pageable);
 
+    @Query("SELECT m.username FROM Member m WHERE m.activated = true")
+    List<String> findAllUsername();
 }

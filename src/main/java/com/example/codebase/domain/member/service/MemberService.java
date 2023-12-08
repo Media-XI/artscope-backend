@@ -341,4 +341,8 @@ public class MemberService {
         String allow = emailReceive ? "동의" : "거부";
         return "이메일 수신 여부가 " + member.getAllowEmailReceiveDatetime() + " 기준 " +  allow + "로 변경되었습니다.";
     }
+
+    public List<String> getAllUsername() {
+        return memberRepository.findAllUsername();
+    }
 }

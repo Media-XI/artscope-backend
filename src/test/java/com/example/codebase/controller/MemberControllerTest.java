@@ -586,4 +586,20 @@ class MemberControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @DisplayName("회원 아이디 전체 조회 시")
+    @Test
+    void 회원_아이디_전체_조회() throws Exception {
+        createOrLoadMember(1);
+        createOrLoadMember(2);
+        createOrLoadMember(3);
+        createOrLoadMember(4);
+
+        mockMvc
+                .perform(
+                        get("/api/members/username")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
 }
