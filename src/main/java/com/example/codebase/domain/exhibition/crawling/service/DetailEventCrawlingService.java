@@ -63,18 +63,15 @@ public class DetailEventCrawlingService {
     }
 
 
-    @Async
-    public CompletableFuture<XmlDetailExhibitionResponse> loadAndParseXmlData(XmlExhibitionData xmlExhibitionData) {
-        return CompletableFuture.supplyAsync(() -> {
-            XmlResponseEntity xmlResponseEntity = loadXmlDatas(xmlExhibitionData);
-            return parseXmlData(xmlResponseEntity);
-        });
+    public XmlDetailExhibitionResponse loadAndParseXmlData(XmlExhibitionData xmlExhibitionData) {
+        XmlResponseEntity xmlResponseEntity = loadXmlDatas(xmlExhibitionData);
+        return parseXmlData(xmlResponseEntity);
     }
 
     private XmlResponseEntity loadXmlDatas(XmlExhibitionData xmlExhibitionData) {
         String url = String.format("http://www.culture.go.kr/openapi/rest/publicperformancedisplays/d/?serviceKey=%s&seq=%d", serviceKey, xmlExhibitionData.getSeq());
 
-        ResponseEntity<String> response =restTemplate.getForEntity(url, String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
         XmlResponseEntity xmlResponseEntity = new XmlResponseEntity(response.getBody(), response.getStatusCode());
 
         xmlResponseEntity.statusCodeCheck();
@@ -84,48 +81,51 @@ public class DetailEventCrawlingService {
     private XmlDetailExhibitionResponse parseXmlData(XmlResponseEntity xmlResponseEntity) {
         XmlDetailExhibitionResponse xmlDetailExhibitionResponse = XmlDetailExhibitionResponse.parse(xmlResponseEntity.getBody());
         responseStatusCheck(xmlDetailExhibitionResponse);
+        checkGpsValue(xmlDetailExhibitionResponse);
         return xmlDetailExhibitionResponse;
     }
 
-    @Transactional
-    public void saveDetailExhibition(CompletableFuture<XmlDetailExhibitionResponse> response, Member admin) {
-        entityManager.createNativeQuery("SELECT 1;").getResultList();
-
-        response.thenApply(XmlDetailExhibitionResponse::getDetailExhibitionData)
-                .thenAccept(detailExhibitionData -> {
-                    EventType eventType = checkEventType(detailExhibitionData);
-                    Location location = findOrCreateLocation(detailExhibitionData);
-
-                    Exhibition exhibition = findOrCreateExhibition(detailExhibitionData, admin);
-                    ExhibitionMedia exhibitionMedia = ExhibitionMedia.from(detailExhibitionData, exhibition);
-
-                    List<EventSchedule> eventSchedules = makeEventSchedule(detailExhibitionData, exhibition, location);
-
-                    exhibition.setEventSchedules(eventSchedules);
-                    exhibition.setType(eventType);
-                    exhibition.addExhibitionMedia(exhibitionMedia);
-
-                    exhibitionRepository.save(exhibition);
-
-                })
-                .exceptionally(ex -> {
-                    log.info("An error occurred: " + ex.getMessage());
-                    return null;
-                });
+    private void checkGpsValue(XmlDetailExhibitionResponse xmlDetailExhibitionResponse) {
+        XmlDetailExhibitionData detailExhibitionData = xmlDetailExhibitionResponse.getMsgBody().getDetailExhibitionData();
+        if (detailExhibitionData.getGpsX() == null || detailExhibitionData.getGpsY() == null) {
+            detailExhibitionData.setGpsY("0"); // TODO : GPS 0으로 해도 되는지 확인
+            detailExhibitionData.setGpsX("0");
+        }
     }
+
+    public Exhibition createExhibition(XmlDetailExhibitionResponse response, Member admin) {
+        XmlDetailExhibitionData detailExhibitionData = response.getMsgBody().getDetailExhibitionData();
+        EventType eventType = checkEventType(detailExhibitionData);
+
+        Location location = findOrCreateLocation(detailExhibitionData);
+        Exhibition exhibition = findOrCreateExhibition(detailExhibitionData, admin);
+
+        if (exhibition.isPersist()) {
+            if (hasChanged(exhibition, detailExhibitionData)) {
+                deleteRelatedData(exhibition);
+                updateExhibition(exhibition, detailExhibitionData, admin);
+            }
+            return exhibition;
+        }
+
+        ExhibitionMedia exhibitionMedia = ExhibitionMedia.from(detailExhibitionData, exhibition);
+        List<EventSchedule> eventSchedules = makeEventSchedule(detailExhibitionData, exhibition, location);
+
+        exhibition.setEventSchedules(eventSchedules);
+        exhibition.setType(eventType);
+        exhibition.addExhibitionMedia(exhibitionMedia);
+
+        return exhibition;
+    }
+
 
     private Exhibition findOrCreateExhibition(XmlDetailExhibitionData perforInfo, Member member) {
-        return exhibitionRepository.findBySeq(perforInfo.getSeq())
-                .map(existingExhibition -> {
-            if (hasChanged(existingExhibition, perforInfo)) {
-                deleteRelatedData(existingExhibition);
-                return updateExhibition(existingExhibition, perforInfo, member);
-            }
-            return existingExhibition;
-        }).orElseGet(() -> Exhibition.of(perforInfo, member));
+        return exhibitionRepository
+                .findBySeq(perforInfo.getSeq())
+                .orElseGet(() -> Exhibition.of(perforInfo, member));
     }
 
-    private boolean hasChanged(Exhibition exhibition, XmlDetailExhibitionData perforInfo){
+    private boolean hasChanged(Exhibition exhibition, XmlDetailExhibitionData perforInfo) {
         return exhibition.hasChanged(perforInfo);
     }
 
@@ -134,12 +134,13 @@ public class DetailEventCrawlingService {
     }
 
     private void deleteRelatedData(Exhibition exhibition) {
-        for(EventSchedule eventSchedule : exhibition.getEventSchedules()) {
+        for (EventSchedule eventSchedule : exhibition.getEventSchedules()) {
             eventSchedule.delete();
             eventScheduleRepository.delete(eventSchedule);
         }
         exhibitionMediaRepository.deleteAll(exhibition.getExhibitionMedias());
     }
+
     private void responseStatusCheck(XmlDetailExhibitionResponse response) {
         if (response.getComMsgHeader().getReturnCode().equals("00")) {
             return;
@@ -180,5 +181,4 @@ public class DetailEventCrawlingService {
                 .map(date -> EventSchedule.of(date.atStartOfDay(), date.plusDays(1).atStartOfDay(), location, exhibition))
                 .collect(Collectors.toList());
     }
-
 }
