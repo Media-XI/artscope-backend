@@ -25,6 +25,9 @@ server:
     protocol-header: x-forwarded-proto # nginx proxy
   forward-headers-strategy: native # nginx proxy
 
+service:
+  key: ENC(9zqDsgzBumBBJFnUI4WKLd8dJJWShdC1RAwwmDB/dRzneBDRCLJaxcMOI6k4bKNB7Q77+SzL+vluSmBmAXpMh8TUlrm10MYGfCiLfWmlWM6QMhNKDMa9F1o/+wAppUoGWG9e/Iv82D04cvExrD1aWg==)
+
 logging:
   config: classpath:log/log4j2-${spring.profiles.active}.xml
 #  level:

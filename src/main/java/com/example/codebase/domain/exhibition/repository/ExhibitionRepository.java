@@ -8,8 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
 
@@ -34,4 +34,7 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long> {
             LocalDateTime startDate, LocalDateTime endDate,
             EventType eventType,
             Pageable pageable);
+
+    @Query("SELECT e FROM Exhibition e WHERE e.seq = :seq AND e.enabled = true")
+    Optional<Exhibition> findBySeq(Long seq);
 }

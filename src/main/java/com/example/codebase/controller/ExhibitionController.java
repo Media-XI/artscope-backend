@@ -3,6 +3,7 @@ package com.example.codebase.controller;
 import com.example.codebase.domain.exhibition.dto.*;
 import com.example.codebase.domain.exhibition.service.ExhibitionService;
 import com.example.codebase.domain.image.service.ImageService;
+import com.example.codebase.job.JobService;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.PositiveOrZero;
+
 import java.util.List;
 
 @Tag(name = "Exhibition", description = "전시회 API")
@@ -27,10 +29,13 @@ public class ExhibitionController {
 
     private final ImageService imageService;
 
+    private final JobService jobService;
+
     @Autowired
-    public ExhibitionController(ExhibitionService exhibitionService, ImageService imageService) {
+    public ExhibitionController(ExhibitionService exhibitionService, ImageService imageService, JobService jobService) {
         this.exhibitionService = exhibitionService;
         this.imageService = imageService;
+        this.jobService = jobService;
     }
 
     @Operation(summary = "이벤트 생성", description = " 이벤트를 생성합니다.")
@@ -130,5 +135,17 @@ public class ExhibitionController {
                 SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
         exhibitionService.deleteAllEventSchedules(exhibitionId, username);
         return new ResponseEntity("이벤트 일정이 전체 삭제되었습니다.", HttpStatus.OK);
+    }
+
+    @Operation(summary = "수동 이벤트 업데이트", description = "수동으로 공공데이터 포털에서 이벤트를 가져옵니다")
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/crawling/exhibition")
+    public ResponseEntity crawlingExhibition() {
+        if (!SecurityUtil.isAdmin()) {
+            throw new RuntimeException("관리자만 크롤링을 할 수 있습니다.");
+        }
+        jobService.getExhibitionListScheduler();
+
+        return new ResponseEntity("이벤트가 업데이트 되었습니다.", HttpStatus.OK);
     }
 }

@@ -185,7 +185,7 @@ class FeedControllerTest {
                         .title("공모전 제목" + idx)
                         .description("공모전 설명" + idx)
                         .link("링크" + idx)
-                        .price(10000 + idx)
+                        .price(String.valueOf(10000 + idx))
                         .type(EventType.STANDARD)
                         .createdTime(LocalDateTime.now())
                         .member(createOrLoadMember())

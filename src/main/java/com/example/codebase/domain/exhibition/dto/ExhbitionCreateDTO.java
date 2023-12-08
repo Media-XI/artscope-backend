@@ -18,8 +18,7 @@ public class ExhbitionCreateDTO {
     @NotBlank(message = "설명은 필수입니다.")
     private String description;
 
-    @PositiveOrZero(message = "가격은 0원 이상이어야 합니다.")
-    private int price;
+    private String price;
 
     @NotEmpty(message = "링크는 필수입니다.")
     @Pattern(regexp = "^(http|https)://.*", message = "웹사이트 주소를 입력해주세요. ")
