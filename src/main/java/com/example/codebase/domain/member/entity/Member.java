@@ -5,6 +5,7 @@ import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.auth.OAuthAttributes;
 import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
 import com.example.codebase.domain.member.dto.CreateCuratorMemberDTO;
+import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.example.codebase.domain.member.dto.UpdateMemberDTO;
 import com.example.codebase.domain.member.entity.oauth2.oAuthProvider;
 import com.example.codebase.domain.post.entity.Post;
@@ -76,6 +77,12 @@ public class Member {
 
     @Column(name = "company_name")
     private String companyName;
+
+    @Column(name = "allow_email_receive")
+    private boolean allowEmailReceive;
+
+    @Column(name = "allow_email_receive_datetime")
+    private LocalDateTime allowEmailReceiveDatetime;
 
     @Column(name = "created_time", nullable = false)
     private LocalDateTime createdTime;
@@ -158,6 +165,22 @@ public class Member {
         username.append(last);
 
         return username.toString();
+    }
+
+    public static Member create(PasswordEncoder passwordEncoder, CreateMemberDTO member) {
+        Member createMember = Member.builder()
+                .username(member.getUsername())
+                .password(passwordEncoder.encode(member.getPassword()))
+                .name(member.getName())
+                .email(member.getEmail())
+                .createdTime(LocalDateTime.now())
+                .updatedTime(LocalDateTime.now())
+                .allowEmailReceive(member.getAllowEmailReceive())
+                .activated(false)
+                .build();
+
+        createMember.allowEmailReceiveDatetime = member.getAllowEmailReceive() ? LocalDateTime.now() : null;
+        return createMember;
     }
 
     public void setPassword(String password) {
@@ -273,5 +296,12 @@ public class Member {
 
     public boolean isSubmitedRoleInformation() {
         return this.roleStatus == RoleStatus.ARTIST_PENDING || this.roleStatus == RoleStatus.CURATOR_PENDING || this.roleStatus == RoleStatus.ARTIST || this.roleStatus == RoleStatus.CURATOR;
+    }
+
+    public void updateEmailReceive(boolean emailReceive) {
+        LocalDateTime updateTime = LocalDateTime.now();
+        this.allowEmailReceive = emailReceive;
+        this.allowEmailReceiveDatetime = updateTime;
+        this.updatedTime = updateTime;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.codebase.domain.member.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,4 +25,7 @@ public class CreateMemberDTO {
     @NotBlank(message = "이메일은 필수 입력입니다.")
     @Email(message = "이메일 형식이 올바르지 않습니다.", regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$")
     private String email;
+
+    @NotNull(message = "이메일 수신 여부는 필수 입력입니다. (true/false)")
+    private Boolean allowEmailReceive;
 }
