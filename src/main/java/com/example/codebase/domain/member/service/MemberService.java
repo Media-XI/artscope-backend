@@ -65,15 +65,7 @@ public class MemberService {
 
         Authority authority = Authority.builder().authorityName("ROLE_GUEST").build();
 
-        Member newMember =
-                Member.builder()
-                        .username(member.getUsername())
-                        .password(passwordEncoder.encode(member.getPassword()))
-                        .name(member.getName())
-                        .email(member.getEmail())
-                        .createdTime(LocalDateTime.now())
-                        .activated(false)
-                        .build();
+        Member newMember = Member.create(passwordEncoder, member);
 
         MemberAuthority memberAuthority =
                 MemberAuthority.builder().authority(authority).member(newMember).build();
@@ -337,5 +329,16 @@ public class MemberService {
 
         String newPasswordEncoded = passwordEncoder.encode(newPassword);
         member.updatePassword(newPasswordEncoded);
+    }
+
+    @Transactional
+    public String updateEmailReceive(String username, boolean emailReceive) {
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+
+        member.updateEmailReceive(emailReceive);
+
+        String allow = emailReceive ? "동의" : "거부";
+        return "이메일 수신 여부가 " + member.getAllowEmailReceiveDatetime() + " 기준 " +  allow + "로 변경되었습니다.";
     }
 }

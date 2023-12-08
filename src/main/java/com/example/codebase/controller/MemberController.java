@@ -53,7 +53,6 @@ public class MemberController {
         return new ResponseEntity(admin, HttpStatus.CREATED);
     }
 
-
     @Operation(summary = "아티스트 정보 입력", description = "[USER] 아티스트 정보를 입력합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER') and !hasAnyRole('ROLE_ARTIST', 'ROLE_CURATOR')")
     @PostMapping("/artist")
@@ -265,5 +264,21 @@ public class MemberController {
         memberService.resetPassword(code, password);
 
         return new ResponseEntity("비밀번호가 재설정 되었습니다.", HttpStatus.OK);
+    }
+
+    @Operation(summary = "이메일 수신 여부 변경", description = "[USER] 이메일 수신 여부를 변경합니다.")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
+    @PutMapping("/{username}/email-receive")
+    public ResponseEntity updateEmailReceive(@PathVariable String username,
+                                             @RequestParam boolean emailReceive) {
+        String currentUsername = SecurityUtil.getCurrentUsername()
+                .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
+
+        if (!currentUsername.equals(username)) {
+            throw new RuntimeException("본인의 정보만 수정할 수 있습니다.");
+        }
+
+        String message = memberService.updateEmailReceive(username, emailReceive);
+        return new ResponseEntity(message, HttpStatus.OK);
     }
 }

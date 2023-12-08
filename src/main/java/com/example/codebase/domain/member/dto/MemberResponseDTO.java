@@ -37,6 +37,11 @@ public class MemberResponseDTO {
 
     private String companyRole;
 
+    private Boolean allowEmailReceive;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime allowEmailReceiveDateTime;
+
 //    private Set<String> authrities;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
@@ -74,6 +79,9 @@ public class MemberResponseDTO {
         dto.setCompanyName(
             member.getCompanyName() != null ? member.getCompanyName() : null);
         dto.setCompanyRole(member.getCompanyRole() != null ? member.getCompanyRole() : null);
+
+        dto.setAllowEmailReceive(member.isAllowEmailReceive());
+        dto.setAllowEmailReceiveDateTime(member.getAllowEmailReceiveDatetime());
 
         return dto;
     }
