@@ -28,8 +28,8 @@ public class CreateCuratorMemberDTO {
     @NotBlank(message = "소개를 입력해주세요.")
     private String introduction;
 
-    @Size(min = 1, max = 1000, message = "히스토리는 1~1000자 이내로 입력해주세요.")
-    @NotBlank(message = "히스토리를 입력해주세요.")
+    @Size(min = 1, max = 1000, message = "연혁은 1~1000자 이내로 입력해주세요.")
+    @NotBlank(message = "연혁을 입력해주세요.")
     private String history;
 
     @Size(min = 1, max = 100, message = "회사명은 1~100자 이내로 입력해주세요.")
