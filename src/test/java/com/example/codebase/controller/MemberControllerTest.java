@@ -117,6 +117,8 @@ class MemberControllerTest {
                         .companyName("company" + index)
                         .roleStatus(role)
                         .activated(true)
+                        .allowEmailReceive(true)
+                        .allowEmailReceiveDatetime(LocalDateTime.now())
                         .createdTime(LocalDateTime.now().plusSeconds(index))
                         .build();
 
@@ -142,6 +144,7 @@ class MemberControllerTest {
         dto.setName("test1");
         dto.setUsername("test213");
         dto.setPassword("1234");
+        dto.setAllowEmailReceive(true);
 
         mockMvc.perform(
                         post("/api/members")
@@ -161,6 +164,7 @@ class MemberControllerTest {
         dto.setName("test");
         dto.setUsername("test23");
         dto.setPassword("1234");
+        dto.setAllowEmailReceive(true);
 
         mockMvc.perform(
                         post("/api/members/admin")
@@ -558,6 +562,28 @@ class MemberControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest());
+    }
+
+    @DisplayName("이메일 수신 여부 변경 후 내 정보 조회")
+    @WithMockCustomUser(username = "testid1", role = "USER")
+    @Test
+    void 이메일_수신_여부_변경() throws Exception {
+        Member member = createOrLoadMember();
+
+        mockMvc
+                .perform(
+                        put("/api/members/" + member.getUsername() +"/email-receive")
+                                .param("emailReceive", "true")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        mockMvc
+                .perform(
+                        get("/api/members/" + member.getUsername())
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
 }
