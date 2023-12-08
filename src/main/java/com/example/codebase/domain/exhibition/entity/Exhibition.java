@@ -179,5 +179,9 @@ public class Exhibition {
                     || !this.price.equals(perforInfo.getPrice())
                     || !this.link.equals(perforInfo.getUrl());
         }
+
+    public boolean isPersist() {
+        return this.id != null;
     }
+}
 
