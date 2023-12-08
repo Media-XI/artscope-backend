@@ -38,6 +38,6 @@ public class UpdateMemberDTO {
     private String introduction;
 
     @Parameter(required = false)
-    @Size(min = 1, max = 1000, message = "히스토리는 1~1000자 이내로 입력해주세요.")
+    @Size(min = 1, max = 1000, message = "연혁은 1~1000자 이내로 입력해주세요.")
     private String history;
 }
