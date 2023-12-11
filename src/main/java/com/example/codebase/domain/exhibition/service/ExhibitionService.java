@@ -247,29 +247,12 @@ public class ExhibitionService {
         if (!SecurityUtil.isAdmin() && !exhibition.equalUsername(username)) {
             throw new RuntimeException("해당 이벤트의 생성자가 아닙니다.");
         }
+        if(exhibition.getEventSchedules().size() == 1) {
+            throw new RuntimeException("이벤트 일정은 최소 1개 이상이어야 합니다.");
+        }
 
         eventSchedule.delete();
         eventScheduleRepository.delete(eventSchedule);
     }
 
-    @Transactional
-    public void deleteAllEventSchedules(Long exhibitionId, String username) {
-        Exhibition exhibition =
-                exhibitionRepository
-                        .findById(exhibitionId)
-                        .orElseThrow(() -> new NotFoundException("이벤트를 찾을 수 없습니다."));
-
-        Member member =
-                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
-
-        if (!SecurityUtil.isAdmin() && (!member.equals(exhibition.getMember()))) {
-            throw new RuntimeException("이벤트 일정을 삭제할 권한이 없습니다.");
-        }
-
-        List<EventSchedule> eventSchedules = exhibition.getEventSchedules();
-        for (EventSchedule eventSchedule : eventSchedules) {
-            eventSchedule.delete();
-        }
-        eventScheduleRepository.deleteAll(eventSchedules);
-    }
 }
