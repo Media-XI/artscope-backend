@@ -255,24 +255,4 @@ public class ExhibitionService {
         eventScheduleRepository.delete(eventSchedule);
     }
 
-    @Transactional
-    public void deleteAllEventSchedules(Long exhibitionId, String username) {
-        Exhibition exhibition =
-                exhibitionRepository
-                        .findById(exhibitionId)
-                        .orElseThrow(() -> new NotFoundException("이벤트를 찾을 수 없습니다."));
-
-        Member member =
-                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
-
-        if (!SecurityUtil.isAdmin() && (!member.equals(exhibition.getMember()))) {
-            throw new RuntimeException("이벤트 일정을 삭제할 권한이 없습니다.");
-        }
-
-        List<EventSchedule> eventSchedules = exhibition.getEventSchedules();
-        for (EventSchedule eventSchedule : eventSchedules) {
-            eventSchedule.delete();
-        }
-        eventScheduleRepository.deleteAll(eventSchedules);
-    }
 }
