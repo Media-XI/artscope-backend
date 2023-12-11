@@ -7,6 +7,7 @@ import com.example.codebase.domain.exhibition.crawling.service.DetailEventCrawli
 import com.example.codebase.domain.exhibition.crawling.service.ExhibitionCrawlingService;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
 import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
+import com.example.codebase.domain.exhibition.service.EventService;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -31,14 +32,18 @@ public class JobService {
 
     private final ExhibitionRepository exhibitionRepository;
 
+    private final EventService eventService;
+
 
     @Autowired
     public JobService(MemberRepository memberRepository,
-                      ExhibitionCrawlingService exhibitionCrawlingService, DetailEventCrawlingService detailEventCrawlingService, ExhibitionRepository exhibitionRepository) {
+                      ExhibitionCrawlingService exhibitionCrawlingService, DetailEventCrawlingService detailEventCrawlingService, ExhibitionRepository exhibitionRepository,
+                      EventService eventService) {
         this.memberRepository = memberRepository;
         this.exhibitionCrawlingService = exhibitionCrawlingService;
         this.detailEventCrawlingService = detailEventCrawlingService;
         this.exhibitionRepository = exhibitionRepository;
+        this.eventService = eventService;
     }
 
     @Scheduled(cron = "0 0/30 * * * *") // 매 30분마다 삭제
@@ -84,6 +89,13 @@ public class JobService {
     private Member getAdmin() {
         return memberRepository.findByUsername("admin")
                 .orElseThrow(() -> new RuntimeException("관리자 계정이 없습니다."));
+    }
+
+    public void moveEventSchedule() {
+        log.info("[moveEventSchedule JoB] 이벤트 스케줄 이벤트와 동기화 시작");
+
+        eventService.moveEventSchedule();
+
     }
 }
 

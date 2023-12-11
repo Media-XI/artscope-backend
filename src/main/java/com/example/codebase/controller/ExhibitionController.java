@@ -148,4 +148,17 @@ public class ExhibitionController {
 
         return new ResponseEntity("이벤트가 업데이트 되었습니다.", HttpStatus.OK);
     }
+
+    @Operation(summary = "이벤트 스케줄 이동 작업", description = "이벤트 스케줄을 이동합니다.")
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/move/event-schedule")
+    public ResponseEntity moveEventSchedule(){
+        if(!SecurityUtil.isAdmin()){
+            throw new RuntimeException("관리자만 크롤링을 할 수 있습니다.");
+        }
+        jobService.moveEventSchedule();
+
+        return new ResponseEntity("이벤트 스케줄이 이동되었습니다.", HttpStatus.OK);
+    }
+
 }

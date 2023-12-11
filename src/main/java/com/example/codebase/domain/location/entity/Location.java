@@ -1,6 +1,7 @@
 package com.example.codebase.domain.location.entity;
 
 import com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionResponse.XmlDetailExhibitionData;
+import com.example.codebase.domain.exhibition.entity.Event;
 import com.example.codebase.domain.location.dto.LocationCreateDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "location")
@@ -46,6 +50,9 @@ public class Location {
     @Column(name = "sns_url", length = 255)
     private String snsUrl;
 
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL)
+    private List<Event> events = new ArrayList<>();
+
     public static Location from(LocationCreateDTO dto) {
         return Location.builder()
             .latitude(dto.getLatitude())
@@ -68,5 +75,9 @@ public class Location {
                 .address(perforInfo.getPlaceAddr())
                 .name(perforInfo.getPlace())
                 .build();
+    }
+
+    public void addEvent (Event event) {
+        this.events.add(event);
     }
 }
