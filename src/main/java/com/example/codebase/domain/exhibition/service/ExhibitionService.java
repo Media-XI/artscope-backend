@@ -247,6 +247,9 @@ public class ExhibitionService {
         if (!SecurityUtil.isAdmin() && !exhibition.equalUsername(username)) {
             throw new RuntimeException("해당 이벤트의 생성자가 아닙니다.");
         }
+        if(exhibition.getEventSchedules().size() == 1) {
+            throw new RuntimeException("이벤트 일정은 최소 1개 이상이어야 합니다.");
+        }
 
         eventSchedule.delete();
         eventScheduleRepository.delete(eventSchedule);
