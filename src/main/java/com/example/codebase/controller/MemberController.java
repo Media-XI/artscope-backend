@@ -259,7 +259,7 @@ public class MemberController {
     @Operation(summary = "비밀번호 재설정", description = "비밀번호 재설정 합니다.")
     @PostMapping("/reset-password")
     public ResponseEntity resetPassword(@RequestParam @NotBlank String code,
-                                        @RequestBody @NotBlank String password) {
+                                        @RequestBody PasswordResetRequestDTO password) {
 
         memberService.resetPassword(code, password);
 
