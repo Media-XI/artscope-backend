@@ -52,7 +52,7 @@ public class LocationService {
         Location location = findSameLocation(dto);
         locationRepository.save(location);
 
-        return LocationResponseDTO.of(location);
+        return LocationResponseDTO.from(location);
     }
 
     private Location findSameLocation(LocationCreateDTO dto) {
@@ -72,7 +72,7 @@ public class LocationService {
                         .findById(locationId)
                         .orElseThrow(() -> new RuntimeException("존재하지 않는 장소입니다."));
 
-        return LocationResponseDTO.of(location);
+        return LocationResponseDTO.from(location);
 
         // TODO : 스케쥴, 이벤트 관련 반환 로직 구현 필요
     }

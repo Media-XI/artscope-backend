@@ -43,7 +43,7 @@ public class LocationResponseDTO {
             .build();
     }
 
-    public static LocationResponseDTO of(Location location) {
+    public static LocationResponseDTO from(Location location) {
         return LocationResponseDTO.builder()
             .id(location.getId())
             .latitude(location.getLatitude())
