@@ -1,6 +1,7 @@
 package com.example.codebase.domain.mail.service;
 
 import com.example.codebase.domain.member.entity.Member;
+import com.example.codebase.domain.member.entity.oauth2.oAuthProvider;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.util.RedisUtil;
@@ -87,6 +88,12 @@ public class MailService {
                 .orElseThrow(NotFoundMemberException::new);
 
         String message = "아이디는 " + member.getUsername() + " 입니다.";
+
+        oAuthProvider oauthProvider = member.getOauthProvider();
+        switch (oauthProvider) {
+            case google -> message = "구글로 가입한 회원입니다.";
+        }
+
         sendMail(email, title, message);
     }
 
