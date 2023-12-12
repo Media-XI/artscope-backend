@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.PositiveOrZero;
 
+import java.io.IOException;
 import java.util.List;
 
 @Tag(name = "Exhibition", description = "전시회 API")
@@ -140,7 +141,7 @@ public class ExhibitionController {
     @Operation(summary = "수동 이벤트 업데이트", description = "수동으로 공공데이터 포털에서 이벤트를 가져옵니다")
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/crawling/exhibition")
-    public ResponseEntity crawlingExhibition() {
+    public ResponseEntity crawlingExhibition() throws IOException {
         if (!SecurityUtil.isAdmin()) {
             throw new RuntimeException("관리자만 크롤링을 할 수 있습니다.");
         }
