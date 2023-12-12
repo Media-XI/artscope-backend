@@ -1,5 +1,8 @@
 package com.example.codebase.domain.exhibition.entity;
 
+import com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionResponse.XmlDetailExhibitionData;
+import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
+import com.example.codebase.domain.exhibition.dto.ExhibitionMediaCreateDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -54,5 +57,30 @@ public class EventMedia {
         }
 
         return eventMedias;
+    }
+
+    public static EventMedia of(ExhibitionMediaCreateDTO mediaCreateDTO, Event event) {
+        return EventMedia.builder()
+                .eventMediaType(EventMediaType.create(mediaCreateDTO.getMediaType()))
+                .mediaUrl(mediaCreateDTO.getMediaUrl())
+                .event(event)
+                .createdTime(LocalDateTime.now())
+                .build();
+    }
+
+    public static EventMedia from(XmlDetailExhibitionData detailExhibitionData, Event event) {
+        return EventMedia.builder()
+                .eventMediaType(EventMediaType.image)
+                .mediaUrl(detailExhibitionData.getImgUrl())
+                .event(event)
+                .createdTime(LocalDateTime.now())
+                .updatedTime(LocalDateTime.now())
+                .build();
+    }
+
+    public void update(ExhibitionMediaCreateDTO thumbnail) {
+        this.mediaUrl = thumbnail.getMediaUrl();
+        this.eventMediaType = EventMediaType.create(thumbnail.getMediaType());
+        this.updatedTime = LocalDateTime.now();
     }
 }
