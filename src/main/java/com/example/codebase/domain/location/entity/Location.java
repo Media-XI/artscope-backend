@@ -26,11 +26,11 @@ public class Location {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "latitude", nullable = false)
-    private double latitude;
+    @Column(name = "latitude")
+    private Double latitude;
 
-    @Column(name = "longitude", nullable = false)
-    private double longitude;
+    @Column(name = "longitude")
+    private Double longitude;
 
     @Column(name = "address", nullable = false, length = 255)
     private String address;
@@ -41,7 +41,7 @@ public class Location {
     @Column(name = "english_name", length = 255)
     private String englishName;
 
-    @Column(name = "phone_number", length = 255)
+    @Column(name = "phone_number", length = 150)
     private String phoneNumber;
 
     @Column(name = "web_site_url", length = 255)
@@ -49,9 +49,6 @@ public class Location {
 
     @Column(name = "sns_url", length = 255)
     private String snsUrl;
-
-    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL)
-    private List<Event> events = new ArrayList<>();
 
     public static Location from(LocationCreateDTO dto) {
         return Location.builder()
@@ -68,16 +65,12 @@ public class Location {
 
     public static Location from(XmlDetailExhibitionData perforInfo) {
         return Location.builder()
-                .latitude(Double.parseDouble(perforInfo.getGpsX()))
-                .longitude(Double.parseDouble(perforInfo.getGpsY()))
+                .latitude(perforInfo.getLatitude())
+                .longitude(perforInfo.getLongitude())
                 .phoneNumber(perforInfo.getPhone())
                 .webSiteUrl(perforInfo.getUrl())
                 .address(perforInfo.getPlaceAddr())
                 .name(perforInfo.getPlace())
                 .build();
-    }
-
-    public void addEvent (Event event) {
-        this.events.add(event);
     }
 }
