@@ -6,7 +6,6 @@ import com.example.codebase.domain.exhibition.crawling.XmlResponseEntity;
 import com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionResponse.XmlDetailExhibitionResponse;
 import com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionResponse.XmlDetailExhibitionData;
 import com.example.codebase.domain.exhibition.crawling.dto.exhibitionResponse.XmlExhibitionData;
-import com.example.codebase.domain.exhibition.crawling.dto.exhibitionResponse.XmlExhibitionResponse;
 import com.example.codebase.domain.exhibition.entity.*;
 import com.example.codebase.domain.exhibition.repository.EventRepository;
 import com.example.codebase.domain.exhibition.repository.EventScheduleRepository;
@@ -23,9 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.data.util.Pair;
 
@@ -34,7 +31,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -180,8 +176,8 @@ public class DetailEventCrawlingService {
         return exhibition.hasChanged(perforInfo);
     }
 
-    private Exhibition updateExhibition(Exhibition existingExhibition, XmlDetailExhibitionData perforInfo, Member member) {
-        return existingExhibition.update(perforInfo, member);
+    private void updateExhibition(Exhibition existingExhibition, XmlDetailExhibitionData perforInfo, Member member) {
+        existingExhibition.update(perforInfo, member);
     }
 
     private void deleteRelatedData(Exhibition exhibition) {
