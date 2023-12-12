@@ -30,7 +30,7 @@ public class MailController {
         return new ResponseEntity("인증링크가 전송되었습니다.", HttpStatus.OK);
     }
 
-    @Operation(summary = "아이디 찾기 메일 전송", description = "해당 이메일로 아이디를 전송합니다.")
+    @Operation(summary = "아이디 찾기 메일 전송", description = "가입한 이메일로 아이디를 담은 메일을 전송합니다.")
     @GetMapping("/find-username")
     public ResponseEntity findUsername(@RequestParam @Valid @Email @NotBlank(message = "이메일은 필수입니다.") String email) {
 
