@@ -319,15 +319,28 @@ public class MemberService {
     }
 
     @Transactional
-    public void resetPassword(String code, String newPassword) {
+    public void resetPassword(String code, PasswordResetRequestDTO passwordDto) {
         String email = redisUtil.getData(code)
                 .orElseThrow(() -> new RuntimeException("인증 코드가 유효하지 않습니다."));
-        redisUtil.deleteData(code);
 
         Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
+                .orElseThrow(NotFoundMemberException::new);
 
-        String newPasswordEncoded = passwordEncoder.encode(newPassword);
+        String memberPassword = member.getPassword();
+
+        boolean oldPasswordMatches = passwordEncoder.matches(passwordDto.oldPassword(), memberPassword);
+        if (!oldPasswordMatches) {
+            throw new RuntimeException("기존 비밀번호가 일치하지 않습니다.");
+        }
+
+        boolean newPasswordMatches = passwordEncoder.matches(passwordDto.newPassword(), memberPassword);
+        if (newPasswordMatches) {
+            throw new RuntimeException("기존 비밀번호와 동일한 새 비밀번호입니다.");
+        }
+
+        redisUtil.deleteData(code);
+
+        String newPasswordEncoded = passwordEncoder.encode(passwordDto.newPassword());
         member.updatePassword(newPasswordEncoded);
     }
 
