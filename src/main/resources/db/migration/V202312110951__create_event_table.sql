@@ -7,7 +7,7 @@ create table event
     detail_location   varchar(255)         null,
     price             varchar(255)         null,
     link              varchar(200)         null,
-    type              varchar(100)         not null,
+    type        varchar(100)         not null,
     enabled           tinyint(1) default 1 not null,
     created_time      datetime             not null,
     updated_time      datetime             null,
