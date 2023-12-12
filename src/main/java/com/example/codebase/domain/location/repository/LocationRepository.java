@@ -18,7 +18,7 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
     @Query("SELECT l FROM Location l WHERE l.latitude = :gpsX AND l.longitude = :gpsY ")
     Optional<Location> findByGpsXAndGpsY(String gpsX, String gpsY);
 
-    @Query("SELECT l FROM Location l WHERE l.name = :name")
-    Optional<Location> findByName(String name);
+    @Query("SELECT l FROM Location l WHERE l.address = :address")
+    Optional<Location> findByName(String address);
 
 }
