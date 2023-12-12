@@ -12,6 +12,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
@@ -78,6 +79,19 @@ public class S3Service {
         }
         return key;
     }
+
+    public String saveUploadFile(String key, byte[] file) throws IOException {
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentType("application/xml");
+        objectMetadata.setContentLength(file.length);
+
+        InputStream inputStream = new ByteArrayInputStream(file);
+
+        PutObjectResult putObjectResult = amazonS3Client.putObject(new PutObjectRequest(bucket, key, inputStream, objectMetadata)
+                .withCannedAcl(CannedAccessControlList.PublicRead));
+        return key;
+    }
+
 
     public void deleteObject(String url) {
         DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucket, url);
