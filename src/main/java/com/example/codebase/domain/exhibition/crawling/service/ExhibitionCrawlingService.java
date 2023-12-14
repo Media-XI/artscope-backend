@@ -40,13 +40,13 @@ public class ExhibitionCrawlingService {
         this.s3Service = s3Service;
     }
 
-    public List<XmlExhibitionResponse> loadXmlDatas() {
+    public List<XmlExhibitionResponse> loadXmlDatas(String date) {
         try {
             List<XmlExhibitionResponse> xmlResponseList = new ArrayList<>();
             int totalPage = 1;
 
             for (int currentPage = 1; currentPage <= totalPage; currentPage++) {
-                XmlExhibitionResponse xmlResponse = loadXmlDataForCurrentPage(currentPage);
+                XmlExhibitionResponse xmlResponse = loadXmlDataForCurrentPage(currentPage, date);
                 xmlResponseList.add(xmlResponse);
 
                 if (currentPage == 1) {
@@ -61,8 +61,7 @@ public class ExhibitionCrawlingService {
         }
     }
 
-    private XmlExhibitionResponse loadXmlDataForCurrentPage(int currentPage) throws IOException {
-        String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+    private XmlExhibitionResponse loadXmlDataForCurrentPage(int currentPage, String currentDate) throws IOException {
         String savedFileName = String.format("event-backup/%s/전시공연정보_%s_%d.xml", currentDate, currentDate, currentPage);
         try {
             ResponseEntity<byte[]> object = s3Service.getObject(savedFileName);
@@ -84,7 +83,7 @@ public class ExhibitionCrawlingService {
     }
 
     private Pair<XmlExhibitionResponse, String> getXmlExhibitionApiResponse(int currentPage, String currentDate) {
-        String url = String.format("http://www.culture.go.kr/openapi/rest/publicperformancedisplays/period?RequestTime=20100810:23003422&serviceKey=%s&cPage=%d&row=10&from=%s&sortStdr=1", serviceKey, currentPage, currentDate);
+        String url = String.format("http://www.culture.go.kr/openapi/rest/publicperformancedisplays/period?RequestTime=20100810:23003422&serviceKey=%s&cPage=%d&rows=100&from=%s&sortStdr=1", serviceKey, currentPage, currentDate);
 
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
         XmlResponseEntity xmlResponseEntity = new XmlResponseEntity(response.getBody(), response.getStatusCode());
