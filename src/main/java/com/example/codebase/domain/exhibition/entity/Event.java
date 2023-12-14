@@ -242,10 +242,10 @@ public class Event {
         if(!this.link.equals(detailEventData.getUrl())){
             this.link = detailEventData.getUrl();
         }
-        if(!this.startDate.equals(LocalDate.parse(detailEventData.getStartDate()))){
+        if(!this.startDate.equals(LocalDate.parse(detailEventData.getStartDate(), DateTimeFormatter.ofPattern("yyyyMMdd")))){
             this.startDate = LocalDate.parse(detailEventData.getStartDate());
         }
-        if(!this.endDate.equals(LocalDate.parse(detailEventData.getEndDate()))){
+        if(!this.endDate.equals(LocalDate.parse(detailEventData.getEndDate(), DateTimeFormatter.ofPattern("yyyyMMdd")))){
             this.endDate = LocalDate.parse(detailEventData.getEndDate());
         }
         if(!this.location.equals(location)){
