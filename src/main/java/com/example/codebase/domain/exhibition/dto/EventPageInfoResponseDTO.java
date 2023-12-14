@@ -10,9 +10,9 @@ import java.util.List;
 @Setter
 public class EventPageInfoResponseDTO {
 
-    List<EventResponseDTO> events = new ArrayList<>();
+    List<EventResponseDTO> events;
 
-    PageInfo pageInfo = new PageInfo();
+    PageInfo pageInfo;
 
     public static EventPageInfoResponseDTO of(
         List<EventResponseDTO> dtos, PageInfo pageInfo) {
