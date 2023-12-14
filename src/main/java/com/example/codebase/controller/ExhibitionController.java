@@ -128,16 +128,6 @@ public class ExhibitionController {
         return new ResponseEntity("이벤트 일정이 삭제되었습니다.", HttpStatus.OK);
     }
 
-    @Operation(summary = "이벤트 일정 전체 삭제", description = "이벤트 일정 전체를 삭제합니다.")
-    @PreAuthorize("isAuthenticated()")
-    @DeleteMapping("/{exhibitionId}/all")
-    public ResponseEntity deleteAllExhibition(@PathVariable Long exhibitionId) {
-        String username =
-                SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
-        exhibitionService.deleteAllEventSchedules(exhibitionId, username);
-        return new ResponseEntity("이벤트 일정이 전체 삭제되었습니다.", HttpStatus.OK);
-    }
-
     @Operation(summary = "수동 이벤트 업데이트", description = "수동으로 공공데이터 포털에서 이벤트를 가져옵니다")
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/crawling/exhibition")
