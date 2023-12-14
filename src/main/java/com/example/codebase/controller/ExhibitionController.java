@@ -132,15 +132,6 @@ public class ExhibitionController {
         return new ResponseEntity("이벤트 일정이 삭제되었습니다.", HttpStatus.OK);
     }
 
-    @Operation(summary = "수동 이벤트 업데이트", description = "수동으로 공공데이터 포털에서 이벤트를 가져옵니다")
-    @PreAuthorize("isAuthenticated() AND hasRole('ROLE_ADMIN')")
-    @PostMapping("/crawling/exhibition")
-    public ResponseEntity crawlingExhibition() throws IOException {
-        jobService.getExhibitionListScheduler();
-
-        return new ResponseEntity("이벤트가 업데이트 되었습니다.", HttpStatus.OK);
-    }
-
     @Operation(summary = "이벤트 스케줄 이동 작업", description = "이벤트 스케줄을 이동합니다.")
     @PreAuthorize("isAuthenticated() AND hasRole('ROLE_ADMIN')")
     @PostMapping("/move/event-schedule")
