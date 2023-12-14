@@ -33,12 +33,10 @@ public class EventUpdateDTO {
     private EventType eventType;
 
     @Parameter(required = false)
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
 
     @Parameter(required = false)
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 

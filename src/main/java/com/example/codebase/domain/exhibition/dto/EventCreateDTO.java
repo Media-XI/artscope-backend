@@ -35,12 +35,10 @@ public class EventCreateDTO {
     private EventType eventType;
 
     @NotNull(message = "시작일은 필수입니다.")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
 
     @NotNull(message = "종료일은 필수입니다.")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
