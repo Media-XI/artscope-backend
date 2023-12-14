@@ -52,17 +52,16 @@ public class LocationService {
         Location location = findSameLocation(dto);
         locationRepository.save(location);
 
-        return LocationResponseDTO.of(location);
+        return LocationResponseDTO.from(location);
     }
 
     private Location findSameLocation(LocationCreateDTO dto) {
-        return locationRepository.findByGpsXAndGpsY(String.valueOf(dto.getLatitude()),String.valueOf(dto.getLongitude()))
-                .orElseGet(() -> locationRepository.findByName(dto.getName())
-                        .orElseGet(() -> {
-                            Location newLocation = Location.from(dto);
-                            locationRepository.save(newLocation);
-                            return newLocation;
-                        }));
+        return locationRepository.findByGpsXAndGpsYOrAddress(String.valueOf(dto.getLatitude()), String.valueOf(dto.getLongitude()), dto.getName())
+                .orElseGet(() -> {
+                    Location newLocation = Location.from(dto);
+                    locationRepository.save(newLocation);
+                    return newLocation;
+                });
     }
 
     @Transactional(readOnly = true)
@@ -72,7 +71,7 @@ public class LocationService {
                         .findById(locationId)
                         .orElseThrow(() -> new RuntimeException("존재하지 않는 장소입니다."));
 
-        return LocationResponseDTO.of(location);
+        return LocationResponseDTO.from(location);
 
         // TODO : 스케쥴, 이벤트 관련 반환 로직 구현 필요
     }

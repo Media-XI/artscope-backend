@@ -14,11 +14,9 @@ import java.util.List;
 public class EventScheduleCreateDTO {
 
     @NotNull(message = "시작시간은 필수입니다.")
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime startDateTime;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime endDateTime;
 

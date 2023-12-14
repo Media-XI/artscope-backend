@@ -1,6 +1,7 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.exhibition.dto.*;
+import com.example.codebase.domain.exhibition.service.EventService;
 import com.example.codebase.domain.exhibition.service.ExhibitionService;
 import com.example.codebase.domain.image.service.ImageService;
 import com.example.codebase.job.JobService;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.PositiveOrZero;
 
+import java.io.IOException;
 import java.util.List;
 
 @Tag(name = "Exhibition", description = "전시회 API")
@@ -29,12 +31,15 @@ public class ExhibitionController {
 
     private final ImageService imageService;
 
+    private final EventService eventService;
+
     private final JobService jobService;
 
     @Autowired
-    public ExhibitionController(ExhibitionService exhibitionService, ImageService imageService, JobService jobService) {
+    public ExhibitionController(ExhibitionService exhibitionService, ImageService imageService, EventService eventService, JobService jobService) {
         this.exhibitionService = exhibitionService;
         this.imageService = imageService;
+        this.eventService = eventService;
         this.jobService = jobService;
     }
 
@@ -128,14 +133,21 @@ public class ExhibitionController {
     }
 
     @Operation(summary = "수동 이벤트 업데이트", description = "수동으로 공공데이터 포털에서 이벤트를 가져옵니다")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() AND hasRole('ROLE_ADMIN')")
     @PostMapping("/crawling/exhibition")
-    public ResponseEntity crawlingExhibition() {
-        if (!SecurityUtil.isAdmin()) {
-            throw new RuntimeException("관리자만 크롤링을 할 수 있습니다.");
-        }
+    public ResponseEntity crawlingExhibition() throws IOException {
         jobService.getExhibitionListScheduler();
 
         return new ResponseEntity("이벤트가 업데이트 되었습니다.", HttpStatus.OK);
     }
+
+    @Operation(summary = "이벤트 스케줄 이동 작업", description = "이벤트 스케줄을 이동합니다.")
+    @PreAuthorize("isAuthenticated() AND hasRole('ROLE_ADMIN')")
+    @PostMapping("/move/event-schedule")
+    public ResponseEntity moveEventSchedule(){
+        eventService.moveEventSchedule();
+
+        return new ResponseEntity("이벤트 스케줄이 이동되었습니다.", HttpStatus.OK);
+    }
+
 }

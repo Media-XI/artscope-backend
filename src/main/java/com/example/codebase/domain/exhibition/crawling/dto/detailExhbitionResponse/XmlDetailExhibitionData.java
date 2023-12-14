@@ -3,6 +3,7 @@ package com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionRespo
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,9 +25,30 @@ public class XmlDetailExhibitionData {
     private String url;
     private String phone;
     private String imgUrl;
+
+    @XmlElement(defaultValue = "0.0")
     private String gpsX;
+
+    @XmlElement(defaultValue = "0.0")
     private String gpsY;
+
     private String placeUrl;
     private String placeAddr;
     private String placeSeq;
+
+    public Double getLatitude() {
+        try {
+            return Double.parseDouble(gpsX);
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
+    }
+
+    public Double getLongitude() {
+        try {
+            return Double.parseDouble(gpsY);
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
+    }
 }

@@ -15,10 +15,10 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
             + " WHERE l.address LIKE :keyword% OR l.name LIKE :keyword%")
     Page<Location> findByKeyword(String keyword, Pageable pageable);
 
-    @Query("SELECT l FROM Location l WHERE l.latitude = :gpsX AND l.longitude = :gpsY ")
-    Optional<Location> findByGpsXAndGpsY(String gpsX, String gpsY);
+    @Query("SELECT l FROM Location l WHERE (l.latitude = :gpsX AND l.longitude = :gpsY) OR l.address = :address ")
+    Optional<Location> findByGpsXAndGpsYOrAddress(String gpsX, String gpsY, String address);
 
-    @Query("SELECT l FROM Location l WHERE l.name = :name")
-    Optional<Location> findByName(String name);
+    @Query("SELECT l FROM Location l WHERE l.address = :address")
+    Optional<Location> findByName(String address);
 
 }

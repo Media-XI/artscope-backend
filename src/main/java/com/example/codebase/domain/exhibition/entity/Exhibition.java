@@ -183,5 +183,8 @@ public class Exhibition {
     public boolean isPersist() {
         return this.id != null;
     }
-}
 
+    public boolean getEnabled() {
+        return this.enabled;
+    }
+}
