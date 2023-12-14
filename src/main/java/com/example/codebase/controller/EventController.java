@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,6 +23,7 @@ import java.util.List;
 @Tag(name = "Event", description = "이벤트 API")
 @RestController
 @RequestMapping("/api/events")
+@Validated
 public class EventController {
 
     private final EventService eventService;
@@ -60,7 +62,7 @@ public class EventController {
     @GetMapping
     public ResponseEntity getEvent(
             @ModelAttribute @Valid EventSearchDTO eventSearchDTO,
-            @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,
+            @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") @PositiveOrZero int page,
             @PositiveOrZero @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
         eventSearchDTO.repeatTimeValidity();
