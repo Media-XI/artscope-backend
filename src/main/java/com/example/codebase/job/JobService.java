@@ -35,19 +35,16 @@ public class JobService {
 
     private final ExhibitionRepository exhibitionRepository;
 
-    private final EventService eventService;
-
     private final EventRepository eventRepository;
 
     @Autowired
     public JobService(MemberRepository memberRepository,
                       ExhibitionCrawlingService exhibitionCrawlingService, DetailEventCrawlingService detailEventCrawlingService, ExhibitionRepository exhibitionRepository,
-                      EventService eventService, EventRepository eventRepository) {
+                       EventRepository eventRepository) {
         this.memberRepository = memberRepository;
         this.exhibitionCrawlingService = exhibitionCrawlingService;
         this.detailEventCrawlingService = detailEventCrawlingService;
         this.exhibitionRepository = exhibitionRepository;
-        this.eventService = eventService;
         this.eventRepository = eventRepository;
     }
 
@@ -93,13 +90,6 @@ public class JobService {
     private Member getAdmin() {
         return memberRepository.findByUsername("admin")
                 .orElseThrow(() -> new RuntimeException("관리자 계정이 없습니다."));
-    }
-
-    public void moveEventSchedule() {
-        log.info("[moveEventSchedule JoB] 이벤트 스케줄 이벤트와 동기화 시작");
-
-        eventService.moveEventSchedule();
-
     }
 
     @Scheduled(cron = "0 3 * * * WED")
