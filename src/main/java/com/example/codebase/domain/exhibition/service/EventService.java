@@ -68,15 +68,7 @@ public class EventService {
     }
 
     @Transactional
-    public EventDetailResponseDTO createEvent(EventCreateDTO dto, String username) {
-        dto.validateDates();
-
-        Member member = findMemberByUserName(username);
-
-        if (!member.isSubmitedRoleInformation()) {
-            throw new RuntimeException("추가정보 입력한 사용자만 이벤트를 생성할 수 있습니다.");
-        }
-
+    public EventDetailResponseDTO createEvent(EventCreateDTO dto, Member member) {
         Location location = findLocationByLocationId(dto.getLocationId());
 
         Event event = Event.of(dto, member, location);
@@ -94,7 +86,7 @@ public class EventService {
         return EventDetailResponseDTO.from(event);
     }
 
-    private Member findMemberByUserName(String username) {
+    public Member findMemberByUserName(String username) {
         return memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
     }
 
@@ -139,20 +131,20 @@ public class EventService {
 
     @Transactional
     public EventDetailResponseDTO updateEvent(Long eventId, EventUpdateDTO dto, String username) {
-        Member member = findMemberByUserName(username);
+        Member member = memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
         Event event = findEventById(eventId);
-
-        Location location = null;
-        if(dto.getLocationId() != null){
-            location = findLocationByLocationId(dto.getLocationId());
-        }
 
         if (!SecurityUtil.isAdmin() && !event.equalUsername(username)) {
             throw new RuntimeException("해당 이벤트의 작성자가 아닙니다");
         }
 
-        event.update(dto, location);
+        if(dto.getLocationId() != null){
+            Location location = findLocationByLocationId(dto.getLocationId());
+            event.update(location);
+        }
+
+        event.update(dto);
 
         return EventDetailResponseDTO.from(event);
     }

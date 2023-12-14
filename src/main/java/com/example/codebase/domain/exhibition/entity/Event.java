@@ -172,7 +172,15 @@ public class Event {
         this.eventMedias.add(eventMedia);
     }
 
-    public void update(EventUpdateDTO dto, Location location) {
+    public void update(EventUpdateDTO dto) {
+        update(dto, null);
+    }
+
+    public void update(Location location) {
+        update(null, location);
+    }
+
+    private void update(EventUpdateDTO dto, Location location) {
         if(dto.getTitle() != null){
             this.title = dto.getTitle();
         }
