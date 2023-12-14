@@ -56,13 +56,12 @@ public class LocationService {
     }
 
     private Location findSameLocation(LocationCreateDTO dto) {
-        return locationRepository.findByGpsXAndGpsY(String.valueOf(dto.getLatitude()),String.valueOf(dto.getLongitude()))
-                .orElseGet(() -> locationRepository.findByName(dto.getName())
-                        .orElseGet(() -> {
-                            Location newLocation = Location.from(dto);
-                            locationRepository.save(newLocation);
-                            return newLocation;
-                        }));
+        return locationRepository.findByGpsXAndGpsYOrAddress(String.valueOf(dto.getLatitude()), String.valueOf(dto.getLongitude()), dto.getName())
+                .orElseGet(() -> {
+                    Location newLocation = Location.from(dto);
+                    locationRepository.save(newLocation);
+                    return newLocation;
+                });
     }
 
     @Transactional(readOnly = true)
