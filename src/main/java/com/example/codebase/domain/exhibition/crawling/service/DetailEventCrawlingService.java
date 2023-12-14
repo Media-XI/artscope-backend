@@ -211,13 +211,12 @@ public class DetailEventCrawlingService {
     }
 
     private Location findOrCreateLocation(XmlDetailExhibitionData perforInfo) {
-        return locationRepository.findByGpsXAndGpsY(perforInfo.getGpsX(), perforInfo.getGpsY())
-                .orElseGet(() -> locationRepository.findByName(perforInfo.getPlaceAddr())
+        return locationRepository.findByGpsXAndGpsYOrAddress(perforInfo.getGpsX(), perforInfo.getGpsY(), perforInfo.getPlaceAddr())
                         .orElseGet(() -> {
                             Location newLocation = Location.from(perforInfo);
                             locationRepository.save(newLocation);
                             return newLocation;
-                        }));
+                        });
     }
 
     private List<EventSchedule> makeEventSchedule(XmlDetailExhibitionData perforInfo, Exhibition exhibition, Location location) {
