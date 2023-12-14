@@ -27,10 +27,10 @@ public class XmlDetailExhibitionData {
     private String imgUrl;
 
     @XmlElement(defaultValue = "0.0")
-    private String gpsX= String.valueOf(0.0);
+    private String gpsX;
 
     @XmlElement(defaultValue = "0.0")
-    private String gpsY= String.valueOf(0.0);
+    private String gpsY;
 
     private String placeUrl;
     private String placeAddr;
