@@ -3,6 +3,8 @@ package com.example.codebase.controller;
 import com.example.codebase.domain.exhibition.dto.*;
 import com.example.codebase.domain.exhibition.service.EventService;
 import com.example.codebase.domain.image.service.ImageService;
+import com.example.codebase.domain.member.entity.Member;
+import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.job.JobService;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -50,10 +52,18 @@ public class EventController {
         String username =
                 SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
+        dto.validateDates();
+
+        Member member = eventService.findMemberByUserName(username);
+
+        if (!member.isSubmitedRoleInformation()) {
+            throw new RuntimeException("추가정보 입력한 사용자만 이벤트를 생성할 수 있습니다.");
+        }
+
         imageService.uploadMedias(dto, mediaFiles);
         imageService.uploadThumbnail(dto.getThumbnail(), thumbnailFile);
 
-        EventDetailResponseDTO event= eventService.createEvent(dto, username);
+        EventDetailResponseDTO event= eventService.createEvent(dto, member);
 
         return new ResponseEntity(event, HttpStatus.CREATED);
     }
@@ -62,7 +72,7 @@ public class EventController {
     @GetMapping
     public ResponseEntity getEvent(
             @ModelAttribute @Valid EventSearchDTO eventSearchDTO,
-            @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") @PositiveOrZero int page,
+            @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,
             @PositiveOrZero @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
         eventSearchDTO.repeatTimeValidity();
@@ -105,13 +115,9 @@ public class EventController {
     }
 
     @Operation(summary = "수동 이벤트 크롤링 업데이트", description = "수동으로 공공데이터 포털에서 이벤트를 가져옵니다")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() AND hasRole('ROLE_ADMIN')")
     @PostMapping("/crawling/event")
     public ResponseEntity crawlingEvent() {
-
-        if (!SecurityUtil.isAdmin()) {
-            throw new RuntimeException("관리자만 크롤링을 할 수 있습니다.");
-        }
         jobService.getEventListScheduler();
 
         return new ResponseEntity("이벤트가 업데이트 되었습니다.", HttpStatus.OK);
