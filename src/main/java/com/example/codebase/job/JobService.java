@@ -6,10 +6,8 @@ import com.example.codebase.domain.exhibition.crawling.dto.exhibitionResponse.Xm
 import com.example.codebase.domain.exhibition.crawling.service.DetailEventCrawlingService;
 import com.example.codebase.domain.exhibition.crawling.service.ExhibitionCrawlingService;
 import com.example.codebase.domain.exhibition.entity.Event;
-import com.example.codebase.domain.exhibition.entity.Exhibition;
 import com.example.codebase.domain.exhibition.repository.EventRepository;
 import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
-import com.example.codebase.domain.exhibition.service.EventService;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +17,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,30 +63,6 @@ public class JobService {
         }
     }
 
-    @Transactional
-    public void getExhibitionListScheduler() throws IOException {
-        log.info("[getExhibitionListScheduler JoB] 전시회 리스트 크롤링 시작");
-        LocalDateTime startTime = LocalDateTime.now();
-        List<XmlExhibitionResponse> xmlResponses = exhibitionCrawlingService.loadXmlDatas();
-        Member admin = getAdmin();
-
-        for (XmlExhibitionResponse xmlResponse : xmlResponses) {
-            List<XmlExhibitionData> exhibitions = xmlResponse.getXmlExhibitions();
-            List<Exhibition> exhibitionEntities = new ArrayList<>();
-
-            for (XmlExhibitionData xmlExhibitionData : exhibitions) {
-                XmlDetailExhibitionResponse xmlDetailExhibitionResponse = detailEventCrawlingService.loadAndParseXmlData(xmlExhibitionData);
-                Exhibition exhibition = detailEventCrawlingService.createExhibition(xmlDetailExhibitionResponse, admin);
-                exhibitionEntities.add(exhibition);
-            }
-            exhibitionRepository.saveAll(exhibitionEntities);
-        }
-
-        log.info("[getExhibitionListScheduler JoB] 전시회 리스트 크롤링 종료");
-        LocalDateTime endTime = LocalDateTime.now();
-        log.info("[getExhibitionListScheduler JoB] 크롤링 소요시간: {} 초", endTime.getSecond() - startTime.getSecond());
-    }
-
     private Member getAdmin() {
         return memberRepository.findByUsername("admin")
                 .orElseThrow(() -> new RuntimeException("관리자 계정이 없습니다."));
@@ -95,9 +71,17 @@ public class JobService {
     @Scheduled(cron = "0 3 * * * WED")
     @Transactional
     public void getEventListScheduler() {
+        LocalDate now = LocalDate.now();
+        String currentDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        getEventList(currentDate);
+    }
+
+    @Transactional
+    public void getEventList(String date) {
         log.info("[getEventListScheduler JoB] 이벤트 리스트 크롤링 시작");
         LocalDateTime startTime = LocalDateTime.now();
-        List<XmlExhibitionResponse> xmlResponses = exhibitionCrawlingService.loadXmlDatas();
+        List<XmlExhibitionResponse> xmlResponses = exhibitionCrawlingService.loadXmlDatas(date);
         Member admin = getAdmin();
 
         for (XmlExhibitionResponse xmlResponse : xmlResponses) {
@@ -107,7 +91,7 @@ public class JobService {
             for (XmlExhibitionData xmlExhibitionData : events) {
                 XmlDetailExhibitionResponse xmlDetailEventResponse = null;
                 try {
-                    xmlDetailEventResponse = detailEventCrawlingService.loadAndParseXmlData(xmlExhibitionData);
+                    xmlDetailEventResponse = detailEventCrawlingService.loadAndParseXmlData(xmlExhibitionData, date);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -117,8 +101,8 @@ public class JobService {
             eventRepository.saveAll(eventEntities);
         }
 
-        log.info("[getEventListScheduler JoB] 전시회 리스트 크롤링 종료");
         LocalDateTime endTime = LocalDateTime.now();
         log.info("[getEventListScheduler JoB] 크롤링 소요시간: {} 초", endTime.getSecond() - startTime.getSecond());
+        log.info("[getEventListScheduler JoB] 전시회 리스트 크롤링 종료");
     }
 }
