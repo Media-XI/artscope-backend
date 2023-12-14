@@ -51,7 +51,7 @@ public class Event {
     private String link;
 
     @Builder.Default
-    @Column(name = "event_type", nullable = false)
+    @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
     private EventType type = EventType.STANDARD;
 
