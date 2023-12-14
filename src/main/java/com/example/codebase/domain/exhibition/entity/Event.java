@@ -20,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "event")
@@ -230,16 +231,16 @@ public class Event {
         if(!this.title.equals(detailEventData.getTitle())){
             this.title = detailEventData.getTitle();
         }
-        if(!this.description.equals(detailEventData.getContents1() + "\n" + detailEventData.getContents2())) {
+        if(!Objects.equals(this.description, detailEventData.getContents1() + "\n" + detailEventData.getContents2())) {
             this.description = detailEventData.getContents1() + "\n" + detailEventData.getContents2();
         }
-        if(!this.detailLocation.equals(detailEventData.getPlace())){
+        if(!Objects.equals(this.detailLocation, detailEventData.getPlace())){
             this.detailLocation = detailEventData.getPlace();
         }
-        if(!this.price.equals(detailEventData.getPrice())){
+        if(!Objects.equals(this.price, detailEventData.getPrice())){
             this.price = detailEventData.getPrice();
         }
-        if(!this.link.equals(detailEventData.getUrl())){
+        if(!Objects.equals(this.link, detailEventData.getUrl())){
             this.link = detailEventData.getUrl();
         }
         if(!this.startDate.equals(LocalDate.parse(detailEventData.getStartDate(), DateTimeFormatter.ofPattern("yyyyMMdd")))){
@@ -252,7 +253,6 @@ public class Event {
             this.location = location;
         }
         this.updatedTime = LocalDateTime.now();
-
     }
 
     public void setLocation(Location location) {
