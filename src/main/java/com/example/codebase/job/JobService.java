@@ -66,7 +66,6 @@ public class JobService {
     }
 
     @Scheduled(cron = "0 3 * * * WED")
-    @Transactional
     public void getEventListScheduler() {
         LocalDate now = LocalDate.now();
         String currentDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
