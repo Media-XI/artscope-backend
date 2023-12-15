@@ -33,18 +33,15 @@ public class JobService {
 
     private final DetailEventCrawlingService detailEventCrawlingService;
 
-    private final ExhibitionRepository exhibitionRepository;
-
     private final EventRepository eventRepository;
 
     @Autowired
     public JobService(MemberRepository memberRepository,
-                      ExhibitionCrawlingService exhibitionCrawlingService, DetailEventCrawlingService detailEventCrawlingService, ExhibitionRepository exhibitionRepository,
-                       EventRepository eventRepository) {
+                      ExhibitionCrawlingService exhibitionCrawlingService, DetailEventCrawlingService detailEventCrawlingService,
+                      EventRepository eventRepository) {
         this.memberRepository = memberRepository;
         this.exhibitionCrawlingService = exhibitionCrawlingService;
         this.detailEventCrawlingService = detailEventCrawlingService;
-        this.exhibitionRepository = exhibitionRepository;
         this.eventRepository = eventRepository;
     }
 
@@ -103,6 +100,6 @@ public class JobService {
 
         LocalDateTime endTime = LocalDateTime.now();
         log.info("[getEventListScheduler JoB] 크롤링 소요시간: {} 초", endTime.getSecond() - startTime.getSecond());
-        log.info("[getEventListScheduler JoB] 전시회 리스트 크롤링 종료");
+        log.info("[getEventListScheduler JoB] 이벤트 리스트 크롤링 종료");
     }
 }

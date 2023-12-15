@@ -8,15 +8,10 @@ import com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionRespon
 import com.example.codebase.domain.exhibition.crawling.dto.exhibitionResponse.XmlExhibitionData;
 import com.example.codebase.domain.exhibition.entity.*;
 import com.example.codebase.domain.exhibition.repository.EventRepository;
-import com.example.codebase.domain.exhibition.repository.EventScheduleRepository;
-import com.example.codebase.domain.exhibition.repository.ExhibitionMediaRepository;
-import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
 import com.example.codebase.domain.location.entity.Location;
 import com.example.codebase.domain.location.repository.LocationRepository;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.s3.S3Service;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,31 +22,19 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.data.util.Pair;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
 public class DetailEventCrawlingService {
     private RestTemplate restTemplate;
-    private ExhibitionMediaRepository exhibitionMediaRepository;
-
     private S3Service s3Service;
 
     private LocationRepository locationRepository;
 
-    private ExhibitionRepository exhibitionRepository;
-
-    private EventScheduleRepository eventScheduleRepository;
-
     private EventRepository eventRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Value("${service.key}")
     private String serviceKey;
@@ -59,24 +42,20 @@ public class DetailEventCrawlingService {
     @Autowired
     public DetailEventCrawlingService(RestTemplate restTemplate,
                                       LocationRepository locationRepository,
-                                      ExhibitionRepository exhibitionRepository,
-                                      EventScheduleRepository eventScheduleRepository,
                                       EventRepository eventRepository, S3Service s3Service) {
         this.restTemplate = restTemplate;
         this.locationRepository = locationRepository;
-        this.exhibitionRepository = exhibitionRepository;
-        this.eventScheduleRepository = eventScheduleRepository;
         this.eventRepository = eventRepository;
         this.s3Service = s3Service;
     }
 
 
-    public XmlDetailExhibitionResponse loadAndParseXmlData(XmlExhibitionData xmlExhibitionData,String date) throws IOException {
+    public XmlDetailExhibitionResponse loadAndParseXmlData(XmlExhibitionData xmlExhibitionData, String date) throws IOException {
         XmlResponseEntity xmlResponseEntity = loadXmlDatas(xmlExhibitionData, date);
         return parseXmlData(xmlResponseEntity);
     }
 
-    private XmlResponseEntity loadXmlDatas(XmlExhibitionData xmlExhibitionData,String currentDate) throws IOException {
+    private XmlResponseEntity loadXmlDatas(XmlExhibitionData xmlExhibitionData, String currentDate) throws IOException {
         String saveFileName = String.format("event-backup/event-detail-backup/%s/공연상세정보_%d.xml", currentDate, xmlExhibitionData.getSeq());
 
         try {
@@ -166,14 +145,13 @@ public class DetailEventCrawlingService {
     private Location findOrCreateLocation(XmlDetailExhibitionData perforInfo) {
         List<Location> locations = locationRepository.findByGpsXAndGpsYOrAddress(perforInfo.getGpsX(), perforInfo.getGpsY(), perforInfo.getPlaceAddr());
 
-        if(locations.isEmpty()){
+        if (locations.isEmpty()) {
             Location newLocation = Location.from(perforInfo);
             locationRepository.save(newLocation);
             return newLocation;
-        }else {
+        } else {
             return locations.get(0);
         }
-
     }
 
 }
