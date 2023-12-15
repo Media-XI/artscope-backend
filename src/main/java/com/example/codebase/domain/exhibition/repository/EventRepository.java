@@ -20,4 +20,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query("SELECT e FROM Event e WHERE e.seq = :seq")
     Optional<Event> findBySeq(Long seq);
+
+    Page<Event> findAllBySeqIsNull(PageRequest pageRequest);
 }
