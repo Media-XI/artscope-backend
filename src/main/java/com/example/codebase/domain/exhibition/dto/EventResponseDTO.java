@@ -21,8 +21,6 @@ public class EventResponseDTO {
 
     private String author;
 
-    private ExhibitionPageInfoResponseDTO exhibition;
-
     private ExhibitionMediaResponseDTO thumbnail;
 
     private EventType eventType;
