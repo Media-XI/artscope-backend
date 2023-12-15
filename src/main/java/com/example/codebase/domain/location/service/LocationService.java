@@ -49,19 +49,24 @@ public class LocationService {
             throw new RuntimeException("추가정보 입력한 사용자만 장소를 생성할 수 있습니다.");
         }
 
-        Location location = findSameLocation(dto);
+        Location location = findOrCreateLocation(dto);
         locationRepository.save(location);
 
         return LocationResponseDTO.from(location);
     }
 
-    private Location findSameLocation(LocationCreateDTO dto) {
-        return locationRepository.findByGpsXAndGpsYOrAddress(String.valueOf(dto.getLatitude()), String.valueOf(dto.getLongitude()), dto.getName())
-                .orElseGet(() -> {
-                    Location newLocation = Location.from(dto);
-                    locationRepository.save(newLocation);
-                    return newLocation;
-                });
+    private Location findOrCreateLocation(LocationCreateDTO dto) {
+        List<Location> locations = locationRepository.findByGpsXAndGpsYOrAddress(String.valueOf(dto.getLatitude()), String.valueOf(dto.getLongitude()), dto.getName());
+
+        if (locations.isEmpty()) {
+            Location newLocation = Location.from(dto);
+            locationRepository.save(newLocation);
+            return newLocation;
+        }
+        else {
+            return locations.get(0);
+        }
+
     }
 
     @Transactional(readOnly = true)
