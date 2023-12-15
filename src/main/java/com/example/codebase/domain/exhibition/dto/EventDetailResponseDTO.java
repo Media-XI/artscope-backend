@@ -65,7 +65,7 @@ public class EventDetailResponseDTO {
                 medias.stream().findFirst().map(ExhibitionMediaResponseDTO::from).orElse(null);
 
         List<ExhibitionMediaResponseDTO> exhibitionMediaResponseDTOS =
-                medias.stream().skip(1).map(ExhibitionMediaResponseDTO::from).collect(Collectors.toList());
+                medias.stream().map(ExhibitionMediaResponseDTO::from).collect(Collectors.toList());
 
         LocationResponseDTO locationResponseDTO = LocationResponseDTO.from(event.getLocation());
 
