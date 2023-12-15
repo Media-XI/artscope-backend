@@ -36,18 +36,14 @@ public class FeedService {
 
     private final ArtworkRepository artworkRepository;
     private final PostRepository postRepository;
-    private final ExhibitionRepository exhibitionRepository;
-
     private final EventRepository eventRepository;
     private final AgoraRepository agoraRepository;
     private final MemberRepository memberRepository;
 
     @Autowired
-    public FeedService(ArtworkRepository artworkRepository, PostRepository postRepository,
-                       ExhibitionRepository exhibitionRepository, EventRepository eventRepository, AgoraRepository agoraRepository, MemberRepository memberRepository) {
+    public FeedService(ArtworkRepository artworkRepository, PostRepository postRepository, EventRepository eventRepository, AgoraRepository agoraRepository, MemberRepository memberRepository) {
         this.artworkRepository = artworkRepository;
         this.postRepository = postRepository;
-        this.exhibitionRepository = exhibitionRepository;
         this.eventRepository = eventRepository;
         this.agoraRepository = agoraRepository;
         this.memberRepository = memberRepository;
