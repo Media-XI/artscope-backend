@@ -9,9 +9,9 @@ public enum FeedType {
 
     post,
 
-    exhibition,
+    event,
 
-    agora;
+    agora, exhibition;
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static FeedType create(String type) {

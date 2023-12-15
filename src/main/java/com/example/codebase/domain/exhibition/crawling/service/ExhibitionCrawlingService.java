@@ -45,7 +45,7 @@ public class ExhibitionCrawlingService {
 
                 if (currentPage == 1) {
                     int totalCount = xmlResponse.getMsgBody().getTotalCount();
-                    totalPage = (int) Math.ceil((double) totalCount / 10);
+                    totalPage = (int) Math.ceil((double) totalCount / xmlResponse.getMsgBody().getRows());
                 }
             }
             return xmlResponseList;
@@ -59,6 +59,7 @@ public class ExhibitionCrawlingService {
         String savedFileName = String.format("event-backup/%s/전시공연정보_%s_%d.xml", currentDate, currentDate, currentPage);
         try {
             ResponseEntity<byte[]> object = s3Service.getObject(savedFileName);
+            log.info("S3에 전시 공연 정보 파일이 있습니다. S3에서 파일을 가져옵니다.");
 
             String body = new String(Objects.requireNonNull(object.getBody()));
             return XmlExhibitionResponse.parse(body);
