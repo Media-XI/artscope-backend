@@ -4,7 +4,6 @@ package com.example.codebase.domain.exhibition.entity;
 import com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionResponse.XmlDetailExhibitionData;
 import com.example.codebase.domain.exhibition.dto.EventCreateDTO;
 import com.example.codebase.domain.exhibition.dto.EventUpdateDTO;
-import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
 import com.example.codebase.domain.location.entity.Location;
 import com.example.codebase.domain.member.entity.Member;
 import jakarta.persistence.*;

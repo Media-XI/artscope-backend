@@ -1,7 +1,6 @@
 package com.example.codebase.domain.exhibition.entity;
 
 import com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionResponse.XmlDetailExhibitionData;
-import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
 import com.example.codebase.domain.exhibition.dto.ExhibitionMediaCreateDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

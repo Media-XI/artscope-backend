@@ -1,7 +1,6 @@
 package com.example.codebase.domain.exhibition.entity;
 
 import com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionResponse.XmlDetailExhibitionData;
-import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
 import com.example.codebase.domain.exhibition.dto.ExhibitionUpdateDTO;
 import com.example.codebase.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
@@ -73,19 +72,6 @@ public class Exhibition {
 
     @Column(name = "seq")
     private Long seq;
-
-    public static Exhibition of(ExhbitionCreateDTO dto, Member member) {
-        return Exhibition.builder()
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .price(dto.getPrice())
-                .link(dto.getLink())
-                .type(dto.getEventType())
-                .member(member)
-                .createdTime(LocalDateTime.now())
-                .updatedTime(LocalDateTime.now())
-                .build();
-    }
 
     public static Exhibition of(XmlDetailExhibitionData perforInfo, Member member) {
         return Exhibition.builder()
