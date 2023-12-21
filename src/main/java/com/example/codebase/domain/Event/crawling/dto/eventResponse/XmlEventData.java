@@ -1,4 +1,4 @@
-package com.example.codebase.domain.exhibition.crawling.dto.exhibitionResponse;
+package com.example.codebase.domain.Event.crawling.dto.eventResponse;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @XmlAccessorType(XmlAccessType.FIELD)
-public class XmlExhibitionData {
+public class XmlEventData {
     private long seq;
     private String title;
     private String startDate;

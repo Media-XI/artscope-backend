@@ -1,4 +1,4 @@
-package com.example.codebase.domain.exhibition.crawling;
+package com.example.codebase.domain.Event.crawling;
 
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;

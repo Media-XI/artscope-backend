@@ -1,4 +1,4 @@
-package com.example.codebase.domain.exhibition.crawling.dto.exhibitionResponse;
+package com.example.codebase.domain.Event.crawling.dto.eventResponse;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -20,18 +20,18 @@ import java.util.List;
 @XmlRootElement(name = "response")
 @XmlAccessorType(value = XmlAccessType.FIELD)
 @XmlType(propOrder = {"msgBody", "comMsgHeader"})
-public class XmlExhibitionResponse {
+public class XmlEventResponse {
     private MsgBody msgBody;
 
     private ComMsgHeader comMsgHeader;
 
-    public static XmlExhibitionResponse parse(String body) {
+    public static XmlEventResponse parse(String body) {
         JAXBContext jaxbContext = null;
         try {
-            jaxbContext = JAXBContext.newInstance(XmlExhibitionResponse.class);
+            jaxbContext = JAXBContext.newInstance(XmlEventResponse.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             StringReader reader = new StringReader(body);
-            return (XmlExhibitionResponse) unmarshaller.unmarshal(reader);
+            return (XmlEventResponse) unmarshaller.unmarshal(reader);
         } catch (JAXBException e) {
             throw new RuntimeException(e);
         }
@@ -45,8 +45,8 @@ public class XmlExhibitionResponse {
             default -> throw new RuntimeException("이벤트가 조회 되지 않음");
         }
     }
-    public List<XmlExhibitionData> getXmlExhibitions() {
-        return this.msgBody.getXmlExhibitionData();
+    public List<XmlEventData> getXmlExhibitions() {
+        return this.msgBody.getXmlEventData();
     }
 }
 
