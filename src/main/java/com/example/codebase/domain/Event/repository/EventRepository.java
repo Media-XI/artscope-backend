@@ -1,12 +1,11 @@
-package com.example.codebase.domain.exhibition.repository;
+package com.example.codebase.domain.Event.repository;
 
-import com.example.codebase.domain.exhibition.entity.Event;
-import com.example.codebase.domain.exhibition.entity.EventType;
+import com.example.codebase.domain.Event.entity.Event;
+import com.example.codebase.domain.Event.entity.EventType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.Optional;

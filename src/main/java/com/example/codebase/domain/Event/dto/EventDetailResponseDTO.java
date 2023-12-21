@@ -1,8 +1,8 @@
-package com.example.codebase.domain.exhibition.dto;
+package com.example.codebase.domain.Event.dto;
 
-import com.example.codebase.domain.exhibition.entity.Event;
-import com.example.codebase.domain.exhibition.entity.EventMedia;
-import com.example.codebase.domain.exhibition.entity.EventType;
+import com.example.codebase.domain.Event.entity.Event;
+import com.example.codebase.domain.Event.entity.EventMedia;
+import com.example.codebase.domain.Event.entity.EventType;
 import com.example.codebase.domain.location.dto.LocationResponseDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
@@ -38,9 +38,9 @@ public class EventDetailResponseDTO {
 
     private EventType eventType;
 
-    private ExhibitionMediaResponseDTO thumbnail;
+    private EventMediaResponseDTO thumbnail;
 
-    private List<ExhibitionMediaResponseDTO> medias;
+    private List<EventMediaResponseDTO> medias;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate startDate;
@@ -61,11 +61,11 @@ public class EventDetailResponseDTO {
     public static EventDetailResponseDTO from(Event event) {
         List<EventMedia> medias = event.getEventMedias();
 
-        ExhibitionMediaResponseDTO thumbnail =
-                medias.stream().findFirst().map(ExhibitionMediaResponseDTO::from).orElse(null);
+        EventMediaResponseDTO thumbnail =
+                medias.stream().findFirst().map(EventMediaResponseDTO::from).orElse(null);
 
-        List<ExhibitionMediaResponseDTO> exhibitionMediaResponseDTOS =
-                medias.stream().skip(1).map(ExhibitionMediaResponseDTO::from).collect(Collectors.toList());
+        List<EventMediaResponseDTO> eventMediaResponseDTOS =
+                medias.stream().skip(1).map(EventMediaResponseDTO::from).collect(Collectors.toList());
 
         LocationResponseDTO locationResponseDTO = LocationResponseDTO.from(event.getLocation());
 
@@ -76,7 +76,7 @@ public class EventDetailResponseDTO {
                 .authorUserName(event.getMember().getUsername())
                 .description(event.getDescription())
                 .thumbnail(thumbnail)
-                .medias(exhibitionMediaResponseDTOS)
+                .medias(eventMediaResponseDTOS)
                 .startDate(event.getStartDate())
                 .endDate(event.getEndDate())
                 .detailedSchedule(event.getDetailedSchedule())

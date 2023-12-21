@@ -1,7 +1,6 @@
 package com.example.codebase.domain.location.entity;
 
-import com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionResponse.XmlDetailExhibitionData;
-import com.example.codebase.domain.exhibition.entity.Event;
+import com.example.codebase.domain.Event.crawling.dto.eventDetailResponse.XmlEventDetailData;
 import com.example.codebase.domain.location.dto.LocationCreateDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "location")
@@ -63,7 +59,7 @@ public class Location {
             .build();
     }
 
-    public static Location from(XmlDetailExhibitionData perforInfo) {
+    public static Location from(XmlEventDetailData perforInfo) {
         return Location.builder()
                 .latitude(perforInfo.getLatitude())
                 .longitude(perforInfo.getLongitude())

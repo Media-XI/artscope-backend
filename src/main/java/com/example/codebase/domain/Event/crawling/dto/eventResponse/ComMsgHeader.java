@@ -1,4 +1,4 @@
-package com.example.codebase.domain.exhibition.crawling.dto.exhibitionResponse;
+package com.example.codebase.domain.Event.crawling.dto.eventResponse;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;

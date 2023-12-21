@@ -1,6 +1,6 @@
-package com.example.codebase.domain.exhibition.dto;
+package com.example.codebase.domain.Event.dto;
 
-import com.example.codebase.domain.exhibition.entity.EventType;
+import com.example.codebase.domain.Event.entity.EventType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -9,7 +9,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -52,10 +51,10 @@ public class EventCreateDTO {
     private String detailLocation;
 
     @Valid
-    private List<ExhibitionMediaCreateDTO> medias;
+    private List<EventMediaCreateDTO> medias;
 
     @Valid
-    private ExhibitionMediaCreateDTO thumbnail;
+    private EventMediaCreateDTO thumbnail;
 
     public void validateDates() {
         if (endDate.isBefore(startDate)) {

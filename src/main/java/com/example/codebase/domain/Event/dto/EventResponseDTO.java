@@ -1,12 +1,17 @@
-package com.example.codebase.domain.exhibition.dto;
+package com.example.codebase.domain.Event.dto;
 
-import com.example.codebase.domain.exhibition.entity.Event;
-import com.example.codebase.domain.exhibition.entity.EventType;
+import com.example.codebase.controller.dto.PageInfo;
+import com.example.codebase.domain.Event.document.EventDocument;
+import com.example.codebase.domain.Event.entity.Event;
+import com.example.codebase.domain.Event.entity.EventMedia;
+import com.example.codebase.domain.Event.entity.EventType;
+import com.example.codebase.domain.agora.dto.AgoraMediaResponseDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -21,7 +26,7 @@ public class EventResponseDTO {
 
     private String author;
 
-    private ExhibitionMediaResponseDTO thumbnail;
+    private EventMediaResponseDTO thumbnail;
 
     private EventType eventType;
 
@@ -47,7 +52,7 @@ public class EventResponseDTO {
                 .id(event.getId())
                 .title(event.getTitle())
                 .author(event.getMember().getName())
-                .thumbnail(ExhibitionMediaResponseDTO.from(event.getEventMedias().get(0)))
+                .thumbnail(EventMediaResponseDTO.from(event.getEventMedias().get(0)))
                 .eventType(event.getType())
                 .location(event.getLocation().getAddress())
                 .startDate(event.getStartDate())
@@ -56,4 +61,22 @@ public class EventResponseDTO {
                 .updatedTime(event.getUpdatedTime())
                 .build();
     }
+
+    public static EventResponseDTO from (EventDocument eventDocument){
+
+        EventMediaResponseDTO media = null;
+        if (eventDocument.getMediaUrl() != null) {
+            media = EventMediaResponseDTO.from(eventDocument.getMediaUrl());
+        }
+
+
+        return EventResponseDTO.builder()
+                .id(eventDocument.getId())
+                .title(eventDocument.getTitle())
+                .thumbnail(media)
+                .createdTime(eventDocument.getCreatedTime())
+                .updatedTime(eventDocument.getUpdatedTime())
+                .build();
+    }
+
 }

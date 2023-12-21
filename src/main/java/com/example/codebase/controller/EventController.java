@@ -1,10 +1,9 @@
 package com.example.codebase.controller;
 
-import com.example.codebase.domain.exhibition.dto.*;
-import com.example.codebase.domain.exhibition.service.EventService;
+import com.example.codebase.domain.Event.dto.*;
+import com.example.codebase.domain.Event.service.EventService;
 import com.example.codebase.domain.image.service.ImageService;
 import com.example.codebase.domain.member.entity.Member;
-import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.job.JobService;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -77,7 +76,7 @@ public class EventController {
             @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
         eventSearchDTO.repeatTimeValidity();
 
-        EventPageInfoResponseDTO dtos = eventService.getEvents(eventSearchDTO, page, size, sortDirection);
+        EventsResponseDTO dtos = eventService.getEvents(eventSearchDTO, page, size, sortDirection);
         return new ResponseEntity(dtos, HttpStatus.OK);
     }
 

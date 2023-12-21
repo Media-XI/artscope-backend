@@ -1,4 +1,4 @@
-package com.example.codebase.domain.exhibition.entity;
+package com.example.codebase.domain.Event.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 

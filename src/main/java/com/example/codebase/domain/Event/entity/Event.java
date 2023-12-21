@@ -1,9 +1,9 @@
-package com.example.codebase.domain.exhibition.entity;
+package com.example.codebase.domain.Event.entity;
 
 
-import com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionResponse.XmlDetailExhibitionData;
-import com.example.codebase.domain.exhibition.dto.EventCreateDTO;
-import com.example.codebase.domain.exhibition.dto.EventUpdateDTO;
+import com.example.codebase.domain.Event.crawling.dto.eventDetailResponse.XmlEventDetailData;
+import com.example.codebase.domain.Event.dto.EventCreateDTO;
+import com.example.codebase.domain.Event.dto.EventUpdateDTO;
 import com.example.codebase.domain.location.entity.Location;
 import com.example.codebase.domain.member.entity.Member;
 import jakarta.persistence.*;
@@ -88,50 +88,6 @@ public class Event {
     @JoinColumn(name = "location_id")
     private Location location;
 
-    public static Event from(Exhibition exhibition) {
-
-        if(exhibition.getEventSchedules().isEmpty()){
-            return null;
-        }
-
-        EventSchedule earliestSchedule = exhibition.getEventSchedules().stream()
-                .min(Comparator.comparing(EventSchedule::getStartDateTime))
-                .orElse(null);
-
-        EventSchedule latestSchedule = exhibition.getEventSchedules().stream()
-                .max(Comparator.comparing(EventSchedule::getStartDateTime))
-                .orElse(null);
-
-        Location location = exhibition.getEventSchedules().get(0).getLocation();
-
-        return Event.builder()
-                .title(exhibition.getTitle())
-                .description(exhibition.getDescription())
-                .detailLocation(exhibition.getEventSchedules().get(0).getDetailLocation())
-                .price(exhibition.getPrice())
-                .link(exhibition.getLink())
-                .type(exhibition.getType())
-                .enabled(exhibition.getEnabled())
-                .seq(exhibition.getSeq())
-                .startDate(exhibition.getEventSchedules().get(0).getStartDateTime().toLocalDate())
-                .endDate(exhibition.getEventSchedules().get(0).getEndDateTime().toLocalDate())
-                .detailedSchedule(exhibition.getEventSchedules().get(0).getDetailLocation())
-
-                .startDate(earliestSchedule.getStartDateTime().toLocalDate())
-                .endDate(latestSchedule.getStartDateTime().toLocalDate())
-
-                .createdTime(exhibition.getCreatedTime())
-                .updatedTime(exhibition.getUpdatedTime() != null ? exhibition.getUpdatedTime() : exhibition.getCreatedTime())
-
-                .member(exhibition.getMember())
-                .location(location)
-                .build();
-    }
-
-    public void setEventMedias(List<EventMedia> eventMedias) {
-        this.eventMedias = eventMedias;
-    }
-
     public static Event of(EventCreateDTO dto, Member member, Location location){
         return Event.builder()
                 .title(dto.getTitle())
@@ -150,7 +106,7 @@ public class Event {
                 .build();
     }
 
-    public static Event of(XmlDetailExhibitionData eventData, Member admin){
+    public static Event of(XmlEventDetailData eventData, Member admin){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         return Event.builder()
                 .title(eventData.getTitle())
@@ -225,7 +181,7 @@ public class Event {
         return this.id != null;
     }
 
-    public void updateEventIfChanged(XmlDetailExhibitionData detailEventData, Location location) {
+    public void updateEventIfChanged(XmlEventDetailData detailEventData, Location location) {
         if(!this.title.equals(detailEventData.getTitle())){
             this.title = detailEventData.getTitle();
         }

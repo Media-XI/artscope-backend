@@ -1,4 +1,4 @@
-package com.example.codebase.domain.exhibition.dto;
+package com.example.codebase.domain.Event.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

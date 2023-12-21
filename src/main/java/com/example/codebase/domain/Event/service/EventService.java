@@ -1,10 +1,9 @@
-package com.example.codebase.domain.exhibition.service;
+package com.example.codebase.domain.Event.service;
 
 import com.example.codebase.controller.dto.PageInfo;
-import com.example.codebase.domain.exhibition.dto.*;
-import com.example.codebase.domain.exhibition.entity.*;
-import com.example.codebase.domain.exhibition.repository.EventRepository;
-import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
+import com.example.codebase.domain.Event.dto.*;
+import com.example.codebase.domain.Event.entity.*;
+import com.example.codebase.domain.Event.repository.EventRepository;
 import com.example.codebase.domain.location.entity.Location;
 import com.example.codebase.domain.location.repository.LocationRepository;
 import com.example.codebase.domain.member.entity.Member;
@@ -19,13 +18,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class EventService {
-
-    private final ExhibitionRepository exhibitionRepository;
 
     private final EventRepository eventRepository;
 
@@ -35,36 +31,10 @@ public class EventService {
 
 
     @Autowired
-    public EventService(ExhibitionRepository exhibitionRepository, EventRepository eventRepository, MemberRepository memberRepository, LocationRepository locationRepository) {
-        this.exhibitionRepository = exhibitionRepository;
+    public EventService(EventRepository eventRepository, MemberRepository memberRepository, LocationRepository locationRepository) {
         this.eventRepository = eventRepository;
         this.memberRepository = memberRepository;
         this.locationRepository = locationRepository;
-    }
-
-    @Transactional
-    public void moveEventSchedule() {
-        List<Exhibition> exhibitions = exhibitionRepository.findAllExhibitionsIgnoreEnabled();
-
-        List<Event> events = transformExhibitionsToEvents(exhibitions);
-
-        eventRepository.saveAll(events);
-    }
-
-    private List<Event> transformExhibitionsToEvents(List<Exhibition> exhibitions) {
-        List<Event> events = new ArrayList<>();
-
-        for (Exhibition exhibition : exhibitions) {
-            List<EventMedia> eventMedias;
-            Event event = Event.from(exhibition);
-
-            if (event == null) continue;
-
-            eventMedias = EventMedia.of(exhibition, event);
-            event.setEventMedias(eventMedias);
-            events.add(event);
-        }
-        return events;
     }
 
     @Transactional
@@ -76,7 +46,7 @@ public class EventService {
         EventMedia thumbnail = EventMedia.of(dto.getThumbnail(), event);
         event.addEventMedia(thumbnail);
 
-        for (ExhibitionMediaCreateDTO mediaCreateDTO : dto.getMedias()) {
+        for (EventMediaCreateDTO mediaCreateDTO : dto.getMedias()) {
             EventMedia media = EventMedia.of(mediaCreateDTO, event);
             event.addEventMedia(media);
         }
@@ -94,7 +64,7 @@ public class EventService {
         return locationRepository.findById(locationId).orElseThrow(() -> new NotFoundException("장소를 찾을 수 없습니다."));
     }
 
-    public EventPageInfoResponseDTO getEvents(EventSearchDTO eventSearchDTO, int page, int size, String sortDirection) {
+    public EventsResponseDTO getEvents(EventSearchDTO eventSearchDTO, int page, int size, String sortDirection) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
@@ -103,20 +73,20 @@ public class EventService {
 
         Page<Event> events = findEventsBySearchCondition(eventSearchDTO, pageRequest, eventType);
 
-        PageInfo pageInfo = PageInfo.of( page,size, events.getTotalPages(), events.getTotalElements());
+        PageInfo pageInfo = PageInfo.of(page, size, events.getTotalPages(), events.getTotalElements());
 
         List<EventResponseDTO> dtos = events.getContent().stream()
                 .map(EventResponseDTO::from)
                 .toList();
 
-        return EventPageInfoResponseDTO.of(dtos, pageInfo);
+        return EventsResponseDTO.of(dtos, pageInfo);
     }
 
     private Page<Event> findEventsBySearchCondition(EventSearchDTO eventSearchDTO, PageRequest pageRequest, EventType eventType) {
         if (eventType == null) {
-            return eventRepository.findAllBySearchCondition(eventSearchDTO.getStartDate(),eventSearchDTO.getEndDate(), pageRequest);
+            return eventRepository.findAllBySearchCondition(eventSearchDTO.getStartDate(), eventSearchDTO.getEndDate(), pageRequest);
         }
-        return eventRepository.findAllBySearchConditionAndEventType(eventSearchDTO.getStartDate(),eventSearchDTO.getEndDate(), eventType, pageRequest);
+        return eventRepository.findAllBySearchConditionAndEventType(eventSearchDTO.getStartDate(), eventSearchDTO.getEndDate(), eventType, pageRequest);
     }
 
     @Transactional(readOnly = true)
@@ -139,7 +109,7 @@ public class EventService {
             throw new RuntimeException("해당 이벤트의 작성자가 아닙니다");
         }
 
-        if(dto.getLocationId() != null){
+        if (dto.getLocationId() != null) {
             Location location = findLocationByLocationId(dto.getLocationId());
             event.update(location);
         }
@@ -157,8 +127,7 @@ public class EventService {
             throw new RuntimeException("해당 이벤트의 작성자가 아닙니다");
         }
 
-       eventRepository.delete(event);
+        eventRepository.delete(event);
     }
-
 
 }

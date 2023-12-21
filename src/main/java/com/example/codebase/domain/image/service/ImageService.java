@@ -4,8 +4,8 @@ import com.example.codebase.domain.agora.dto.AgoraCreateDTO;
 import com.example.codebase.domain.agora.dto.AgoraMediaCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
-import com.example.codebase.domain.exhibition.dto.EventCreateDTO;
-import com.example.codebase.domain.exhibition.dto.ExhibitionMediaCreateDTO;
+import com.example.codebase.domain.Event.dto.EventCreateDTO;
+import com.example.codebase.domain.Event.dto.EventMediaCreateDTO;
 import com.example.codebase.domain.post.dto.PostCreateDTO;
 import com.example.codebase.domain.post.dto.PostMediaCreateDTO;
 import com.example.codebase.s3.S3Service;
@@ -133,7 +133,7 @@ public class ImageService {
         thumbnailDto.setMediaUrl(savedUrl);
     }
 
-    public void uploadThumbnail(ExhibitionMediaCreateDTO thumbnailDto, MultipartFile thumbnailFile)
+    public void uploadThumbnail(EventMediaCreateDTO thumbnailDto, MultipartFile thumbnailFile)
         throws IOException {
         String mediaType = thumbnailDto.getMediaType();
 
@@ -202,7 +202,7 @@ public class ImageService {
         }
 
         for (int i = 0; i < dto.getMedias().size(); i++) {
-            ExhibitionMediaCreateDTO mediaDto = dto.getMedias().get(i);
+            EventMediaCreateDTO mediaDto = dto.getMedias().get(i);
 
             if (mediaDto.getMediaType().equals("url")) {
                 String youtubeUrl = new String(mediaFiles.get(i).getBytes(), StandardCharsets.UTF_8);

@@ -1,4 +1,4 @@
-package com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionResponse;
+package com.example.codebase.domain.Event.crawling.dto.eventDetailResponse;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
@@ -13,6 +13,6 @@ public class MsgBody {
     private Long seq;
 
     @XmlElement(name = "perforInfo")
-    private XmlDetailExhibitionData detailExhibitionData;
+    private XmlEventDetailData detailExhibitionData;
 }
 

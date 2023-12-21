@@ -1,6 +1,7 @@
-package com.example.codebase.domain.exhibition.entity;
+package com.example.codebase.domain.Event.entity;
 
-public enum EventType {
+public enum SearchEventType {
+    ALL,
     EXHIBITION,
     LECTURE,
     WORKSHOP,
@@ -8,8 +9,10 @@ public enum EventType {
     CONCERT,
     STANDARD;
 
-    public static EventType create(String eventType) {
+    public static SearchEventType create(String eventType) {
         switch (eventType) {
+            case "ALL":
+                return ALL;
             case "EXHIBITION":
                 return EXHIBITION;
             case "LECTURE":
@@ -20,8 +23,6 @@ public enum EventType {
                 return SPECIAL;
             case "CONCERT":
                 return CONCERT;
-            case "ALL":
-                return null;
             default:
                 return STANDARD;
         }

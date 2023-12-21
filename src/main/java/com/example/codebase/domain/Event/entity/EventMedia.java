@@ -1,7 +1,7 @@
-package com.example.codebase.domain.exhibition.entity;
+package com.example.codebase.domain.Event.entity;
 
-import com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionResponse.XmlDetailExhibitionData;
-import com.example.codebase.domain.exhibition.dto.ExhibitionMediaCreateDTO;
+import com.example.codebase.domain.Event.crawling.dto.eventDetailResponse.XmlEventDetailData;
+import com.example.codebase.domain.Event.dto.EventMediaCreateDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,23 +42,7 @@ public class EventMedia {
     @JoinColumn(name = "event_id")
     private Event event;
 
-    public static List<EventMedia> of(Exhibition exhibition, Event event) {
-        List<EventMedia> eventMedias = new ArrayList<>();
-
-        for (int i = 0; i < exhibition.getExhibitionMedias().size(); i++) {
-            eventMedias.add(EventMedia.builder()
-                    .eventMediaType(EventMediaType.image)
-                    .mediaUrl(exhibition.getExhibitionMedias().get(i).getMediaUrl())
-                    .event(event)
-                    .createdTime(exhibition.getCreatedTime())
-                    .updatedTime(exhibition.getCreatedTime())
-                    .build());
-        }
-
-        return eventMedias;
-    }
-
-    public static EventMedia of(ExhibitionMediaCreateDTO mediaCreateDTO, Event event) {
+    public static EventMedia of(EventMediaCreateDTO mediaCreateDTO, Event event) {
         return EventMedia.builder()
                 .eventMediaType(EventMediaType.create(mediaCreateDTO.getMediaType()))
                 .mediaUrl(mediaCreateDTO.getMediaUrl())
@@ -67,7 +51,7 @@ public class EventMedia {
                 .build();
     }
 
-    public static EventMedia from(XmlDetailExhibitionData detailExhibitionData, Event event) {
+    public static EventMedia from(XmlEventDetailData detailExhibitionData, Event event) {
         return EventMedia.builder()
                 .eventMediaType(EventMediaType.image)
                 .mediaUrl(detailExhibitionData.getImgUrl())
@@ -77,7 +61,7 @@ public class EventMedia {
                 .build();
     }
 
-    public void update(ExhibitionMediaCreateDTO thumbnail) {
+    public void update(EventMediaCreateDTO thumbnail) {
         this.mediaUrl = thumbnail.getMediaUrl();
         this.eventMediaType = EventMediaType.create(thumbnail.getMediaType());
         this.updatedTime = LocalDateTime.now();

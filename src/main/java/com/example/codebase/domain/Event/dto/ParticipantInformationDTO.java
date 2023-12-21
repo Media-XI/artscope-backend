@@ -1,4 +1,4 @@
-package com.example.codebase.domain.exhibition.dto;
+package com.example.codebase.domain.Event.dto;
 
 import lombok.Getter;
 import lombok.Setter;
