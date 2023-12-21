@@ -1,6 +1,6 @@
-package com.example.codebase.domain.exhibition.repository;
+package com.example.codebase.domain.Event.repository;
 
-import com.example.codebase.domain.exhibition.entity.ExhibitionParticipant;
+import com.example.codebase.domain.Event.entity.ExhibitionParticipant;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ExhibitionParticipantRepository
