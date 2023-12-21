@@ -1,5 +1,7 @@
 package com.example.codebase.domain.feed.service;
 
+import com.example.codebase.domain.Event.entity.Event;
+import com.example.codebase.domain.Event.repository.EventRepository;
 import com.example.codebase.domain.agora.entity.Agora;
 import com.example.codebase.domain.agora.entity.AgoraWithParticipant;
 import com.example.codebase.domain.agora.repository.AgoraRepository;
@@ -7,8 +9,6 @@ import com.example.codebase.domain.artwork.dto.ArtworkResponseDTO;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkWithIsLike;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
-import com.example.codebase.domain.exhibition.entity.Exhibition;
-import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
 import com.example.codebase.domain.feed.dto.FeedItemResponseDto;
 import com.example.codebase.domain.feed.dto.FeedResponseDto;
 import com.example.codebase.domain.member.entity.Member;
@@ -34,16 +34,16 @@ public class FeedService {
 
     private final ArtworkRepository artworkRepository;
     private final PostRepository postRepository;
-    private final ExhibitionRepository exhibitionRepository;
+    private final EventRepository eventRepository;
     private final AgoraRepository agoraRepository;
     private final MemberRepository memberRepository;
 
     @Autowired
     public FeedService(ArtworkRepository artworkRepository, PostRepository postRepository,
-                       ExhibitionRepository exhibitionRepository, AgoraRepository agoraRepository, MemberRepository memberRepository) {
+                       EventRepository eventRepository, AgoraRepository agoraRepository, MemberRepository memberRepository) {
         this.artworkRepository = artworkRepository;
         this.postRepository = postRepository;
-        this.exhibitionRepository = exhibitionRepository;
+        this.eventRepository = eventRepository;
         this.agoraRepository = agoraRepository;
         this.memberRepository = memberRepository;
     }
@@ -73,13 +73,13 @@ public class FeedService {
         feedItems.addAll(postItems);
 
         // 전시 조회
-        Page<Exhibition> exhibitions = exhibitionRepository.findAll(pageRequest);
+        Page<Event> events = eventRepository.findAll(pageRequest);
 
-        List<FeedItemResponseDto> exhibitionItems = exhibitions
+        List<FeedItemResponseDto> eventItems = events
                 .stream()
                 .map(FeedItemResponseDto::from)
                 .toList();
-        feedItems.addAll(exhibitionItems);
+        feedItems.addAll(eventItems);
 
         // 아고라 조회
         Page<Agora> agoras = agoraRepository.findAll(pageRequest);
@@ -93,7 +93,7 @@ public class FeedService {
         // application sort
         feedItems.sort((o1, o2) -> o2.getCreatedTime().compareTo(o1.getCreatedTime()));
 
-        boolean hasNext = artworks.hasNext() || posts.hasNext() || exhibitions.hasNext() || agoras.hasNext();
+        boolean hasNext = artworks.hasNext() || posts.hasNext() || events.hasNext() || agoras.hasNext();
         return FeedResponseDto.of(feedItems, hasNext);
     }
 
@@ -125,13 +125,13 @@ public class FeedService {
         feedItems.addAll(postItems);
 
         // 전시 조회
-        Page<Exhibition> exhibitions = exhibitionRepository.findAll(pageRequest);
+        Page<Event> events = eventRepository.findAll(pageRequest);
 
-        List<FeedItemResponseDto> exhibitionItems = exhibitions
+        List<FeedItemResponseDto> eventItems = events
                 .stream()
                 .map(FeedItemResponseDto::from)
                 .toList();
-        feedItems.addAll(exhibitionItems);
+        feedItems.addAll(eventItems);
 
         // 아고라 조회
         Page<AgoraWithParticipant> agoras = agoraRepository.findAllAgoraAndParticipantByMember(member, pageRequest);
@@ -144,7 +144,7 @@ public class FeedService {
         // application sort
         feedItems.sort((o1, o2) -> o2.getCreatedTime().compareTo(o1.getCreatedTime()));
 
-        boolean hasNext = artworks.hasNext() || posts.hasNext() || exhibitions.hasNext() || agoras.hasNext();
+        boolean hasNext = artworks.hasNext() || posts.hasNext() || events.hasNext() || agoras.hasNext();
         return FeedResponseDto.of(feedItems, hasNext);
     }
 

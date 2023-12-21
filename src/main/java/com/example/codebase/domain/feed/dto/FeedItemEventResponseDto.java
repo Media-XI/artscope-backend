@@ -1,12 +1,11 @@
 package com.example.codebase.domain.feed.dto;
 
-import com.example.codebase.domain.exhibition.entity.EventType;
+import com.example.codebase.domain.Event.entity.EventType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -23,10 +22,10 @@ public class FeedItemEventResponseDto {
 
     private String detailLocation;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
-    private LocalDateTime startDateTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate startDateTime;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
-    private LocalDateTime endDateTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate endDateTime;
 
 }
