@@ -1,20 +1,16 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.controller.dto.PageRequestMaker;
+import com.example.codebase.domain.Event.dto.EventsResponseDTO;
 import com.example.codebase.domain.agora.dto.AgorasResponseDTO;
 import com.example.codebase.domain.artwork.dto.ArtworksResponseDTO;
-import com.example.codebase.domain.exhibition.dto.ExhibitionPageInfoResponseDTO;
-import com.example.codebase.domain.exhibition.dto.ExhibitionResponseDTO;
 import com.example.codebase.domain.post.dto.PostsResponseDTO;
 import com.example.codebase.domain.search.service.SearchService;
 import com.example.codebase.domain.search.dto.SearchResponseDTO;
-import com.example.codebase.domain.search.type.SearchSortType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -129,7 +125,7 @@ public class SearchController {
     ) {
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
-        ExhibitionPageInfoResponseDTO dto = searchService.searchEvent(keyword, pageRequest);
+        EventsResponseDTO dto = searchService.searchEvent(keyword, pageRequest);
 
         return new ResponseEntity(dto, HttpStatus.OK);
     }

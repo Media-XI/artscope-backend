@@ -1,7 +1,6 @@
 package com.example.codebase.domain.location.service;
 
 import com.example.codebase.controller.dto.PageInfo;
-import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
 import com.example.codebase.domain.location.dto.LocationCreateDTO;
 import com.example.codebase.domain.location.dto.LocationResponseDTO;
 import com.example.codebase.domain.location.dto.LocationSearchResponseDTO;
@@ -26,18 +25,14 @@ public class LocationService {
 
     private final LocationRepository locationRepository;
 
-    private final ExhibitionRepository exhibitionRepository;
-
     private final MemberRepository memberRepository;
 
     @Autowired
     public LocationService(
             LocationRepository locationRepository,
-            MemberRepository memberRepository,
-            ExhibitionRepository exhibitionRepository) {
+            MemberRepository memberRepository) {
         this.locationRepository = locationRepository;
         this.memberRepository = memberRepository;
-        this.exhibitionRepository = exhibitionRepository;
     }
 
     @Transactional

@@ -3,6 +3,8 @@ package com.example.codebase.domain.search.service;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import com.example.codebase.controller.dto.PageInfo;
+import com.example.codebase.domain.Event.dto.EventResponseDTO;
+import com.example.codebase.domain.Event.dto.EventsResponseDTO;
 import com.example.codebase.domain.agora.document.AgoraDocument;
 import com.example.codebase.domain.agora.dto.AgoraResponseDTO;
 import com.example.codebase.domain.agora.dto.AgorasResponseDTO;
@@ -10,9 +12,7 @@ import com.example.codebase.domain.artwork.document.ArtworkDocument;
 import com.example.codebase.domain.artwork.dto.ArtworkResponseDTO;
 import com.example.codebase.domain.artwork.dto.ArtworksResponseDTO;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
-import com.example.codebase.domain.exhibition.document.ExhibitionDocument;
-import com.example.codebase.domain.exhibition.dto.ExhibitionPageInfoResponseDTO;
-import com.example.codebase.domain.exhibition.dto.ExhibitionResponseDTO;
+import com.example.codebase.domain.Event.document.EventDocument;
 import com.example.codebase.domain.post.document.PostDocument;
 import com.example.codebase.domain.post.dto.PostResponseDTO;
 import com.example.codebase.domain.post.dto.PostsResponseDTO;
@@ -24,7 +24,6 @@ import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -59,15 +58,15 @@ public class SearchService {
         ArtworksResponseDTO artworksResponseDTO = new ArtworksResponseDTO();
         PostsResponseDTO postsResponseDTO = new PostsResponseDTO();
         AgorasResponseDTO agorasResponseDTO = new AgorasResponseDTO();
-        ExhibitionPageInfoResponseDTO exhibitionPageInfoResponseDTO = new ExhibitionPageInfoResponseDTO();
+        EventsResponseDTO eventsResponseDTO = new EventsResponseDTO();
 
         NativeQuery artworkNativeQuery = makeNativeQuery(keyword, pageRequest, "title", "tags", "description");
         NativeQuery postNativeQuery = makeNativeQuery(keyword, pageRequest, "content");
         NativeQuery agoraNativeQuery = makeNativeQuery(keyword, pageRequest, "title", "content");
-        NativeQuery exhibitionNativeQuery = makeNativeQuery(keyword, pageRequest, "title", "description");
+        NativeQuery eventNativeQuery = makeNativeQuery(keyword, pageRequest, "title", "description");
 
-        List<NativeQuery> nativeQueries = List.of(artworkNativeQuery, postNativeQuery, agoraNativeQuery, exhibitionNativeQuery);
-        List<Class<?>> classes = List.of(ArtworkDocument.class, PostDocument.class, AgoraDocument.class, ExhibitionDocument.class);
+        List<NativeQuery> nativeQueries = List.of(artworkNativeQuery, postNativeQuery, agoraNativeQuery, eventNativeQuery);
+        List<Class<?>> classes = List.of(ArtworkDocument.class, PostDocument.class, AgoraDocument.class, EventDocument.class);
 
         List<SearchHits<?>> hits = elasticsearchOperations.multiSearch(nativeQueries, classes);
 
@@ -85,15 +84,15 @@ public class SearchService {
                 } else if (content instanceof AgoraDocument) {
                     agorasResponseDTO.addAgora(AgoraResponseDTO.from((AgoraDocument) content));
                     agorasResponseDTO.setPageInfo(PageInfo.of(pageRequest.getPageNumber(), pageRequest.getPageSize(), searchHits.getTotalHits()));
-                } else if (content instanceof ExhibitionDocument) {
-                    exhibitionPageInfoResponseDTO.addExhibition(ExhibitionResponseDTO.from((ExhibitionDocument) content));
-                    exhibitionPageInfoResponseDTO.setPageInfo(PageInfo.of(pageRequest.getPageNumber(), pageRequest.getPageSize(), searchHits.getTotalHits()));
+                } else if (content instanceof EventDocument) {
+                    eventsResponseDTO.addEvent(EventResponseDTO.from((EventDocument) content));
+                    eventsResponseDTO.setPageInfo(PageInfo.of(pageRequest.getPageNumber(), pageRequest.getPageSize(), searchHits.getTotalHits()));
                 }
             }
         }
 
         PageInfo pageInfo = PageInfo.of(pageRequest.getPageNumber(), pageRequest.getPageSize(), totalHits);
-        return SearchResponseDTO.of(artworksResponseDTO, postsResponseDTO, agorasResponseDTO, exhibitionPageInfoResponseDTO, pageInfo);
+        return SearchResponseDTO.of(artworksResponseDTO, postsResponseDTO, agorasResponseDTO, eventsResponseDTO, pageInfo);
     }
 
     public ArtworksResponseDTO searchArtwork(String keyword, PageRequest pageRequest) {
@@ -139,17 +138,17 @@ public class SearchService {
         return AgorasResponseDTO.of(dtos, pageInfo);
     }
 
-    public ExhibitionPageInfoResponseDTO searchEvent(String keyword, PageRequest pageRequest) {
+    public EventsResponseDTO searchEvent(String keyword, PageRequest pageRequest) {
         NativeQuery nativeQuery = makeNativeQuery(keyword, pageRequest, "title", "description");
-        SearchHits<ExhibitionDocument> searched = elasticsearchOperations.search(nativeQuery, ExhibitionDocument.class);
+        SearchHits<EventDocument> searched = elasticsearchOperations.search(nativeQuery, EventDocument.class);
 
-        List<ExhibitionResponseDTO> dtos = searched.stream()
+        List<EventResponseDTO> dtos = searched.stream()
                 .map(SearchHit::getContent)
-                .map(ExhibitionResponseDTO::from)
+                .map(EventResponseDTO::from)
                 .toList();
 
         PageInfo pageInfo = PageInfo.of(pageRequest.getPageNumber(), pageRequest.getPageSize(),
                 searched.getTotalHits());
-        return ExhibitionPageInfoResponseDTO.of(dtos, pageInfo);
+        return EventsResponseDTO.of(dtos, pageInfo);
     }
 }

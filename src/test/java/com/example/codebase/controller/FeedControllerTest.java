@@ -1,5 +1,6 @@
 package com.example.codebase.controller;
 
+import com.example.codebase.domain.Event.repository.EventRepository;
 import com.example.codebase.domain.agora.entity.Agora;
 import com.example.codebase.domain.agora.entity.AgoraParticipant;
 import com.example.codebase.domain.agora.repository.AgoraParticipantRepository;
@@ -8,10 +9,8 @@ import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.auth.WithMockCustomUser;
-import com.example.codebase.domain.exhibition.entity.*;
-import com.example.codebase.domain.exhibition.repository.EventScheduleRepository;
-import com.example.codebase.domain.exhibition.repository.ExhibitionParticipantRepository;
-import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
+import com.example.codebase.domain.Event.entity.*;
+import com.example.codebase.domain.Event.repository.ExhibitionParticipantRepository;
 import com.example.codebase.domain.location.entity.Location;
 import com.example.codebase.domain.location.repository.LocationRepository;
 import com.example.codebase.domain.media.MediaType;
@@ -40,7 +39,6 @@ import org.springframework.web.context.WebApplicationContext;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -76,13 +74,10 @@ class FeedControllerTest {
     private PostRepository postRepository;
 
     @Autowired
-    private ExhibitionRepository exhibitionRepository;
+    private EventRepository eventRepository;
 
     @Autowired
     private LocationRepository locationRepository;
-
-    @Autowired
-    private EventScheduleRepository eventScheduleRepository;
 
     @Autowired
     private ExhibitionParticipantRepository exhibitionParticipantRepository;
@@ -174,49 +169,11 @@ class FeedControllerTest {
     }
 
     @Transactional
-    public Exhibition createOrLoadExhibition(int idx) {
-        Optional<Exhibition> save = exhibitionRepository.findById(Long.valueOf(idx));
+    public Event createOrLoadExhibition(int idx) {
+        Optional<Event> save = eventRepository.findById((long) idx);
         if (save.isPresent()) {
             return save.get();
         }
-
-        Exhibition exhibition =
-                Exhibition.builder()
-                        .title("공모전 제목" + idx)
-                        .description("공모전 설명" + idx)
-                        .link("링크" + idx)
-                        .price(String.valueOf(10000 + idx))
-                        .type(EventType.STANDARD)
-                        .createdTime(LocalDateTime.now())
-                        .member(createOrLoadMember())
-                        .build();
-
-        ExhibitionMedia thumbnail =
-                ExhibitionMedia.builder()
-                        .mediaUrl("url" + idx)
-                        .exhibtionMediaType(ExhibtionMediaType.image)
-                        .createdTime(LocalDateTime.now())
-                        .build();
-        exhibition.addExhibitionMedia(thumbnail);
-
-        ExhibitionMedia media =
-                ExhibitionMedia.builder()
-                        .mediaUrl("url" + idx)
-                        .exhibtionMediaType(ExhibtionMediaType.image)
-                        .createdTime(LocalDateTime.now())
-                        .build();
-        exhibition.addExhibitionMedia(media);
-
-        exhibitionRepository.save(exhibition);
-
-        EventSchedule eventSchedule =
-            EventSchedule.builder()
-                .startDateTime(LocalDateTime.now())
-                .endDateTime(LocalDateTime.now().plusHours(2))
-                .detailLocation("상세 위치")
-                .createdTime(LocalDateTime.now())
-                .build();
-        eventSchedule.setEvent(exhibition);
 
         Location location =
                 Location.builder()
@@ -229,16 +186,45 @@ class FeedControllerTest {
                         .webSiteUrl("test.com")
                         .snsUrl("test.com")
                         .build();
-        eventSchedule.setLocation(location);
         locationRepository.save(location);
 
-        ExhibitionParticipant exhibitionParticipant =
-                ExhibitionParticipant.builder().member(createOrLoadMember()).build();
-        exhibitionParticipant.setEventSchedule(eventSchedule);
-        exhibitionParticipantRepository.save(exhibitionParticipant);
 
-        eventScheduleRepository.save(eventSchedule);
-        return exhibition;
+        Event event = Event.builder()
+                .title("test" + idx)
+                .description("test description" + idx)
+                .price("10000원 ~ 20000원" + idx)
+                .link("http://localhost/")
+                .type(EventType.WORKSHOP)
+                .startDate(LocalDate.now().plusDays(idx))
+                .endDate(LocalDate.now().plusDays(idx + 1))
+                .detailedSchedule("14시 ~ 16시")
+                .detailLocation("2층")
+                .location(location)
+                .createdTime(LocalDateTime.now())
+                .updatedTime(LocalDateTime.now())
+                .member(createOrLoadMember())
+                .detailLocation("2층")
+                .build();
+
+        EventMedia thumbnail =
+                EventMedia.builder()
+                        .mediaUrl("url" + idx)
+                        .eventMediaType(EventMediaType.image)
+                        .createdTime(LocalDateTime.now())
+                        .build();
+        event.addEventMedia(thumbnail);
+
+
+        EventMedia media =
+                EventMedia.builder()
+                        .mediaUrl("url" + idx)
+                        .eventMediaType(EventMediaType.image)
+                        .createdTime(LocalDateTime.now())
+                        .build();
+        event.addEventMedia(media);
+
+        Event saveEvent = eventRepository.save(event);
+        return saveEvent;
     }
 
     @Transactional

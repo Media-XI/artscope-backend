@@ -1,13 +1,12 @@
 package com.example.codebase.job;
 
-import com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionResponse.XmlDetailExhibitionResponse;
-import com.example.codebase.domain.exhibition.crawling.dto.exhibitionResponse.XmlExhibitionData;
-import com.example.codebase.domain.exhibition.crawling.dto.exhibitionResponse.XmlExhibitionResponse;
-import com.example.codebase.domain.exhibition.crawling.service.DetailEventCrawlingService;
-import com.example.codebase.domain.exhibition.crawling.service.ExhibitionCrawlingService;
-import com.example.codebase.domain.exhibition.entity.Event;
-import com.example.codebase.domain.exhibition.repository.EventRepository;
-import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
+import com.example.codebase.domain.Event.crawling.dto.eventDetailResponse.XmlEventDetailResponse;
+import com.example.codebase.domain.Event.crawling.dto.eventResponse.XmlEventData;
+import com.example.codebase.domain.Event.crawling.dto.eventResponse.XmlEventResponse;
+import com.example.codebase.domain.Event.crawling.service.EventDetailCrawlingService;
+import com.example.codebase.domain.Event.crawling.service.EventCrawlingService;
+import com.example.codebase.domain.Event.entity.Event;
+import com.example.codebase.domain.Event.repository.EventRepository;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -29,19 +28,19 @@ public class JobService {
 
     private final MemberRepository memberRepository;
 
-    private final ExhibitionCrawlingService exhibitionCrawlingService;
+    private final EventCrawlingService eventCrawlingService;
 
-    private final DetailEventCrawlingService detailEventCrawlingService;
+    private final EventDetailCrawlingService eventDetailCrawlingService;
 
     private final EventRepository eventRepository;
 
     @Autowired
     public JobService(MemberRepository memberRepository,
-                      ExhibitionCrawlingService exhibitionCrawlingService, DetailEventCrawlingService detailEventCrawlingService,
+                      EventCrawlingService eventCrawlingService, EventDetailCrawlingService eventDetailCrawlingService,
                       EventRepository eventRepository) {
         this.memberRepository = memberRepository;
-        this.exhibitionCrawlingService = exhibitionCrawlingService;
-        this.detailEventCrawlingService = detailEventCrawlingService;
+        this.eventCrawlingService = eventCrawlingService;
+        this.eventDetailCrawlingService = eventDetailCrawlingService;
         this.eventRepository = eventRepository;
     }
 
@@ -77,21 +76,21 @@ public class JobService {
     public void getEventList(String date) {
         log.info("[getEventListScheduler JoB] 이벤트 리스트 크롤링 시작");
         LocalDateTime startTime = LocalDateTime.now();
-        List<XmlExhibitionResponse> xmlResponses = exhibitionCrawlingService.loadXmlDatas(date);
+        List<XmlEventResponse> xmlResponses = eventCrawlingService.loadXmlDatas();
         Member admin = getAdmin();
 
-        for (XmlExhibitionResponse xmlResponse : xmlResponses) {
-            List<XmlExhibitionData> events = xmlResponse.getXmlExhibitions();
+        for (XmlEventResponse xmlResponse : xmlResponses) {
+            List<XmlEventData> events = xmlResponse.getXmlExhibitions();
             List<Event> eventEntities = new ArrayList<>();
 
-            for (XmlExhibitionData xmlExhibitionData : events) {
-                XmlDetailExhibitionResponse xmlDetailEventResponse = null;
+            for (XmlEventData xmlEventData : events) {
+                XmlEventDetailResponse xmlEventDetailResponse = null;
                 try {
-                    xmlDetailEventResponse = detailEventCrawlingService.loadAndParseXmlData(xmlExhibitionData, date);
+                    xmlEventDetailResponse = eventDetailCrawlingService.loadAndParseXmlData(xmlEventData);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                Event event = detailEventCrawlingService.createEvent(xmlDetailEventResponse, admin);
+                Event event = eventDetailCrawlingService.createEvent(xmlEventDetailResponse, admin);
                 eventEntities.add(event);
             }
             eventRepository.saveAll(eventEntities);

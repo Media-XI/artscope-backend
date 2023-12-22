@@ -1,5 +1,7 @@
 package com.example.codebase.domain.feed.service;
 
+import com.example.codebase.domain.Event.entity.Event;
+import com.example.codebase.domain.Event.repository.EventRepository;
 import com.example.codebase.domain.agora.entity.Agora;
 import com.example.codebase.domain.agora.entity.AgoraWithParticipant;
 import com.example.codebase.domain.agora.repository.AgoraRepository;
@@ -7,10 +9,6 @@ import com.example.codebase.domain.artwork.dto.ArtworkResponseDTO;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkWithIsLike;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
-import com.example.codebase.domain.exhibition.entity.Event;
-import com.example.codebase.domain.exhibition.entity.Exhibition;
-import com.example.codebase.domain.exhibition.repository.EventRepository;
-import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
 import com.example.codebase.domain.feed.dto.FeedItemResponseDto;
 import com.example.codebase.domain.feed.dto.FeedResponseDto;
 import com.example.codebase.domain.member.entity.Member;
@@ -41,7 +39,8 @@ public class FeedService {
     private final MemberRepository memberRepository;
 
     @Autowired
-    public FeedService(ArtworkRepository artworkRepository, PostRepository postRepository, EventRepository eventRepository, AgoraRepository agoraRepository, MemberRepository memberRepository) {
+    public FeedService(ArtworkRepository artworkRepository, PostRepository postRepository,
+                       EventRepository eventRepository, AgoraRepository agoraRepository, MemberRepository memberRepository) {
         this.artworkRepository = artworkRepository;
         this.postRepository = postRepository;
         this.eventRepository = eventRepository;
@@ -74,13 +73,13 @@ public class FeedService {
         feedItems.addAll(postItems);
 
         // 전시 조회
-        Page<Event> events = eventRepository.findAllBySeqIsNull(pageRequest);
+        Page<Event> events = eventRepository.findAll(pageRequest);
 
-        List<FeedItemResponseDto> exhibitionItems = events
+        List<FeedItemResponseDto> eventItems = events
                 .stream()
                 .map(FeedItemResponseDto::from)
                 .toList();
-        feedItems.addAll(exhibitionItems);
+        feedItems.addAll(eventItems);
 
         // 아고라 조회
         Page<Agora> agoras = agoraRepository.findAll(pageRequest);
@@ -126,13 +125,13 @@ public class FeedService {
         feedItems.addAll(postItems);
 
         // 전시 조회
-        Page<Event> events = eventRepository.findAllBySeqIsNull(pageRequest);
+        Page<Event> events = eventRepository.findAll(pageRequest);
 
-        List<FeedItemResponseDto> exhibitionItems = events
+        List<FeedItemResponseDto> eventItems = events
                 .stream()
                 .map(FeedItemResponseDto::from)
                 .toList();
-        feedItems.addAll(exhibitionItems);
+        feedItems.addAll(eventItems);
 
         // 아고라 조회
         Page<AgoraWithParticipant> agoras = agoraRepository.findAllAgoraAndParticipantByMember(member, pageRequest);
