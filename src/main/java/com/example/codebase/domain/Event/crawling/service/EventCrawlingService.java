@@ -70,17 +70,17 @@ public class EventCrawlingService {
             log.info(e.getMessage());
             log.info("S3에 파일이 없습니다. 이벤트 목록 조회 API를 호출합니다.");
 
-            Pair<XmlEventResponse, String> xmlExhibitionApiResponse = getXmlExhibitionApiResponse(currentPage, currentDate);
-            XmlEventResponse xmlResponse = xmlExhibitionApiResponse.getFirst();
+            Pair<XmlEventResponse, String> xmlEventApiResponse = getXmlEventApiResponse(currentPage, currentDate);
+            XmlEventResponse xmlResponse = xmlEventApiResponse.getFirst();
 
-            byte[] file = xmlExhibitionApiResponse.getSecond().getBytes();
+            byte[] file = xmlEventApiResponse.getSecond().getBytes();
             s3Service.saveUploadFile(savedFileName, file);
 
             return xmlResponse;
         }
     }
 
-    private Pair<XmlEventResponse, String> getXmlExhibitionApiResponse(int currentPage, String currentDate) {
+    private Pair<XmlEventResponse, String> getXmlEventApiResponse(int currentPage, String currentDate) {
         String url = String.format("http://www.culture.go.kr/openapi/rest/publicperformancedisplays/period?RequestTime=20100810:23003422&serviceKey=%s&cPage=%d&rows=100&from=%s&sortStdr=1", serviceKey, currentPage, currentDate);
 
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
