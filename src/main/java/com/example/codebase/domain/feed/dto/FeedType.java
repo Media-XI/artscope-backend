@@ -9,7 +9,7 @@ public enum FeedType {
 
     post,
 
-    exhibition,
+    event,
 
     agora;
 

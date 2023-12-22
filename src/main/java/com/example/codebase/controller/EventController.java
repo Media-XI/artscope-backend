@@ -18,7 +18,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Tag(name = "Event", description = "이벤트 API")
@@ -116,8 +119,9 @@ public class EventController {
     @Operation(summary = "수동 이벤트 크롤링 업데이트", description = "수동으로 공공데이터 포털에서 이벤트를 가져옵니다")
     @PreAuthorize("isAuthenticated() AND hasRole('ROLE_ADMIN')")
     @PostMapping("/crawling/event")
-    public ResponseEntity crawlingEvent() {
-        jobService.getEventListScheduler();
+    public ResponseEntity crawlingEvent(@RequestParam(name = "date") @Valid @DateTimeFormat(pattern = "yyyyMMdd") LocalDate date) {
+        String currentDate = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        jobService.getEventList(currentDate);
 
         return new ResponseEntity("이벤트가 업데이트 되었습니다.", HttpStatus.OK);
     }
