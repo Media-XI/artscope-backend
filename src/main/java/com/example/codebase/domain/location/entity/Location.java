@@ -1,5 +1,7 @@
 package com.example.codebase.domain.location.entity;
 
+import com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionResponse.XmlDetailExhibitionData;
+import com.example.codebase.domain.exhibition.entity.Event;
 import com.example.codebase.domain.location.dto.LocationCreateDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "location")
@@ -21,11 +26,11 @@ public class Location {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "latitude", nullable = false)
-    private double latitude;
+    @Column(name = "latitude")
+    private Double latitude;
 
-    @Column(name = "longitude", nullable = false)
-    private double longitude;
+    @Column(name = "longitude")
+    private Double longitude;
 
     @Column(name = "address", nullable = false, length = 255)
     private String address;
@@ -33,11 +38,10 @@ public class Location {
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
-    // TODO: NULLABLE
     @Column(name = "english_name", length = 255)
     private String englishName;
 
-    @Column(name = "phone_number", nullable = false, length = 255)
+    @Column(name = "phone_number", length = 150)
     private String phoneNumber;
 
     @Column(name = "web_site_url", length = 255)
@@ -57,5 +61,16 @@ public class Location {
             .webSiteUrl(dto.getWebSiteUrl())
             .snsUrl(dto.getSnsUrl())
             .build();
+    }
+
+    public static Location from(XmlDetailExhibitionData perforInfo) {
+        return Location.builder()
+                .latitude(perforInfo.getLatitude())
+                .longitude(perforInfo.getLongitude())
+                .phoneNumber(perforInfo.getPhone())
+                .webSiteUrl(perforInfo.getUrl())
+                .address(perforInfo.getPlaceAddr())
+                .name(perforInfo.getPlace())
+                .build();
     }
 }

@@ -49,6 +49,7 @@ public class AgoraParticipant {
         AgoraParticipant participant = AgoraParticipant.builder()
             .agoraSequence(0)
             .createdTime(LocalDateTime.now())
+            .updatedTime(LocalDateTime.now())
             .build();
         return participant;
     }

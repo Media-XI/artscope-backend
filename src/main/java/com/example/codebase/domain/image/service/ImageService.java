@@ -4,6 +4,7 @@ import com.example.codebase.domain.agora.dto.AgoraCreateDTO;
 import com.example.codebase.domain.agora.dto.AgoraMediaCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
 import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
+import com.example.codebase.domain.exhibition.dto.EventCreateDTO;
 import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
 import com.example.codebase.domain.exhibition.dto.ExhibitionMediaCreateDTO;
 import com.example.codebase.domain.post.dto.PostCreateDTO;
@@ -221,4 +222,36 @@ public class ImageService {
         String savedUrl = s3Service.saveUploadFile(thumbnailFile);
         dto.getThumbnail().setMediaUrl(savedUrl);
     }
+
+    public void uploadMedias(EventCreateDTO dto, List<MultipartFile> mediaFiles)
+            throws IOException {
+        if (mediaFiles.size() > Integer.valueOf(fileCount)) {
+            throw new RuntimeException("파일은 최대 " + fileCount + "개까지 업로드 가능합니다.");
+        }
+
+        if (mediaFiles.size() == 0) {
+            throw new RuntimeException("파일을 업로드 해주세요.");
+        }
+
+        for (int i = 0; i < dto.getMedias().size(); i++) {
+            ExhibitionMediaCreateDTO mediaDto = dto.getMedias().get(i);
+
+            if (mediaDto.getMediaType().equals("url")) {
+                String youtubeUrl = new String(mediaFiles.get(i).getBytes(), StandardCharsets.UTF_8);
+
+                if (!youtubeUrl.matches("^(https?\\:\\/\\/)?(www\\.)?(youtube\\.com|youtu\\.?be)\\/.+$")) {
+                    throw new RuntimeException(
+                            "유튜브 링크 형식이 올바르지 않습니다. ex) https://www.youtube.com/watch?v=XXXXXXXXXXX 또는 https://youtu.be/XXXXXXXXXXX");
+                }
+
+                mediaDto.setMediaUrl(youtubeUrl);
+                String savedUrl = s3Service.saveUploadFile(mediaFiles.get(i));
+                mediaDto.setMediaUrl(savedUrl);
+            } else {
+                String savedUrl = s3Service.saveUploadFile(mediaFiles.get(i));
+                mediaDto.setMediaUrl(savedUrl);
+            }
+        }
+    }
+
 }

@@ -7,6 +7,7 @@ import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.domain.post.dto.*;
 import com.example.codebase.domain.post.entity.*;
 import com.example.codebase.domain.post.repository.PostCommentRepository;
+import com.example.codebase.domain.post.repository.PostDocumentRepository;
 import com.example.codebase.domain.post.repository.PostLikeMemberRepository;
 import com.example.codebase.domain.post.repository.PostRepository;
 import com.example.codebase.s3.S3Service;
@@ -28,18 +29,20 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final PostLikeMemberRepository postLikeMemberRepository;
     private final PostCommentRepository postCommentRepository;
+    private final PostDocumentRepository postDocumentRepository;
     private final S3Service s3Service;
 
     @Autowired
     public PostService(
-        PostRepository postRepository,
-        MemberRepository memberRepository,
-        PostLikeMemberRepository postLikeMemberRepository,
-        PostCommentRepository postCommentRepository, S3Service s3Service) {
+            PostRepository postRepository,
+            MemberRepository memberRepository,
+            PostLikeMemberRepository postLikeMemberRepository,
+            PostCommentRepository postCommentRepository, PostDocumentRepository postDocumentRepository, S3Service s3Service) {
         this.postRepository = postRepository;
         this.memberRepository = memberRepository;
         this.postLikeMemberRepository = postLikeMemberRepository;
         this.postCommentRepository = postCommentRepository;
+        this.postDocumentRepository = postDocumentRepository;
         this.s3Service = s3Service;
     }
 
@@ -124,7 +127,9 @@ public class PostService {
         List<PostMedia> medias = post.getPostMedias();
         s3Service.deletePostMediaS3Objects(medias);
 
+
         postRepository.delete(post);
+        postDocumentRepository.deleteById(postId);
     }
 
     public PostWithLikesResponseDTO getPost(Long postId) {

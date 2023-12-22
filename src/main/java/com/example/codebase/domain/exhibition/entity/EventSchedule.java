@@ -61,7 +61,19 @@ public class EventSchedule {
                 .endDateTime(scheduleDTO.getEndDateTime())
                 .detailLocation(scheduleDTO.getDetailLocation())
                 .createdTime(LocalDateTime.now())
+                .updatedTime(LocalDateTime.now())
                 .build();
+    }
+
+    public static EventSchedule of(LocalDateTime startDateTime, LocalDateTime endDateTime, Location location,Exhibition exhibition) {
+            return EventSchedule.builder()
+                    .startDateTime(startDateTime)
+                    .endDateTime(endDateTime)
+                    .location(location)
+                    .createdTime(LocalDateTime.now())
+                    .updatedTime(LocalDateTime.now())
+                    .exhibition(exhibition)
+                    .build();
     }
 
     public void setEvent(Exhibition exhibition) {
@@ -77,4 +89,5 @@ public class EventSchedule {
         this.exhibition.removeEventSchedule(this);
         this.exhibition = null;
     }
+
 }

@@ -4,15 +4,16 @@ import com.example.codebase.controller.dto.PageInfo;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 public class ExhibitionPageInfoResponseDTO {
 
-    List<ExhibitionResponseDTO> exhibitions;
+    List<ExhibitionResponseDTO> exhibitions = new ArrayList<>();
 
-    PageInfo pageInfo;
+    PageInfo pageInfo = new PageInfo();
 
     public static ExhibitionPageInfoResponseDTO of(
         List<ExhibitionResponseDTO> dtos, PageInfo pageInfo) {
@@ -20,5 +21,9 @@ public class ExhibitionPageInfoResponseDTO {
         responseDTO.exhibitions = dtos;
         responseDTO.pageInfo = pageInfo;
         return responseDTO;
+    }
+
+    public void addExhibition(ExhibitionResponseDTO from) {
+        this.exhibitions.add(from);
     }
 }

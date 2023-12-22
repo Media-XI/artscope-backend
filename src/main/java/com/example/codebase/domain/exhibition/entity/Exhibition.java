@@ -1,5 +1,6 @@
 package com.example.codebase.domain.exhibition.entity;
 
+import com.example.codebase.domain.exhibition.crawling.dto.detailExhbitionResponse.XmlDetailExhibitionData;
 import com.example.codebase.domain.exhibition.dto.ExhbitionCreateDTO;
 import com.example.codebase.domain.exhibition.dto.ExhibitionUpdateDTO;
 import com.example.codebase.domain.member.entity.Member;
@@ -11,7 +12,9 @@ import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Where;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,9 +39,9 @@ public class Exhibition {
     private String description;
 
     @Column(name = "price", nullable = false)
-    private int price;
+    private String price;
 
-    @Column(name = "link", nullable = false, length = 500)
+    @Column(name = "link", length = 500)
     private String link;
 
     @Builder.Default
@@ -68,30 +71,46 @@ public class Exhibition {
     @Column(name = "enabled")
     private boolean enabled = true;
 
+    @Column(name = "seq")
+    private Long seq;
+
     public static Exhibition of(ExhbitionCreateDTO dto, Member member) {
         return Exhibition.builder()
-            .title(dto.getTitle())
-            .description(dto.getDescription())
-            .price(dto.getPrice())
-            .link(dto.getLink())
-            .type(dto.getEventType())
-            .member(member)
-            .createdTime(LocalDateTime.now())
-            .build();
+                .title(dto.getTitle())
+                .description(dto.getDescription())
+                .price(dto.getPrice())
+                .link(dto.getLink())
+                .type(dto.getEventType())
+                .member(member)
+                .createdTime(LocalDateTime.now())
+                .updatedTime(LocalDateTime.now())
+                .build();
+    }
+
+    public static Exhibition of(XmlDetailExhibitionData perforInfo, Member member) {
+        return Exhibition.builder()
+                .title(perforInfo.getTitle())
+                .description(perforInfo.getContents1() + "\n" + perforInfo.getContents2())
+                .price(perforInfo.getPrice())
+                .link(perforInfo.getUrl())
+                .createdTime(LocalDateTime.now())
+                .member(member)
+                .seq(perforInfo.getSeq())
+                .build();
     }
 
     public void update(ExhibitionUpdateDTO exhibitionUpdateDTO) {
         this.title =
-            exhibitionUpdateDTO.getTitle() != null ? exhibitionUpdateDTO.getTitle() : this.title;
+                exhibitionUpdateDTO.getTitle() != null ? exhibitionUpdateDTO.getTitle() : this.title;
         this.description =
-            exhibitionUpdateDTO.getDescription() != null
-                ? exhibitionUpdateDTO.getDescription()
-                : this.description;
+                exhibitionUpdateDTO.getDescription() != null
+                        ? exhibitionUpdateDTO.getDescription()
+                        : this.description;
         this.link = exhibitionUpdateDTO.getLink() != null ? exhibitionUpdateDTO.getLink() : this.link;
         this.type =
-            exhibitionUpdateDTO.getEventType() != null ? exhibitionUpdateDTO.getEventType() : this.type;
+                exhibitionUpdateDTO.getEventType() != null ? exhibitionUpdateDTO.getEventType() : this.type;
         this.price =
-            exhibitionUpdateDTO.getPrice() != null ? exhibitionUpdateDTO.getPrice() : this.price;
+                exhibitionUpdateDTO.getPrice() != null ? exhibitionUpdateDTO.getPrice() : this.price;
         this.updatedTime = LocalDateTime.now();
     }
 
@@ -117,5 +136,55 @@ public class Exhibition {
 
     public void removeEventSchedule(EventSchedule eventSchedule) {
         this.eventSchedules.remove(eventSchedule);
+    }
+
+    public void setEventSchedules(List<EventSchedule> eventSchedules) {
+        this.eventSchedules = eventSchedules;
+    }
+
+    public void setType(EventType eventType) {
+        this.type = eventType;
+    }
+
+    public Exhibition update(XmlDetailExhibitionData perforInfo, Member member) {
+        this.title = perforInfo.getTitle();
+        this.description = perforInfo.getContents1() + "\n" + perforInfo.getContents2();
+        this.price = perforInfo.getPrice();
+        this.link = perforInfo.getUrl();
+        this.updatedTime = LocalDateTime.now();
+        this.member = member;
+        this.enabled = true;
+        return this;
+    }
+
+    public boolean hasChanged(XmlDetailExhibitionData perforInfo) {
+        if (hasEventScheduleChanged(perforInfo)) {
+            return true;
+        }
+        return hasChangedExhibition(perforInfo);
+    }
+
+    private boolean hasEventScheduleChanged(XmlDetailExhibitionData perforInfo) {
+        LocalDate startDate = LocalDate.parse(perforInfo.getStartDate(), DateTimeFormatter.ofPattern("yyyyMMdd"));
+        LocalDate endDate = LocalDate.parse(perforInfo.getEndDate(), DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        return !this.eventSchedules.get(0).getStartDateTime().equals(startDate.atStartOfDay())
+                || !this.eventSchedules.get(this.eventSchedules.size() - 1).getEndDateTime().equals(endDate.plusDays(1).atStartOfDay());
+    }
+
+
+        private boolean hasChangedExhibition(XmlDetailExhibitionData perforInfo){
+            return !this.title.equals(perforInfo.getTitle())
+                    || !this.description.equals(perforInfo.getContents1() + "\n" + perforInfo.getContents2())
+                    || !this.price.equals(perforInfo.getPrice())
+                    || !this.link.equals(perforInfo.getUrl());
+        }
+
+    public boolean isPersist() {
+        return this.id != null;
+    }
+
+    public boolean getEnabled() {
+        return this.enabled;
     }
 }

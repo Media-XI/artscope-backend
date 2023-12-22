@@ -154,7 +154,7 @@ class ExhibitionControllerTest {
                         .title("이벤트 제목" + idx)
                         .description("이벤트 설명" + idx)
                         .link("링크" + idx)
-                        .price(10000 + idx)
+                        .price("10000원"+idx)
                         .type(EventType.STANDARD)
                         .createdTime(LocalDateTime.now())
                         .member(createOrLoadMember())
@@ -261,7 +261,7 @@ class ExhibitionControllerTest {
         ExhbitionCreateDTO dto = new ExhbitionCreateDTO();
         dto.setTitle("이벤트 제목");
         dto.setDescription("이벤트 설명");
-        dto.setPrice(10000);
+        dto.setPrice("10000원");
         dto.setLink("http://event.com");
         dto.setEventType(EventType.STANDARD);
         dto.setSchedule(scuheduleDTOs);
@@ -397,7 +397,7 @@ class ExhibitionControllerTest {
                                 .accept(MediaType.APPLICATION_JSON)
                                 .characterEncoding("UTF-8"))
                 .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(status().isBadRequest());
     }
 
     @DisplayName("이벤트 전체 조회 - 성공")
@@ -453,25 +453,6 @@ class ExhibitionControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @WithMockCustomUser(username = "testid", role = "CURATOR")
-    @DisplayName("가격을 음수로 이벤트 수정 시")
-    @Test
-    public void 공모전_가격_음수로_수정시() throws Exception {
-        createOrLoadMember("testid", RoleStatus.CURATOR, "ROLE_CURATOR");
-        Exhibition exhibition = createOrLoadExhibition();
-
-        ExhibitionUpdateDTO dto = new ExhibitionUpdateDTO();
-        dto.setPrice(-10000);
-
-        mockMvc
-                .perform(
-                        put(String.format("/api/exhibitions/%d", exhibition.getId()))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto)))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
-    }
-
     @WithMockCustomUser(username = "user", role = "CURATOR")
     @DisplayName("작성자가 아닐 시 이벤트 수정")
     @Test
@@ -482,7 +463,7 @@ class ExhibitionControllerTest {
         ExhibitionUpdateDTO dto = new ExhibitionUpdateDTO();
         dto.setTitle("수정된 제목");
         dto.setDescription("수정된 설명");
-        dto.setPrice(3200);
+        dto.setPrice("3200원");
 
         mockMvc
                 .perform(
@@ -703,4 +684,36 @@ class ExhibitionControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @WithMockCustomUser(username = "user", role = "CURATOR")
+    @DisplayName("스케줄 종료시간이 시작시간보다 빠를시")
+    @Test
+    public void 스케줄_생성시_종료시간이_시작시간보다_빠른경우() throws Exception {
+        createOrLoadMember("user", RoleStatus.CURATOR, "ROLE_CURATOR");
+
+        ExhbitionCreateDTO dto = mockCreateExhibitionDTO(1);
+        EventScheduleCreateDTO eventScheduleCreateDTO = dto.getSchedule().get(0);
+        eventScheduleCreateDTO.setEndDateTime(LocalDateTime.now().minusHours(1));
+        eventScheduleCreateDTO.setStartDateTime(LocalDateTime.now());
+
+        MockMultipartFile dtoFile =
+                new MockMultipartFile("dto", "", "application/json", objectMapper.writeValueAsBytes(dto));
+
+        MockMultipartFile mediaFile =
+                new MockMultipartFile("mediaFiles", "image.jpg", "image/jpg", createImageFile());
+
+        MockMultipartFile thumbnailFile =
+                new MockMultipartFile("thumbnailFile", "image.jpg", "image/jpg", createImageFile());
+
+        mockMvc
+                .perform(
+                        multipart("/api/exhibitions")
+                                .file(dtoFile)
+                                .file(mediaFile)
+                                .file(thumbnailFile)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding("UTF-8"))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
 }

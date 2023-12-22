@@ -8,6 +8,8 @@ import com.example.codebase.domain.agora.entity.AgoraWithParticipant;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
 import com.example.codebase.domain.artwork.entity.ArtworkWithIsLike;
+import com.example.codebase.domain.exhibition.entity.Event;
+import com.example.codebase.domain.exhibition.entity.EventMedia;
 import com.example.codebase.domain.exhibition.entity.Exhibition;
 import com.example.codebase.domain.exhibition.entity.ExhibitionMedia;
 import com.example.codebase.domain.post.entity.Post;
@@ -170,6 +172,7 @@ public class FeedItemResponseDto {
         return dto;
     }
 
+    @Deprecated
     public static FeedItemResponseDto from(Exhibition exhibition) {
         FeedItemResponseDto dto =
                 FeedItemResponseDto.builder()
@@ -202,8 +205,8 @@ public class FeedItemResponseDto {
             FeedItemEventResponseDto eventDto =
                     FeedItemEventResponseDto.builder()
                             .eventType(exhibition.getType())
-                            .startDateTime(exhibition.getFirstEventSchedule().getStartDateTime())
-                            .endDateTime(exhibition.getFirstEventSchedule().getEndDateTime())
+                            .startDate(exhibition.getFirstEventSchedule().getStartDateTime().toLocalDate())
+                            .endDate(exhibition.getFirstEventSchedule().getEndDateTime().toLocalDate())
                             .locationName(exhibition.getFirstEventSchedule().getLocation().getName())
                             .locationAddress(exhibition.getFirstEventSchedule().getLocation().getAddress())
                             .detailLocation(exhibition.getFirstEventSchedule().getDetailLocation())
@@ -211,7 +214,7 @@ public class FeedItemResponseDto {
             dto.setEvent(eventDto);
         }
 
-        if (exhibition.getExhibitionMedias().size() > 0) {
+        if (!exhibition.getExhibitionMedias().isEmpty()) {
             String thumbnailUrl = exhibition.getExhibitionMedias().get(0).getMediaUrl();
             List<String> mediaUrls =
                     exhibition.getExhibitionMedias().stream()
@@ -267,7 +270,7 @@ public class FeedItemResponseDto {
                 .updatedTime(agora.getUpdatedTime())
                 .build();
 
-        if (agora.getMedias() != null && agora.getMedias().size() > 0) {
+        if (agora.getMedias() != null && !agora.getMedias().isEmpty()) {
             String thumbnailUrl = agora.getMedias().stream().findFirst().get().getMediaUrl();
             List<String> mediaUrls = agora.getMedias().stream()
                     .map(AgoraMedia::getMediaUrl)
@@ -280,4 +283,56 @@ public class FeedItemResponseDto {
         return dto;
     }
 
+    public static FeedItemResponseDto from(Event event) {
+        FeedItemResponseDto dto =
+                FeedItemResponseDto.builder()
+                        .id(event.getId())
+                        .type(FeedType.event)
+                        .title(event.getTitle())
+                        .content(event.getDescription())
+                        .authorName(event.getMember().getName())
+                        .authorUsername(event.getMember().getUsername())
+                        .authorIntroduction(event.getMember().getIntroduction())
+                        .authorProfileImageUrl(event.getMember().getPicture())
+                        .authorCompanyName(
+                                event.getMember().getCompanyName() != null
+                                        ? event.getMember().getCompanyName()
+                                        : null)
+                        .authorCompanyRole(
+                                event.getMember().getCompanyRole() != null
+                                        ? event.getMember().getCompanyRole()
+                                        : null)
+                        .tags(null)
+                        .categoryId(FeedType.event.name())
+                        .views(0)
+                        .likes(0)
+                        .comments(0)
+                        .createdTime(event.getCreatedTime())
+                        .updatedTime(event.getUpdatedTime())
+                        .build();
+
+        FeedItemEventResponseDto eventDto =
+                FeedItemEventResponseDto.builder()
+                        .eventType(event.getType())
+                        .startDate(event.getStartDate())
+                        .endDate(event.getEndDate())
+                        .locationName(event.getLocation().getName())
+                        .locationAddress(event.getLocation().getAddress())
+                        .detailLocation(event.getDetailLocation())
+                        .build();
+        dto.setEvent(eventDto);
+
+
+        if (!event.getEventMedias().isEmpty()) {
+            String thumbnailUrl = event.getEventMedias().get(0).getMediaUrl();
+            List<String> mediaUrls =
+                    event.getEventMedias().stream()
+                            .map(EventMedia::getMediaUrl)
+                            .toList();
+            dto.setThumbnailUrl(thumbnailUrl);
+            dto.setMediaUrls(mediaUrls);
+        }
+
+        return dto;
+    }
 }

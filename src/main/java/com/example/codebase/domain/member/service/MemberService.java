@@ -7,12 +7,15 @@ import com.example.codebase.domain.member.dto.*;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
+import com.example.codebase.domain.member.entity.RoleStatus;
 import com.example.codebase.domain.member.exception.ExistMemberException;
 import com.example.codebase.domain.member.exception.ExistsEmailException;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.s3.S3Service;
+import com.example.codebase.util.RedisUtil;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,16 +38,19 @@ public class MemberService {
     private final MemberAuthorityRepository memberAuthorityRepository;
     private final S3Service s3Service;
 
+    private final RedisUtil redisUtil;
+
     @Autowired
     public MemberService(
-        PasswordEncoder passwordEncoder,
-        MemberRepository memberRepository,
-        MemberAuthorityRepository memberAuthorityRepository,
-        S3Service s3Service) {
+            PasswordEncoder passwordEncoder,
+            MemberRepository memberRepository,
+            MemberAuthorityRepository memberAuthorityRepository,
+            S3Service s3Service, RedisUtil redisUtil) {
         this.passwordEncoder = passwordEncoder;
         this.memberRepository = memberRepository;
         this.memberAuthorityRepository = memberAuthorityRepository;
         this.s3Service = s3Service;
+        this.redisUtil = redisUtil;
     }
 
     @Transactional
@@ -60,18 +65,10 @@ public class MemberService {
 
         Authority authority = Authority.builder().authorityName("ROLE_GUEST").build();
 
-        Member newMember =
-            Member.builder()
-                .username(member.getUsername())
-                .password(passwordEncoder.encode(member.getPassword()))
-                .name(member.getName())
-                .email(member.getEmail())
-                .createdTime(LocalDateTime.now())
-                .activated(false)
-                .build();
+        Member newMember = Member.create(passwordEncoder, member);
 
         MemberAuthority memberAuthority =
-            MemberAuthority.builder().authority(authority).member(newMember).build();
+                MemberAuthority.builder().authority(authority).member(newMember).build();
         newMember.addAuthority(memberAuthority);
 
         Member save = memberRepository.save(newMember);
@@ -85,21 +82,21 @@ public class MemberService {
         }
 
         Member newMember =
-            Member.builder()
-                .username(member.getUsername())
-                .password(passwordEncoder.encode(member.getPassword()))
-                .name(member.getName())
-                .email(member.getEmail())
-                .createdTime(LocalDateTime.now())
-                .activated(true)
-                .build();
+                Member.builder()
+                        .username(member.getUsername())
+                        .password(passwordEncoder.encode(member.getPassword()))
+                        .name(member.getName())
+                        .email(member.getEmail())
+                        .createdTime(LocalDateTime.now())
+                        .activated(true)
+                        .build();
 
         MemberAuthority userAuthority =
-            MemberAuthority.builder().authority(Authority.of("ROLE_USER")).member(newMember).build();
+                MemberAuthority.builder().authority(Authority.of("ROLE_USER")).member(newMember).build();
         newMember.addAuthority(userAuthority);
 
         MemberAuthority adminAuthority =
-            MemberAuthority.builder().authority(Authority.of("ROLE_ADMIN")).member(newMember).build();
+                MemberAuthority.builder().authority(Authority.of("ROLE_ADMIN")).member(newMember).build();
         newMember.addAuthority(adminAuthority);
 
         return MemberResponseDTO.from(memberRepository.save(newMember));
@@ -121,25 +118,24 @@ public class MemberService {
 
         Member newMember = Member.from(passwordEncoder, oAuthAttributes);
         MemberAuthority memberAuthority =
-            MemberAuthority.builder().authority(authority).member(newMember).build();
+                MemberAuthority.builder().authority(authority).member(newMember).build();
         newMember.addAuthority(memberAuthority);
 
         Member save = memberRepository.save(newMember);
         return save;
     }
 
-    public List<MemberResponseDTO> getAllMember() {
-        return memberRepository.findAll().stream()
-            .map(MemberResponseDTO::from)
-            .collect(Collectors.toList());
+    public MembersResponseDTO getAllMember(PageRequest pageRequest) {
+        Page<Member> members = memberRepository.findAll(pageRequest);
+        return MembersResponseDTO.from(members);
     }
 
     @Transactional
     public MemberResponseDTO createArtist(CreateArtistMemberDTO createArtistMemberDTO) {
         Member member =
-            memberRepository
-                .findByUsername(createArtistMemberDTO.getUsername())
-                .orElseThrow(NotFoundMemberException::new);
+                memberRepository
+                        .findByUsername(createArtistMemberDTO.getUsername())
+                        .orElseThrow(NotFoundMemberException::new);
         member.setArtist(createArtistMemberDTO);
 
         return MemberResponseDTO.from(member);
@@ -148,9 +144,9 @@ public class MemberService {
     @Transactional
     public MemberResponseDTO createCurator(CreateCuratorMemberDTO createCuratorMemberDTO) {
         Member member =
-            memberRepository
-                .findByUsername(createCuratorMemberDTO.getUsername())
-                .orElseThrow(NotFoundMemberException::new);
+                memberRepository
+                        .findByUsername(createCuratorMemberDTO.getUsername())
+                        .orElseThrow(NotFoundMemberException::new);
         member.setCurator(createCuratorMemberDTO);
 
         return MemberResponseDTO.from(member);
@@ -158,14 +154,14 @@ public class MemberService {
 
     public MemberResponseDTO getProfile(String username) {
         Member member =
-            memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
         return MemberResponseDTO.from(member);
     }
 
     @Transactional
     public MemberResponseDTO updateMember(String username, UpdateMemberDTO updateMemberDTO) {
         Member member =
-            memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
         member.update(updateMemberDTO);
 
@@ -175,7 +171,7 @@ public class MemberService {
     @Transactional
     public MemberResponseDTO updateProfile(String username, MultipartFile multipartFile) {
         Member member =
-            memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
         try {
             String fileUrl = s3Service.saveUploadFile(multipartFile);
@@ -189,11 +185,11 @@ public class MemberService {
 
     public void deleteMember(String username) {
         Member member =
-            memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
         // S3 오브젝트 삭제
         if (Optional.ofNullable(member.getPicture()).isPresent()
-            && member.getPicture().startsWith(s3Service.getDir())) {
+                && member.getPicture().startsWith(s3Service.getDir())) {
             s3Service.deleteObject(member.getPicture());
         }
 
@@ -209,7 +205,7 @@ public class MemberService {
         for (Artwork artwork : artworks) {
             List<ArtworkMedia> artworkMedias = artwork.getArtworkMedia();
             List<String> urls =
-                artworkMedias.stream().map(ArtworkMedia::getMediaUrl).collect(Collectors.toList());
+                    artworkMedias.stream().map(ArtworkMedia::getMediaUrl).collect(Collectors.toList());
 
             if (urls.size() > 0) {
                 s3Service.deleteObjects(urls);
@@ -226,11 +222,18 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponseDTO updateArtistStatus(String username, String status) {
+    public MemberResponseDTO updateRoleStatus(String username, RoleStatus roleStatus) {
         Member member =
-            memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
-        member.updateArtistStatus(status);
+        member.updateRoleStatus(roleStatus);
+
+        if (roleStatus == RoleStatus.ARTIST) {
+            member.addAuthority(Authority.of("ROLE_ARTIST"));
+
+        } else if (roleStatus == RoleStatus.CURATOR) {
+            member.addAuthority(Authority.of("ROLE_CURATOR"));
+        }
 
         return MemberResponseDTO.from(member);
     }
@@ -238,7 +241,7 @@ public class MemberService {
     @Transactional
     public MemberResponseDTO updateUsername(String username, String newUsername) {
         Member member =
-            memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
         Boolean existsByUsername = memberRepository.existsByUsername(newUsername);
         if (existsByUsername) {
@@ -253,7 +256,7 @@ public class MemberService {
     @Transactional
     public void updatePassword(String username, String password) {
         Member member =
-            memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
         member.updatePassword(passwordEncoder.encode(password));
     }
@@ -261,7 +264,7 @@ public class MemberService {
     @Transactional
     public MemberResponseDTO updateAdmin(String username) {
         Member member =
-            memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
         MemberAuthority adminAuthority = new MemberAuthority();
         adminAuthority.setAuthority(Authority.of("ROLE_ADMIN"));
@@ -277,7 +280,7 @@ public class MemberService {
         Pageable pageable = PageRequest.of(0, 10);
 
         String regex =
-            "^([\\w\\.\\_\\-])*[a-zA-Z0-9]+([\\w\\.\\_\\-])*([a-zA-Z0-9])+([\\w\\.\\_\\-])+@([a-zA-Z0-9]+\\.)+[a-zA-Z0-9]{2,8}$";
+                "^([\\w\\.\\_\\-])*[a-zA-Z0-9]+([\\w\\.\\_\\-])*([a-zA-Z0-9])+([\\w\\.\\_\\-])+@([a-zA-Z0-9]+\\.)+[a-zA-Z0-9]{2,8}$";
         if (username.matches(regex)) {
             searchResults = memberRepository.searchByEmail(username, pageable);
         } else if (username.startsWith("@")) {
@@ -288,5 +291,71 @@ public class MemberService {
         }
 
         return searchResults.stream().map(MemberSearchResponseDTO::from).collect(Collectors.toList());
+    }
+
+    public MembersResponseDTO getAllRoleStatusMember(String roleStatus, PageRequest pageRequest) {
+        if (roleStatus.equals("PENDING") || roleStatus.equals("REJECTED")) {
+            return getRoleStatusMember(roleStatus, pageRequest);
+        }
+
+        Page<Member> members = memberRepository.findAllByRoleStatus(RoleStatus.create(roleStatus), pageRequest);
+        return MembersResponseDTO.from(members);
+    }
+
+    private MembersResponseDTO getRoleStatusMember(String roleStatus, PageRequest pageRequest) {
+        RoleStatus[] roleStatusEnums = new RoleStatus[2];
+
+        if (roleStatus.equals("PENDING")) {
+            roleStatusEnums[0] = RoleStatus.ARTIST_PENDING;
+            roleStatusEnums[1] = RoleStatus.CURATOR_PENDING;
+        }
+        else {
+            roleStatusEnums[0] = RoleStatus.ARTIST_REJECTED;
+            roleStatusEnums[1] = RoleStatus.CURATOR_REJECTED;
+        }
+
+        Page<Member> members = memberRepository.findAllByRoleStatus(roleStatusEnums[0], roleStatusEnums[1], pageRequest);
+        return MembersResponseDTO.from(members);
+    }
+
+    @Transactional
+    public void resetPassword(String code, PasswordResetRequestDTO passwordDto) {
+        String email = redisUtil.getData(code)
+                .orElseThrow(() -> new RuntimeException("인증 코드가 유효하지 않습니다."));
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(NotFoundMemberException::new);
+
+        String memberPassword = member.getPassword();
+
+        boolean oldPasswordMatches = passwordEncoder.matches(passwordDto.oldPassword(), memberPassword);
+        if (!oldPasswordMatches) {
+            throw new RuntimeException("기존 비밀번호가 일치하지 않습니다.");
+        }
+
+        boolean newPasswordMatches = passwordEncoder.matches(passwordDto.newPassword(), memberPassword);
+        if (newPasswordMatches) {
+            throw new RuntimeException("기존 비밀번호와 동일한 새 비밀번호입니다.");
+        }
+
+        redisUtil.deleteData(code);
+
+        String newPasswordEncoded = passwordEncoder.encode(passwordDto.newPassword());
+        member.updatePassword(newPasswordEncoded);
+    }
+
+    @Transactional
+    public String updateEmailReceive(String username, boolean emailReceive) {
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+
+        member.updateEmailReceive(emailReceive);
+
+        String allow = emailReceive ? "동의" : "거부";
+        return "이메일 수신 여부가 " + member.getAllowEmailReceiveDatetime() + " 기준 " +  allow + "로 변경되었습니다.";
+    }
+
+    public List<String> getAllUsername() {
+        return memberRepository.findAllUsername();
     }
 }

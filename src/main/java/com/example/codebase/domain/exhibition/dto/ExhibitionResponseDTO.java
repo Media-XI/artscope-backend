@@ -1,5 +1,6 @@
 package com.example.codebase.domain.exhibition.dto;
 
+import com.example.codebase.domain.exhibition.document.ExhibitionDocument;
 import com.example.codebase.domain.exhibition.entity.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
@@ -57,6 +58,23 @@ public class ExhibitionResponseDTO {
                 .location(eventSchedule.getLocation().getAddress())
                 .createdTime(exhibition.getCreatedTime())
                 .updatedTime(exhibition.getUpdatedTime())
+                .build();
+    }
+
+    public static ExhibitionResponseDTO from(ExhibitionDocument exhibitionDocument) {
+
+        ExhibitionMediaResponseDTO media = new ExhibitionMediaResponseDTO();
+        if (exhibitionDocument.getMediaUrl() != null) {
+            media.setMediaUrl(exhibitionDocument.getMediaUrl());
+        }
+
+        return ExhibitionResponseDTO.builder()
+                .id(exhibitionDocument.getId())
+                .title(exhibitionDocument.getTitle())
+                .author(exhibitionDocument.getName())
+                .thumbnail(media)
+                .createdTime(exhibitionDocument.getCreatedTime())
+                .updatedTime(exhibitionDocument.getUpdatedTime())
                 .build();
     }
 

@@ -5,6 +5,7 @@ import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.auth.OAuthAttributes;
 import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
 import com.example.codebase.domain.member.dto.CreateCuratorMemberDTO;
+import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.example.codebase.domain.member.dto.UpdateMemberDTO;
 import com.example.codebase.domain.member.entity.oauth2.oAuthProvider;
 import com.example.codebase.domain.post.entity.Post;
@@ -77,11 +78,18 @@ public class Member {
     @Column(name = "company_name")
     private String companyName;
 
-    @Column(name = "created_time")
+    @Column(name = "allow_email_receive")
+    private boolean allowEmailReceive;
+
+    @Column(name = "allow_email_receive_datetime")
+    private LocalDateTime allowEmailReceiveDatetime;
+
+    @Column(name = "created_time", nullable = false)
     private LocalDateTime createdTime;
 
-    @Column(name = "updated_time")
-    private LocalDateTime updatedTime;
+    @Builder.Default
+    @Column(name = "updated_time", nullable = false)
+    private LocalDateTime updatedTime = LocalDateTime.now();
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
@@ -122,6 +130,7 @@ public class Member {
             .oauthProvider(oAuthAttributes.getRegistrationId())
             .oauthProviderId(oAuthAttributes.getOAuthProviderId())
             .createdTime(LocalDateTime.now())
+            .updatedTime(LocalDateTime.now())
             .activated(true)
             .build();
     }
@@ -158,12 +167,35 @@ public class Member {
         return username.toString();
     }
 
+    public static Member create(PasswordEncoder passwordEncoder, CreateMemberDTO member) {
+        Member createMember = Member.builder()
+                .username(member.getUsername())
+                .password(passwordEncoder.encode(member.getPassword()))
+                .name(member.getName())
+                .email(member.getEmail())
+                .createdTime(LocalDateTime.now())
+                .updatedTime(LocalDateTime.now())
+                .allowEmailReceive(member.getAllowEmailReceive())
+                .activated(false)
+                .build();
+
+        createMember.allowEmailReceiveDatetime = member.getAllowEmailReceive() ? LocalDateTime.now() : null;
+        return createMember;
+    }
+
     public void setPassword(String password) {
         this.password = password;
     }
 
     public void addAuthority(MemberAuthority memberAuthority) {
         this.authorities.add(memberAuthority);
+    }
+
+    public void addAuthority(Authority authority) {
+        this.authorities.add(MemberAuthority.builder()
+            .member(this)
+            .authority(authority)
+            .build());
     }
 
     public Member update(String name, String picture) {
@@ -215,8 +247,8 @@ public class Member {
         this.updatedTime = LocalDateTime.now();
     }
 
-    public void updateArtistStatus(String status) {
-        this.roleStatus = RoleStatus.create(status);
+    public void updateRoleStatus(RoleStatus roleStatus) {
+        this.roleStatus = roleStatus;
         this.updatedTime = LocalDateTime.now();
     }
 
@@ -264,5 +296,12 @@ public class Member {
 
     public boolean isSubmitedRoleInformation() {
         return this.roleStatus == RoleStatus.ARTIST_PENDING || this.roleStatus == RoleStatus.CURATOR_PENDING || this.roleStatus == RoleStatus.ARTIST || this.roleStatus == RoleStatus.CURATOR;
+    }
+
+    public void updateEmailReceive(boolean emailReceive) {
+        LocalDateTime updateTime = LocalDateTime.now();
+        this.allowEmailReceive = emailReceive;
+        this.allowEmailReceiveDatetime = updateTime;
+        this.updatedTime = updateTime;
     }
 }

@@ -87,6 +87,7 @@ public class Agora {
             .participantCount(0)
             .isAnonymous(dto.getIsAnonymous())
             .createdTime(LocalDateTime.now())
+            .updatedTime(LocalDateTime.now())
             .build();
     }
 

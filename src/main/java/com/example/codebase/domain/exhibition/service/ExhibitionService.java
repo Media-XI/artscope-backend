@@ -4,6 +4,7 @@ import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.exhibition.dto.*;
 import com.example.codebase.domain.exhibition.entity.*;
 import com.example.codebase.domain.exhibition.repository.EventScheduleRepository;
+import com.example.codebase.domain.exhibition.repository.ExhibitionDocumentRepository;
 import com.example.codebase.domain.exhibition.repository.ExhibitionParticipantRepository;
 import com.example.codebase.domain.exhibition.repository.ExhibitionRepository;
 import com.example.codebase.domain.location.entity.Location;
@@ -34,6 +35,8 @@ public class ExhibitionService {
 
     private final EventScheduleRepository eventScheduleRepository;
 
+    private final ExhibitionDocumentRepository exhibitionDocumentRepository;
+
     private final MemberRepository memberRepository;
 
     private final LocationRepository locationRepository;
@@ -43,11 +46,12 @@ public class ExhibitionService {
             ExhibitionRepository exhibitionRepository,
             ExhibitionParticipantRepository exhibitionParticipantRepository,
             EventScheduleRepository eventScheduleRepository,
-            MemberRepository memberRepository,
+            ExhibitionDocumentRepository exhibitionDocumentRepository, MemberRepository memberRepository,
             LocationRepository locationRepository) {
         this.exhibitionRepository = exhibitionRepository;
         this.exhibitionParticipantRepository = exhibitionParticipantRepository;
         this.eventScheduleRepository = eventScheduleRepository;
+        this.exhibitionDocumentRepository = exhibitionDocumentRepository;
         this.memberRepository = memberRepository;
         this.locationRepository = locationRepository;
     }
@@ -222,6 +226,7 @@ public class ExhibitionService {
             throw new RuntimeException("해당 이벤트의 작성자가 아닙니다");
         }
         exhibition.delete();
+        exhibitionDocumentRepository.deleteById(exhibitionId);
         eventScheduleRepository.deleteAll(exhibition.getEventSchedules());
     }
 
@@ -242,29 +247,12 @@ public class ExhibitionService {
         if (!SecurityUtil.isAdmin() && !exhibition.equalUsername(username)) {
             throw new RuntimeException("해당 이벤트의 생성자가 아닙니다.");
         }
+        if(exhibition.getEventSchedules().size() == 1) {
+            throw new RuntimeException("이벤트 일정은 최소 1개 이상이어야 합니다.");
+        }
 
         eventSchedule.delete();
         eventScheduleRepository.delete(eventSchedule);
     }
 
-    @Transactional
-    public void deleteAllEventSchedules(Long exhibitionId, String username) {
-        Exhibition exhibition =
-                exhibitionRepository
-                        .findById(exhibitionId)
-                        .orElseThrow(() -> new NotFoundException("이벤트를 찾을 수 없습니다."));
-
-        Member member =
-                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
-
-        if (!SecurityUtil.isAdmin() && (!member.equals(exhibition.getMember()))) {
-            throw new RuntimeException("이벤트 일정을 삭제할 권한이 없습니다.");
-        }
-
-        List<EventSchedule> eventSchedules = exhibition.getEventSchedules();
-        for (EventSchedule eventSchedule : eventSchedules) {
-            eventSchedule.delete();
-        }
-        eventScheduleRepository.deleteAll(eventSchedules);
-    }
 }

@@ -14,11 +14,9 @@ import java.util.List;
 public class EventScheduleCreateDTO {
 
     @NotNull(message = "시작시간은 필수입니다.")
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime startDateTime;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime endDateTime;
 
@@ -30,8 +28,14 @@ public class EventScheduleCreateDTO {
     private List<ParticipantInformationDTO> participants;
 
     public void checkTimeValidity() {
+        if (this.endDateTime == null) {
+            return;
+        }
         if (this.startDateTime.equals(this.endDateTime)) {
             throw new RuntimeException("시작시간과 종료시간이 같을 수 없습니다.");
+        }
+        if (this.startDateTime.isAfter(this.endDateTime)) {
+            throw new RuntimeException("시작시간이 종료시간보다 늦을 수 없습니다.");
         }
     }
 }
