@@ -144,7 +144,12 @@ public class EventDetailCrawlingService {
     }
 
     private EventType checkEventType(XmlEventDetailData perforInfo) {
-        return switch (perforInfo.getRealmName()) {
+        String eventTypeName = perforInfo.getRealmName();
+        if(eventTypeName == null) {
+            return EventType.STANDARD;
+        }
+
+        return switch (eventTypeName) {
             case "전시", "미술" -> EventType.EXHIBITION;
             case "강연", "강의" -> EventType.LECTURE;
             case "영화", "연극", "뮤지컬", "음악", "국악", "무용" -> EventType.CONCERT;
