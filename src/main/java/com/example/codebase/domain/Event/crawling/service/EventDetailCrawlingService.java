@@ -153,12 +153,15 @@ public class EventDetailCrawlingService {
     }
 
     private Location findOrCreateLocation(XmlEventDetailData perforInfo) {
-        return locationRepository.findByGpsXAndGpsYOrAddress(perforInfo.getGpsX(), perforInfo.getGpsY(), perforInfo.getPlaceAddr())
-                .orElseGet(() -> {
-                    Location newLocation = Location.from(perforInfo);
-                    locationRepository.save(newLocation);
-                    return newLocation;
-                });
+        List<Location> locations = locationRepository.findByGpsXAndGpsYOrAddress(perforInfo.getGpsX(), perforInfo.getGpsY(), perforInfo.getPlaceAddr());
+
+        if (locations.isEmpty()) {
+            Location newLocation = Location.from(perforInfo);
+            locationRepository.save(newLocation);
+            return newLocation;
+        } else {
+            return locations.get(0);
+        }
     }
 
 }

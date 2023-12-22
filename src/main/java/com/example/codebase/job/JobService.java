@@ -16,7 +16,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,8 +65,15 @@ public class JobService {
     }
 
     @Scheduled(cron = "0 3 * * * WED")
-    @Transactional
     public void getEventListScheduler() {
+        LocalDate now = LocalDate.now();
+        String currentDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        getEventList(currentDate);
+    }
+
+    @Transactional
+    public void getEventList(String date) {
         log.info("[getEventListScheduler JoB] 이벤트 리스트 크롤링 시작");
         LocalDateTime startTime = LocalDateTime.now();
         List<XmlEventResponse> xmlResponses = eventCrawlingService.loadXmlDatas();
@@ -87,8 +96,8 @@ public class JobService {
             eventRepository.saveAll(eventEntities);
         }
 
-        log.info("[getEventListScheduler JoB] 전시회 리스트 크롤링 종료");
         LocalDateTime endTime = LocalDateTime.now();
         log.info("[getEventListScheduler JoB] 크롤링 소요시간: {} 초", endTime.getSecond() - startTime.getSecond());
+        log.info("[getEventListScheduler JoB] 이벤트 리스트 크롤링 종료");
     }
 }

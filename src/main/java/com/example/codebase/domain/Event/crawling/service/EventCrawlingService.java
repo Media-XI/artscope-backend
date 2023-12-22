@@ -81,7 +81,7 @@ public class EventCrawlingService {
     }
 
     private Pair<XmlEventResponse, String> getXmlExhibitionApiResponse(int currentPage, String currentDate) {
-        String url = String.format("http://www.culture.go.kr/openapi/rest/publicperformancedisplays/period?RequestTime=20100810:23003422&serviceKey=%s&cPage=%d&row=10&from=%s&sortStdr=1", serviceKey, currentPage, currentDate);
+        String url = String.format("http://www.culture.go.kr/openapi/rest/publicperformancedisplays/period?RequestTime=20100810:23003422&serviceKey=%s&cPage=%d&rows=100&from=%s&sortStdr=1", serviceKey, currentPage, currentDate);
 
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
         XmlResponseEntity xmlResponseEntity = new XmlResponseEntity(response.getBody(), response.getStatusCode());

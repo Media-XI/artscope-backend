@@ -173,7 +173,7 @@ public class FeedItemResponseDto {
         FeedItemResponseDto dto =
                 FeedItemResponseDto.builder()
                         .id(event.getId())
-                        .type(FeedType.exhibition)
+                        .type(FeedType.event)
                         .title(event.getTitle())
                         .content(event.getDescription())
                         .authorName(event.getMember().getName())
@@ -189,7 +189,7 @@ public class FeedItemResponseDto {
                                         ? event.getMember().getCompanyRole()
                                         : null)
                         .tags(null)
-                        .categoryId(FeedType.exhibition.name())
+                        .categoryId(FeedType.event.name())
                         .views(0)
                         .likes(0)
                         .comments(0)
