@@ -27,6 +27,8 @@ public class SearchController {
 
     private final SearchService searchService;
 
+    private static final boolean API_DISABLE = true;
+
     public SearchController(SearchService searchService) {
         this.searchService = searchService;
     }
@@ -44,6 +46,9 @@ public class SearchController {
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
+        if (API_DISABLE) {
+            return new ResponseEntity("API 제공이 임시 중지 되었습니다",HttpStatus.OK);
+        }
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
         SearchResponseDTO dto = searchService.searchTotal(keyword, pageRequest);
@@ -63,6 +68,10 @@ public class SearchController {
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
+        if (API_DISABLE) {
+            return new ResponseEntity("API 제공이 임시 중지 되었습니다",HttpStatus.OK);
+        }
+
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
         ArtworksResponseDTO dto = searchService.searchArtwork(keyword, pageRequest);
@@ -83,6 +92,10 @@ public class SearchController {
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
+        if (API_DISABLE) {
+            return new ResponseEntity("API 제공이 임시 중지 되었습니다",HttpStatus.OK);
+        }
+
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
         PostsResponseDTO dto = searchService.searchPost(keyword, pageRequest);
@@ -103,6 +116,10 @@ public class SearchController {
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
+        if (API_DISABLE) {
+            return new ResponseEntity("API 제공이 임시 중지 되었습니다",HttpStatus.OK);
+        }
+
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
         AgorasResponseDTO dto = searchService.searchAgora(keyword, pageRequest);
@@ -123,6 +140,10 @@ public class SearchController {
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
+        if (API_DISABLE) {
+            return new ResponseEntity("API 제공이 임시 중지 되었습니다",HttpStatus.OK);
+        }
+
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
         EventsResponseDTO dto = searchService.searchEvent(keyword, pageRequest);
