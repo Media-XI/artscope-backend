@@ -1,20 +1,16 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.controller.dto.PageRequestMaker;
+import com.example.codebase.domain.Event.dto.EventsResponseDTO;
 import com.example.codebase.domain.agora.dto.AgorasResponseDTO;
 import com.example.codebase.domain.artwork.dto.ArtworksResponseDTO;
-import com.example.codebase.domain.exhibition.dto.ExhibitionPageInfoResponseDTO;
-import com.example.codebase.domain.exhibition.dto.ExhibitionResponseDTO;
 import com.example.codebase.domain.post.dto.PostsResponseDTO;
 import com.example.codebase.domain.search.service.SearchService;
 import com.example.codebase.domain.search.dto.SearchResponseDTO;
-import com.example.codebase.domain.search.type.SearchSortType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +26,8 @@ import jakarta.validation.constraints.PositiveOrZero;
 public class SearchController {
 
     private final SearchService searchService;
+
+    private static final boolean API_DISABLE = true;
 
     public SearchController(SearchService searchService) {
         this.searchService = searchService;
@@ -48,6 +46,9 @@ public class SearchController {
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
+        if (API_DISABLE) {
+            return new ResponseEntity(new SearchResponseDTO(),HttpStatus.OK);
+        }
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
         SearchResponseDTO dto = searchService.searchTotal(keyword, pageRequest);
@@ -67,6 +68,10 @@ public class SearchController {
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
+        if (API_DISABLE) {
+            return new ResponseEntity(new ArtworksResponseDTO(),HttpStatus.OK);
+        }
+
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
         ArtworksResponseDTO dto = searchService.searchArtwork(keyword, pageRequest);
@@ -87,6 +92,10 @@ public class SearchController {
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
+        if (API_DISABLE) {
+            return new ResponseEntity(new PostsResponseDTO(),HttpStatus.OK);
+        }
+
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
         PostsResponseDTO dto = searchService.searchPost(keyword, pageRequest);
@@ -107,6 +116,10 @@ public class SearchController {
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
+        if (API_DISABLE) {
+            return new ResponseEntity(new AgorasResponseDTO(),HttpStatus.OK);
+        }
+
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
         AgorasResponseDTO dto = searchService.searchAgora(keyword, pageRequest);
@@ -127,9 +140,13 @@ public class SearchController {
             @PositiveOrZero @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
+        if (API_DISABLE) {
+            return new ResponseEntity(new EventsResponseDTO(),HttpStatus.OK);
+        }
+
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
-        ExhibitionPageInfoResponseDTO dto = searchService.searchEvent(keyword, pageRequest);
+        EventsResponseDTO dto = searchService.searchEvent(keyword, pageRequest);
 
         return new ResponseEntity(dto, HttpStatus.OK);
     }

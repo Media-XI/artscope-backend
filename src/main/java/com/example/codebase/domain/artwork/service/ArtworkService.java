@@ -31,18 +31,17 @@ public class ArtworkService {
     private final ArtworkRepository artworkRepository;
     private final ArtworkCommentRepository artworkCommentRepository;
     private final ArtworkLikeMemberRepository artworkLikeMemberRepository;
-    private final ArtworkDocumentRepository artworkDocumentRepository;
+//    private final ArtworkDocumentRepository artworkDocumentRepository;
     private final S3Service s3Service;
     private final MemberRepository memberRepository;
 
     @Autowired
     public ArtworkService(ArtworkRepository artworkRepository, ArtworkCommentRepository artworkCommentRepository,
-                          ArtworkLikeMemberRepository artworkLikeMemberRepository, ArtworkDocumentRepository artworkDocumentRepository, S3Service s3Service,
+                          ArtworkLikeMemberRepository artworkLikeMemberRepository, S3Service s3Service,
                           MemberRepository memberRepository) {
         this.artworkRepository = artworkRepository;
         this.artworkCommentRepository = artworkCommentRepository;
         this.artworkLikeMemberRepository = artworkLikeMemberRepository;
-        this.artworkDocumentRepository = artworkDocumentRepository;
         this.s3Service = s3Service;
         this.memberRepository = memberRepository;
     }
@@ -156,7 +155,7 @@ public class ArtworkService {
         s3Service.deleteArtworkMediaS3Objects(artworkMedias);
 
         artworkRepository.delete(artwork);
-        artworkDocumentRepository.deleteById(id);
+//        artworkDocumentRepository.deleteById(id); // TODO : ElasticSearch 의존 관계 제거
     }
 
     public ArtworkResponseDTO updateArtworkMedia(Long id, Long mediaId, ArtworkMediaCreateDTO dto, String username) {

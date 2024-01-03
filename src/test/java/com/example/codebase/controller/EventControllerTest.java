@@ -1,9 +1,9 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.auth.WithMockCustomUser;
-import com.example.codebase.domain.exhibition.dto.*;
-import com.example.codebase.domain.exhibition.entity.*;
-import com.example.codebase.domain.exhibition.repository.EventRepository;
+import com.example.codebase.domain.Event.dto.*;
+import com.example.codebase.domain.Event.entity.*;
+import com.example.codebase.domain.Event.repository.EventRepository;
 import com.example.codebase.domain.location.entity.Location;
 import com.example.codebase.domain.location.repository.LocationRepository;
 import com.example.codebase.domain.member.entity.Authority;
@@ -138,12 +138,12 @@ public class EventControllerTest {
     }
 
     public EventCreateDTO mockCreateEventDTO(int idx) {
-        ExhibitionMediaCreateDTO thumbnailDTO = new ExhibitionMediaCreateDTO();
-        thumbnailDTO.setMediaType(ExhibtionMediaType.image.name());
+        EventMediaCreateDTO thumbnailDTO = new EventMediaCreateDTO();
+        thumbnailDTO.setMediaType(EventMediaType.image.name());
         thumbnailDTO.setMediaUrl("http://localhost/");
 
-        ExhibitionMediaCreateDTO mediaCreateDTO = new ExhibitionMediaCreateDTO();
-        mediaCreateDTO.setMediaType(ExhibtionMediaType.image.name());
+        EventMediaCreateDTO mediaCreateDTO = new EventMediaCreateDTO();
+        mediaCreateDTO.setMediaType(EventMediaType.image.name());
         mediaCreateDTO.setMediaUrl("http://localhost/");
 
         EventCreateDTO dto = new EventCreateDTO();

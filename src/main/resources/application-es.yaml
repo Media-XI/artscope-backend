@@ -1,4 +1,11 @@
 
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - dev
+
 elasticsearch:
   host: ENC(h2zwdrTTT3YDNlIIZd+EHLf+TZn7iotT1h6LNTkft01UP28M2E+hJ+0WNGVjQmkI)
   username: ENC(gOeYrnq0KVLNP77ppWKArcqDQwcR8goFCcdEqSha1rk=)
