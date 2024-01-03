@@ -1,12 +1,12 @@
 package com.example.codebase.job;
 
-import com.example.codebase.domain.Event.crawling.dto.eventDetailResponse.XmlEventDetailResponse;
-import com.example.codebase.domain.Event.crawling.dto.eventResponse.XmlEventData;
-import com.example.codebase.domain.Event.crawling.dto.eventResponse.XmlEventResponse;
-import com.example.codebase.domain.Event.crawling.service.EventDetailCrawlingService;
-import com.example.codebase.domain.Event.crawling.service.EventCrawlingService;
-import com.example.codebase.domain.Event.entity.Event;
-import com.example.codebase.domain.Event.repository.EventRepository;
+import com.example.codebase.domain.event.crawling.dto.eventDetailResponse.XmlEventDetailResponse;
+import com.example.codebase.domain.event.crawling.dto.eventResponse.XmlEventData;
+import com.example.codebase.domain.event.crawling.dto.eventResponse.XmlEventResponse;
+import com.example.codebase.domain.event.crawling.service.EventDetailCrawlingService;
+import com.example.codebase.domain.event.crawling.service.EventCrawlingService;
+import com.example.codebase.domain.event.entity.Event;
+import com.example.codebase.domain.event.repository.EventRepository;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -80,17 +80,23 @@ public class JobService {
         Member admin = getAdmin();
 
         for (XmlEventResponse xmlResponse : xmlResponses) {
-            List<XmlEventData> events = xmlResponse.getXmlExhibitions();
+            List<XmlEventData> events = xmlResponse.getXmlEvents();
+            if(events == null){
+                break;
+            }
             List<Event> eventEntities = new ArrayList<>();
 
             for (XmlEventData xmlEventData : events) {
-                XmlEventDetailResponse xmlEventDetailResponse = null;
+                XmlEventDetailResponse xmlEventDetailResponse;
                 try {
                     xmlEventDetailResponse = eventDetailCrawlingService.loadAndParseXmlData(xmlEventData);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
                 Event event = eventDetailCrawlingService.createEvent(xmlEventDetailResponse, admin);
+                if(event == null){
+                    continue;
+                }
                 eventEntities.add(event);
             }
             eventRepository.saveAll(eventEntities);
