@@ -1,4 +1,4 @@
-package com.example.codebase.domain.Event.crawling.dto.eventResponse;
+package com.example.codebase.domain.event.crawling.dto.eventResponse;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -45,7 +45,7 @@ public class XmlEventResponse {
             default -> throw new RuntimeException("이벤트가 조회 되지 않음");
         }
     }
-    public List<XmlEventData> getXmlExhibitions() {
+    public List<XmlEventData> getXmlEvents() {
         return this.msgBody.getXmlEventData();
     }
 }
