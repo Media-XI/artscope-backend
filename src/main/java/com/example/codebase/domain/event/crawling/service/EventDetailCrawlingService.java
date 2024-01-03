@@ -1,13 +1,13 @@
-package com.example.codebase.domain.Event.crawling.service;
+package com.example.codebase.domain.event.crawling.service;
 
 
 import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.example.codebase.domain.Event.crawling.XmlResponseEntity;
-import com.example.codebase.domain.Event.crawling.dto.eventDetailResponse.XmlEventDetailResponse;
-import com.example.codebase.domain.Event.crawling.dto.eventDetailResponse.XmlEventDetailData;
-import com.example.codebase.domain.Event.crawling.dto.eventResponse.XmlEventData;
-import com.example.codebase.domain.Event.entity.*;
-import com.example.codebase.domain.Event.repository.EventRepository;
+import com.example.codebase.domain.event.crawling.XmlResponseEntity;
+import com.example.codebase.domain.event.crawling.dto.eventDetailResponse.XmlEventDetailResponse;
+import com.example.codebase.domain.event.crawling.dto.eventDetailResponse.XmlEventDetailData;
+import com.example.codebase.domain.event.crawling.dto.eventResponse.XmlEventData;
+import com.example.codebase.domain.event.entity.*;
+import com.example.codebase.domain.event.repository.EventRepository;
 import com.example.codebase.domain.location.entity.Location;
 import com.example.codebase.domain.location.repository.LocationRepository;
 import com.example.codebase.domain.member.entity.Member;
@@ -28,8 +28,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -106,6 +104,9 @@ public class EventDetailCrawlingService {
         XmlEventDetailData detailEventData = response.getMsgBody().getDetailExhibitionData();
 
         EventType eventType = checkEventType(detailEventData);
+        if (eventType == null) {
+            return null;
+        }
 
         Location location = findOrCreateLocation(detailEventData);
         Event event = findOrCreateEvent(detailEventData, admin);
@@ -152,7 +153,8 @@ public class EventDetailCrawlingService {
         return switch (eventTypeName) {
             case "전시", "미술" -> EventType.EXHIBITION;
             case "강연", "강의" -> EventType.LECTURE;
-            case "영화", "연극", "뮤지컬", "음악", "국악", "무용" -> EventType.CONCERT;
+            case "영화", "연극", "뮤지컬", "무용" -> EventType.CONCERT;
+            case "음악" -> null;
             default -> EventType.STANDARD;
         };
     }
