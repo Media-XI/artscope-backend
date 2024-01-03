@@ -29,7 +29,8 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final PostLikeMemberRepository postLikeMemberRepository;
     private final PostCommentRepository postCommentRepository;
-    private final PostDocumentRepository postDocumentRepository;
+
+//    private final PostDocumentRepository postDocumentRepository;
     private final S3Service s3Service;
 
     @Autowired
@@ -37,12 +38,12 @@ public class PostService {
             PostRepository postRepository,
             MemberRepository memberRepository,
             PostLikeMemberRepository postLikeMemberRepository,
-            PostCommentRepository postCommentRepository, PostDocumentRepository postDocumentRepository, S3Service s3Service) {
+            PostCommentRepository postCommentRepository,
+            S3Service s3Service) {
         this.postRepository = postRepository;
         this.memberRepository = memberRepository;
         this.postLikeMemberRepository = postLikeMemberRepository;
         this.postCommentRepository = postCommentRepository;
-        this.postDocumentRepository = postDocumentRepository;
         this.s3Service = s3Service;
     }
 
@@ -129,7 +130,7 @@ public class PostService {
 
 
         postRepository.delete(post);
-        postDocumentRepository.deleteById(postId);
+//        postDocumentRepository.deleteById(postId); // TODO : ElasticSearch 의존 메서드 제거할 수 있는 방법 찾기 (// TODO : ElasticSearch 의존 관계 제거)
     }
 
     public PostWithLikesResponseDTO getPost(Long postId) {
