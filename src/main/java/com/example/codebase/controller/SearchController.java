@@ -47,7 +47,7 @@ public class SearchController {
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
         if (API_DISABLE) {
-            return new ResponseEntity("API 제공이 임시 중지 되었습니다",HttpStatus.OK);
+            return new ResponseEntity(new SearchResponseDTO(),HttpStatus.OK);
         }
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
 
@@ -69,7 +69,7 @@ public class SearchController {
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
         if (API_DISABLE) {
-            return new ResponseEntity("API 제공이 임시 중지 되었습니다",HttpStatus.OK);
+            return new ResponseEntity(new ArtworksResponseDTO(),HttpStatus.OK);
         }
 
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
@@ -93,7 +93,7 @@ public class SearchController {
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
         if (API_DISABLE) {
-            return new ResponseEntity("API 제공이 임시 중지 되었습니다",HttpStatus.OK);
+            return new ResponseEntity(new PostsResponseDTO(),HttpStatus.OK);
         }
 
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
@@ -117,7 +117,7 @@ public class SearchController {
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
         if (API_DISABLE) {
-            return new ResponseEntity("API 제공이 임시 중지 되었습니다",HttpStatus.OK);
+            return new ResponseEntity(new AgorasResponseDTO(),HttpStatus.OK);
         }
 
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
@@ -141,7 +141,7 @@ public class SearchController {
             @RequestParam(defaultValue = "정확도순", required = false) String sortType
     ) {
         if (API_DISABLE) {
-            return new ResponseEntity("API 제공이 임시 중지 되었습니다",HttpStatus.OK);
+            return new ResponseEntity(new EventsResponseDTO(),HttpStatus.OK);
         }
 
         PageRequest pageRequest = PageRequestMaker.makePageRequest(page, size, sortType);
