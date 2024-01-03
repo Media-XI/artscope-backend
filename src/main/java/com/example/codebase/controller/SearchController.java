@@ -1,7 +1,7 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.controller.dto.PageRequestMaker;
-import com.example.codebase.domain.Event.dto.EventsResponseDTO;
+import com.example.codebase.domain.event.dto.EventsResponseDTO;
 import com.example.codebase.domain.agora.dto.AgorasResponseDTO;
 import com.example.codebase.domain.artwork.dto.ArtworksResponseDTO;
 import com.example.codebase.domain.post.dto.PostsResponseDTO;

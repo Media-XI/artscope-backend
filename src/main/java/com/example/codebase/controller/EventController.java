@@ -1,7 +1,7 @@
 package com.example.codebase.controller;
 
-import com.example.codebase.domain.Event.dto.*;
-import com.example.codebase.domain.Event.service.EventService;
+import com.example.codebase.domain.event.dto.*;
+import com.example.codebase.domain.event.service.EventService;
 import com.example.codebase.domain.image.service.ImageService;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.job.JobService;

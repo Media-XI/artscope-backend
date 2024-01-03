@@ -1,11 +1,10 @@
 package com.example.codebase.domain.feed.dto;
 
-import com.example.codebase.domain.Event.entity.EventType;
+import com.example.codebase.domain.event.entity.EventType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter

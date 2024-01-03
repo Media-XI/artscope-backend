@@ -1,9 +1,9 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.auth.WithMockCustomUser;
-import com.example.codebase.domain.Event.dto.*;
-import com.example.codebase.domain.Event.entity.*;
-import com.example.codebase.domain.Event.repository.EventRepository;
+import com.example.codebase.domain.event.dto.*;
+import com.example.codebase.domain.event.entity.*;
+import com.example.codebase.domain.event.repository.EventRepository;
 import com.example.codebase.domain.location.entity.Location;
 import com.example.codebase.domain.location.repository.LocationRepository;
 import com.example.codebase.domain.member.entity.Authority;

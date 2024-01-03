@@ -1,8 +1,8 @@
 package com.example.codebase.domain.feed.dto;
 
 
-import com.example.codebase.domain.Event.entity.Event;
-import com.example.codebase.domain.Event.entity.EventMedia;
+import com.example.codebase.domain.event.entity.Event;
+import com.example.codebase.domain.event.entity.EventMedia;
 import com.example.codebase.domain.agora.dto.AgoraParticipantResponseDTO;
 import com.example.codebase.domain.agora.entity.Agora;
 import com.example.codebase.domain.agora.entity.AgoraMedia;

@@ -1,6 +1,6 @@
 package com.example.codebase.domain.location.entity;
 
-import com.example.codebase.domain.Event.crawling.dto.eventDetailResponse.XmlEventDetailData;
+import com.example.codebase.domain.event.crawling.dto.eventDetailResponse.XmlEventDetailData;
 import com.example.codebase.domain.location.dto.LocationCreateDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

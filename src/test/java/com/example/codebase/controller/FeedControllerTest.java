@@ -1,6 +1,6 @@
 package com.example.codebase.controller;
 
-import com.example.codebase.domain.Event.repository.EventRepository;
+import com.example.codebase.domain.event.repository.EventRepository;
 import com.example.codebase.domain.agora.entity.Agora;
 import com.example.codebase.domain.agora.entity.AgoraParticipant;
 import com.example.codebase.domain.agora.repository.AgoraParticipantRepository;
@@ -9,8 +9,8 @@ import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.artwork.entity.ArtworkMedia;
 import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.auth.WithMockCustomUser;
-import com.example.codebase.domain.Event.entity.*;
-import com.example.codebase.domain.Event.repository.ExhibitionParticipantRepository;
+import com.example.codebase.domain.event.entity.*;
+import com.example.codebase.domain.event.repository.ExhibitionParticipantRepository;
 import com.example.codebase.domain.location.entity.Location;
 import com.example.codebase.domain.location.repository.LocationRepository;
 import com.example.codebase.domain.media.MediaType;
