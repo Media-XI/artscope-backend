@@ -60,7 +60,7 @@ class AuthControllerTest {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private RedisUtil redisUtil;
+    private RedisUtil redisUtil; // TODO: Redis Mocking 이 필요함
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
