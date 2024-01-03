@@ -21,7 +21,8 @@ public class RefererCheckIntercepter implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String referer = request.getHeader("Referer");
         String host = request.getHeader("Host");
-
+        /*
+        // 테스트 환경 중단에 따른 임시 허용
         // 운영 환경이 아니면 referer 체크하지 않음
         if (!Arrays.asList(environment.getActiveProfiles()).contains("prod")) {
             return true;
@@ -39,7 +40,7 @@ public class RefererCheckIntercepter implements HandlerInterceptor {
             log.info("유효하지 않은 Referer 요청 referer={}, host={}", referer, host);
             return false;
         }
-
+        */
         return true;
     }
 }
