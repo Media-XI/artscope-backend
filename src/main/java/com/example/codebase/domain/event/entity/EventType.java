@@ -6,7 +6,9 @@ public enum EventType {
     WORKSHOP,
     SPECIAL,
     CONCERT,
-    STANDARD;
+    STANDARD,
+
+    NOT_SAVE;
 
     public static EventType create(String eventType) {
         return switch (eventType) {
