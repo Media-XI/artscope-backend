@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -40,8 +41,6 @@ public class EventDetailCrawlingService {
 
     private EventRepository eventRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Value("${service.key}")
     private String serviceKey;
@@ -100,12 +99,12 @@ public class EventDetailCrawlingService {
     }
 
 
-    public Event createEvent(XmlEventDetailResponse response, Member admin) {
+    public Optional<Event> createEvent(XmlEventDetailResponse response, Member admin) {
         XmlEventDetailData detailEventData = response.getMsgBody().getDetailExhibitionData();
 
         EventType eventType = checkEventType(detailEventData);
-        if (eventType == null) {
-            return null;
+        if (eventType == EventType.NOT_SAVE) {
+            return Optional.empty();
         }
 
         Location location = findOrCreateLocation(detailEventData);
@@ -113,7 +112,7 @@ public class EventDetailCrawlingService {
 
         if (event.isPersist()) {
             event.updateEventIfChanged(detailEventData, location);
-            return event;
+            return Optional.of(event);
         }
 
         EventMedia eventMedia = EventMedia.from(detailEventData, event);
@@ -122,7 +121,7 @@ public class EventDetailCrawlingService {
         event.addEventMedia(eventMedia);
         event.setLocation(location);
 
-        return event;
+        return Optional.of(event);
     }
 
     private Event findOrCreateEvent(XmlEventDetailData eventData, Member admin) {
@@ -154,7 +153,7 @@ public class EventDetailCrawlingService {
             case "전시", "미술" -> EventType.EXHIBITION;
             case "강연", "강의" -> EventType.LECTURE;
             case "영화", "연극", "뮤지컬", "무용" -> EventType.CONCERT;
-            case "음악" -> null;
+            case "음악" -> EventType.NOT_SAVE;
             default -> EventType.STANDARD;
         };
     }

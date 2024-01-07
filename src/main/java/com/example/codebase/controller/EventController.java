@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -121,8 +122,11 @@ public class EventController {
     @PostMapping("/crawling/event")
     public ResponseEntity crawlingEvent(@RequestParam(name = "date") @Valid @DateTimeFormat(pattern = "yyyyMMdd") LocalDate date) {
         String currentDate = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        jobService.getEventList(currentDate);
-
+        try {
+            jobService.getEventList(currentDate);
+        } catch (IOException e) {
+            return new ResponseEntity("이벤트 크롤링에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         return new ResponseEntity("이벤트가 업데이트 되었습니다.", HttpStatus.OK);
     }
 

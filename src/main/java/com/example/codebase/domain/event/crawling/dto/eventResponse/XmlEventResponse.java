@@ -12,7 +12,9 @@ import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 
 import java.io.StringReader;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Log4j2
 @Getter
@@ -46,7 +48,8 @@ public class XmlEventResponse {
         }
     }
     public List<XmlEventData> getXmlEvents() {
-        return this.msgBody.getXmlEventData();
+        return Optional.ofNullable(this.msgBody.getXmlEventData())
+                .orElseGet(Collections::emptyList);
     }
 }
 
