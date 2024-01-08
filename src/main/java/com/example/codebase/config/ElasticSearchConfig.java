@@ -7,8 +7,7 @@ import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfigurat
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 @Configuration
-@EnableElasticsearchRepositories
-public class ElasticSearchConfig extends ElasticsearchConfiguration {
+public class ElasticSearchConfig {
 
     @Value("${elasticsearch.host}")
     private String host;
@@ -19,12 +18,12 @@ public class ElasticSearchConfig extends ElasticsearchConfiguration {
     @Value("${elasticsearch.password}")
     private String password;
 
-    @Override
-    public ClientConfiguration clientConfiguration() {
-        return ClientConfiguration.builder()
-                .connectedTo(host)
-                .usingSsl()
-                .withBasicAuth(username, password)
-                .build();
-    }
+//    @Override
+//    public ClientConfiguration clientConfiguration() {
+//        return ClientConfiguration.builder()
+//                .connectedTo(host)
+//                .usingSsl()
+//                .withBasicAuth(username, password)
+//                .build();
+//    }
 }
