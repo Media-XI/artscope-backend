@@ -11,7 +11,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.time.LocalDateTime;
 
-@Document(indexName = "artworks")
+@Document(indexName = "artworks", createIndex = false)
 @Getter
 public class ArtworkDocument {
 

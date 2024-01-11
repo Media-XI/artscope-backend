@@ -1,12 +1,12 @@
 package com.example.codebase.job;
 
-import com.example.codebase.domain.Event.crawling.dto.eventDetailResponse.XmlEventDetailResponse;
-import com.example.codebase.domain.Event.crawling.dto.eventResponse.XmlEventData;
-import com.example.codebase.domain.Event.crawling.dto.eventResponse.XmlEventResponse;
-import com.example.codebase.domain.Event.crawling.service.EventDetailCrawlingService;
-import com.example.codebase.domain.Event.crawling.service.EventCrawlingService;
-import com.example.codebase.domain.Event.entity.Event;
-import com.example.codebase.domain.Event.repository.EventRepository;
+import com.example.codebase.domain.event.crawling.dto.eventDetailResponse.XmlEventDetailResponse;
+import com.example.codebase.domain.event.crawling.dto.eventResponse.XmlEventData;
+import com.example.codebase.domain.event.crawling.dto.eventResponse.XmlEventResponse;
+import com.example.codebase.domain.event.crawling.service.EventDetailCrawlingService;
+import com.example.codebase.domain.event.crawling.service.EventCrawlingService;
+import com.example.codebase.domain.event.entity.Event;
+import com.example.codebase.domain.event.repository.EventRepository;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -65,7 +66,7 @@ public class JobService {
     }
 
     @Scheduled(cron = "0 3 * * * WED")
-    public void getEventListScheduler() {
+    public void getEventListScheduler() throws IOException {
         LocalDate now = LocalDate.now();
         String currentDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
@@ -73,28 +74,23 @@ public class JobService {
     }
 
     @Transactional
-    public void getEventList(String date) {
+    public void getEventList(String date) throws IOException {
         log.info("[getEventListScheduler JoB] 이벤트 리스트 크롤링 시작");
         LocalDateTime startTime = LocalDateTime.now();
         List<XmlEventResponse> xmlResponses = eventCrawlingService.loadXmlDatas();
         Member admin = getAdmin();
 
+        List<Event> eventEntities = new ArrayList<>();
         for (XmlEventResponse xmlResponse : xmlResponses) {
-            List<XmlEventData> events = xmlResponse.getXmlExhibitions();
-            List<Event> eventEntities = new ArrayList<>();
+            List<XmlEventData> events = xmlResponse.getXmlEvents();
 
             for (XmlEventData xmlEventData : events) {
-                XmlEventDetailResponse xmlEventDetailResponse = null;
-                try {
-                    xmlEventDetailResponse = eventDetailCrawlingService.loadAndParseXmlData(xmlEventData);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                Event event = eventDetailCrawlingService.createEvent(xmlEventDetailResponse, admin);
-                eventEntities.add(event);
+                XmlEventDetailResponse xmlEventDetailResponse = eventDetailCrawlingService.loadAndParseXmlData(xmlEventData);
+                Optional<Event> event = eventDetailCrawlingService.createEvent(xmlEventDetailResponse, admin);
+                event.ifPresent(eventEntities::add);
             }
-            eventRepository.saveAll(eventEntities);
         }
+        eventRepository.saveAll(eventEntities);
 
         LocalDateTime endTime = LocalDateTime.now();
         log.info("[getEventListScheduler JoB] 크롤링 소요시간: {} 초", endTime.getSecond() - startTime.getSecond());

@@ -1,4 +1,4 @@
-package com.example.codebase.domain.agora.document;
+package com.example.codebase.domain.event.document;
 
 import jakarta.persistence.Id;
 import lombok.Builder;
@@ -10,24 +10,19 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.time.LocalDateTime;
 
-@Document(indexName = "agoras", createIndex = false)
+@Document(indexName = "events", createIndex = false)
 @Getter
-public class AgoraDocument {
+public class EventDocument {
 
     @Id
     private Long id;
 
-    @Field(type = FieldType.Text, analyzer = "my_nori_analyzer")
     private String title;
 
-    @Field(type = FieldType.Text, analyzer = "my_nori_analyzer")
-    private String content;
+    private String description;
 
     @Field(type = FieldType.Keyword)
     private String name;
-
-    @Field(name = "is_anonymous", type = FieldType.Boolean)
-    private Boolean isAnonymous;
 
     @Field(name = "company_name",type = FieldType.Keyword)
     private String companyName;
@@ -45,15 +40,14 @@ public class AgoraDocument {
     private LocalDateTime updatedTime;
 
     @Builder
-    public AgoraDocument(Long id, String title, String content, String name, String companyName, String companyRole, String mediaUrl, Boolean isAnonymous, LocalDateTime createdTime, LocalDateTime updatedTime) {
+    public EventDocument(Long id, String title, String description, String name, String companyName, String companyRole, String mediaUrl, LocalDateTime createdTime, LocalDateTime updatedTime) {
         this.id = id;
         this.title = title;
-        this.content = content;
+        this.description = description;
         this.name = name;
         this.companyName = companyName;
         this.companyRole = companyRole;
         this.mediaUrl = mediaUrl;
-        this.isAnonymous = isAnonymous;
         this.createdTime = createdTime;
         this.updatedTime = updatedTime;
     }
