@@ -3,13 +3,14 @@ package com.example.codebase.domain.event.dto;
 import com.example.codebase.controller.dto.PageInfo;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 public class EventsResponseDTO {
 
-    List<EventResponseDTO> events;
+    List<EventResponseDTO> events = new ArrayList<>();
 
     PageInfo pageInfo;
 
