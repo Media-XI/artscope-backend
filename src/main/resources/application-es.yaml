@@ -1,4 +1,10 @@
 
+elasticsearch:
+  host: localhost
+  username: test
+  password: test
+
+
 ---
 spring:
   config:

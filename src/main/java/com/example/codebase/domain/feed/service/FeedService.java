@@ -1,7 +1,7 @@
 package com.example.codebase.domain.feed.service;
 
-import com.example.codebase.domain.Event.entity.Event;
-import com.example.codebase.domain.Event.repository.EventRepository;
+import com.example.codebase.domain.event.entity.Event;
+import com.example.codebase.domain.event.repository.EventRepository;
 import com.example.codebase.domain.agora.entity.Agora;
 import com.example.codebase.domain.agora.entity.AgoraWithParticipant;
 import com.example.codebase.domain.agora.repository.AgoraRepository;
