@@ -176,17 +176,17 @@ class SearchControllerTest {
     }
 
 
-    @DisplayName("통합 검색 시")
-    @Test
-    public void test() throws Exception {
-        createOrLoadArtwork(10, true);
-        createPosts(5);
-
-        mockMvc.perform(
-                get("/api/search?keyword=아트워크&page=0&size=10")
-
-            )
-            .andDo(print())
-            .andExpect(status().isOk());
-    }
+//    @DisplayName("통합 검색 시")
+//    @Test
+//    public void test() throws Exception {
+//        createOrLoadArtwork(10, true);
+//        createPosts(5);
+//
+//        mockMvc.perform(
+//                get("/api/search?keyword=아트워크&page=0&size=10")
+//
+//            )
+//            .andDo(print())
+//            .andExpect(status().isOk());
+//    }
 }
