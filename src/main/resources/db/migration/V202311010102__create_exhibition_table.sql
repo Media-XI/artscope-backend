@@ -1,3 +1,6 @@
+alter table exhibition_media
+    drop foreign key exhibition_media_ibfk_1;
+
 DROP TABLE IF EXISTS `exhibition`;
 
 CREATE TABLE `exhibition`
