@@ -1,7 +1,13 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.auth.WithMockCustomUser;
+import com.example.codebase.domain.event.entity.Event;
+import com.example.codebase.domain.event.entity.EventMedia;
+import com.example.codebase.domain.event.entity.EventMediaType;
+import com.example.codebase.domain.event.entity.EventType;
+import com.example.codebase.domain.event.repository.EventRepository;
 import com.example.codebase.domain.location.dto.LocationCreateDTO;
+import com.example.codebase.domain.location.dto.LocationUpdateDTO;
 import com.example.codebase.domain.location.entity.Location;
 import com.example.codebase.domain.location.repository.LocationRepository;
 import com.example.codebase.domain.member.entity.Authority;
@@ -30,12 +36,14 @@ import org.springframework.web.context.WebApplicationContext;
 
 import jakarta.transaction.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -62,13 +70,16 @@ class LocationControllerTest {
     @Autowired
     private ResourceLoader resourceLoader;
 
+    @Autowired
+    private EventRepository eventRepository;
+
     @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
     }
 
     public Member createOrLoadMember() {
-        return createOrLoadMember("testid", RoleStatus.CURATOR,"ROLE_ADMIN");
+        return createOrLoadMember("testid", RoleStatus.CURATOR, "ROLE_ADMIN");
     }
 
     public Member createOrLoadMember(String username, RoleStatus roleStatus, String... authorities) {
@@ -98,11 +109,56 @@ class LocationControllerTest {
         return memberRepository.save(dummy);
     }
 
+    @Transactional
+    public Event createOrLoadEvent(Location location) {
+
+        Member member = createOrLoadMember();
+
+        EventMedia thumbnail = EventMedia.builder()
+                .mediaUrl("url")
+                .eventMediaType(EventMediaType.image)
+                .createdTime(LocalDateTime.now())
+                .build();
+
+        EventMedia media = EventMedia.builder()
+                .mediaUrl("url")
+                .eventMediaType(EventMediaType.image)
+                .createdTime(LocalDateTime.now())
+                .build();
+
+        Event event = Event.builder()
+                .title("test")
+                .description("test description")
+                .price("10000원 ~ 20000원")
+                .link("http://localhost/")
+                .type(EventType.WORKSHOP)
+                .startDate(LocalDate.now())
+                .location(location)
+                .endDate(LocalDate.now().plusDays(1))
+                .detailedSchedule("14시 ~ 16시")
+                .detailLocation("2층")
+                .location(location)
+                .eventMedias(new ArrayList<>(List.of(thumbnail, media)))
+                .createdTime(LocalDateTime.now())
+                .updatedTime(LocalDateTime.now())
+                .member(member)
+                .detailLocation("2층")
+                .build();
+
+        location.addEvent(event);
+        eventRepository.save(event);
+        return event;
+    }
+
     public Location createOrLoadLocation() {
-        return createOrLoadLocation(1);
+        return createOrLoadLocation(1, createOrLoadMember());
     }
 
     public Location createOrLoadLocation(int index) {
+        return createOrLoadLocation(index, createOrLoadMember());
+    }
+
+    public Location createOrLoadLocation(int index, Member member) {
         Location location =
                 Location.builder()
                         .latitude(37.123456 + index)
@@ -113,9 +169,14 @@ class LocationControllerTest {
                         .phoneNumber("010-1234-5678" + index)
                         .webSiteUrl("https://test.com" + index)
                         .snsUrl("https://test.com" + index)
+                        .member(member)
                         .build();
 
         return locationRepository.save(location);
+    }
+
+    public Event createOrLoadEvent() {
+        return createOrLoadEvent();
     }
 
     public LocationCreateDTO createOrLoadLocationCreateDTO() {
@@ -132,7 +193,21 @@ class LocationControllerTest {
         return locationCreateDTO;
     }
 
-    @WithMockCustomUser(username = "testid", role = "ARTIST_PENDING")
+    public LocationUpdateDTO locationUpdateDTO() {
+        LocationUpdateDTO locationUpdateDTO = new LocationUpdateDTO();
+        locationUpdateDTO.setLatitude(50.123456);
+        locationUpdateDTO.setLongitude(-123.123456);
+        locationUpdateDTO.setAddress("경기도 수정구 수정한동");
+        locationUpdateDTO.setName("수정 장소");
+        locationUpdateDTO.setEnglishName("Update Location");
+        locationUpdateDTO.setPhoneNumber("010-1234-5678");
+        locationUpdateDTO.setWebSiteUrl("https://update.com");
+        locationUpdateDTO.setSnsUrl("https://update.com");
+
+        return locationUpdateDTO;
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("장소 생성 테스트")
     @Test
     public void 장소_등록() throws Exception {
@@ -204,11 +279,11 @@ class LocationControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @WithMockCustomUser(username = "testid", role = "NONE")
+    @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("인증안한 유저가 장소등록 테스트")
     @Test
     public void 인증_안된_유저가_장소_등록() throws Exception {
-        createOrLoadMember("testid", RoleStatus.NONE,"ROLE_ADMIN");
+        createOrLoadMember("testid", RoleStatus.NONE);
 
         LocationCreateDTO locationCreateDTO = createOrLoadLocationCreateDTO();
 
@@ -220,4 +295,104 @@ class LocationControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
+
+    @WithMockCustomUser(username = "testid", role = "ADMIN")
+    @DisplayName("장소 수정 테스트")
+    @Test
+    public void 장소_수정_테스트() throws Exception {
+        Location location = createOrLoadLocation();
+
+        LocationUpdateDTO locationUpdateDTO = locationUpdateDTO();
+
+        mockMvc
+                .perform(
+                        put("/api/location/" + location.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .content(objectMapper.writeValueAsString(locationUpdateDTO)))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("장소 수정 실패(권한 없는 유저)")
+    @Test
+    public void 권한_없는_유저가_수정을_시도할시() throws Exception {
+        createOrLoadMember("testid", RoleStatus.NONE, "ROLE_USER");
+
+        Member member = createOrLoadMember("notTestId", RoleStatus.CURATOR, "ROLE_USER");
+
+        Location location = createOrLoadLocation(1, member);
+
+        LocationUpdateDTO locationUpdateDTO = locationUpdateDTO();
+
+        mockMvc
+                .perform(
+                        put("/api/location/" + location.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .content(objectMapper.writeValueAsString(locationUpdateDTO)))
+
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("이벤트가 있는 장소 제거 할떄")
+    @Test
+    public void 이벤트가_있는_장소_삭제_시도할시() throws Exception {
+        Location location = createOrLoadLocation();
+        createOrLoadEvent(location);
+
+        mockMvc
+                .perform(
+                        delete("/api/location/" + location.getId()))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @WithMockCustomUser(username = "noDelete", role = "USER")
+    @DisplayName("권한이 없는 유저가 장소 삭제 테스트")
+    @Test
+    public void 이벤트_삭제_테스트() throws Exception {
+        createOrLoadMember("noDelete", RoleStatus.ARTIST_PENDING, "ROLE_USER");
+
+        Location location = createOrLoadLocation();
+
+        mockMvc
+                .perform(
+                        delete("/api/location/" + location.getId()))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "ROLE_ADMIN")
+    @DisplayName("관리자가 장소 삭제 테스트")
+    @Test
+    public void 관리자가_장소_삭제_테스트() throws Exception {
+        Location location = createOrLoadLocation();
+
+        mockMvc
+                .perform(
+                        delete("/api/location/" + location.getId()))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "ROLE_USER")
+    @DisplayName("작성자가 장소 삭제 테스트")
+    @Test
+    public void 작성자_장소_삭제_테스트() throws Exception {
+        Member member = createOrLoadMember("testid", RoleStatus.CURATOR, "ROLE_USER");
+
+        Location location = createOrLoadLocation(1, member);
+
+        mockMvc
+                .perform(
+                        delete("/api/location/" + location.getId()))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
 }
