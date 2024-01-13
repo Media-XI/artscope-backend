@@ -1,10 +1,7 @@
 package com.example.codebase.domain.location.service;
 
 import com.example.codebase.controller.dto.PageInfo;
-import com.example.codebase.domain.location.dto.LocationCreateDTO;
-import com.example.codebase.domain.location.dto.LocationResponseDTO;
-import com.example.codebase.domain.location.dto.LocationSearchResponseDTO;
-import com.example.codebase.domain.location.dto.LocationsSearchResponseDTO;
+import com.example.codebase.domain.location.dto.*;
 import com.example.codebase.domain.location.entity.Location;
 import com.example.codebase.domain.location.repository.LocationRepository;
 import com.example.codebase.domain.member.entity.Member;
@@ -40,25 +37,24 @@ public class LocationService {
         Member member =
                 memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
-        if (!member.isSubmitedRoleInformation()) {
+        if (!member.isSubmitedRoleInformation() && !SecurityUtil.isAdmin()) {
             throw new RuntimeException("추가정보 입력한 사용자만 장소를 생성할 수 있습니다.");
         }
 
-        Location location = findOrCreateLocation(dto);
+        Location location = findOrCreateLocation(dto, member);
         locationRepository.save(location);
 
         return LocationResponseDTO.from(location);
     }
 
-    private Location findOrCreateLocation(LocationCreateDTO dto) {
+    private Location findOrCreateLocation(LocationCreateDTO dto, Member member) {
         List<Location> locations = locationRepository.findByGpsXAndGpsYOrAddress(String.valueOf(dto.getLatitude()), String.valueOf(dto.getLongitude()), dto.getName());
 
         if (locations.isEmpty()) {
-            Location newLocation = Location.from(dto);
+            Location newLocation = Location.of(dto, member);
             locationRepository.save(newLocation);
             return newLocation;
-        }
-        else {
+        } else {
             return locations.get(0);
         }
 
@@ -72,8 +68,6 @@ public class LocationService {
                         .orElseThrow(() -> new RuntimeException("존재하지 않는 장소입니다."));
 
         return LocationResponseDTO.from(location);
-
-        // TODO : 스케쥴, 이벤트 관련 반환 로직 구현 필요
     }
 
     @Transactional
@@ -81,21 +75,46 @@ public class LocationService {
         Member member =
                 memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
-        if (!SecurityUtil.isAdmin()) {
-            throw new RuntimeException("관리자만 장소를 삭제할 수 있습니다.");
+        Location location =
+                locationRepository.findById(locationId).orElseThrow(() -> new RuntimeException("존재하지 않는 장소입니다."));
+
+        if (!SecurityUtil.isAdmin() && !location.equalsUsername(username)) {
+            throw new RuntimeException("장소를 삭제할 권한이 없습니다.");
         }
+
+        if (location.hasEvents()) {
+            throw new RuntimeException("장소에 등록된 이벤트가 있습니다.");
+        }
+
+        locationRepository.delete(location);
+
+    }
+
+    @Transactional
+    public LocationResponseDTO updateLocation(Long locationId, LocationUpdateDTO dto, String username) {
+        Member member =
+                memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
         Location location =
                 locationRepository.findById(locationId).orElseThrow(() -> new RuntimeException("존재하지 않는 장소입니다."));
 
-        throw new RuntimeException("deleteLocation 구현 안됨"); // TODO: 현재 장소에 대한 삭제 로직 구현 필요
+        if (!SecurityUtil.isAdmin() && !location.equalsUsername(username)) {
+            throw new RuntimeException("장소를 삭제할 권한이 없습니다.");
+        }
+
+        location.update(dto);
+
+        locationRepository.save(location);
+
+        return LocationResponseDTO.from(location);
     }
 
     @Transactional(readOnly = true)
-    public LocationsSearchResponseDTO findLocationByKeyword(String keyword, int page, int size) {
+    public LocationsSearchResponseDTO findLocationByUsernameAndKeyword(String username,String keyword, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        Page<Location> locations = locationRepository.findByKeyword(keyword, pageRequest);
+        Page<Location> locations = locationRepository.findByOptionalUserNameAndOptionalKeyword(username,keyword, pageRequest);
+
         PageInfo pageInfo =
                 PageInfo.of(page, size, locations.getTotalPages(), locations.getTotalElements());
 
@@ -104,4 +123,5 @@ public class LocationService {
 
         return LocationsSearchResponseDTO.of(locationsResponseDTOs, pageInfo);
     }
+
 }
