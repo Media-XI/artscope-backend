@@ -64,7 +64,7 @@ public class Location {
     private Member member;
 
     @Builder.Default
-    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "location")
     private List<Event> events = new ArrayList<>();
 
     public static Location of(LocationCreateDTO dto, Member member) {
