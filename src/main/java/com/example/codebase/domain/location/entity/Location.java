@@ -108,6 +108,7 @@ public class Location {
         this.phoneNumber = dto.getPhoneNumber();
         this.webSiteUrl = dto.getWebSiteUrl();
         this.snsUrl = dto.getSnsUrl();
+        this.updatedTime = LocalDateTime.now();
     }
 
     public boolean equalsUsername(String username) {
