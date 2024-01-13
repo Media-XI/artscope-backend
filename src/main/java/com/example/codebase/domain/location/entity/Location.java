@@ -96,7 +96,7 @@ public class Location {
     }
 
     public boolean hasEvents() {
-        return this.events != null && !this.events.isEmpty();
+        return !this.events.isEmpty();
     }
 
     public void update(LocationUpdateDTO dto) {
