@@ -164,7 +164,9 @@ public class Event {
             this.detailedSchedule = dto.getDetailedSchedule();
         }
         if (dto.getLocationId() != null){
+            this.location.removeEvent(this);
             this.location = location;
+            location.addEvent(this);
         }
         this.updatedTime = LocalDateTime.now();
     }
@@ -211,5 +213,12 @@ public class Event {
 
     public void setLocation(Location location) {
         this.location = location;
+        this.location.addEvent(this);
+    }
+
+    public void delete() {
+        this.location.removeEvent(this);
+        location = null;
+        this.enabled = false;
     }
 }
