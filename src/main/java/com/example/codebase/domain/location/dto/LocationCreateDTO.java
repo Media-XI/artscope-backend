@@ -1,23 +1,19 @@
 package com.example.codebase.domain.location.dto;
 
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
-
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
 
 @Getter
 @Setter
 public class LocationCreateDTO {
 
-    @NotEmpty(message = "위도 정보는 필수입니다.")
+    @NotNull(message = "위도 정보는 필수입니다.")
     @DecimalMin(value = "-90", message = "위도는 최소 -90도부터 가능합니다.")
     @DecimalMax(value = "90", message = "위도는 최대 90도까지 가능합니다.")
     private Double latitude;
 
-    @NotEmpty(message = "경도 정보는 필수입니다.")
+    @NotNull(message = "경도 정보는 필수입니다.")
     @DecimalMin(value = "-180", message = "경도는 최소 -180도부터 가능합니다.")
     @DecimalMax(value = "180", message = "경도는 최대 180도까지 가능합니다.")
     private Double longitude;
