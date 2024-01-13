@@ -11,12 +11,11 @@ import java.time.LocalDate;
 import java.util.Optional;
 public interface EventRepository extends JpaRepository<Event, Long> {
 
-    @Query("SELECT e FROM Event e WHERE e.startDate >= :startDate AND e.endDate <= :endDate ORDER BY e.startDate")
-    Page<Event> findAllBySearchCondition(LocalDate startDate, LocalDate endDate, PageRequest pageRequest);
-
-    @Query("SELECT e FROM Event e WHERE e.startDate >= :startDate AND e.endDate <= :endDate AND e.type = :eventType ORDER BY e.startDate")
-    Page<Event> findAllBySearchConditionAndEventType(LocalDate startDate, LocalDate endDate, EventType eventType, PageRequest pageRequest);
-
     @Query("SELECT e FROM Event e WHERE e.seq = :seq")
     Optional<Event> findBySeq(Long seq);
+
+    @Query("SELECT e FROM Event e JOIN e.member m WHERE (:username IS NULL OR m.username = :username) AND e.startDate >= :startDate AND e.endDate <= :endDate"
+            + " AND (:eventType IS NULL OR e.type = :eventType) ORDER BY e.startDate")
+    Page<Event> findByOptionalUsernameAndEventType(String username, LocalDate startDate, LocalDate endDate, EventType eventType, PageRequest pageRequest);
+
 }

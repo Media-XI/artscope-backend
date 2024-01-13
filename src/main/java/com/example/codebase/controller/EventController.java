@@ -66,13 +66,13 @@ public class EventController {
         imageService.uploadMedias(dto, mediaFiles);
         imageService.uploadThumbnail(dto.getThumbnail(), thumbnailFile);
 
-        EventDetailResponseDTO event= eventService.createEvent(dto, member);
+        EventDetailResponseDTO event = eventService.createEvent(dto, member);
 
         return new ResponseEntity(event, HttpStatus.CREATED);
     }
 
-    @Operation(summary = "이벤트 목록 조회", description = "이벤트 목록을 조회합니다.")
-    @GetMapping
+    @Operation(summary = "이벤트 목록 조회", description = "(유저 이름, 키워드) 이벤트 목록을 조회합니다.")
+    @GetMapping()
     public ResponseEntity getEvent(
             @ModelAttribute @Valid EventSearchDTO eventSearchDTO,
             @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,

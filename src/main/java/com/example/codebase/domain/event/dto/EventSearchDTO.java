@@ -20,6 +20,8 @@ public class EventSearchDTO {
     @NotBlank(message = "이벤트 타입은 필수입니다.")
     private String eventType;
 
+    private String username;
+
     public void repeatTimeValidity() {
         if (this.startDate.isAfter(this.endDate)) {
             throw new RuntimeException("시작일은 종료일보다 이전에 있어야 합니다.");
