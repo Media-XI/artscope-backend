@@ -51,6 +51,7 @@ public class EventService {
             event.addEventMedia(media);
         }
 
+        location.addEvent(event);
         eventRepository.save(event);
 
         return EventDetailResponseDTO.from(event);
@@ -71,7 +72,7 @@ public class EventService {
         SearchEventType searchEventType = SearchEventType.create(eventSearchDTO.getEventType());
         EventType eventType = EventType.create(searchEventType.name());
 
-        Page<Event> events = findEventsBySearchCondition(eventSearchDTO, pageRequest, eventType);
+        Page<Event> events = eventRepository.findByOptionalUsernameAndEventType(eventSearchDTO.getUsername(), eventSearchDTO.getStartDate(), eventSearchDTO.getEndDate(), eventType, pageRequest);
 
         PageInfo pageInfo = PageInfo.of(page, size, events.getTotalPages(), events.getTotalElements());
 
@@ -80,13 +81,6 @@ public class EventService {
                 .toList();
 
         return EventsResponseDTO.of(dtos, pageInfo);
-    }
-
-    private Page<Event> findEventsBySearchCondition(EventSearchDTO eventSearchDTO, PageRequest pageRequest, EventType eventType) {
-        if (eventType == null) {
-            return eventRepository.findAllBySearchCondition(eventSearchDTO.getStartDate(), eventSearchDTO.getEndDate(), pageRequest);
-        }
-        return eventRepository.findAllBySearchConditionAndEventType(eventSearchDTO.getStartDate(), eventSearchDTO.getEndDate(), eventType, pageRequest);
     }
 
     @Transactional(readOnly = true)
@@ -115,7 +109,6 @@ public class EventService {
         }
 
         event.update(dto);
-
         return EventDetailResponseDTO.from(event);
     }
 
@@ -127,7 +120,8 @@ public class EventService {
             throw new RuntimeException("해당 이벤트의 작성자가 아닙니다");
         }
 
-        eventRepository.delete(event);
+        event.delete();
+        eventRepository.save(event);
     }
 
 }
