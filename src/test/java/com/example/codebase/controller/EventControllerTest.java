@@ -431,7 +431,7 @@ public class EventControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @WithMockCustomUser(username = "testid", role = "CURATOR")
+    @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("이벤트 수정")
     @Test
     public void 이벤트_수정() throws Exception {
@@ -451,11 +451,11 @@ public class EventControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @WithMockCustomUser(username = "user", role = "CURATOR")
+    @WithMockCustomUser(username = "user12", role = "USER")
     @DisplayName("작성자가 아닌 유저가 이벤트 수정")
     @Test
     public void 작성자가_아닌_유저가_이벤트_수정() throws Exception {
-        createOrLoadMember("user", RoleStatus.CURATOR, "ROLE_CURATOR");
+        createOrLoadMember("user", RoleStatus.CURATOR, "ROLE_USER");
         Event event = createOrLoadEvent();
 
         EventUpdateDTO dto = new EventUpdateDTO();
@@ -471,7 +471,7 @@ public class EventControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    @WithMockCustomUser(username = "testid", role = "CURATOR")
+    @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("이벤트 삭제")
     @Test
     public void 이벤트_삭제() throws Exception {
@@ -484,7 +484,7 @@ public class EventControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @WithMockCustomUser(username = "user", role = "CURATOR")
+    @WithMockCustomUser(username = "user", role = "USER")
     @DisplayName("작성자가 아닌 유저가 이벤트 삭제")
     @Test
     public void 작성자가_아닌_유저가_이벤트_삭제() throws Exception {
