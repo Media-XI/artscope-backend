@@ -33,21 +33,19 @@ public class LocationService {
     }
 
     @Transactional
-    public LocationResponseDTO createLocation(LocationCreateDTO dto, String username) {
+    public LocationResponseDTO createLocation(LocationCreateDTO dto, String username, boolean isAdmin) {
         Member member =
                 memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
-        if (!member.isSubmitedRoleInformation() && !SecurityUtil.isAdmin()) {
+        if (!isAdmin && !member.isSubmitedRoleInformation()) {
             throw new RuntimeException("추가정보 입력한 사용자만 장소를 생성할 수 있습니다.");
         }
 
-        Location location = findOrCreateLocation(dto, member);
-        locationRepository.save(location);
-
+        Location location = createLocation(dto, member);
         return LocationResponseDTO.from(location);
     }
 
-    private Location findOrCreateLocation(LocationCreateDTO dto, Member member) {
+    private Location createLocation(LocationCreateDTO dto, Member member) {
         List<Location> locations = locationRepository.findByGpsXAndGpsYOrAddress(String.valueOf(dto.getLatitude()), String.valueOf(dto.getLongitude()), dto.getName());
 
         if (locations.isEmpty()) {
@@ -55,7 +53,7 @@ public class LocationService {
             locationRepository.save(newLocation);
             return newLocation;
         } else {
-            return locations.get(0);
+            throw new RuntimeException("이미 등록된 장소입니다. (위경도 또는 주소 확인)");
         }
 
     }

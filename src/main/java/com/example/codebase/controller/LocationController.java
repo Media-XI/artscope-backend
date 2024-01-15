@@ -33,16 +33,16 @@ public class LocationController {
     public ResponseEntity createLocation(@Valid @RequestBody LocationCreateDTO dto) {
         String username =
                 SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
-        LocationResponseDTO location = locationService.createLocation(dto, username);
+        LocationResponseDTO location = locationService.createLocation(dto, username, SecurityUtil.isAdmin());
         return new ResponseEntity(location, HttpStatus.CREATED);
     }
 
-    @Operation(summary = "장소 조회", description = "[모든 사용자] 특정 장소에 대한 정보를 조회합니다.")
+    @Operation(summary = "장소 상세 조회", description = "[모든 사용자] 특정 장소에 대한 정보를 조회합니다.")
     @GetMapping("/{locationId}")
-    public ResponseEntity<LocationResponseDTO> getLocation(
+    public ResponseEntity getLocation(
             @PathVariable("locationId") Long locationId) {
         LocationResponseDTO location = locationService.getLocation(locationId);
-        return new ResponseEntity<>(location, HttpStatus.OK);
+        return new ResponseEntity(location, HttpStatus.OK);
     }
 
     @Operation(summary = "장소 삭제", description = "[ADMIN, 장소 최초 생성자] 특정 장소를 삭제합니다.")
@@ -54,7 +54,7 @@ public class LocationController {
 
         locationService.deleteLocation(locationId, username);
 
-        return new ResponseEntity("성공적으로 삭제되었습니다", HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @Operation(summary = "장소 검색", description = "[모든 사용자] 키워드, 유저 이름으로 장소를 검색합니다.")
