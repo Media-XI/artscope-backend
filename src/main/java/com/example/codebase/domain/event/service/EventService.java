@@ -39,7 +39,7 @@ public class EventService {
 
     @Transactional
     public EventDetailResponseDTO createEvent(EventCreateDTO dto, Member member) {
-        Location location = findLocationByLocationId(dto.getLocationId());
+        Location location = findByLocationId(dto.getLocationId());
 
         Event event = Event.of(dto, member, location);
 
@@ -57,23 +57,19 @@ public class EventService {
         return EventDetailResponseDTO.from(event);
     }
 
-    public Member findMemberByUserName(String username) {
-        return memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
-    }
-
-    private Location findLocationByLocationId(Long locationId) {
+    private Location findByLocationId(Long locationId) {
         return locationRepository.findById(locationId).orElseThrow(() -> new NotFoundException("장소를 찾을 수 없습니다."));
     }
 
     @Transactional(readOnly = true)
-    public EventsResponseDTO searchEvents(EventSearchDTO eventSearchDTO, int page, int size, String sortDirection) {
+    public EventsResponseDTO getEvents(EventSearchDTO eventSearchDTO, int page, int size, String sortDirection) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
         SearchEventType searchEventType = SearchEventType.create(eventSearchDTO.getEventType());
         EventType eventType = EventType.create(searchEventType.name());
 
-        Page<Event> events = eventRepository.findByUserNameAndEventType(eventSearchDTO.getUsername(), eventSearchDTO.getStartDate(), eventSearchDTO.getEndDate(), eventType, pageRequest);
+        Page<Event> events = eventRepository.findEventsByEventType(eventSearchDTO.getStartDate(), eventSearchDTO.getEndDate(), eventType, pageRequest);
 
         PageInfo pageInfo = PageInfo.of(page, size, events.getTotalPages(), events.getTotalElements());
 
@@ -100,12 +96,12 @@ public class EventService {
 
         Event event = findEventById(eventId);
 
-        if (!event.equalUsername(username)) {
+        if (!event.equalUsername(member.getUsername())) {
             throw new RuntimeException("해당 이벤트의 작성자가 아닙니다");
         }
 
         Location location = Optional.ofNullable(dto.getLocationId())
-                .map(this::findLocationByLocationId)
+                .map(this::findByLocationId)
                 .orElse(null);
 
         event.update(dto, location);
@@ -123,6 +119,19 @@ public class EventService {
 
         event.delete();
         eventRepository.save(event);
+    }
+
+    @Transactional(readOnly = true)
+    public EventsResponseDTO getEventsByMember(Member member, PageRequest pageRequest) {
+        Page<Event> events = eventRepository.findEventsByMember(member, pageRequest);
+
+        PageInfo pageInfo = PageInfo.of(events.getNumber(), events.getSize(), events.getTotalPages(), events.getTotalElements());
+
+        List<EventResponseDTO> dtos = events.getContent().stream()
+                .map(EventResponseDTO::from)
+                .toList();
+
+        return EventsResponseDTO.of(dtos, pageInfo);
     }
 
 }
