@@ -377,7 +377,7 @@ class LocationControllerTest {
                 .perform(
                         delete("/api/location/" + location.getId()))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -392,7 +392,7 @@ class LocationControllerTest {
                 .perform(
                         delete("/api/location/" + location.getId()))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
 }

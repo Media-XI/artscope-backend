@@ -481,7 +481,7 @@ public class EventControllerTest {
         mockMvc
                 .perform(delete(String.format("/api/events/%d", event.getId())))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
     @WithMockCustomUser(username = "user", role = "USER")
