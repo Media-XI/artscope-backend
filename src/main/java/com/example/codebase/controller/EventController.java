@@ -80,7 +80,7 @@ public class EventController {
             @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
         eventSearchDTO.repeatTimeValidity();
 
-        EventsResponseDTO dtos = eventService.getEvents(eventSearchDTO, page, size, sortDirection);
+        EventsResponseDTO dtos = eventService.searchEvents(eventSearchDTO, page, size, sortDirection);
         return new ResponseEntity(dtos, HttpStatus.OK);
     }
 
@@ -92,9 +92,9 @@ public class EventController {
     }
 
     @Operation(summary = "이벤트 수정", description = "이벤트를 수정합니다.")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @PutMapping("/{eventId}")
-    public ResponseEntity updateEvnet(
+    public ResponseEntity updateEvent(
             @PathVariable Long eventId,
             @RequestBody @Valid EventUpdateDTO dto){
         String username =
@@ -106,7 +106,7 @@ public class EventController {
     }
 
     @Operation(summary = "이벤트 삭제", description = "이벤트를 삭제합니다.")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @DeleteMapping("/{eventId}")
     public ResponseEntity deleteEvent(@PathVariable Long eventId) {
         String username =

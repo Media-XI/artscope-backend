@@ -73,7 +73,7 @@ public class EventService {
         SearchEventType searchEventType = SearchEventType.create(eventSearchDTO.getEventType());
         EventType eventType = EventType.create(searchEventType.name());
 
-        Page<Event> events = eventRepository.findByKeywordAndEventType(eventSearchDTO.getKeyword(), eventSearchDTO.getStartDate(), eventSearchDTO.getEndDate(), eventType, pageRequest);
+        Page<Event> events = eventRepository.findByUserNameAndEventType(eventSearchDTO.getUsername(), eventSearchDTO.getStartDate(), eventSearchDTO.getEndDate(), eventType, pageRequest);
 
         PageInfo pageInfo = PageInfo.of(page, size, events.getTotalPages(), events.getTotalElements());
 

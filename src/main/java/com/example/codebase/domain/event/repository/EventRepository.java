@@ -14,8 +14,12 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("SELECT e FROM Event e WHERE e.seq = :seq")
     Optional<Event> findBySeq(Long seq);
 
-    @Query("SELECT e FROM Event e JOIN e.member m WHERE (:username IS NULL OR m.username = :username) AND e.startDate >= :startDate AND e.endDate <= :endDate"
-            + " AND (:eventType IS NULL OR e.type = :eventType) ORDER BY e.startDate")
-    Page<Event> findByOptionalUsernameAndEventType(String username, LocalDate startDate, LocalDate endDate, EventType eventType, PageRequest pageRequest);
+    @Query("SELECT e FROM Event e LEFT JOIN e.member m WHERE " +
+            "(:username IS NULL OR m.username LIKE :username%) AND " +
+            "e.startDate >= :startDate AND e.endDate <= :endDate AND " +
+            "(:eventType IS NULL OR e.type = :eventType) " +
+            "ORDER BY e.startDate")
+    Page<Event> findByUserNameAndEventType(String username, LocalDate startDate, LocalDate endDate, EventType eventType, PageRequest pageRequest);
+
 
 }
