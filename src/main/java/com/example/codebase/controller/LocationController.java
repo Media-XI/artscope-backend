@@ -28,7 +28,7 @@ public class LocationController {
     }
 
     @Operation(summary = "장소 생성", description = "[인증 받은 유저] 장소를 생성합니다.")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity createLocation(@Valid @RequestBody LocationCreateDTO dto) {
         String username =
@@ -46,7 +46,7 @@ public class LocationController {
     }
 
     @Operation(summary = "장소 삭제", description = "[ADMIN, 장소 최초 생성자] 특정 장소를 삭제합니다.")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @DeleteMapping("/{locationId}")
     public ResponseEntity deleteLocation(@PathVariable("locationId") Long locationId) {
         String username =
@@ -61,17 +61,16 @@ public class LocationController {
     @GetMapping("/search")
     public ResponseEntity findLocationByKeyword(
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String username,
             @PositiveOrZero @RequestParam(defaultValue = "0") int page,
             @PositiveOrZero @RequestParam(defaultValue = "10") int size) {
 
-        LocationsSearchResponseDTO searchResponseDTO = locationService.findLocationByUsernameAndKeyword(username, keyword, page, size);
+        LocationsSearchResponseDTO searchResponseDTO = locationService.searchLocation(keyword, page, size);
 
         return new ResponseEntity(searchResponseDTO, HttpStatus.OK);
     }
 
     @Operation(summary = "장소 수정", description = "[ADMIN, 장소 최초 생성자] 특정 장소를 수정합니다.")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @PutMapping("/{locationId}")
     public ResponseEntity updateLocation(@PathVariable("locationId") Long locationId, @RequestBody LocationUpdateDTO dto) {
         String username =

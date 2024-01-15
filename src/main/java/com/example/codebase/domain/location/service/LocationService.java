@@ -78,8 +78,8 @@ public class LocationService {
         Location location =
                 locationRepository.findById(locationId).orElseThrow(() -> new RuntimeException("존재하지 않는 장소입니다."));
 
-        if (!SecurityUtil.isAdmin() && !location.equalsUsername(username)) {
-            throw new RuntimeException("장소를 삭제할 권한이 없습니다.");
+        if (!location.equalsUsername(username)) {
+            throw new RuntimeException("장소 작성자만 삭제할 수 있습니다.");
         }
 
         if (location.hasEvents()) {
@@ -98,8 +98,8 @@ public class LocationService {
         Location location =
                 locationRepository.findById(locationId).orElseThrow(() -> new RuntimeException("존재하지 않는 장소입니다."));
 
-        if (!SecurityUtil.isAdmin() && !location.equalsUsername(username)) {
-            throw new RuntimeException("장소를 삭제할 권한이 없습니다.");
+        if (!location.equalsUsername(username)) {
+            throw new RuntimeException("장소 작성자만 수정할 수 있습니다.");
         }
 
         location.update(dto);
@@ -110,10 +110,10 @@ public class LocationService {
     }
 
     @Transactional(readOnly = true)
-    public LocationsSearchResponseDTO findLocationByUsernameAndKeyword(String username,String keyword, int page, int size) {
+    public LocationsSearchResponseDTO searchLocation(String keyword, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        Page<Location> locations = locationRepository.findByOptionalUserNameAndOptionalKeyword(username,keyword, pageRequest);
+        Page<Location> locations = locationRepository.findByKeyword(keyword, pageRequest);
 
         PageInfo pageInfo =
                 PageInfo.of(page, size, locations.getTotalPages(), locations.getTotalElements());
