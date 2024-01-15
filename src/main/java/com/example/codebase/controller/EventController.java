@@ -4,6 +4,8 @@ import com.example.codebase.domain.event.dto.*;
 import com.example.codebase.domain.event.service.EventService;
 import com.example.codebase.domain.image.service.ImageService;
 import com.example.codebase.domain.member.entity.Member;
+import com.example.codebase.domain.member.exception.NotFoundMemberException;
+import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.job.JobService;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +13,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,13 +37,16 @@ public class EventController {
 
     private final EventService eventService;
 
+    private final MemberRepository memberRepository;
+
     private final ImageService imageService;
 
     private final JobService jobService;
 
     @Autowired
-    public EventController(EventService eventService, ImageService imageService, JobService jobService) {
+    public EventController(EventService eventService, ImageService imageService, MemberRepository memberRepository, JobService jobService) {
         this.eventService = eventService;
+        this.memberRepository = memberRepository;
         this.imageService = imageService;
         this.jobService = jobService;
     }
@@ -57,7 +64,7 @@ public class EventController {
 
         dto.validateDates();
 
-        Member member = eventService.findMemberByUserName(username);
+        Member member = memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
         if (!member.isSubmitedRoleInformation()) {
             throw new RuntimeException("추가정보 입력한 사용자만 이벤트를 생성할 수 있습니다.");
@@ -71,7 +78,7 @@ public class EventController {
         return new ResponseEntity(event, HttpStatus.CREATED);
     }
 
-    @Operation(summary = "이벤트 목록 조회", description = "(유저 이름, 키워드) 이벤트 목록을 조회합니다.")
+    @Operation(summary = "이벤트 목록 조회", description = "전체 이벤트 목록을 조회 합니다.")
     @GetMapping()
     public ResponseEntity getEvent(
             @ModelAttribute @Valid EventSearchDTO eventSearchDTO,
@@ -80,7 +87,7 @@ public class EventController {
             @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
         eventSearchDTO.repeatTimeValidity();
 
-        EventsResponseDTO dtos = eventService.searchEvents(eventSearchDTO, page, size, sortDirection);
+        EventsResponseDTO dtos = eventService.getEvents(eventSearchDTO, page, size, sortDirection);
         return new ResponseEntity(dtos, HttpStatus.OK);
     }
 
@@ -114,13 +121,13 @@ public class EventController {
 
         eventService.deleteEvent(eventId, username);
 
-        return new ResponseEntity("이벤트가 삭제되었습니다.", HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @Operation(summary = "수동 이벤트 크롤링 업데이트", description = "수동으로 공공데이터 포털에서 이벤트를 가져옵니다")
     @PreAuthorize("isAuthenticated() AND hasRole('ROLE_ADMIN')")
     @PostMapping("/crawling/event")
-    public ResponseEntity crawlingEvent(@RequestParam(name = "date") @Valid @DateTimeFormat(pattern = "yyyyMMdd") LocalDate date) {
+    public ResponseEntity crawlingEvent(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyyMMdd") LocalDate date) {
         String currentDate = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         try {
             jobService.getEventList(currentDate);
@@ -128,6 +135,23 @@ public class EventController {
             return new ResponseEntity("이벤트 크롤링에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity("이벤트가 업데이트 되었습니다.", HttpStatus.OK);
+    }
+
+    @Operation(summary = "이벤트 작성자를 통해 이벤트 목록 조회", description = "이벤트 작성자를 통해 이벤트 목록을 조회합니다.")
+    @GetMapping("/members/{username}")
+    public ResponseEntity getEventByMember(
+            @PathVariable String username,
+            @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,
+            @PositiveOrZero @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
+
+        Member member = memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
+
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        EventsResponseDTO dtos = eventService.getEventsByMember(member,pageRequest);
+        return new ResponseEntity(dtos, HttpStatus.OK);
     }
 
 }
