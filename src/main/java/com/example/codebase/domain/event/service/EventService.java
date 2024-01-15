@@ -10,7 +10,6 @@ import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.exception.NotFoundException;
-import com.example.codebase.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EventService {
@@ -65,14 +65,15 @@ public class EventService {
         return locationRepository.findById(locationId).orElseThrow(() -> new NotFoundException("장소를 찾을 수 없습니다."));
     }
 
-    public EventsResponseDTO getEvents(EventSearchDTO eventSearchDTO, int page, int size, String sortDirection) {
+    @Transactional(readOnly = true)
+    public EventsResponseDTO searchEvents(EventSearchDTO eventSearchDTO, int page, int size, String sortDirection) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
         SearchEventType searchEventType = SearchEventType.create(eventSearchDTO.getEventType());
         EventType eventType = EventType.create(searchEventType.name());
 
-        Page<Event> events = eventRepository.findByOptionalUsernameAndEventType(eventSearchDTO.getUsername(), eventSearchDTO.getStartDate(), eventSearchDTO.getEndDate(), eventType, pageRequest);
+        Page<Event> events = eventRepository.findByKeywordAndEventType(eventSearchDTO.getKeyword(), eventSearchDTO.getStartDate(), eventSearchDTO.getEndDate(), eventType, pageRequest);
 
         PageInfo pageInfo = PageInfo.of(page, size, events.getTotalPages(), events.getTotalElements());
 
@@ -99,16 +100,16 @@ public class EventService {
 
         Event event = findEventById(eventId);
 
-        if (!SecurityUtil.isAdmin() && !event.equalUsername(username)) {
+        if (!event.equalUsername(username)) {
             throw new RuntimeException("해당 이벤트의 작성자가 아닙니다");
         }
 
-        if (dto.getLocationId() != null) {
-            Location location = findLocationByLocationId(dto.getLocationId());
-            event.update(location);
-        }
+        Location location = Optional.ofNullable(dto.getLocationId())
+                .map(this::findLocationByLocationId)
+                .orElse(null);
 
-        event.update(dto);
+        event.update(dto, location);
+
         return EventDetailResponseDTO.from(event);
     }
 
@@ -116,7 +117,7 @@ public class EventService {
     public void deleteEvent(Long eventId, String username) {
         Event event = findEventById(eventId);
 
-        if (!SecurityUtil.isAdmin() && !event.equalUsername(username)) {
+        if (!event.equalUsername(username)) {
             throw new RuntimeException("해당 이벤트의 작성자가 아닙니다");
         }
 
