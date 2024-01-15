@@ -76,7 +76,7 @@ public class Event {
     @Column(name = "updated_time")
     private LocalDateTime updatedTime;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", columnDefinition = "BINARY(16)", nullable = false)
     private Member member;
 
@@ -84,7 +84,7 @@ public class Event {
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
     private List<EventMedia> eventMedias = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id")
     private Location location;
 
@@ -155,7 +155,7 @@ public class Event {
         if (dto.getDetailedSchedule() != null){
             this.detailedSchedule = dto.getDetailedSchedule();
         }
-        if (dto.getLocationId() != null){
+        if (dto.getLocationId() != null && this.location != location){
             this.location.removeEvent(this);
             this.location = location;
             location.addEvent(this);
