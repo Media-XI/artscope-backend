@@ -76,7 +76,7 @@ public class Event {
     @Column(name = "updated_time")
     private LocalDateTime updatedTime;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", columnDefinition = "BINARY(16)", nullable = false)
     private Member member;
 
@@ -84,7 +84,7 @@ public class Event {
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
     private List<EventMedia> eventMedias = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id")
     private Location location;
 
@@ -127,15 +127,7 @@ public class Event {
         this.eventMedias.add(eventMedia);
     }
 
-    public void update(EventUpdateDTO dto) {
-        update(dto, null);
-    }
-
-    public void update(Location location) {
-        update(null, location);
-    }
-
-    private void update(EventUpdateDTO dto, Location location) {
+    public void update(EventUpdateDTO dto, Location location) {
         if(dto.getTitle() != null){
             this.title = dto.getTitle();
         }
@@ -163,8 +155,10 @@ public class Event {
         if (dto.getDetailedSchedule() != null){
             this.detailedSchedule = dto.getDetailedSchedule();
         }
-        if (dto.getLocationId() != null){
+        if (dto.getLocationId() != null && this.location != location){
+            this.location.removeEvent(this);
             this.location = location;
+            location.addEvent(this);
         }
         this.updatedTime = LocalDateTime.now();
     }
@@ -211,5 +205,12 @@ public class Event {
 
     public void setLocation(Location location) {
         this.location = location;
+        this.location.addEvent(this);
+    }
+
+    public void delete() {
+        this.location.removeEvent(this);
+        location = null;
+        this.enabled = false;
     }
 }

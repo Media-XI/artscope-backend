@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LocationCreateDTO {
+public class LocationUpdateDTO {
 
     @NotNull(message = "위도 정보는 필수입니다.")
     @DecimalMin(value = "-90", message = "위도는 최소 -90도부터 가능합니다.")

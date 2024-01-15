@@ -12,8 +12,6 @@ import com.example.codebase.domain.location.entity.Location;
 import com.example.codebase.domain.location.repository.LocationRepository;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.s3.S3Service;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -107,7 +105,7 @@ public class EventDetailCrawlingService {
             return Optional.empty();
         }
 
-        Location location = findOrCreateLocation(detailEventData);
+        Location location = findOrCreateLocation(detailEventData,admin);
         Event event = findOrCreateEvent(detailEventData, admin);
 
         if (event.isPersist()) {
@@ -158,11 +156,11 @@ public class EventDetailCrawlingService {
         };
     }
 
-    private Location findOrCreateLocation(XmlEventDetailData perforInfo) {
+    private Location findOrCreateLocation(XmlEventDetailData perforInfo, Member admin) {
         List<Location> locations = locationRepository.findByGpsXAndGpsYOrAddress(perforInfo.getGpsX(), perforInfo.getGpsY(), perforInfo.getPlaceAddr());
 
         if (locations.isEmpty()) {
-            Location newLocation = Location.from(perforInfo);
+            Location newLocation = Location.of(perforInfo, admin);
             locationRepository.save(newLocation);
             return newLocation;
         } else {
