@@ -280,7 +280,7 @@ class LocationControllerTest {
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("인증안한 유저가 장소등록 테스트")
+    @DisplayName("인증안한 유저가 장소 등록을 시도할 시")
     @Test
     public void 인증_안된_유저가_장소_등록() throws Exception {
         createOrLoadMember("testid", RoleStatus.NONE);
@@ -297,9 +297,9 @@ class LocationControllerTest {
     }
 
     @WithMockCustomUser(username = "testid", role = "ADMIN")
-    @DisplayName("장소 수정 테스트")
+    @DisplayName("관리자가 장소를 수정할 시")
     @Test
-    public void 장소_수정_테스트() throws Exception {
+    public void 인증된_유저가_장소_수정_시() throws Exception {
         Location location = createOrLoadLocation();
 
         LocationUpdateDTO locationUpdateDTO = locationUpdateDTO();
@@ -316,9 +316,9 @@ class LocationControllerTest {
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("장소 수정 실패(권한 없는 유저)")
+    @DisplayName("작성자가 아닌 유저가 장소 수정시")
     @Test
-    public void 권한_없는_유저가_수정을_시도할시() throws Exception {
+    public void 작성자가_아닌_유저가_장소_수정시() throws Exception {
         createOrLoadMember("testid", RoleStatus.NONE, "ROLE_USER");
 
         Member member = createOrLoadMember("notTestId", RoleStatus.CURATOR, "ROLE_USER");
@@ -339,9 +339,9 @@ class LocationControllerTest {
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("이벤트가 있는 장소 제거 할떄")
+    @DisplayName("이벤트가 있는 장소 제거 시")
     @Test
-    public void 이벤트가_있는_장소_삭제_시도할시() throws Exception {
+    public void 이벤트가_있는_장소_제거시() throws Exception {
         Location location = createOrLoadLocation();
         createOrLoadEvent(location);
 
@@ -353,9 +353,9 @@ class LocationControllerTest {
     }
 
     @WithMockCustomUser(username = "noDelete", role = "USER")
-    @DisplayName("권한이 없는 유저가 장소 삭제 테스트")
+    @DisplayName("작성자가 아닌 유저가 장소 삭제할 시")
     @Test
-    public void 이벤트_삭제_테스트() throws Exception {
+    public void 작성자가_아닌_유저가_장소를_삭제() throws Exception {
         createOrLoadMember("noDelete", RoleStatus.ARTIST_PENDING, "ROLE_USER");
 
         Location location = createOrLoadLocation();
@@ -367,10 +367,10 @@ class LocationControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    @WithMockCustomUser(username = "testid", role = "ROLE_ADMIN")
-    @DisplayName("관리자가 장소 삭제 테스트")
+    @WithMockCustomUser(username = "testid", role = "ADMIN")
+    @DisplayName("관리자가 장소 삭제를 시도할 시")
     @Test
-    public void 관리자가_장소_삭제_테스트() throws Exception {
+    public void 관리자가_장소를_삭제() throws Exception {
         Location location = createOrLoadLocation();
 
         mockMvc
@@ -380,7 +380,7 @@ class LocationControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @WithMockCustomUser(username = "testid", role = "ROLE_USER")
+    @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("작성자가 장소 삭제 테스트")
     @Test
     public void 작성자_장소_삭제_테스트() throws Exception {
