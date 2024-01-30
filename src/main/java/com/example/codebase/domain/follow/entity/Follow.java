@@ -3,6 +3,7 @@ package com.example.codebase.domain.follow.entity;
 import com.example.codebase.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.domain.Persistable;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @IdClass(FollowIds.class)
-public class Follow {
+public class Follow implements Persistable<FollowIds>{
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,6 +35,16 @@ public class Follow {
                 .follower(follower)
                 .followTime(LocalDateTime.now())
                 .build();
+    }
+
+    @Override
+    public FollowIds getId() {
+        return new FollowIds(this.follow.getId(), this.follower.getId());
+    }
+
+    @Override
+    public boolean isNew() {
+        return true;
     }
 
 }
