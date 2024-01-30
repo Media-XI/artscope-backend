@@ -4,6 +4,8 @@ CREATE TABLE `follow`
     follower_id BINARY(16),
     follow_time DATETIME NOT NULL,
     PRIMARY KEY (follow_id, follower_id),
+    INDEX idx_follow_id (follow_id),
+    INDEX idx_follower_id (follower_id),
     constraint fk_follow_follow_id
         foreign key (follow_id) references member (member_id),
     constraint fk_follow_follower_id
