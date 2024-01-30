@@ -32,17 +32,17 @@ public class FollowController {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         followService.followMember(username, followUser);
 
-        return new ResponseEntity("팔로우 했습니다.", HttpStatus.OK);
+        return new ResponseEntity("팔로우 했습니다.", HttpStatus.CREATED);
     }
 
     @Operation(summary = "언팔로우" , description = "상대방을 언팔로우합니다")
     @PreAuthorize("hasRole('ROLE_USER')")
-    @DeleteMapping("/{username}")
+    @PostMapping("/{username}")
     public ResponseEntity unfollowMember(@PathVariable("username") String followUser) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         followService.unfollowMember(username, followUser);
 
-        return new ResponseEntity("언팔로우 했습니다.", HttpStatus.OK);
+        return new ResponseEntity("언팔로우 했습니다.", HttpStatus.NO_CONTENT);
     }
 
 }
