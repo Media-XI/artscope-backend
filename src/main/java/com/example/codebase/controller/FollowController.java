@@ -27,7 +27,7 @@ public class FollowController {
 
     @Operation(summary = "팔로우", description = "상대방을 팔로우합니다")
     @PreAuthorize("hasRole('ROLE_USER')")
-    @PostMapping("/{username}")
+    @PostMapping("following/{username}")
     public ResponseEntity followMember(@PathVariable("username") String followUser) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         followService.followMember(username, followUser);
@@ -37,7 +37,7 @@ public class FollowController {
 
     @Operation(summary = "언팔로우" , description = "상대방을 언팔로우합니다")
     @PreAuthorize("hasRole('ROLE_USER')")
-    @PostMapping("/{username}")
+    @PostMapping("unfollowing/{username}")
     public ResponseEntity unfollowMember(@PathVariable("username") String followUser) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         followService.unfollowMember(username, followUser);
