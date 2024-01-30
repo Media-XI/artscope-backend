@@ -27,13 +27,13 @@ public class Follow implements Persistable<FollowIds>{
     private Member follower;
 
     @Column(name = "follow_time")
-    private LocalDateTime followTime;
+    @Builder.Default
+    private LocalDateTime followTime = null;
 
     public static Follow of(Member follow, Member follower) {
         return Follow.builder()
                 .follow(follow)
                 .follower(follower)
-                .followTime(LocalDateTime.now())
                 .build();
     }
 
@@ -43,8 +43,13 @@ public class Follow implements Persistable<FollowIds>{
     }
 
     @Override
+    @Transient
     public boolean isNew() {
-        return true;
+       if(this.followTime == null) {
+           this.followTime = LocalDateTime.now();
+           return true;
+       }
+       return false;
     }
 
 }
