@@ -129,7 +129,7 @@ class FollowControllerTest {
         createOrLoadMember();
         Member followUser = createOrLoadMember("followUser", "ROLE_USER");
 
-        mockMvc.perform(post("/api/follows/following/" + followUser.getUsername()))
+        mockMvc.perform(post("/api/follows/" + followUser.getUsername()))
                 .andDo(print())
                 .andExpect(status().isCreated());
     }
@@ -140,7 +140,7 @@ class FollowControllerTest {
     public void 자기_자신을_팔로우_할떄() throws Exception {
         createOrLoadMember("testid", "ROLE_CURATOR");
 
-        mockMvc.perform(post(String.format("/api/follows/following/%s", "testid")))
+        mockMvc.perform(post(String.format("/api/follows/%s", "testid")))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -152,7 +152,7 @@ class FollowControllerTest {
         createOrLoadMember();
         Member followUser = createOrLoadMember("followUser", "ROLE_USER");
 
-        mockMvc.perform(post(String.format("/api/follows/unfollowing/" + followUser.getUsername())))
+        mockMvc.perform(delete(String.format("/api/follows/" + followUser.getUsername())))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -166,7 +166,7 @@ class FollowControllerTest {
 
         createOrLoadFollow(createOrLoadMember(), followUser);
 
-        mockMvc.perform(post(String.format("/api/follows/unfollowing/" + followUser.getUsername())))
+        mockMvc.perform(delete(String.format("/api/follows/" + followUser.getUsername())))
                 .andExpect(status().isNoContent());
     }
 }
