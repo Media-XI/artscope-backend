@@ -169,4 +169,108 @@ class FollowControllerTest {
         mockMvc.perform(delete(String.format("/api/follow/" + followUser.getUsername())))
                 .andExpect(status().isNoContent());
     }
+
+    @DisplayName("비 로그인 상태로 팔로잉 목록 조회시")
+    @Test
+    public void 비로그인_팔로잉_목록_조회() throws Exception{
+        Member member = createOrLoadMember();
+        Member followUser = createOrLoadMember("followUser1", "ROLE_USER");
+        Member followUser2 = createOrLoadMember("followUser2", "ROLE_USER");
+        Member followUser3 = createOrLoadMember("followUser3", "ROLE_USER");
+        Member followUser4 = createOrLoadMember("followUser4", "ROLE_USER");
+        Member followUser5 = createOrLoadMember("followUser5", "ROLE_USER");
+
+        createOrLoadFollow(member, followUser4);
+        createOrLoadFollow(member, followUser);
+        createOrLoadFollow(member, followUser2);
+        createOrLoadFollow(member, followUser3);
+        createOrLoadFollow(member, followUser5);
+
+
+        mockMvc.perform(get(String.format("/api/follow/%s/following", member.getUsername())))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("로그인 상태로 팔로잉 목록 조회시")
+    @Test
+    public void 로그인_상태로_팔로잉_목록_조회() throws Exception{
+        Member loginUser = createOrLoadMember();
+
+        Member member = createOrLoadMember("targetUser", "ROLE_USER");
+        Member followUser1 = createOrLoadMember("followUser1", "ROLE_USER");
+        Member followUser2 = createOrLoadMember("followUser2", "ROLE_USER");
+        Member followUser3 = createOrLoadMember("followUser3", "ROLE_USER");
+        Member followUser4 = createOrLoadMember("followUser4", "ROLE_USER");
+        Member followUser5 = createOrLoadMember("followUser5", "ROLE_USER");
+        Member followUser6 = createOrLoadMember("followUser6", "ROLE_USER");
+
+        createOrLoadFollow(member, followUser4);
+        createOrLoadFollow(member, followUser1);
+        createOrLoadFollow(member, followUser2);
+        createOrLoadFollow(member, followUser3);
+        createOrLoadFollow(member, followUser5);
+        createOrLoadFollow(member, followUser6);
+
+        createOrLoadFollow(loginUser, followUser1);
+        createOrLoadFollow(loginUser, followUser4);
+        createOrLoadFollow(loginUser, followUser6);
+
+        mockMvc.perform(get(String.format("/api/follow/%s/following", member.getUsername())))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("비 로그인 상태로 팔로워 목록 조회시")
+    @Test
+    public void 비로그인_팔로워_목록_조회() throws Exception {
+        Member member = createOrLoadMember();
+
+        Member followUser = createOrLoadMember("followUser1", "ROLE_USER");
+        Member followUser2 = createOrLoadMember("followUser2", "ROLE_USER");
+        Member followUser3 = createOrLoadMember("followUser3", "ROLE_USER");
+        Member followUser4 = createOrLoadMember("followUser4", "ROLE_USER");
+        Member followUser5 = createOrLoadMember("followUser5", "ROLE_USER");
+
+        createOrLoadFollow(followUser4, member);
+        createOrLoadFollow(followUser, member);
+        createOrLoadFollow(followUser2, member);
+        createOrLoadFollow(followUser3, member);
+        createOrLoadFollow(followUser5, member);
+
+        mockMvc.perform(get(String.format("/api/follow/%s/follower", member.getUsername())))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("로그인 상태로 팔로워 목록 조회시")
+    @Test
+    public void 로그인_상태로_팔로워_목록_조회() throws Exception{
+        Member loginUser = createOrLoadMember();
+
+        Member member = createOrLoadMember("targetUser", "ROLE_USER");
+        Member followUser1 = createOrLoadMember("followUser1", "ROLE_USER");
+        Member followUser2 = createOrLoadMember("followUser2", "ROLE_USER");
+        Member followUser3 = createOrLoadMember("followUser3", "ROLE_USER");
+        Member followUser4 = createOrLoadMember("followUser4", "ROLE_USER");
+        Member followUser5 = createOrLoadMember("followUser5", "ROLE_USER");
+        Member followUser6 = createOrLoadMember("followUser6", "ROLE_USER");
+
+        createOrLoadFollow(followUser4, member);
+        createOrLoadFollow(followUser1, member);
+        createOrLoadFollow(followUser2, member);
+        createOrLoadFollow(followUser3, member);
+        createOrLoadFollow(followUser5, member);
+        createOrLoadFollow(followUser6, member);
+
+        createOrLoadFollow(loginUser, followUser1);
+        createOrLoadFollow(loginUser, followUser4);
+        createOrLoadFollow(loginUser, followUser6);
+
+        mockMvc.perform(get(String.format("/api/follow/%s/follower", member.getUsername())))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
 }
