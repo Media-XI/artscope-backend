@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @Tag(name = "Follow", description = "팔로우 관련 API")
 @Validated
-@RequestMapping("/api/follows")
+@RequestMapping("/api/follow")
 public class FollowController {
 
     private final FollowService followService;
@@ -35,7 +35,7 @@ public class FollowController {
         return new ResponseEntity("팔로잉 했습니다.", HttpStatus.CREATED);
     }
 
-    @Operation(summary = "언팔로우" , description = "상대방을 언팔로잉 합니다")
+    @Operation(summary = "언팔로우" , description = "상대방을 언 팔로잉 합니다")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @DeleteMapping("{username}")
     public ResponseEntity unfollowMember(@PathVariable("username") String followUser) {
