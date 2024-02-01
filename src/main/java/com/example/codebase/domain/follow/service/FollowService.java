@@ -35,7 +35,7 @@ public class FollowService {
 
         Optional<Follow> alreadyFollow = followRepository.findById(followIds);
         if (alreadyFollow.isPresent()) {
-            throw new RuntimeException("이미 팔로우 중입니다.");
+            throw new RuntimeException("이미 팔로잉 중입니다.");
         } else {
             followRepository.save(Follow.of(followerUser, followingUser));
         }
@@ -52,7 +52,7 @@ public class FollowService {
         if (alreadyFollow.isPresent()) {
             followRepository.delete(alreadyFollow.get());
         } else {
-            throw new RuntimeException("팔로우 중이 아닙니다.");
+            throw new RuntimeException("팔로잉 중이 아닙니다.");
         }
     }
 }
