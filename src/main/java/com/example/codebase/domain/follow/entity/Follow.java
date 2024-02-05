@@ -18,28 +18,29 @@ public class Follow implements Persistable<FollowIds>{
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "follow_id", columnDefinition = "BINARY(16)")
-    private Member follow;
+    @JoinColumn(name = "follower_id", columnDefinition = "BINARY(16)")
+    private Member follower;
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "follower_id", columnDefinition = "BINARY(16)")
-    private Member follower;
+    @JoinColumn(name = "following_id", columnDefinition = "BINARY(16)")
+    private Member following;
+
 
     @Column(name = "follow_time")
     @Builder.Default
     private LocalDateTime followTime = null;
 
-    public static Follow of(Member follow, Member follower) {
+    public static Follow of(Member follower, Member following) {
         return Follow.builder()
-                .follow(follow)
                 .follower(follower)
+                .following(following)
                 .build();
     }
 
     @Override
     public FollowIds getId() {
-        return new FollowIds(this.follow.getId(), this.follower.getId());
+        return new FollowIds(this.follower.getId(), this.following.getId());
     }
 
     @Override
