@@ -5,8 +5,10 @@ import com.example.codebase.domain.follow.dto.FollowMemberDetailResponseDTO;
 import com.example.codebase.domain.follow.dto.FollowMembersResponseDTO;
 import com.example.codebase.domain.follow.entity.Follow;
 import com.example.codebase.domain.follow.entity.FollowIds;
+import com.example.codebase.domain.follow.entity.FollowWithIsFollow;
 import com.example.codebase.domain.follow.repository.FollowRepository;
 import com.example.codebase.domain.member.entity.Member;
+import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,7 +16,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,60 +66,37 @@ public class FollowService {
 
     @Transactional(readOnly = true)
     public FollowMembersResponseDTO getFollowingList(Optional<String> loginUsername, String targetUsername, PageRequest pageRequest) {
+        Member targetMember = memberRepository.findByUsername(targetUsername).orElseThrow(NotFoundMemberException::new);
         Member loginMember = loginUsername.map(s -> memberRepository.findByUsername(s)
-                        .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다.")))
+                .orElseThrow(NotFoundMemberException::new))
                 .orElse(null);
 
-        List<FollowMemberDetailResponseDTO> followingUserResponses = new ArrayList<>();
-        PageInfo pageInfo;
+        Page<FollowWithIsFollow> followingList = followRepository.findFollowingByTargetMember(targetMember, loginMember, pageRequest);
+        PageInfo pageInfo = PageInfo.from(followingList);
 
-        if (loginMember != null) {
-            Page<Follow> mutualFollowingUser = followRepository.findMutualFollowingByUserAndLoginUser(targetUsername, loginMember.getUsername(), pageRequest);
-            mutualFollowingUser.getContent().forEach(follow -> followingUserResponses.add(FollowMemberDetailResponseDTO.of(follow.getFollower(), true)));
+        List<FollowMemberDetailResponseDTO> followingMemberResponses = followingList.getContent().stream()
+                .map(followWithIsFollow ->
+                        FollowMemberDetailResponseDTO.of(followWithIsFollow.getFollow().getFollowing(), followWithIsFollow.getStatus()))
+                .toList();
 
-            if (mutualFollowingUser.getNumberOfElements() < pageRequest.getPageSize()) {
-                Page<Follow> nonMutualFollowsPage = followRepository.findNotMutualFollowingByUserAndLoginUser(targetUsername, loginMember.getUsername(), pageRequest);
-                nonMutualFollowsPage.getContent().forEach(follow -> followingUserResponses.add(FollowMemberDetailResponseDTO.of(follow.getFollower(), false)));
-                pageInfo = PageInfo.from(nonMutualFollowsPage);
-
-            } else {
-                pageInfo = PageInfo.from(mutualFollowingUser);
-            }
-        } else {
-            Page<Follow> followingUser = followRepository.findByFollowingUsername(targetUsername, pageRequest);
-            followingUser.getContent().forEach(follow -> followingUserResponses.add(FollowMemberDetailResponseDTO.of(follow.getFollower(), false)));
-            pageInfo = PageInfo.from(followingUser);
-
-        }
-        return FollowMembersResponseDTO.of(followingUserResponses, pageInfo);
+        return FollowMembersResponseDTO.of(followingMemberResponses, pageInfo);
     }
 
     @Transactional(readOnly = true)
     public FollowMembersResponseDTO getFollowerList(Optional<String> loginUsername, String targetUsername, PageRequest pageRequest) {
+        Member targetMember = memberRepository.findByUsername(targetUsername).orElseThrow(NotFoundMemberException::new);
         Member loginMember = loginUsername.map(s -> memberRepository.findByUsername(s)
-                        .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다.")))
+                        .orElseThrow(NotFoundMemberException::new))
                 .orElse(null);
 
-        List<FollowMemberDetailResponseDTO> followerUserResponse = new ArrayList<>();
-        PageInfo pageInfo;
+        Page<FollowWithIsFollow> followerList = followRepository.findFollowerByTargetMember(targetMember, loginMember, pageRequest);
+        PageInfo pageInfo = PageInfo.from(followerList);
 
-        if (loginMember != null) {
-            Page<Follow> mutualFollowerUser = followRepository.findMutualFollowerByUserAndLoginUser(targetUsername, loginMember.getUsername(), pageRequest);
-            mutualFollowerUser.getContent().forEach(follow -> followerUserResponse.add(FollowMemberDetailResponseDTO.of(follow.getFollow(), true)));
+        List<FollowMemberDetailResponseDTO> followerMemberResponses = followerList.getContent().stream()
+                .map(followWithIsFollow ->
+                        FollowMemberDetailResponseDTO.of(followWithIsFollow.getFollow().getFollower(), followWithIsFollow.getStatus()))
+                .toList();
 
-            if (mutualFollowerUser.getNumberOfElements() < pageRequest.getPageSize()) {
-                Page<Follow> nonMutualFollowerUser = followRepository.findNotMutualFollowerByUserAndLoginUser(targetUsername, loginMember.getUsername(), pageRequest);
-                nonMutualFollowerUser.getContent().forEach(follow -> followerUserResponse.add(FollowMemberDetailResponseDTO.of(follow.getFollow(), false)));
-                pageInfo = PageInfo.from(nonMutualFollowerUser);
-            } else {
-                pageInfo = PageInfo.from(mutualFollowerUser);
-            }
-        } else {
-            Page<Follow> followerUser = followRepository.findByFollowerUsername(targetUsername, pageRequest);
-            followerUser.getContent().forEach(follow -> followerUserResponse.add(FollowMemberDetailResponseDTO.of(follow.getFollow(), false)));
-            pageInfo = PageInfo.from(followerUser);
-        }
-
-        return FollowMembersResponseDTO.of(followerUserResponse, pageInfo);
+        return FollowMembersResponseDTO.of(followerMemberResponses, pageInfo);
     }
 }
