@@ -13,8 +13,8 @@ public interface FollowRepository extends JpaRepository<Follow, FollowIds> {
 
 
     @Query("SELECT f AS follow, " +
-            "CASE WHEN f.following = :loginMember THEN '본인' " +
-            "WHEN f2.follower = :loginMember THEN '팔로잉중' ELSE '논팔로잉' END as status " +
+            "CASE WHEN f.following = :loginMember THEN 'self' " +
+            "WHEN f2.follower = :loginMember THEN 'follow' ELSE 'none' END as status " +
             "FROM Follow f LEFT JOIN Follow f2 ON f.following = f2.following " +
             "AND f2.follower = :loginMember " +
             "WHERE f.follower = :targetMember " +
@@ -25,8 +25,8 @@ public interface FollowRepository extends JpaRepository<Follow, FollowIds> {
 
 
     @Query("SELECT f AS follow, " +
-            "CASE WHEN  f.follower = :loginMember THEN '본인' " +
-            "WHEN f2.follower = :loginMember THEN '팔로잉중' ELSE '논팔로잉' END as status " +
+            "CASE WHEN  f.follower = :loginMember THEN 'self' " +
+            "WHEN f2.follower = :loginMember THEN 'follow' ELSE 'none' END as status " +
             "FROM Follow f LEFT JOIN Follow f2 ON f.follower = f2.following " +
             "AND f2.follower = :loginMember " +
             "WHERE f.following = :targetMember " +
