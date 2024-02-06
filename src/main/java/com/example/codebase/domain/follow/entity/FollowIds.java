@@ -13,16 +13,17 @@ import java.util.UUID;
 @AllArgsConstructor
 public class FollowIds implements Serializable {
 
-    private UUID follow;
-
     private UUID follower;
 
-    public static FollowIds of(Member follow, Member follower) {
-        return new FollowIds(follow.getId(), follower.getId());
+    private UUID following;
+
+
+    public static FollowIds of(Member follower, Member following) {
+        return new FollowIds(follower.getId(), following.getId());
     }
 
     public void valid() {
-        if (follow == follower) {
+        if (follower == following) {
             throw new RuntimeException("자신을 팔로우 할 수 없습니다.");
         }
     }
