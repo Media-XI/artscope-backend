@@ -25,4 +25,9 @@ public class MagazineCategoryService {
         List<MagazineCategory> all = magazineCategoryRepository.findAll();
         return MagazineCategoryResponse.GetAll.from(all);
     }
+
+    public MagazineCategory getEntity(Long categoryId) {
+        return magazineCategoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 카테고리가 존재하지 않습니다."));
+    }
 }

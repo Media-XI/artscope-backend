@@ -1,5 +1,6 @@
 package com.example.codebase.domain.magazine.entity;
 
+import com.example.codebase.domain.magazine.dto.MagazineRequest;
 import com.example.codebase.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -58,5 +59,24 @@ public class Magazine {
     @JoinColumn(name = "category_id")
     private MagazineCategory category;
 
+    public static Magazine toEntity(MagazineRequest.Create magazineRequest, Member member, MagazineCategory category) {
+        return Magazine.builder()
+                .title(magazineRequest.getTitle())
+                .content(magazineRequest.getContent())
+                .member(member)
+                .category(category)
+                .createdTime(LocalDateTime.now())
+                .updatedTime(LocalDateTime.now())
+                .build();
+    }
 
+    public boolean isOwner(String loginUsername) {
+        return member.getUsername().equals(loginUsername);
+    }
+
+    public void update(MagazineRequest.Update magazineRequest) {
+        this.title = magazineRequest.getTitle();
+        this.content = magazineRequest.getContent();
+        this.updatedTime = LocalDateTime.now();
+    }
 }
