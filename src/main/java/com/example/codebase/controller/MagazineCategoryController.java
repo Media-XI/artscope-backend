@@ -25,7 +25,7 @@ public class MagazineCategoryController {
     @AdminOnly
     public ResponseEntity createCategory(String name) {
         magazineCategoryService.createCategory(name);
-        return new ResponseEntity(name + " 생성 완료", HttpStatus.OK);
+        return new ResponseEntity(name + " 생성 완료", HttpStatus.CREATED);
     }
 
     @GetMapping
