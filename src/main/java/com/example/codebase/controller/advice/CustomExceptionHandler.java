@@ -4,6 +4,7 @@ import com.example.codebase.controller.dto.RestResponse;
 import com.example.codebase.exception.ErrorCode;
 import com.example.codebase.exception.NotAcceptTypeException;
 import com.example.codebase.exception.NotAccessException;
+import com.example.codebase.exception.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,6 +66,12 @@ public class CustomExceptionHandler {
         log.info(printStackTrage(e));
         RestResponse response = new RestResponse(false, e.getMessage(), HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity handleNotFoundException(NotFoundException e) {
+        RestResponse response = new RestResponse(false, e.getMessage(), HttpStatus.NOT_FOUND.value());
+        return new ResponseEntity(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
