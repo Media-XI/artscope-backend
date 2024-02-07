@@ -6,6 +6,7 @@ import com.example.codebase.domain.magazine.entity.Magazine;
 import com.example.codebase.domain.magazine.entity.MagazineCategory;
 import com.example.codebase.domain.magazine.repository.MagazineRepository;
 import com.example.codebase.domain.member.entity.Member;
+import com.example.codebase.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,7 +33,7 @@ public class MagazineService {
 
     public MagazineResponse.Get get(Long id) {
         Magazine magazine = magazineRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 매거진이 존재하지 않습니다."));
+                .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
         return MagazineResponse.Get.from(magazine);
     }
 
@@ -44,16 +45,17 @@ public class MagazineService {
     @Transactional
     public void delete(String loginUsername, Long id) {
         Magazine magazine = magazineRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 매거진이 존재하지 않습니다."));
+                .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
 
         isOwner(loginUsername, magazine);
 
         magazineRepository.deleteById(id);
     }
+
     @Transactional
     public MagazineResponse.Get update(Long id, String loginUsername, MagazineRequest.Update magazineRequest) {
         Magazine magazine = magazineRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 매거진이 존재하지 않습니다."));
+                .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
 
         isOwner(loginUsername, magazine);
 
