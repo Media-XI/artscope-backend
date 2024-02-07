@@ -24,8 +24,8 @@ public class MagazineCategoryController {
     @PostMapping
     @AdminOnly
     public ResponseEntity createCategory(String name) {
-        magazineCategoryService.createCategory(name);
-        return new ResponseEntity(name + " 생성 완료", HttpStatus.CREATED);
+        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(name);
+        return new ResponseEntity(category, HttpStatus.CREATED);
     }
 
     @GetMapping
