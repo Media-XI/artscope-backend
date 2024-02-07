@@ -358,4 +358,9 @@ public class MemberService {
     public List<String> getAllUsername() {
         return memberRepository.findAllUsername();
     }
+
+    public Member getEntity(String username) {
+        return memberRepository.findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+    }
 }
