@@ -922,7 +922,7 @@ class AgoraControllerTest {
                 get("/api/agoras/" + agora.getId())
             )
             .andDo(print())
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isNotFound());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
