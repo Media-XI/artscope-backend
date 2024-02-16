@@ -4,6 +4,7 @@ import com.example.codebase.domain.mail.service.MailService;
 import com.example.codebase.domain.member.dto.*;
 import com.example.codebase.domain.member.entity.RoleStatus;
 import com.example.codebase.domain.member.service.MemberService;
+import com.example.codebase.domain.notification.service.NotificationSettingService;
 import com.example.codebase.exception.NotAcceptTypeException;
 import com.example.codebase.util.FileUtil;
 import com.example.codebase.util.SecurityUtil;
@@ -36,12 +37,16 @@ public class MemberController {
     @Autowired
     public MemberController(MemberService memberService) {
         this.memberService = memberService;
+        this.notificationSettingService = notificationSettingService;
     }
 
     @Operation(summary = "회원 가입", description = "회원 가입을 합니다.")
     @PostMapping
     public ResponseEntity createMember(@Valid @RequestBody CreateMemberDTO createMemberDTO) {
         MemberResponseDTO memberResponseDTO = memberService.createMember(createMemberDTO);
+
+        notificationSettingService.createNotificationSetting(memberService.getEntity(memberResponseDTO.getUsername()));
+
         return new ResponseEntity(memberResponseDTO, HttpStatus.CREATED);
     }
 
