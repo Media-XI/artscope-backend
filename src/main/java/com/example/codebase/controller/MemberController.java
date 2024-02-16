@@ -34,8 +34,10 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    private final NotificationSettingService notificationSettingService;
+
     @Autowired
-    public MemberController(MemberService memberService) {
+    public MemberController(MemberService memberService, NotificationSettingService notificationSettingService) {
         this.memberService = memberService;
         this.notificationSettingService = notificationSettingService;
     }
