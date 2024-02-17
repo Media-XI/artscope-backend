@@ -6,7 +6,6 @@ import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.domain.notification.dto.MessageRequest;
 import com.example.codebase.domain.notification.dto.NotificationResponse;
-import com.example.codebase.domain.notification.service.NotificationSendService;
 import com.example.codebase.domain.notification.service.NotificationService;
 import com.example.codebase.domain.notification.service.NotificationEventService;
 import com.example.codebase.exception.LoginRequiredException;
@@ -78,7 +77,7 @@ public class NotificationController {
 
     @LoginOnly
     @Operation(summary = "알림 전체 읽음 처리", description = "모든 알림을 읽음으로 처리합니다.")
-    @PutMapping("/All")
+    @PutMapping("/all")
     public ResponseEntity readAllNotification() {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         Member member = memberService.getEntity(loginUsername);

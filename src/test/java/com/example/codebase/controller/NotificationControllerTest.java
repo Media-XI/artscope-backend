@@ -9,8 +9,8 @@ import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.domain.notification.dto.MessageRequest;
 import com.example.codebase.domain.notification.entity.Notification;
-import com.example.codebase.domain.notification.entity.NotificationReceivedStatus;
 import com.example.codebase.domain.notification.entity.NotificationType;
+import com.example.codebase.domain.notification.repository.NotificationRepository;
 import com.example.codebase.domain.notification.service.NotificationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -56,6 +56,9 @@ class NotificationControllerTest {
 
     @Autowired
     private MemberService memberService;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @Autowired
     private MemberRepository memberRepository;
@@ -112,7 +115,8 @@ class NotificationControllerTest {
 
     @Transactional
     public Notification createOrLoadNotification(Member member, String message, NotificationType type) {
-        return Notification.of(member, message, type);
+        Notification notification = Notification.of(member, message, type);
+        return notificationRepository.save(notification);
     }
 
     @WithMockCustomUser(username = "testid", role = "ADMIN")
@@ -168,13 +172,16 @@ class NotificationControllerTest {
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("알림 전체 읽음 처리 성공시")
+    @DisplayName("알림 읽음 처리 성공시")
     @Test
     public void 알림_읽음_처리_성공() throws Exception {
         Member member = createOrLoadMember();
         Notification notification = createOrLoadNotification(member, "알림1", ANNOUNCEMENT);
 
         mockMvc.perform(put("/api/notification/{notificationId}", notification.getNotificationId()))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/notification"))
                 .andExpect(status().isOk());
 
     }
@@ -211,8 +218,20 @@ class NotificationControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @WithMockCustomUser(username = "testuser", role = "USER")
+    @DisplayName("다른 사람의 알림을 삭제 요청시")
+    @Test
+    public void 타인_알림_삭제_요청시() throws Exception {
+        createOrLoadMember("testuser", "ROLE_USER");
+        Member member = createOrLoadMember();
+        Notification notification = createOrLoadNotification(member, "알림1", ANNOUNCEMENT);
+
+        mockMvc.perform(delete("/api/notification/{notificationId}", notification.getNotificationId()))
+                .andExpect(status().isBadRequest());
+    }
+
     @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("알림 삭제 실패시")
+    @DisplayName("알림 전체 삭제 시")
     @Test
     public void 알림_전체_삭제() throws Exception {
         Member member = createOrLoadMember();
@@ -228,4 +247,17 @@ class NotificationControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("알림 읽음 처리한 알림 다시 읽음 처리를 요청할시")
+    @Test
+    public void 알림_읽음_처리를_다시_요청할시() throws Exception {
+        Member member = createOrLoadMember();
+        Notification notification = createOrLoadNotification(member, "알림1", ANNOUNCEMENT);
+
+        mockMvc.perform(put("/api/notification/{notificationId}", notification.getNotificationId()))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(put("/api/notification/{notificationId}", notification.getNotificationId()))
+                .andExpect(status().isBadRequest());
+    }
 }
