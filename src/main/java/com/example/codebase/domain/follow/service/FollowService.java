@@ -26,7 +26,6 @@ public class FollowService {
 
     private final MemberRepository memberRepository;
 
-
     @Autowired
     public FollowService(FollowRepository followRepository, MemberRepository memberRepository) {
         this.followRepository = followRepository;
@@ -44,9 +43,9 @@ public class FollowService {
         Optional<Follow> alreadyFollow = followRepository.findById(followIds);
         if (alreadyFollow.isPresent()) {
             throw new RuntimeException("이미 팔로잉 중입니다.");
-        } else {
-            followRepository.save(Follow.of(followerUser, followingUser));
         }
+        followRepository.save(Follow.of(followerUser, followingUser));
+
     }
 
     @Transactional
@@ -57,18 +56,17 @@ public class FollowService {
         FollowIds followIds = FollowIds.of(followerUser, followingUser);
 
         Optional<Follow> alreadyFollow = followRepository.findById(followIds);
-        if (alreadyFollow.isPresent()) {
-            followRepository.delete(alreadyFollow.get());
-        } else {
+        if (alreadyFollow.isEmpty()) {
             throw new RuntimeException("팔로잉 중이 아닙니다.");
         }
+        followRepository.delete(alreadyFollow.get());
     }
 
     @Transactional(readOnly = true)
     public FollowMembersResponseDTO getFollowingList(Optional<String> loginUsername, String targetUsername, PageRequest pageRequest) {
         Member targetMember = memberRepository.findByUsername(targetUsername).orElseThrow(NotFoundMemberException::new);
         Member loginMember = loginUsername.map(s -> memberRepository.findByUsername(s)
-                .orElseThrow(NotFoundMemberException::new))
+                        .orElseThrow(NotFoundMemberException::new))
                 .orElse(null);
 
         Page<FollowWithIsFollow> followingList = followRepository.findFollowingByTargetMember(targetMember, loginMember, pageRequest);
