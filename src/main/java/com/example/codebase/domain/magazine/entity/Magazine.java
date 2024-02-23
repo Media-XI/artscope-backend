@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "magazine")
@@ -59,6 +61,10 @@ public class Magazine {
     @JoinColumn(name = "category_id")
     private MagazineCategory category;
 
+    @Builder.Default
+    @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL)
+    private List<MagazineComment> magazineComments = new ArrayList<>();
+
     public static Magazine toEntity(MagazineRequest.Create magazineRequest, Member member, MagazineCategory category) {
         return Magazine.builder()
                 .title(magazineRequest.getTitle())
@@ -78,5 +84,14 @@ public class Magazine {
         this.title = magazineRequest.getTitle();
         this.content = magazineRequest.getContent();
         this.updatedTime = LocalDateTime.now();
+    }
+
+    public void incressView() {
+        this.views++;
+    }
+
+    public void addComment(MagazineComment entity) {
+        this.magazineComments.add(entity);
+        this.comments = this.magazineComments.size();
     }
 }

@@ -1,11 +1,15 @@
 package com.example.codebase.domain.magazine.service;
 
+import com.example.codebase.domain.magazine.dto.MagazineCommentRequest;
 import com.example.codebase.domain.magazine.dto.MagazineRequest;
 import com.example.codebase.domain.magazine.dto.MagazineResponse;
 import com.example.codebase.domain.magazine.entity.Magazine;
 import com.example.codebase.domain.magazine.entity.MagazineCategory;
+import com.example.codebase.domain.magazine.entity.MagazineComment;
+import com.example.codebase.domain.magazine.repository.MagazineCommentRepository;
 import com.example.codebase.domain.magazine.repository.MagazineRepository;
 import com.example.codebase.domain.member.entity.Member;
+import com.example.codebase.domain.post.dto.PostResponseDTO;
 import com.example.codebase.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,15 +17,20 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional(readOnly = true)
 public class MagazineService {
 
     private final MagazineRepository magazineRepository;
 
+    private final MagazineCommentRepository magazineCommentRepository;
+
     @Autowired
-    public MagazineService(MagazineRepository magazineRepository) {
+    public MagazineService(MagazineRepository magazineRepository, MagazineCommentRepository magazineCommentRepository) {
         this.magazineRepository = magazineRepository;
+        this.magazineCommentRepository = magazineCommentRepository;
     }
 
     @Transactional
@@ -68,5 +77,40 @@ public class MagazineService {
         if (!magazine.isOwner(loginUsername)) {
             throw new IllegalArgumentException("해당 매거진의 소유자가 아닙니다.");
         }
+    }
+
+    @Transactional
+    public MagazineResponse.Get newPostComment(Long magazineId, Member member, MagazineCommentRequest.Create newCommentDto) {
+        Magazine magazine = magazineRepository.findById(magazineId)
+                .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
+
+        MagazineComment newComment = MagazineComment.toEntity(newCommentDto, member, magazine);
+        // 대댓글 여부 판단
+        if (isReplyComment(newCommentDto)) {
+            replyComment(newComment, newCommentDto.getParentCommentId());
+        }
+        magazineCommentRepository.save(newComment);
+        magazineRepository.save(magazine);
+        return MagazineResponse.Get.from(magazine);
+    }
+
+    private boolean isReplyComment(MagazineCommentRequest.Create newCommentDto) {
+        return newCommentDto.getParentCommentId() != null;
+    }
+
+    private void replyComment(MagazineComment newComment, Long parentCommentId) {
+        MagazineComment parentComment = magazineCommentRepository.findByIdAndMagazine(parentCommentId, newComment.getMagazine())
+                .orElseThrow(() -> new NotFoundException("부모댓글이 존재하지 않거나 해당 매거진에 작성된 댓글이 아닙니다."));
+
+        if (isMentionComment(parentComment)){
+            newComment.mentionComment(parentComment);
+        }
+        else {
+            newComment.setParentComment(parentComment);
+        }
+    }
+
+    private boolean isMentionComment(MagazineComment parentComment) {
+        return parentComment.hasParentComment();
     }
 }

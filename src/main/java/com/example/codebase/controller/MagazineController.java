@@ -1,6 +1,8 @@
 package com.example.codebase.controller;
 
+import com.example.codebase.annotation.LoginOnly;
 import com.example.codebase.annotation.UserOnly;
+import com.example.codebase.domain.magazine.dto.MagazineCommentRequest;
 import com.example.codebase.domain.magazine.dto.MagazineRequest;
 import com.example.codebase.domain.magazine.dto.MagazineResponse;
 import com.example.codebase.domain.magazine.entity.MagazineCategory;
@@ -10,6 +12,9 @@ import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.exception.LoginRequiredException;
 import com.example.codebase.util.SecurityUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -37,7 +42,7 @@ public class MagazineController {
     @PostMapping
     @UserOnly
     public ResponseEntity createMagazine(
-            @RequestBody MagazineRequest.Create magazineRequest
+            @RequestBody @NotEmpty MagazineRequest.Create magazineRequest
     ) {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
 
@@ -72,11 +77,11 @@ public class MagazineController {
         return new ResponseEntity(allMagazines, HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @UserOnly
     public ResponseEntity updateMagazine(
             @PathVariable Long id,
-            @RequestBody MagazineRequest.Update magazineRequest
+            @RequestBody @Valid MagazineRequest.Update magazineRequest
     ) {
         String loginUsername = SecurityUtil.getCurrentUsername()
                 .orElseThrow(LoginRequiredException::new);
@@ -90,10 +95,24 @@ public class MagazineController {
     public ResponseEntity deleteMagazine(
             @PathVariable Long id
     ) {
-        String loginUsername = SecurityUtil.getCurrentUsername()
-                        .orElseThrow(LoginRequiredException::new);
+        String loginUsername = SecurityUtil.getCurrentUsernameValue();
         magazineService.delete(loginUsername, id);
 
         return new ResponseEntity("삭제 완료", HttpStatus.OK);
+    }
+
+    @Operation(summary = "매거진에 댓글 달기")
+    @PostMapping("/{id}/comments")
+    @LoginOnly
+    public ResponseEntity newPostComment(
+            @PathVariable Long id,
+            @RequestBody @Valid MagazineCommentRequest.Create newComment
+    ) {
+        String loginUsername = SecurityUtil.getCurrentUsernameValue();
+        Member member = memberService.getEntity(loginUsername);
+
+        MagazineResponse.Get magazine = magazineService.newPostComment(id, member, newComment);
+
+        return new ResponseEntity(magazine, HttpStatus.CREATED);
     }
 }
