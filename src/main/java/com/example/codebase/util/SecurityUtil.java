@@ -3,6 +3,7 @@ package com.example.codebase.util;
 
 import com.example.codebase.domain.auth.dto.TokenResponseDTO;
 import com.example.codebase.domain.member.dto.AuthorityDto;
+import com.example.codebase.exception.LoginRequiredException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,6 +36,10 @@ public class SecurityUtil {
         }
 
         return Optional.ofNullable(username);
+    }
+
+    public static String getCurrentUsernameValue() {
+        return getCurrentUsername().orElseThrow(LoginRequiredException::new);
     }
 
     public static boolean isAnonymous() {
