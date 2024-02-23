@@ -1,18 +1,15 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.auth.WithMockCustomUser;
-import com.example.codebase.domain.magazine.dto.MagazineCategoryRequest;
 import com.example.codebase.domain.magazine.dto.MagazineCategoryResponse;
+import com.example.codebase.domain.magazine.dto.MagazineCommentRequest;
 import com.example.codebase.domain.magazine.dto.MagazineRequest;
 import com.example.codebase.domain.magazine.dto.MagazineResponse;
-import com.example.codebase.domain.magazine.entity.Magazine;
 import com.example.codebase.domain.magazine.entity.MagazineCategory;
 import com.example.codebase.domain.magazine.service.MagazineCategoryService;
 import com.example.codebase.domain.magazine.service.MagazineService;
 import com.example.codebase.domain.member.dto.CreateMemberDTO;
-import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
-import com.example.codebase.domain.member.entity.MemberAuthority;
 import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.exception.NotFoundException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -32,13 +29,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -65,7 +58,7 @@ class MagazineControllerTest {
 
     @Autowired
     private MemberService memberService;
-    
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
@@ -76,7 +69,7 @@ class MagazineControllerTest {
                 .build();
         objectMapper.registerModule(new JavaTimeModule());
     }
-    
+
     @Transactional
     public Member createMember(String username) {
         CreateMemberDTO createMemberDTO = new CreateMemberDTO();
@@ -85,7 +78,7 @@ class MagazineControllerTest {
         createMemberDTO.setName("name");
         createMemberDTO.setEmail("email");
         createMemberDTO.setAllowEmailReceive(true);
-        
+
         memberService.createMember(createMemberDTO);
         return memberService.getEntity(username);
     }
@@ -108,10 +101,28 @@ class MagazineControllerTest {
         return magazineCategoryService.getEntity(category.getId());
     }
 
+    @Transactional
+    public MagazineResponse.Get createComment(MagazineResponse.Get magaizne, Member member, String comment) {
+        MagazineCommentRequest.Create newComment = new MagazineCommentRequest.Create();
+        newComment.setComment(comment);
+        return magazineService.newPostComment(magaizne.getId(), member, newComment);
+    }
+
+    @Transactional
+    public MagazineResponse.Get createCommentHasChild(MagazineResponse.Get magaizne, Member member) {
+        MagazineResponse.Get magazineResponse = createComment(magaizne, member, "1차 댓글");
+
+        MagazineCommentRequest.Create newChildComment = new MagazineCommentRequest.Create();
+        newChildComment.setComment("1차 댓글의 대댓글");
+        newChildComment.setParentCommentId(magazineResponse.getFirstCommentId());
+        return magazineService.newPostComment(magaizne.getId(), member, newChildComment);
+    }
+
+
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("매거진 생성이 된다.")
     @Test
-    void 매거진_생성 () throws Exception {
+    void 매거진_생성() throws Exception {
         // given
         createMember("testid");
         MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("글");
@@ -141,7 +152,7 @@ class MagazineControllerTest {
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("매거진 생성시 카테고리가 없으면 400.")
     @Test
-    void 매거진_생성_에러 () throws Exception {
+    void 매거진_생성_에러() throws Exception {
         // given
         createMember("testid");
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
@@ -165,7 +176,7 @@ class MagazineControllerTest {
 
     @DisplayName("매거진 전체 조회가 된다.")
     @Test
-    void 매거진_전체_조회 () throws Exception {
+    void 매거진_전체_조회() throws Exception {
         // given
         Member author = createMember("testid");
         createMagaizne(author);
@@ -188,7 +199,7 @@ class MagazineControllerTest {
 
     @DisplayName("매거진 상세 조회가 된다.")
     @Test
-    void 매거진_상세_조회 () throws Exception {
+    void 매거진_상세_조회() throws Exception {
         // given
         Member author = createMember("testid");
         MagazineResponse.Get magazine = createMagaizne(author);
@@ -210,7 +221,7 @@ class MagazineControllerTest {
 
     @DisplayName("매거진 상세 조회시 없는 매거진이면 404.")
     @Test
-    void 매거진_상세_조회_에러 () throws Exception {
+    void 매거진_상세_조회_에러() throws Exception {
         // when
         String content = mockMvc.perform(
                         get("/api/magazines/0")
@@ -226,7 +237,7 @@ class MagazineControllerTest {
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("매거진 수정이 된다.")
     @Test
-    void 매거진_수정 () throws Exception {
+    void 매거진_수정() throws Exception {
         // given
         Member author = createMember("testid");
         MagazineResponse.Get magazine = createMagaizne(author);
@@ -255,7 +266,7 @@ class MagazineControllerTest {
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("매거진 수정시 없는 매거진이면 404.")
     @Test
-    void 매거진_수정_에러 () throws Exception {
+    void 매거진_수정_에러() throws Exception {
         // given
         MagazineRequest.Update magazineRequest = new MagazineRequest.Update();
         magazineRequest.setTitle("수정된 제목");
@@ -278,7 +289,7 @@ class MagazineControllerTest {
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("매거진 삭제가 된다.")
     @Test
-    void 매거진_삭제 () throws Exception {
+    void 매거진_삭제() throws Exception {
         // given
         Member author = createMember("testid");
         MagazineResponse.Get magazine = createMagaizne(author);
@@ -297,7 +308,7 @@ class MagazineControllerTest {
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("매거진 삭제시 없는 매거진이면 404.")
     @Test
-    void 매거진_삭제_에러 () throws Exception {
+    void 매거진_삭제_에러() throws Exception {
         // when
         String content = mockMvc.perform(
                         delete("/api/magazines/0")
@@ -310,6 +321,81 @@ class MagazineControllerTest {
         assertTrue(content.contains("해당 매거진이 존재하지 않습니다."));
     }
 
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("매거진 댓글 생성이 된다.")
+    @Test
+    void 매거진_댓글_생성() throws Exception {
+        // given
+        Member member = createMember("testid");
+        MagazineResponse.Get magaizne = createMagaizne(member);
+        MagazineCommentRequest.Create newComment = new MagazineCommentRequest.Create();
+        newComment.setComment("댓글");
 
+        // when
+        String content = mockMvc.perform(
+                        post("/api/magazines/" + magaizne.getId() + "/comments")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(newComment))
+                )
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
 
+        // then
+        assertTrue(content.contains("댓글"));
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("매거진 대댓글 생성이 된다.")
+    @Test
+    void 매거진_대댓글_생성() throws Exception {
+        // given
+        Member member = createMember("testid");
+        MagazineResponse.Get magaizne = createMagaizne(member);
+        MagazineResponse.Get comment = createComment(magaizne, member, "댓글");
+
+        MagazineCommentRequest.Create newComment = new MagazineCommentRequest.Create();
+        newComment.setComment("대댓글");
+        newComment.setParentCommentId(comment.getFirstCommentId());
+
+        // when
+        String content = mockMvc.perform(
+                        post("/api/magazines/" + magaizne.getId() + "/comments")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(newComment))
+                )
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        // then
+        assertTrue(content.contains("대댓글"));
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("매거진 언급 대댓글 생성이 된다.")
+    @Test
+    void 매거진_언급_대댓글_생성() throws Exception {
+        // given
+        Member member = createMember("testid");
+        MagazineResponse.Get magaizne = createMagaizne(member);
+        MagazineResponse.Get comment = createCommentHasChild(magaizne, member);
+
+        MagazineCommentRequest.Create newComment = new MagazineCommentRequest.Create();
+        newComment.setComment("언급!! - 댓글의 대댓글의 해당 대댓글의 대댓글 => 언급");
+        newComment.setParentCommentId(comment.getFirstChildCommentOfFirstComment());
+
+        // when
+        String content = mockMvc.perform(
+                        post("/api/magazines/" + magaizne.getId() + "/comments")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(newComment))
+                )
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        // then
+        assertTrue(content.contains("대댓글"));
+    }
 }
