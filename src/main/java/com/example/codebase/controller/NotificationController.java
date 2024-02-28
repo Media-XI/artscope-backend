@@ -4,7 +4,7 @@ import com.example.codebase.annotation.AdminOnly;
 import com.example.codebase.annotation.LoginOnly;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.service.MemberService;
-import com.example.codebase.domain.notification.dto.MessageRequest;
+import com.example.codebase.domain.notification.dto.NotificationMessageRequest;
 import com.example.codebase.domain.notification.dto.NotificationResponse;
 import com.example.codebase.domain.notification.service.NotificationService;
 import com.example.codebase.domain.notification.service.NotificationEventService;
@@ -40,10 +40,10 @@ public class NotificationController {
     @AdminOnly
     @Operation(summary = "알림 생성하기", description = "[AMDIN] 알림을 생성합니다.")
     @PostMapping
-    public ResponseEntity sendAdminNotification(@RequestBody MessageRequest messageRequest) {
-        messageRequest.getNotificationType().validAdminNotificationType();
+    public ResponseEntity sendAdminNotification(@RequestBody NotificationMessageRequest notificationMessageRequest) {
+        notificationMessageRequest.getNotificationType().validAdminNotificationType();
 
-        notificationService.sendNotification(messageRequest, messageRequest.getNotificationType());
+        notificationService.sendNotification(notificationMessageRequest, notificationMessageRequest.getNotificationType());
 
         return new ResponseEntity("알림이 생성되었습니다", HttpStatus.CREATED);
     }

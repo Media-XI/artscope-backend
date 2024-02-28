@@ -7,7 +7,7 @@ import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.domain.member.service.MemberService;
-import com.example.codebase.domain.notification.dto.MessageRequest;
+import com.example.codebase.domain.notification.dto.NotificationMessageRequest;
 import com.example.codebase.domain.notification.entity.Notification;
 import com.example.codebase.domain.notification.entity.NotificationType;
 import com.example.codebase.domain.notification.repository.NotificationRepository;
@@ -124,7 +124,7 @@ class NotificationControllerTest {
     @Test
     public void 공지사항_성공() throws Exception {
         createOrLoadMember();
-        MessageRequest messageRequest = new MessageRequest("공지사항", "공지사항입니다.", ANNOUNCEMENT);
+        NotificationMessageRequest messageRequest = new NotificationMessageRequest("공지사항", "공지사항입니다.", ANNOUNCEMENT);
 
 
         mockMvc.perform(post("/api/notification")
@@ -138,7 +138,7 @@ class NotificationControllerTest {
     @Test
     public void 공지사항_실패() throws Exception {
         createOrLoadMember();
-        MessageRequest messageRequest = new MessageRequest("팔로우", "팔로우입니다.", NEW_FOLLOWER);
+        NotificationMessageRequest messageRequest = new NotificationMessageRequest("팔로우", "팔로우입니다.", NEW_FOLLOWER);
 
         mockMvc.perform(post("/api/notification")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -151,7 +151,7 @@ class NotificationControllerTest {
     @Test
     public void 공지사항_잘못된_타입_실패시() throws Exception {
         createOrLoadMember();
-        MessageRequest messageRequest = new MessageRequest("팔로우", "팔로우입니다.", ANNOUNCEMENT);
+        NotificationMessageRequest messageRequest = new NotificationMessageRequest("팔로우", "팔로우입니다.", ANNOUNCEMENT);
 
         mockMvc.perform(post("/api/notification")
                         .contentType(MediaType.APPLICATION_JSON)

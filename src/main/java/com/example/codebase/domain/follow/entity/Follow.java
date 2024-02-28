@@ -26,7 +26,6 @@ public class Follow implements Persistable<FollowIds>{
     @JoinColumn(name = "following_id", columnDefinition = "BINARY(16)")
     private Member following;
 
-
     @Column(name = "follow_time")
     @Builder.Default
     private LocalDateTime followTime = null;

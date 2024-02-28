@@ -1,7 +1,7 @@
 package com.example.codebase.domain.notification.service;
 
 import com.example.codebase.domain.member.entity.Member;
-import com.example.codebase.domain.notification.dto.MessageRequest;
+import com.example.codebase.domain.notification.dto.NotificationMessageRequest;
 import com.example.codebase.domain.notification.dto.NotificationResponse;
 import com.example.codebase.domain.notification.entity.*;
 import com.example.codebase.domain.notification.repository.NotificationReceivedStatusRepository;
@@ -36,7 +36,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void sendNotification(MessageRequest messageRequest, NotificationType notificationType) {
+    public void sendNotification(NotificationMessageRequest messageRequest, NotificationType notificationType) {
         String jsonMessage = NotificationMessageFormatter.formatMessage(messageRequest);
 
         List<Member> members = notificationSettingRepository.findMemberByType(notificationType);
@@ -107,6 +107,6 @@ public class NotificationService {
 
         notificationReceivedStatusRepository.deleteAll(notificationReceivedStatuses);
 
-        notificationSendService.upDateCountAndSend(member, -1);
+        notificationSendService.upDateCountAndSend(member, -1); // 전체 삭제는 알림 메세지도 삭제
     }
 }

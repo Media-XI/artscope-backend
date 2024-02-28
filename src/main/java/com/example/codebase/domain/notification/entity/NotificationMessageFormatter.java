@@ -1,6 +1,6 @@
 package com.example.codebase.domain.notification.entity;
 
-import com.example.codebase.domain.notification.dto.MessageRequest;
+import com.example.codebase.domain.notification.dto.NotificationMessageRequest;
 
 public class NotificationMessageFormatter {
 
@@ -18,7 +18,7 @@ public class NotificationMessageFormatter {
         return String.format("{\"title\": \"%s\", \"content\": \"%s\"}", title, content);
     }
 
-    public static String formatMessage(MessageRequest messageRequest) {
+    public static String formatMessage(NotificationMessageRequest messageRequest) {
         String title = messageRequest.getTitle();
         String message = messageRequest.getMessage();
         return String.format("{\"title\": \"%s\", \"content\": \"%s\"}", title, message);
