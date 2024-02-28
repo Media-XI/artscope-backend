@@ -22,7 +22,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @Tag(name = "Notification", description = "알림 API")
-@RequestMapping("api/notification")
+@RequestMapping("api/notifications")
 public class NotificationController {
 
     private final NotificationService notificationService;
@@ -72,12 +72,12 @@ public class NotificationController {
 
         notificationService.readNotification(member, notificationId);
 
-        return new ResponseEntity("알림을 읽음으로 처리하였습니다", HttpStatus.OK);
+        return new ResponseEntity("notification", HttpStatus.OK);
     }
 
     @LoginOnly
     @Operation(summary = "알림 전체 읽음 처리", description = "모든 알림을 읽음으로 처리합니다.")
-    @PutMapping("/all")
+    @PutMapping
     public ResponseEntity readAllNotification() {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         Member member = memberService.getEntity(loginUsername);
@@ -100,7 +100,7 @@ public class NotificationController {
 
     @LoginOnly
     @Operation(summary = "알림 전체 삭제", description = "알림을 전체 삭제합니다.")
-    @DeleteMapping("/all")
+    @DeleteMapping
     public ResponseEntity deleteAllNotification() {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         Member member = memberService.getEntity(loginUsername);
@@ -122,7 +122,7 @@ public class NotificationController {
 
     @LoginOnly
     @Operation(summary = "알림 sse 구독 해제", description = "알림 sse구독 해제")
-    @GetMapping(value = "/disconnect")
+    @GetMapping(value = "/sse-disconnect")
     public ResponseEntity unSubScribe() {
         String loginUserName = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         Member member = memberService.getEntity(loginUserName);
