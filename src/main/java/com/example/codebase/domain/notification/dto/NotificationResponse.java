@@ -17,7 +17,7 @@ public class NotificationResponse {
 
     @Getter
     @Setter
-    @Schema(description = "알림 개별 응답")
+    @Schema(name = "NotificationResponse.Get", description = "알림 개별 응답")
     public static class Get {
         private Long notificationId;
 
