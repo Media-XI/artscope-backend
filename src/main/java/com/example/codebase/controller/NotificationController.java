@@ -58,9 +58,9 @@ public class NotificationController {
         Member member = memberService.getEntity(loginUsername);
 
         PageRequest pageRequest = PageRequest.of(page, size);
-        NotificationResponse.GetAll notificationList = notificationService.getNotificationList(member, pageRequest);
+        NotificationResponse.GetAll notifications = notificationService.getNotificationList(member, pageRequest);
 
-        return new ResponseEntity(notificationList, HttpStatus.OK);
+        return new ResponseEntity(notifications, HttpStatus.OK);
     }
 
     @LoginOnly
