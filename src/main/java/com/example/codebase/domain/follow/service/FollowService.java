@@ -66,7 +66,7 @@ public class FollowService {
     public FollowMembersResponseDTO getFollowingList(Optional<String> loginUsername, String targetUsername, PageRequest pageRequest) {
         Member targetMember = memberRepository.findByUsername(targetUsername).orElseThrow(NotFoundMemberException::new);
         Member loginMember = loginUsername.map(s -> memberRepository.findByUsername(s)
-                        .orElseThrow(NotFoundMemberException::new))
+                .orElseThrow(NotFoundMemberException::new))
                 .orElse(null);
 
         Page<FollowWithIsFollow> followingList = followRepository.findFollowingByTargetMember(targetMember, loginMember, pageRequest);
@@ -84,7 +84,7 @@ public class FollowService {
     public FollowMembersResponseDTO getFollowerList(Optional<String> loginUsername, String targetUsername, PageRequest pageRequest) {
         Member targetMember = memberRepository.findByUsername(targetUsername).orElseThrow(NotFoundMemberException::new);
         Member loginMember = loginUsername.map(s -> memberRepository.findByUsername(s)
-                        .orElseThrow(NotFoundMemberException::new))
+                .orElseThrow(NotFoundMemberException::new))
                 .orElse(null);
 
         Page<FollowWithIsFollow> followerList = followRepository.findFollowerByTargetMember(targetMember, loginMember, pageRequest);
