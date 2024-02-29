@@ -17,4 +17,8 @@ public class NotificationMessageRequest {
     private String message;
 
     private NotificationType notificationType;
+
+    public void validAdminNotificationType() {
+        this.notificationType.validAdminNotificationType();
+    }
 }
