@@ -44,6 +44,7 @@ public class NotificationResponse {
 
     @Getter
     @Setter
+    @Schema(name = "NotificationResponse.GetAll", description = "알림 전체 응답")
     public static class GetAll {
         private List<Get> notifications;
 
