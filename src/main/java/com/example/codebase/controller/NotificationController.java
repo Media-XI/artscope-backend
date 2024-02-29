@@ -111,8 +111,8 @@ public class NotificationController {
     }
 
     @LoginOnly
-    @Operation(summary = "알림 sse 구독", description = "알림 sse구독")
-    @GetMapping(value = "/connect", produces = "text/event-stream")
+    @Operation(summary = "알림 sse 연결", description = "알림 sse 연결")
+    @GetMapping(value = "/sse-connect", produces = "text/event-stream")
     public SseEmitter subScribe() {
         String loginUserName = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         Member member = memberService.getEntity(loginUserName);
@@ -121,7 +121,7 @@ public class NotificationController {
     }
 
     @LoginOnly
-    @Operation(summary = "알림 sse 구독 해제", description = "알림 sse구독 해제")
+    @Operation(summary = "알림 sse 연결 해제", description = "알림 sse 연결 해제")
     @GetMapping(value = "/sse-disconnect")
     public ResponseEntity unSubScribe() {
         String loginUserName = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
@@ -129,7 +129,7 @@ public class NotificationController {
 
         notificationEventService.disconnection(member);
 
-        return new ResponseEntity("알림 구독 해제 완료", HttpStatus.OK);
+        return new ResponseEntity("알림 SSE 연결 종료", HttpStatus.OK);
     }
 
 }
