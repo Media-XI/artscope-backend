@@ -188,6 +188,30 @@ class MagazineLikeControllerTest {
         assertEquals(0, magazineService.get(magazine.getId()).getLikes());
     }
 
+    @WithMockCustomUser(username = "testid")
+    @DisplayName("매거진 2번 좋아요 시")
+    @Test
+    void 매거진_2번_좋아요() throws Exception {
+
+        // when
+        mockMvc.perform(
+                        post("/api/magazines/{magazineId}/like", magazine.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        mockMvc.perform(
+                        post("/api/magazines/{magazineId}/like", magazine.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        // then
+        assertEquals(1, magazineService.get(magazine.getId()).getLikes());
+    }
+
 
 //    @WithMockCustomUser(username = "testid")
 //    @DisplayName("한 유저가 동시에 2회 이상 매거진 좋아요 시, 한 요청만 성공 후 나머지 요청은 실패한다")

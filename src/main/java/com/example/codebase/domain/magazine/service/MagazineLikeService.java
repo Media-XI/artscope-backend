@@ -10,6 +10,8 @@ import com.example.codebase.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class MagazineLikeService {
 
@@ -27,6 +29,13 @@ public class MagazineLikeService {
         Magazine magazine = magazineRepository.findById(magazineId)
                 .orElseThrow(() -> new NotFoundException("해당 매거진을 찾을 수 없습니다."));
 
+        Optional<MagazineLike> like = magazineLikeRepository.findByIds(magazine, member);
+
+        // 좋아요 로직에 대해 멱등성 보장
+        if (like.isPresent()) {
+            return MagazineResponse.Get.from(magazine);
+        }
+
         MagazineLike magazineLike = MagazineLike.toEntity(magazine, member);
         magazine.addLike(magazineLike);
 
@@ -40,7 +49,7 @@ public class MagazineLikeService {
                 .orElseThrow(() -> new NotFoundException("해당 매거진을 찾을 수 없습니다."));
 
         MagazineLike magazineLike = magazineLikeRepository.findByIds(magazine, member)
-                .orElseThrow(() -> new NotFoundException("해당 좋아요를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException("좋아요한 매거진이 아닙니다."));
 
         magazine.removeLike(magazineLike);
 
