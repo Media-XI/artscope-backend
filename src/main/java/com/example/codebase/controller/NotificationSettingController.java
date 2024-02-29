@@ -53,8 +53,9 @@ public class NotificationSettingController {
         Member member = memberService.getEntity(loginUsername);
 
         notificationSettingService.updateNotificationSetting(notificationType, member);
+        NotificationSettingResponse.GetAll notificationSettingResponse = notificationSettingService.getNotificationSetting(member);
 
-        return new ResponseEntity("알림 설정이 변경되었습니다.", HttpStatus.OK);
+        return new ResponseEntity(notificationSettingResponse, HttpStatus.OK);
     }
 
 }
