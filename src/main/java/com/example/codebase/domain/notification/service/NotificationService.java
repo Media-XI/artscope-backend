@@ -62,7 +62,7 @@ public class NotificationService {
 
         notificationReceivedStatusRepository.saveAll(notifications);
 
-        notificationSendService.upDateCountAndSend(member, -notifications.size());
+        notificationSendService.sendNotificationCount(member, -notifications.size());
     }
 
     @Transactional
@@ -79,7 +79,7 @@ public class NotificationService {
         notificationReceivedStatus.read();
 
         notificationReceivedStatusRepository.save(notificationReceivedStatus);
-        notificationSendService.upDateCountAndSend(member, -1);
+        notificationSendService.sendNotificationCount(member, -1);
     }
 
     @Transactional
@@ -94,7 +94,7 @@ public class NotificationService {
         notificationReceivedStatus.removeNotification();
         notificationReceivedStatusRepository.delete(notificationReceivedStatus);
 
-        notificationSendService.upDateCountAndSend(member, count);
+        notificationSendService.sendNotificationCount(member, count);
     }
 
     @Transactional
@@ -107,6 +107,6 @@ public class NotificationService {
 
         notificationReceivedStatusRepository.deleteAll(notificationReceivedStatuses);
 
-        notificationSendService.upDateCountAndSend(member, -1); // 전체 삭제는 알림 메세지도 삭제
+        notificationSendService.sendNotificationCount(member, -1); // 전체 삭제는 알림 메세지도 삭제
     }
 }

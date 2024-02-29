@@ -14,6 +14,6 @@ public interface NotificationSendService {
 
     void send(List<Member> members, Notification notification);
 
-    void upDateCountAndSend(Member member, int size);
+    void sendNotificationCount(Member member, int size);
 
 }
