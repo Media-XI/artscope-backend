@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Where(clause = "is_deleted = false")
 public class MagazineComment {
 
     @Id
@@ -114,5 +116,31 @@ public class MagazineComment {
 
     public Long getParentCommentId() {
         return this.parentComment == null ? null : this.parentComment.getId();
+    }
+
+    public Boolean isCommentAuthor(Member member) {
+        return this.member == member;
+    }
+
+    public void update(MagazineCommentRequest.Update updateComment) {
+        this.comment = updateComment.getComment();
+        this.updatedTime = LocalDateTime.now();
+    }
+
+
+    /**
+     * 댓글 삭제
+     * SOFT DELETE
+     * 매거진 양방향 매핑 해제
+     */
+    public void delete() {
+        this.isDeleted = true;
+        this.updatedTime = LocalDateTime.now();
+        // 매거진 양방향 매핑 해제
+        this.magazine.getMagazineComments().remove(this);
+        // 부모댓글이 존재할 경우 양방향 매핑 해제
+        if (hasParentComment()) {
+            this.parentComment.getChildComments().remove(this);
+        }
     }
 }

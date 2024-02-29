@@ -94,4 +94,11 @@ public class Magazine {
         this.magazineComments.add(entity);
         this.comments = this.magazineComments.size();
     }
+
+    public void delete() {
+        this.isDeleted = true;
+        this.updatedTime = LocalDateTime.now();
+        // 양방향 매핑 제거
+        this.magazineComments.clear();
+    }
 }

@@ -9,15 +9,12 @@ import com.example.codebase.domain.magazine.entity.MagazineComment;
 import com.example.codebase.domain.magazine.repository.MagazineCommentRepository;
 import com.example.codebase.domain.magazine.repository.MagazineRepository;
 import com.example.codebase.domain.member.entity.Member;
-import com.example.codebase.domain.post.dto.PostResponseDTO;
 import com.example.codebase.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -43,6 +40,10 @@ public class MagazineService {
     public MagazineResponse.Get get(Long id) {
         Magazine magazine = magazineRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
+
+        magazine.incressView();
+
+        magazineRepository.save(magazine);
         return MagazineResponse.Get.from(magazine);
     }
 
@@ -56,9 +57,9 @@ public class MagazineService {
         Magazine magazine = magazineRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
 
-        isOwner(loginUsername, magazine);
+        validateOwner(loginUsername, magazine);
 
-        magazineRepository.deleteById(id);
+        magazine.delete();
     }
 
     @Transactional
@@ -66,29 +67,30 @@ public class MagazineService {
         Magazine magazine = magazineRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
 
-        isOwner(loginUsername, magazine);
+        validateOwner(loginUsername, magazine);
 
         magazine.update(magazineRequest);
-        magazineRepository.save(magazine);
+
         return MagazineResponse.Get.from(magazine);
     }
 
-    private void isOwner(String loginUsername, Magazine magazine) {
+    private void validateOwner(String loginUsername, Magazine magazine) {
         if (!magazine.isOwner(loginUsername)) {
             throw new IllegalArgumentException("해당 매거진의 소유자가 아닙니다.");
         }
     }
 
     @Transactional
-    public MagazineResponse.Get newPostComment(Long magazineId, Member member, MagazineCommentRequest.Create newCommentDto) {
+    public MagazineResponse.Get newMagazineComment(Long magazineId, Member member, MagazineCommentRequest.Create newCommentDto) {
         Magazine magazine = magazineRepository.findById(magazineId)
                 .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
 
         MagazineComment newComment = MagazineComment.toEntity(newCommentDto, member, magazine);
-        // 대댓글 여부 판단
+
         if (isReplyComment(newCommentDto)) {
             replyComment(newComment, newCommentDto.getParentCommentId());
         }
+
         magazineCommentRepository.save(newComment);
         magazineRepository.save(magazine);
         return MagazineResponse.Get.from(magazine);
@@ -112,5 +114,41 @@ public class MagazineService {
 
     private boolean isMentionComment(MagazineComment parentComment) {
         return parentComment.hasParentComment();
+    }
+
+    @Transactional
+    public MagazineResponse.Get updateMagazineComment(Long magazineId, Long commentId, MagazineCommentRequest.Update updateComment, Member member) {
+        Magazine magazine = magazineRepository.findById(magazineId)
+                .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
+
+        MagazineComment magazineComment = magazineCommentRepository.findByIdAndMagazine(commentId, magazine)
+                .orElseThrow(() -> new NotFoundException("댓글이 존재하지 않거나 해당 매거진에 작성된 댓글이 아닙니다."));
+
+        validateCommentAuthor(magazineComment, member);
+
+        magazineComment.update(updateComment);
+
+        return MagazineResponse.Get.from(magazine);
+    }
+
+    @Transactional
+    public MagazineResponse.Get deleteMagazineComment(Long magazineId, Long commentId, Member member) {
+        Magazine magazine = magazineRepository.findById(magazineId)
+                .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
+
+        MagazineComment magazineComment = magazineCommentRepository.findByIdAndMagazine(commentId, magazine)
+                .orElseThrow(() -> new NotFoundException("댓글이 존재하지 않거나 해당 매거진에 작성된 댓글이 아닙니다."));
+
+        validateCommentAuthor(magazineComment, member);
+
+        magazineComment.delete();
+
+        return MagazineResponse.Get.from(magazine);
+    }
+
+    private void validateCommentAuthor(MagazineComment magazineComment, Member member) {
+        if (!magazineComment.isCommentAuthor(member)) {
+            throw new RuntimeException("댓글 작성자가 아닙니다.");
+        }
     }
 }
