@@ -65,6 +65,10 @@ public class Magazine {
     @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL)
     private List<MagazineComment> magazineComments = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL)
+    private List<MagazineLike> magazineLikes = new ArrayList<>();
+
     public static Magazine toEntity(MagazineRequest.Create magazineRequest, Member member, MagazineCategory category) {
         return Magazine.builder()
                 .title(magazineRequest.getTitle())
@@ -100,5 +104,15 @@ public class Magazine {
         this.updatedTime = LocalDateTime.now();
         // 양방향 매핑 제거
         this.magazineComments.clear();
+    }
+
+    public void addLike(MagazineLike magazineLike) {
+        this.magazineLikes.add(magazineLike);
+        this.likes = this.magazineLikes.size();
+    }
+
+    public void removeLike(MagazineLike magazineLike) {
+        this.magazineLikes.remove(magazineLike);
+        this.likes = this.magazineLikes.size();
     }
 }
