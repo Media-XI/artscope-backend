@@ -11,8 +11,6 @@ import com.example.codebase.domain.magazine.service.MagazineService;
 import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.service.MemberService;
-import com.example.codebase.exception.NotFoundException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.transaction.Transactional;
@@ -70,7 +68,6 @@ class MagazineControllerTest {
         objectMapper.registerModule(new JavaTimeModule());
     }
 
-    @Transactional
     public Member createMember(String username) {
         CreateMemberDTO createMemberDTO = new CreateMemberDTO();
         createMemberDTO.setUsername(username);
@@ -83,7 +80,6 @@ class MagazineControllerTest {
         return memberService.getEntity(username);
     }
 
-    @Transactional
     public MagazineResponse.Get createMagaizne(Member member) {
         MagazineCategory category = createCategory();
 
@@ -95,27 +91,24 @@ class MagazineControllerTest {
         return magazineService.create(magazineRequest, member, category);
     }
 
-    @Transactional
     public MagazineCategory createCategory() {
         MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("카테고리");
         return magazineCategoryService.getEntity(category.getId());
     }
 
-    @Transactional
     public MagazineResponse.Get createComment(MagazineResponse.Get magaizne, Member member, String comment) {
         MagazineCommentRequest.Create newComment = new MagazineCommentRequest.Create();
         newComment.setComment(comment);
-        return magazineService.newPostComment(magaizne.getId(), member, newComment);
+        return magazineService.newMagazineComment(magaizne.getId(), member, newComment);
     }
 
-    @Transactional
     public MagazineResponse.Get createCommentHasChild(MagazineResponse.Get magaizne, Member member) {
         MagazineResponse.Get magazineResponse = createComment(magaizne, member, "1차 댓글");
 
         MagazineCommentRequest.Create newChildComment = new MagazineCommentRequest.Create();
         newChildComment.setComment("1차 댓글의 대댓글");
         newChildComment.setParentCommentId(magazineResponse.getFirstCommentId());
-        return magazineService.newPostComment(magaizne.getId(), member, newChildComment);
+        return magazineService.newMagazineComment(magaizne.getId(), member, newChildComment);
     }
 
 
@@ -248,7 +241,7 @@ class MagazineControllerTest {
 
         // when
         String response = mockMvc.perform(
-                        put("/api/magazines/" + magazine.getId())
+                        patch("/api/magazines/" + magazine.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(magazineRequest))
                 )
@@ -274,7 +267,7 @@ class MagazineControllerTest {
 
         // when
         String content = mockMvc.perform(
-                        put("/api/magazines/0")
+                        patch("/api/magazines/0")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(magazineRequest))
                 )
@@ -299,10 +292,14 @@ class MagazineControllerTest {
                         delete("/api/magazines/" + magazine.getId())
                 )
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         // then
-        assertThrows(NotFoundException.class, () -> magazineService.get(magazine.getId())); // 삭제된 매거진 조회시 404 에러 발생 확인 (삭제됨)
+        mockMvc.perform(
+                        get("/api/magazines/" + magazine.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -397,5 +394,59 @@ class MagazineControllerTest {
 
         // then
         assertTrue(content.contains("대댓글"));
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("매거진 댓글 수정이 된다.")
+    @Test
+    void 매거진_댓글_수정() throws Exception {
+        // given
+        Member member = createMember("testid");
+        MagazineResponse.Get onlyMagaizne = createMagaizne(member);
+        MagazineResponse.Get magazine = createComment(onlyMagaizne, member, "댓글");
+
+        MagazineCommentRequest.Update updateComment = new MagazineCommentRequest.Update();
+        updateComment.setComment("수정된 댓글");
+
+        // when
+        String content = mockMvc.perform(
+                        patch("/api/magazines/" + magazine.getId() + "/comments/" + magazine.getFirstCommentId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updateComment))
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        // then
+        assertTrue(content.contains("수정된 댓글"));
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("매거진 댓글 삭제가 된다.")
+    @Test
+    void 매거진_댓글_삭제() throws Exception {
+        // given
+        Member member = createMember("testid");
+        MagazineResponse.Get onlyMagaizne = createMagaizne(member);
+        MagazineResponse.Get magazine = createComment(onlyMagaizne, member, "댓글");
+
+        Long commentId = magazine.getFirstCommentId();
+
+        // when
+        mockMvc.perform(
+                        delete("/api/magazines/" + magazine.getId() + "/comments/" + commentId)
+                )
+                .andDo(print())
+                .andExpect(status().isNoContent());
+
+        // then
+        mockMvc.perform(
+                        patch("/api/magazines/" + magazine.getId() + "/comments/" + commentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"comment\": \"수정된 댓글\"}")
+                )
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 }
