@@ -1,3 +1,7 @@
+DROP TABLE IF EXISTS `magazine_like_member`;
+
+DROP TABLE IF EXISTS `magazine_like`;
+
 CREATE TABLE `magazine_like` (
     `magazine_like_id` BIGINT PRIMARY KEY AUTO_INCREMENT,
     `magazine_id` BIGINT NOT NULL,
