@@ -2,6 +2,9 @@ package com.example.codebase.domain.notification.entity;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 @Getter
 public enum NotificationType {
     MENTION("언급", "${username} 님이 당신을 언급했습니다."),
@@ -24,12 +27,18 @@ public enum NotificationType {
         }
     }
 
-    public static NotificationType fromString(String type){
-        for(NotificationType notificationType : NotificationType.values()){
-            if(notificationType.name().equals(type)){
+    public static NotificationType fromString(String type) {
+        for (NotificationType notificationType : NotificationType.values()) {
+            if (notificationType.name().equals(type)) {
                 return notificationType;
             }
         }
-        throw new IllegalArgumentException("잘못된 알림 타입입니다.");
+        throw new IllegalArgumentException("잘못된 알림 타입입니다. [" + allNotificationTypes() + "]에서 입력해주세요.");
+    }
+
+    public static String allNotificationTypes() {
+        return Arrays.stream(NotificationType.values())
+                .map(Enum::name)
+                .collect(Collectors.joining(", "));
     }
 }

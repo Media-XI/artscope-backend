@@ -10,7 +10,7 @@ import com.example.codebase.exception.LoginRequiredException;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,11 +46,13 @@ public class NotificationSettingController {
     @LoginOnly
     @Operation(summary = "알림 설정 변경", description = "알림 설정을 변경합니다.")
     @PatchMapping("/{notificationType}")
-    public ResponseEntity updateNotificationSetting(@PathVariable @Valid NotificationType notificationType) {
+    public ResponseEntity updateNotificationSetting(@PathVariable @NotNull String notificationType) {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
+        NotificationType type = NotificationType.fromString(notificationType);
+
         Member member = memberService.getEntity(loginUsername);
 
-        notificationSettingService.updateNotificationSetting(notificationType, member);
+        notificationSettingService.updateNotificationSetting(type, member);
         NotificationSettingResponse.GetAll notificationSettingResponse = notificationSettingService.getNotificationSetting(member);
 
         return new ResponseEntity(notificationSettingResponse, HttpStatus.OK);
