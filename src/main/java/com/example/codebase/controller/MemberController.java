@@ -34,20 +34,16 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    private final NotificationSettingService notificationSettingService;
 
     @Autowired
-    public MemberController(MemberService memberService, NotificationSettingService notificationSettingService) {
+    public MemberController(MemberService memberService) {
         this.memberService = memberService;
-        this.notificationSettingService = notificationSettingService;
     }
 
     @Operation(summary = "회원 가입", description = "회원 가입을 합니다.")
     @PostMapping
     public ResponseEntity createMember(@Valid @RequestBody CreateMemberDTO createMemberDTO) {
         MemberResponseDTO memberResponseDTO = memberService.createMember(createMemberDTO);
-
-        notificationSettingService.createNotificationSetting(memberService.getEntity(memberResponseDTO.getUsername()));
 
         return new ResponseEntity(memberResponseDTO, HttpStatus.CREATED);
     }
