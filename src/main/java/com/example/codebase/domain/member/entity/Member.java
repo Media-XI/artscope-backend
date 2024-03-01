@@ -3,6 +3,7 @@ package com.example.codebase.domain.member.entity;
 import com.example.codebase.domain.agora.entity.Agora;
 import com.example.codebase.domain.artwork.entity.Artwork;
 import com.example.codebase.domain.auth.OAuthAttributes;
+import com.example.codebase.domain.follow.entity.Follow;
 import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
 import com.example.codebase.domain.member.dto.CreateCuratorMemberDTO;
 import com.example.codebase.domain.member.dto.CreateMemberDTO;
@@ -121,6 +122,14 @@ public class Member {
     @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<NotificationSetting> notificationSettings = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL)
+    private List<Follow> followings = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL)
+    private List<Follow> followers = new ArrayList<>();
 
     public static User toUser(Member member) {
         return new User(member.getUsername(), member.getPassword(), member.getAuthorities().stream()
