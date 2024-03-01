@@ -1,3 +1,6 @@
+
+DROP TABLE IF EXISTS `magazine_comment`;
+
 CREATE TABLE `magazine_comment`
 (
     `magazine_comment_id` bigint AUTO_INCREMENT PRIMARY KEY,
