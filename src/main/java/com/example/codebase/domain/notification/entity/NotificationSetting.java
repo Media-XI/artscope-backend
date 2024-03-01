@@ -7,29 +7,64 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "notification_setting")
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@IdClass(NotificationSettingIds.class)
 public class NotificationSetting {
 
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
+    private UUID id;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
     @JoinColumn(name = "member_id", columnDefinition = "BINARY(16)")
     private Member member;
 
-    @Id
-    @Enumerated(EnumType.STRING)
-    @Column(name = "setting_type", nullable = false)
-    private NotificationType notificationType;
+    @Builder.Default
+    @Column(name = "receive_mention", nullable = false)
+    private Boolean receiveMention = true;
 
-    @Column(name = "is_receive", nullable = false)
-    private Boolean isReceive;
+    @Column(name = "receive_update", nullable = false)
+    private Boolean receiveUpdate = true;
 
-    public void updateReceive(){
-        this.isReceive = !this.isReceive;
+    @Column(name = "receive_announcement", nullable = false)
+    private Boolean receiveAnnouncement = true;
+
+    @Column(name = "receive_new_follower", nullable = false)
+    private Boolean receiveNewFollower = true;
+
+    @Column(name = "receive_promotional_news", nullable = false)
+    private Boolean receivePromotionalNews = true;
+
+    public static NotificationSetting from(Member member) {
+        return NotificationSetting.builder()
+                .id(member.getId())
+                .member(member)
+                .build();
+    }
+
+    public void updateReceive(NotificationType type) {
+        switch (type) {
+            case MENTION:
+                this.receiveMention = !this.receiveMention;
+                break;
+            case UPDATE:
+                this.receiveUpdate = !this.receiveUpdate;
+                break;
+            case ANNOUNCEMENT:
+                this.receiveAnnouncement = !this.receiveAnnouncement;
+                break;
+            case NEW_FOLLOWER:
+                this.receiveNewFollower = !this.receiveNewFollower;
+                break;
+            case PROMOTIONAL_NEWS:
+                this.receivePromotionalNews = !this.receivePromotionalNews;
+                break;
+        }
     }
 }
