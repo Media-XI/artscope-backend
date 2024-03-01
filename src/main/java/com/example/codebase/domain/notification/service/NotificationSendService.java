@@ -14,6 +14,11 @@ public interface NotificationSendService {
 
     void send(List<Member> members, Notification notification);
 
-    void sendNotificationCount(Member member, int size);
+    void incrementNotificationCount(Member member);
 
+    void resetAndSendNotificationCount(Member member);
+
+    void decrementNotificationCount(Member member);
+
+    void decrementNotificationCount(Member member, int size);
 }
