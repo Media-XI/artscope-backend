@@ -19,6 +19,7 @@ import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
+import com.example.codebase.domain.notification.entity.NotificationSetting;
 import com.example.codebase.s3.S3Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -114,6 +115,9 @@ class FollowControllerTest {
             memberAuthority.setAuthority(Authority.of(authority));
             memberAuthority.setMember(dummy);
         }
+
+        NotificationSetting notificationSetting = NotificationSetting.builder().member(dummy).build();
+        dummy.setNotificationSetting(notificationSetting);
 
         return memberRepository.save(dummy);
     }

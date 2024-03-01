@@ -9,6 +9,7 @@ import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.domain.notification.dto.NotificationMessageRequest;
 import com.example.codebase.domain.notification.entity.Notification;
+import com.example.codebase.domain.notification.entity.NotificationSetting;
 import com.example.codebase.domain.notification.entity.NotificationType;
 import com.example.codebase.domain.notification.repository.NotificationRepository;
 import com.example.codebase.domain.notification.service.NotificationService;
@@ -81,6 +82,7 @@ class NotificationControllerTest {
         return createOrLoadMember("testid", "ROLE_USER");
     }
 
+    @Transactional
     public Member createOrLoadMember(String username, String... authorities) {
         Optional<Member> testMember = memberRepository.findByUsername(username);
         if (testMember.isPresent()) {
@@ -101,6 +103,9 @@ class NotificationControllerTest {
             memberAuthority.setAuthority(Authority.of(authority));
             memberAuthority.setMember(dummy);
         }
+
+        NotificationSetting notificationSetting = NotificationSetting.builder().member(dummy).build();
+        dummy.setNotificationSetting(notificationSetting);
 
         return memberRepository.save(dummy);
     }
@@ -127,7 +132,7 @@ class NotificationControllerTest {
         NotificationMessageRequest messageRequest = new NotificationMessageRequest("공지사항", "공지사항입니다.", ANNOUNCEMENT);
 
 
-        mockMvc.perform(post("/api/notification")
+        mockMvc.perform(post("/api/notifications")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(messageRequest)))
                 .andExpect(status().isCreated());
@@ -140,7 +145,7 @@ class NotificationControllerTest {
         createOrLoadMember();
         NotificationMessageRequest messageRequest = new NotificationMessageRequest("팔로우", "팔로우입니다.", NEW_FOLLOWER);
 
-        mockMvc.perform(post("/api/notification")
+        mockMvc.perform(post("/api/notifications")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(messageRequest)))
                 .andExpect(status().isForbidden());
@@ -153,7 +158,7 @@ class NotificationControllerTest {
         createOrLoadMember();
         NotificationMessageRequest messageRequest = new NotificationMessageRequest("팔로우", "팔로우입니다.", ANNOUNCEMENT);
 
-        mockMvc.perform(post("/api/notification")
+        mockMvc.perform(post("/api/notifications")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(messageRequest)))
                 .andExpect(status().isForbidden());
@@ -166,7 +171,7 @@ class NotificationControllerTest {
         Member member = createOrLoadMember();
         createOrLoadNotification(member);
 
-        mockMvc.perform(get("/api/notification"))
+        mockMvc.perform(get("/api/notifications"))
                 .andExpect(status().isOk());
 
     }
@@ -178,10 +183,10 @@ class NotificationControllerTest {
         Member member = createOrLoadMember();
         Notification notification = createOrLoadNotification(member, "알림1", ANNOUNCEMENT);
 
-        mockMvc.perform(put("/api/notification/{notificationId}", notification.getNotificationId()))
+        mockMvc.perform(put("/api/notifications/{notificationId}", notification.getNotificationId()))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/notification"))
+        mockMvc.perform(get("/api/notifications"))
                 .andExpect(status().isOk());
 
     }
@@ -197,10 +202,10 @@ class NotificationControllerTest {
         createOrLoadNotification(member, "알림4", ANNOUNCEMENT);
 
 
-        mockMvc.perform(put("/api/notification/all"))
+        mockMvc.perform(put("/api/notifications"))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/notification"))
+        mockMvc.perform(get("/api/notifications"))
                 .andExpect(status().isOk());
     }
 
@@ -211,10 +216,10 @@ class NotificationControllerTest {
         Member member = createOrLoadMember();
         Notification notification = createOrLoadNotification(member, "알림1", ANNOUNCEMENT);
 
-        mockMvc.perform(delete("/api/notification/{notificationId}", notification.getNotificationId()))
+        mockMvc.perform(delete("/api/notifications/{notificationId}", notification.getNotificationId()))
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/api/notification"))
+        mockMvc.perform(get("/api/notifications"))
                 .andExpect(status().isOk());
     }
 
@@ -226,7 +231,7 @@ class NotificationControllerTest {
         Member member = createOrLoadMember();
         Notification notification = createOrLoadNotification(member, "알림1", ANNOUNCEMENT);
 
-        mockMvc.perform(delete("/api/notification/{notificationId}", notification.getNotificationId()))
+        mockMvc.perform(delete("/api/notifications/{notificationId}", notification.getNotificationId()))
                 .andExpect(status().isBadRequest());
     }
 
@@ -240,10 +245,10 @@ class NotificationControllerTest {
         createOrLoadNotification(member, "알림3", ANNOUNCEMENT);
         createOrLoadNotification(member, "알림4", ANNOUNCEMENT);
 
-        mockMvc.perform(delete("/api/notification/all"))
+        mockMvc.perform(delete("/api/notifications"))
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/api/notification"))
+        mockMvc.perform(get("/api/notifications"))
                 .andExpect(status().isOk());
     }
 
@@ -254,10 +259,10 @@ class NotificationControllerTest {
         Member member = createOrLoadMember();
         Notification notification = createOrLoadNotification(member, "알림1", ANNOUNCEMENT);
 
-        mockMvc.perform(put("/api/notification/{notificationId}", notification.getNotificationId()))
+        mockMvc.perform(put("/api/notifications/{notificationId}", notification.getNotificationId()))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(put("/api/notification/{notificationId}", notification.getNotificationId()))
+        mockMvc.perform(put("/api/notifications/{notificationId}", notification.getNotificationId()))
                 .andExpect(status().isBadRequest());
     }
 }

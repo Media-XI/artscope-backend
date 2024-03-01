@@ -100,57 +100,48 @@ public class NotificationSettingControllerTest {
             memberAuthority.setMember(dummy);
         }
 
-        for (int i = 0; i < NotificationType.values().length; i++) {
-            NotificationSetting notificationSetting = NotificationSetting.builder()
-                    .member(dummy)
-                    .notificationType(NotificationType.values()[i])
-                    .isReceive(true)
-                    .build();
-        }
+        NotificationSetting notificationSetting = NotificationSetting.builder().member(dummy).build();
+        dummy.setNotificationSetting(notificationSetting);
 
         memberRepository.save(dummy);
+
         return dummy;
-    }
-
-
-    @Transactional
-    public void createNotificationSetting(Member member) {
-        for (NotificationType type : NotificationType.values()) {
-            NotificationSetting notificationSetting = NotificationSetting.builder()
-                    .member(member)
-                    .notificationType(type)
-                    .isReceive(true)
-                    .build();
-
-            notificationSettingRepository.save(notificationSetting);
-        }
     }
 
     @WithMockCustomUser(username = "testid", role = "ADMIN")
     @DisplayName("알림 설정을 조회")
     @Test
-    public void getNotificationSetting() throws Exception {
+    public void 알림_설정_조회() throws Exception {
         // given
         Member testMember = createOrLoadMember();
-        createNotificationSetting(testMember);
 
         mockMvc.perform(get("/api/notification-setting"))
                 .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "testid", role = "ADMIN")
-    @DisplayName("알림 설정을 수정")
+    @DisplayName("알림 설정 수정")
     @Test
-    public void updateNotificationSetting() throws Exception {
+    public void 알림_설정_수정시() throws Exception {
         Member testMember = createOrLoadMember();
-        createNotificationSetting(testMember);
 
         mockMvc.perform(patch("/api/notification-setting/ANNOUNCEMENT"))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/api/notification-setting"))
                 .andExpect(status().isOk());
-
     }
+
+    @WithMockCustomUser(username = "testid", role = "ADMIN")
+    @DisplayName("알림 설정 수정시 잘못된 값을 입력시")
+    @Test
+    public void 알림_수정시_잘못된_값_입력시() throws Exception {
+        Member testMember = createOrLoadMember();
+
+        mockMvc.perform(patch("/api/notification-setting/잘못된값"))
+                .andExpect(status().isBadRequest());
+    }
+
+
 }
 
 
