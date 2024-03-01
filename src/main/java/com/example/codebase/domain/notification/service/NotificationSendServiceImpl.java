@@ -58,7 +58,7 @@ public class NotificationSendServiceImpl implements NotificationSendService {
     }
 
     private boolean checkSendSetting(Member targetMember, NotificationType type) {
-        return notificationSettingRepository.findByMemberAndNotificationType(targetMember, type).isPresent();
+        return notificationSettingRepository.findByMemberAndNotificationType(targetMember, type);
     }
 
     @Override

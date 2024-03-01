@@ -39,7 +39,7 @@ public class NotificationService {
     public void sendNotification(NotificationMessageRequest messageRequest, NotificationType notificationType) {
         String jsonMessage = NotificationMessageFormatter.formatMessage(messageRequest);
 
-        List<Member> members = notificationSettingRepository.findMemberByType(notificationType);
+        List<Member> members = notificationSettingRepository.findMemberByColumnType(notificationType);
 
         Notification notification = Notification.of(members, jsonMessage, notificationType);
 
