@@ -73,7 +73,7 @@ public class NotificationResponse {
 
     @Getter
     @Setter
-    @Schema(description = "알림 이벤트 응답")
+    @Schema(name = "NotifcationResponse.EventMessage", description = "알림 이벤트 응답")
     public static class EventMessage {
 
         private String message;
