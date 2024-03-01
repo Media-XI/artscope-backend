@@ -121,9 +121,6 @@ public class Magazine {
     }
 
     public void addMedia(MagazineMedia magazineMedia) {
-        if (this.magazineMedias.contains(magazineMedia)) {
-            this.magazineMedias.remove(this);
-        }
         this.magazineMedias.add(magazineMedia);
     }
 }

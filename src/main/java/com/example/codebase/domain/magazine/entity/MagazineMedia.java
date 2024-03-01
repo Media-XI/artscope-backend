@@ -52,10 +52,17 @@ public class MagazineMedia {
         MagazineMedia magazineMedia = MagazineMedia.builder()
                 .type(MagazineMediaType.IMAGE)
                 .url(mediaUrl)
-                .magazine(newMagazine)
                 .build();
-        newMagazine.addMedia(magazineMedia);
+        magazineMedia.setMagaizne(newMagazine);
         return magazineMedia;
+    }
+
+    private void setMagaizne(Magazine magazine) {
+        if (this.magazine != null) {
+            this.magazine.getMagazineMedias().remove(this);
+        }
+        this.magazine = magazine;
+        magazine.addMedia(this);
     }
 
     public static List<MagazineMedia> toList(List<String> mediaUrls, Magazine newMagazine) {
