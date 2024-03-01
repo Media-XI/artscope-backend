@@ -3,7 +3,9 @@ package com.example.codebase.domain.notification.entity;
 import lombok.Getter;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Getter
 public enum NotificationType {
@@ -15,6 +17,9 @@ public enum NotificationType {
 
     private final String title;
     private final String description;
+
+    private static final Map<String, NotificationType> TYPE_MAP=
+            Stream.of(values()).collect(Collectors.toMap(Enum::name, notificationType -> notificationType));
 
     NotificationType(String title, String description) {
         this.title = title;
@@ -28,12 +33,11 @@ public enum NotificationType {
     }
 
     public static NotificationType fromString(String type) {
-        for (NotificationType notificationType : NotificationType.values()) {
-            if (notificationType.name().equals(type)) {
-                return notificationType;
-            }
+        NotificationType result = TYPE_MAP.get(type);
+        if (result == null) {
+            throw new IllegalArgumentException("잘못된 알림 타입입니다. [" + allNotificationTypes() + "]에서 입력해주세요.");
         }
-        throw new IllegalArgumentException("잘못된 알림 타입입니다. [" + allNotificationTypes() + "]에서 입력해주세요.");
+        return result;
     }
 
     public static String allNotificationTypes() {
