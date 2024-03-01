@@ -6,7 +6,9 @@ import com.example.codebase.domain.magazine.dto.MagazineResponse;
 import com.example.codebase.domain.magazine.entity.Magazine;
 import com.example.codebase.domain.magazine.entity.MagazineCategory;
 import com.example.codebase.domain.magazine.entity.MagazineComment;
+import com.example.codebase.domain.magazine.entity.MagazineMedia;
 import com.example.codebase.domain.magazine.repository.MagazineCommentRepository;
+import com.example.codebase.domain.magazine.repository.MagazineMediaRepository;
 import com.example.codebase.domain.magazine.repository.MagazineRepository;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.exception.NotFoundException;
@@ -16,6 +18,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional(readOnly = true)
 public class MagazineService {
@@ -24,15 +28,21 @@ public class MagazineService {
 
     private final MagazineCommentRepository magazineCommentRepository;
 
+    private final MagazineMediaRepository magazineMediaRepository;
+
     @Autowired
-    public MagazineService(MagazineRepository magazineRepository, MagazineCommentRepository magazineCommentRepository) {
+    public MagazineService(MagazineRepository magazineRepository, MagazineCommentRepository magazineCommentRepository, MagazineMediaRepository magazineMediaRepository) {
         this.magazineRepository = magazineRepository;
         this.magazineCommentRepository = magazineCommentRepository;
+        this.magazineMediaRepository = magazineMediaRepository;
     }
 
     @Transactional
     public MagazineResponse.Get create(MagazineRequest.Create magazineRequest, Member member, MagazineCategory category) {
         Magazine newMagazine = Magazine.toEntity(magazineRequest, member, category);
+        List<MagazineMedia> magazineMedias = MagazineMedia.toList(magazineRequest.getMediaUrls(), newMagazine);
+
+        magazineMediaRepository.saveAll(magazineMedias);
         magazineRepository.save(newMagazine);
         return MagazineResponse.Get.from(newMagazine);
     }

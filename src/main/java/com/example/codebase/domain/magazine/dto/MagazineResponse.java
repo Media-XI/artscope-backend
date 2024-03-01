@@ -3,6 +3,7 @@ package com.example.codebase.domain.magazine.dto;
 import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.magazine.entity.Magazine;
 import com.example.codebase.domain.magazine.entity.MagazineComment;
+import com.example.codebase.domain.magazine.entity.MagazineMedia;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,6 +30,8 @@ public class MagazineResponse {
 
         private String category;
 
+        private List<String> mediaUrls;
+
         private Integer views;
 
         private Integer likes;
@@ -50,6 +53,9 @@ public class MagazineResponse {
             response.id = magazine.getId();
             response.title = magazine.getTitle();
             response.content = magazine.getContent();
+            response.mediaUrls = magazine.getMagazineMedias().stream()
+                    .map(MagazineMedia::getUrl)
+                    .toList();
             response.category = magazine.getCategory().getName();
             response.views = magazine.getViews();
             response.likes = magazine.getLikes();
