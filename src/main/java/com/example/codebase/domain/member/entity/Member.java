@@ -119,9 +119,8 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<NotificationReceivedStatus> notifications = new ArrayList<>();
 
-    @Builder.Default
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<NotificationSetting> notificationSettings = new ArrayList<>();
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
+    private NotificationSetting notificationSettings;
 
     @Builder.Default
     @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL)
@@ -322,5 +321,9 @@ public class Member {
         this.allowEmailReceive = emailReceive;
         this.allowEmailReceiveDatetime = updateTime;
         this.updatedTime = updateTime;
+    }
+
+    public void setNotificationSetting(NotificationSetting notificationSetting) {
+        this.notificationSettings = notificationSetting;
     }
 }

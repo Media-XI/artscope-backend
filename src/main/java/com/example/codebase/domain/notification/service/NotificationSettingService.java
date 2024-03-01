@@ -1,6 +1,7 @@
 package com.example.codebase.domain.notification.service;
 
 import com.example.codebase.domain.member.entity.Member;
+import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.domain.notification.dto.NotificationSettingResponse;
 import com.example.codebase.domain.notification.entity.NotificationSetting;
 import com.example.codebase.domain.notification.entity.NotificationType;
@@ -34,12 +35,6 @@ public class NotificationSettingService {
 
         notificationSetting.updateReceive(type);
 
-        notificationSettingRepository.save(notificationSetting);
-    }
-
-    @Transactional
-    public void createNotificationSetting(Member member) {
-        NotificationSetting notificationSetting = NotificationSetting.from(member);
         notificationSettingRepository.save(notificationSetting);
     }
 }
