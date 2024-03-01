@@ -12,6 +12,7 @@ import com.example.codebase.exception.LoginRequiredException;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -40,7 +41,7 @@ public class NotificationController {
     @AdminOnly
     @Operation(summary = "알림 생성하기", description = "[AMDIN] 알림을 생성합니다.")
     @PostMapping
-    public ResponseEntity sendAdminNotification(@RequestBody NotificationMessageRequest notificationMessageRequest) {
+    public ResponseEntity sendAdminNotification(@Valid @RequestBody NotificationMessageRequest notificationMessageRequest) {
         notificationMessageRequest.validAdminNotificationType();
 
         notificationService.sendNotification(notificationMessageRequest, notificationMessageRequest.getNotificationType());
@@ -70,9 +71,9 @@ public class NotificationController {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         Member member = memberService.getEntity(loginUsername);
 
-        notificationService.readNotification(member, notificationId);
+        NotificationResponse.Get notification = notificationService.readNotification(member, notificationId);
 
-        return new ResponseEntity("notification", HttpStatus.OK);
+        return new ResponseEntity(notification, HttpStatus.OK);
     }
 
     @LoginOnly
@@ -82,8 +83,8 @@ public class NotificationController {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         Member member = memberService.getEntity(loginUsername);
 
-        notificationService.readAllNotification(member);
-        return new ResponseEntity("모든 알림을 읽음으로 처리하였습니다.", HttpStatus.OK);
+        NotificationResponse.GetAll notifications = notificationService.readAllNotification(member);
+        return new ResponseEntity(notifications, HttpStatus.OK);
     }
 
     @LoginOnly
