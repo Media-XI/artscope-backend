@@ -29,15 +29,19 @@ public class NotificationSetting {
     @Column(name = "receive_mention", nullable = false)
     private Boolean receiveMention = true;
 
+    @Builder.Default
     @Column(name = "receive_update", nullable = false)
     private Boolean receiveUpdate = true;
 
+    @Builder.Default
     @Column(name = "receive_announcement", nullable = false)
     private Boolean receiveAnnouncement = true;
 
+    @Builder.Default
     @Column(name = "receive_new_follower", nullable = false)
     private Boolean receiveNewFollower = true;
 
+    @Builder.Default
     @Column(name = "receive_promotional_news", nullable = false)
     private Boolean receivePromotionalNews = true;
 
