@@ -115,6 +115,20 @@ public class NotificationEventService {
     }
 
     @Transactional
+    public void resetAndSendNotificationCount(Member member) {
+        if (userEmitters.containsKey(member.getUsername())) {
+            String key = getNotificationKey(member);
+            NotificationResponse.EventMessage eventMessage = redisUtil.getNotificationMessage(key);
+            eventMessage.setMessage(null);
+            eventMessage.setCount(0);
+            eventMessage.setType(null);
+            eventMessage.setSendTime(LocalDateTime.now().toString());
+            redisUtil.saveNotificationMessage(key, eventMessage, REDIS_EXPIRE_DURATION);
+            sendSseEvent(member.getUsername(), eventMessage);
+        }
+    }
+
+    @Transactional
     public void sendAllNotification(List<Member> members, Notification notification) {
         members.forEach(member -> {
             sendNotificationIfConnected(member, notification);
