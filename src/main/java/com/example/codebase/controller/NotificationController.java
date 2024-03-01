@@ -39,7 +39,7 @@ public class NotificationController {
     }
 
     @AdminOnly
-    @Operation(summary = "알림 생성하기", description = "[AMDIN] 알림을 생성합니다.")
+    @Operation(summary = "알림 생성하기", description = "[ADMIN] 알림을 생성합니다.")
     @PostMapping
     public ResponseEntity sendAdminNotification(@Valid @RequestBody NotificationMessageRequest notificationMessageRequest) {
         notificationMessageRequest.validAdminNotificationType();
