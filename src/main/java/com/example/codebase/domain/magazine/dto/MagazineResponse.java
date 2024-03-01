@@ -2,13 +2,17 @@ package com.example.codebase.domain.magazine.dto;
 
 import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.magazine.entity.Magazine;
+import com.example.codebase.domain.magazine.entity.MagazineComment;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MagazineResponse {
@@ -39,6 +43,8 @@ public class MagazineResponse {
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime updatedTime;
 
+        private List<MagazineCommentRepsonse.Get> magazineComments = Collections.emptyList();
+
         public static Get from(Magazine magazine) {
             Get response = new Get();
             response.id = magazine.getId();
@@ -51,7 +57,34 @@ public class MagazineResponse {
             response.author = AuthorResponse.from(magazine.getMember());
             response.createdTime = magazine.getCreatedTime();
             response.updatedTime = magazine.getUpdatedTime();
+
+            // 1차 댓글만 가져오기
+            response.magazineComments = magazine.getMagazineComments().stream()
+                    .filter((comment) -> comment.getParentComment() == null)
+                    .filter((comment) -> comment.getChildComments() != null)
+                    .map(MagazineCommentRepsonse.Get::from) // 1차 댓글을 DTO로 변환 (이때 자식 댓글도 변환)
+                    .toList();
+
             return response;
+        }
+
+        @JsonIgnore
+        public Long getFirstCommentId() {
+            if (magazineComments.isEmpty()) {
+                return null;
+            }
+            return magazineComments.get(0).getId();
+        }
+
+        @JsonIgnore
+        public Long getFirstChildCommentOfFirstComment() {
+            if (magazineComments.isEmpty()) {
+                return null;
+            }
+            if (magazineComments.get(0).getChildComments().isEmpty()) {
+                return null;
+            }
+            return magazineComments.get(0).getChildComments().get(0).getId();
         }
     }
 
