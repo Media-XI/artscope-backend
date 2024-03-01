@@ -28,8 +28,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -448,5 +450,105 @@ class MagazineControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isNotFound());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("매거진 생성 시 미디어 첨부가 된다.")
+    @Test
+    void 매거진_미디어_생성() throws Exception {
+        // given
+        createMember("testid");
+        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("글");
+
+        MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
+        magazineRequest.setTitle("제목");
+        magazineRequest.setContent("내용");
+        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setMediaUrls(List.of(
+                "https://cdn.artscope.kr/local/1.jpg",
+                "https://cdn.artscope.kr/local/2.jpg"
+        ));
+
+        // when
+        String response = mockMvc.perform(
+                        post("/api/magazines")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(magazineRequest))
+                )
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        // then
+        MagazineResponse.Get magazine = objectMapper.readValue(response, MagazineResponse.Get.class);
+        assertTrue(magazine.getId() > 0);
+        assertEquals(magazine.getTitle(), magazineRequest.getTitle());
+        assertEquals(magazine.getContent(), magazineRequest.getContent());
+        assertEquals(magazine.getMediaUrls().size(), 2);
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("매거진 생성 시 잘못된 미디어 URL이면 400.")
+    @Test
+    void 매거진_미디어_잘못된_생성() throws Exception {
+        // given
+        createMember("testid");
+        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("글");
+
+        MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
+        magazineRequest.setTitle("제목");
+        magazineRequest.setContent("내용");
+        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setMediaUrls(List.of(
+                "/local/1.jpg",
+                "1.jpg"
+        ));
+
+        // when
+        mockMvc.perform(
+                        post("/api/magazines")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(magazineRequest))
+                )
+                .andDo(print())
+                // then
+                .andExpect(status().isBadRequest());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("매거진 생성 시 미디어 최대 개수 이상 첨부 시 400.")
+    @Test
+    void 매거진_미디어_잘못된_생성2() throws Exception {
+        // given
+        createMember("testid");
+        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("글");
+
+        MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
+        magazineRequest.setTitle("제목");
+        magazineRequest.setContent("내용");
+        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setMediaUrls(List.of(
+                "https://cdn.artscope.kr/local/1.jpg",
+                "https://cdn.artscope.kr/local/2.jpg",
+                "https://cdn.artscope.kr/local/3.jpg",
+                "https://cdn.artscope.kr/local/4.jpg",
+                "https://cdn.artscope.kr/local/5.jpg",
+                "https://cdn.artscope.kr/local/6.jpg",
+                "https://cdn.artscope.kr/local/7.jpg",
+                "https://cdn.artscope.kr/local/8.jpg",
+                "https://cdn.artscope.kr/local/9.jpg",
+                "https://cdn.artscope.kr/local/10.jpg",
+                "https://cdn.artscope.kr/local/11.jpg"
+                ));
+
+        // when
+        mockMvc.perform(
+                        post("/api/magazines")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(magazineRequest))
+                )
+                .andDo(print())
+                // then
+                .andExpect(status().isBadRequest());
     }
 }
