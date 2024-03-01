@@ -13,6 +13,7 @@ import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.exception.LoginRequiredException;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -22,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+@Tag(name = "매거진 API", description = "매거진 관련 API")
 @RestController
 @RequestMapping("/api/magazines")
 public class MagazineController {

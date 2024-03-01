@@ -6,6 +6,7 @@ import com.example.codebase.domain.magazine.service.MagazineLikeService;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.util.SecurityUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "매거진 좋아요 API", description = "매거진 좋아요 관련 API")
 @RestController
 @RequestMapping("/api/magazines")
 public class MagazineLikeController {
