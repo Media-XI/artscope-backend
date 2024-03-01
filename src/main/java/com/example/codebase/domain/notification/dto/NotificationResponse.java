@@ -40,6 +40,16 @@ public class NotificationResponse {
             response.isRead = notification.getIsRead();
             return response;
         }
+
+        public static Get from(Notification notification){
+            Get response = new Get();
+            response.notificationId = notification.getNotificationId();
+            response.message = notification.getMessage();
+            response.type = notification.getType().name();
+            response.createdTime = notification.getCreatedTime().toString();
+            response.isRead = true;
+            return response;
+        }
     }
 
     @Getter
@@ -58,6 +68,7 @@ public class NotificationResponse {
                     .toList();
             return response;
         }
+
     }
 
     @Getter

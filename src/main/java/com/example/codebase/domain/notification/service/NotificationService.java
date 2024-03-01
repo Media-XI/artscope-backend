@@ -55,18 +55,23 @@ public class NotificationService {
     }
 
     @Transactional
-    public void readAllNotification(Member member) {
-        List<NotificationReceivedStatus> notifications = notificationReceivedStatusRepository.findByMember(member);
+    public NotificationResponse.GetAll readAllNotification(Member member) {
+        PageRequest pageRequest =  PageRequest.of(0, 20);
+        Page<NotificationReceivedStatus> notifications = notificationReceivedStatusRepository.findByMember(member, pageRequest);
 
         notifications.forEach(NotificationReceivedStatus::read);
 
         notificationReceivedStatusRepository.saveAll(notifications);
 
-        notificationSendService.sendNotificationCount(member, -notifications.size());
+        notificationSendService.sendNotificationCount(member, -notifications.getSize());
+
+        Page<NotificationWithIsRead> notificationList = notificationRepository.findByMember(member, pageRequest);
+
+        return NotificationResponse.GetAll.from(notificationList);
     }
 
     @Transactional
-    public void readNotification(Member member, Long notificationId) {
+    public NotificationResponse.Get readNotification(Member member, Long notificationId) {
         NotificationReceivedStatusIds notificationReceivedStatusIds = new NotificationReceivedStatusIds(notificationId, member.getId());
 
         NotificationReceivedStatus notificationReceivedStatus = notificationReceivedStatusRepository.findById(notificationReceivedStatusIds)
@@ -80,6 +85,8 @@ public class NotificationService {
 
         notificationReceivedStatusRepository.save(notificationReceivedStatus);
         notificationSendService.sendNotificationCount(member, -1);
+
+        return NotificationResponse.Get.from(notificationReceivedStatus.getNotification());
     }
 
     @Transactional
