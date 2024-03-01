@@ -6,6 +6,8 @@ import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.domain.notification.dto.NotificationMessageRequest;
 import com.example.codebase.domain.notification.dto.NotificationResponse;
+import com.example.codebase.domain.notification.entity.Notification;
+import com.example.codebase.domain.notification.service.NotificationSendService;
 import com.example.codebase.domain.notification.service.NotificationService;
 import com.example.codebase.domain.notification.service.NotificationEventService;
 import com.example.codebase.exception.LoginRequiredException;
@@ -21,6 +23,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.AbstractMap;
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @Tag(name = "Notification", description = "알림 API")
 @RequestMapping("api/notifications")
@@ -31,11 +37,15 @@ public class NotificationController {
     private final MemberService memberService;
     private final NotificationEventService notificationEventService;
 
+    private final NotificationSendService notificationSendService;
+
     @Autowired
-    public NotificationController(NotificationService notificationService, MemberService memberService, NotificationEventService notificationEventService) {
+    public NotificationController(NotificationService notificationService, MemberService memberService, NotificationEventService notificationEventService
+            , NotificationSendService notificationSendService) {
         this.notificationService = notificationService;
         this.memberService = memberService;
         this.notificationEventService = notificationEventService;
+        this.notificationSendService = notificationSendService;
     }
 
     @AdminOnly
@@ -44,7 +54,11 @@ public class NotificationController {
     public ResponseEntity sendAdminNotification(@Valid @RequestBody NotificationMessageRequest notificationMessageRequest) {
         notificationMessageRequest.validAdminNotificationType();
 
-        notificationService.sendNotification(notificationMessageRequest, notificationMessageRequest.getNotificationType());
+        Map.Entry<List<Member>, Notification>  result = notificationService.createNotification(notificationMessageRequest, notificationMessageRequest.getNotificationType());
+
+        List<Member> members = result.getKey();
+        Notification notification = result.getValue();
+        notificationSendService.send(members, notification);
 
         return new ResponseEntity("알림이 생성되었습니다", HttpStatus.CREATED);
     }

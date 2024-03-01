@@ -62,6 +62,7 @@ public class NotificationSendServiceImpl implements NotificationSendService {
     }
 
     @Override
+    @Transactional
     public void send(List<Member> members, Notification notification) {
         notificationEventService.sendAllNotification(members, notification);
     }
