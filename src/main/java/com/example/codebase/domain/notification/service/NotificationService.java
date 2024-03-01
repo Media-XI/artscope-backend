@@ -63,7 +63,7 @@ public class NotificationService {
 
         notificationReceivedStatusRepository.saveAll(notifications);
 
-        notificationSendService.sendNotificationCount(member, -notifications.getSize());
+        notificationSendService.decrementNotificationCount(member, notifications.getSize());
 
         Page<NotificationWithIsRead> notificationList = notificationRepository.findByMember(member, pageRequest);
 
@@ -84,7 +84,7 @@ public class NotificationService {
         notificationReceivedStatus.read();
 
         notificationReceivedStatusRepository.save(notificationReceivedStatus);
-        notificationSendService.sendNotificationCount(member, -1);
+        notificationSendService.decrementNotificationCount(member);
 
         return NotificationResponse.Get.from(notificationReceivedStatus.getNotification());
     }
@@ -96,12 +96,12 @@ public class NotificationService {
         NotificationReceivedStatus notificationReceivedStatus = notificationReceivedStatusRepository.findById(notificationReceivedStatusIds)
                 .orElseThrow(() -> new RuntimeException("해당 알림이 존재하지 않습니다."));
 
-        int count = notificationReceivedStatus.isRead() ? 0 : -1;
+        int count = notificationReceivedStatus.isRead() ? 0 : +1;
 
         notificationReceivedStatus.removeNotification();
         notificationReceivedStatusRepository.delete(notificationReceivedStatus);
 
-        notificationSendService.sendNotificationCount(member, count);
+        notificationSendService.decrementNotificationCount(member, count);
     }
 
     @Transactional
@@ -114,6 +114,6 @@ public class NotificationService {
 
         notificationReceivedStatusRepository.deleteAll(notificationReceivedStatuses);
 
-        notificationSendService.sendNotificationCount(member, -1); // 전체 삭제는 알림 메세지도 삭제
+        notificationSendService.resetAndSendNotificationCount(member);
     }
 }
