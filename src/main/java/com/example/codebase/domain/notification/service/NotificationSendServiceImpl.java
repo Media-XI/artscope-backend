@@ -69,7 +69,7 @@ public class NotificationSendServiceImpl implements NotificationSendService {
 
     @Override
     public void incrementNotificationCount(Member member) {
-        notificationEventService.upDateCountAndSend(member, 1);
+        notificationEventService.sendNotificationCount(member, 1);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class NotificationSendServiceImpl implements NotificationSendService {
 
     @Override
     public void decrementNotificationCount(Member member) {
-        notificationEventService.upDateCountAndSend(member, -1);
+        notificationEventService.sendNotificationCount(member, -1);
 
     }
 
@@ -88,7 +88,7 @@ public class NotificationSendServiceImpl implements NotificationSendService {
         if(size == 0){
             return;
         }
-        notificationEventService.upDateCountAndSend(member, -size);
+        notificationEventService.sendNotificationCount(member, -size);
     }
 }
 

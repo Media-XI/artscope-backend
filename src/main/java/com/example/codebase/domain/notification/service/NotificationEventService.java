@@ -101,7 +101,7 @@ public class NotificationEventService {
 
 
     @Transactional
-    public void upDateCountAndSend(Member member, int count) {
+    public void sendNotificationCount(Member member, int count) {
         if (userEmitters.containsKey(member.getUsername())) {
             String key = getNotificationKey(member);
             NotificationResponse.EventMessage eventMessage = redisUtil.getNotificationMessage(key);
