@@ -84,8 +84,10 @@ public class NotificationSendServiceImpl implements NotificationSendService {
 
     @Override
     public void decrementNotificationCount(Member member, int size) {
+        if(size == 0){
+            return;
+        }
         notificationEventService.upDateCountAndSend(member, -size);
-
     }
 }
 
