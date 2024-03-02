@@ -69,6 +69,10 @@ public class Magazine {
     @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL)
     private List<MagazineLike> magazineLikes = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL)
+    private List<MagazineMedia> magazineMedias = new ArrayList<>();
+
     public static Magazine toEntity(MagazineRequest.Create magazineRequest, Member member, MagazineCategory category) {
         return Magazine.builder()
                 .title(magazineRequest.getTitle())
@@ -114,5 +118,9 @@ public class Magazine {
     public void removeLike(MagazineLike magazineLike) {
         this.magazineLikes.remove(magazineLike);
         this.likes = this.magazineLikes.size();
+    }
+
+    public void addMedia(MagazineMedia magazineMedia) {
+        this.magazineMedias.add(magazineMedia);
     }
 }

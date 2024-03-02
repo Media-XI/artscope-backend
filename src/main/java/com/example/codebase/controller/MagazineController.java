@@ -45,7 +45,7 @@ public class MagazineController {
     @PostMapping
     @UserOnly
     public ResponseEntity createMagazine(
-            @RequestBody @NotEmpty MagazineRequest.Create magazineRequest
+            @RequestBody @Valid MagazineRequest.Create magazineRequest
     ) {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
 
