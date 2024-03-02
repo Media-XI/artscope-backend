@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.PositiveOrZero;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -23,9 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.AbstractMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @Tag(name = "Notification", description = "알림 API")
@@ -54,11 +53,9 @@ public class NotificationController {
     public ResponseEntity sendAdminNotification(@Valid @RequestBody NotificationMessageRequest notificationMessageRequest) {
         notificationMessageRequest.validAdminNotificationType();
 
-        Map.Entry<List<Member>, Notification>  result = notificationService.createNotification(notificationMessageRequest, notificationMessageRequest.getNotificationType());
+        Pair<List<Member>, Notification> result = notificationService.createNotification(notificationMessageRequest, notificationMessageRequest.getNotificationType());
 
-        List<Member> members = result.getKey();
-        Notification notification = result.getValue();
-        notificationSendService.send(members, notification);
+        notificationSendService.send(result.getLeft(), result.getRight());
 
         return new ResponseEntity("알림이 생성되었습니다", HttpStatus.CREATED);
     }

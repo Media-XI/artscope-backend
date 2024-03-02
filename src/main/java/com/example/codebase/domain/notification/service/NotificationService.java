@@ -7,16 +7,14 @@ import com.example.codebase.domain.notification.entity.*;
 import com.example.codebase.domain.notification.repository.NotificationReceivedStatusRepository;
 import com.example.codebase.domain.notification.repository.NotificationRepository;
 import com.example.codebase.domain.notification.repository.NotificationSettingRepository;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.AbstractMap;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class NotificationService {
@@ -39,14 +37,14 @@ public class NotificationService {
     }
 
     @Transactional
-    public Map.Entry<List<Member>, Notification> createNotification(NotificationMessageRequest messageRequest, NotificationType notificationType) {
+    public Pair<List<Member>, Notification> createNotification(NotificationMessageRequest messageRequest, NotificationType notificationType) {
         String jsonMessage = NotificationMessageFormatter.formatMessage(messageRequest);
         List<Member> members = notificationSettingRepository.findMemberByColumnType(notificationType);
         Notification notification = Notification.of(members, jsonMessage, notificationType);
 
         notificationRepository.save(notification);
 
-        return new AbstractMap.SimpleEntry<>(members, notification);
+        return Pair.of(members, notification);
     }
 
     @Transactional(readOnly = true)
