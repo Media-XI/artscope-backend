@@ -5,9 +5,12 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 @Configuration
 public class SwaggerConfig {
@@ -36,8 +39,20 @@ public class SwaggerConfig {
         Components components = new Components()
                 .addSecuritySchemes(jwtTokenScheme, bearerAuthSecurityScheme(jwtTokenScheme));
 
+        // Server
+        Server server = new Server();
+        server.setUrl("/");
+        server.setDescription("기본 서버");
+
+        Server server2 = new Server();
+        server2.setUrl("https://api.seonghoon.xyz");
+
+        Server server3 = new Server();
+        server3.setUrl("https://api.artscope.kr");
+
         return new OpenAPI()
                 .info(info)
+                .servers(List.of(server, server2, server3))
                 .addSecurityItem(securityRequirement)
                 .components(components);
     }
