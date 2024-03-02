@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS `magazine_media`;
+
 CREATE TABLE `magazine_media`
 (
     `magazine_media_id` bigint PRIMARY KEY AUTO_INCREMENT,
