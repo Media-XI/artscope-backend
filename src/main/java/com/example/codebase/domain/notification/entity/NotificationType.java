@@ -28,8 +28,15 @@ public enum NotificationType {
 
     public void validAdminNotificationType() {
         if (this.equals(MENTION) || this.equals(NEW_FOLLOWER)) {
-            throw new RuntimeException("전체 알림을 보낼 수 없습니다.");
+            throw new RuntimeException("해당 알림 타입은 전체알림으로 발송할 수 없습니다. [" + adminNotificationTypes() + "]에서 입력해주세요.");
         }
+    }
+
+    private String adminNotificationTypes() {
+        return Arrays.stream(NotificationType.values())
+                .filter(notificationType -> !notificationType.equals(MENTION) && !notificationType.equals(NEW_FOLLOWER))
+                .map(Enum::name)
+                .collect(Collectors.joining(", "));
     }
 
     public static NotificationType fromString(String type) {
