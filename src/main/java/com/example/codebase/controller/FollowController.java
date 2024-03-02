@@ -2,6 +2,8 @@ package com.example.codebase.controller;
 
 import com.example.codebase.domain.follow.dto.FollowMembersResponseDTO;
 import com.example.codebase.domain.follow.service.FollowService;
+import com.example.codebase.domain.notification.entity.NotificationType;
+import com.example.codebase.domain.notification.service.NotificationSendService;
 import com.example.codebase.exception.LoginRequiredException;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,9 +27,12 @@ public class FollowController {
 
     private final FollowService followService;
 
+    private final NotificationSendService notificationService;
+
     @Autowired
-    public FollowController(FollowService followService) {
+    public FollowController(FollowService followService, NotificationSendService notificationService) {
         this.followService = followService;
+        this.notificationService = notificationService;
     }
 
     @Operation(summary = "팔로우", description = "상대방을 팔로잉 합니다")
@@ -36,6 +41,7 @@ public class FollowController {
     public ResponseEntity followMember(@PathVariable("username") String followUser) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         followService.followMember(username, followUser);
+        notificationService.send(username, followUser, NotificationType.NEW_FOLLOWER);
 
         return new ResponseEntity("팔로잉 했습니다.", HttpStatus.CREATED);
     }
