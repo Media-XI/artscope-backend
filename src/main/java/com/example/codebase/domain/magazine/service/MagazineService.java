@@ -40,10 +40,11 @@ public class MagazineService {
     @Transactional
     public MagazineResponse.Get create(MagazineRequest.Create magazineRequest, Member member, MagazineCategory category) {
         Magazine newMagazine = Magazine.toEntity(magazineRequest, member, category);
+        magazineRepository.save(newMagazine);
+
         List<MagazineMedia> magazineMedias = MagazineMedia.toList(magazineRequest.getMediaUrls(), newMagazine);
 
         magazineMediaRepository.saveAll(magazineMedias);
-        magazineRepository.save(newMagazine);
         return MagazineResponse.Get.from(newMagazine);
     }
 
