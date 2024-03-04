@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Deprecated
 public class PostService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;

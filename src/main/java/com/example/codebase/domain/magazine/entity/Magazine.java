@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 import org.hibernate.type.SqlTypes;
 
@@ -53,6 +54,10 @@ public class Magazine {
     private Integer comments = 0;
 
     @Builder.Default
+    @Column(name = "visibled")
+    private Boolean visibled = true;
+
+    @Builder.Default
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
@@ -69,14 +74,17 @@ public class Magazine {
     private MagazineCategory category;
 
     @Builder.Default
+    @BatchSize(size = 25)
     @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL)
     private List<MagazineComment> magazineComments = new ArrayList<>();
 
     @Builder.Default
+    @BatchSize(size = 25)
     @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL)
     private List<MagazineLike> magazineLikes = new ArrayList<>();
 
     @Builder.Default
+    @BatchSize(size = 25)
     @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL)
     private List<MagazineMedia> magazineMedias = new ArrayList<>();
 

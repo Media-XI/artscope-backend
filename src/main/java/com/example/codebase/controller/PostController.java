@@ -6,6 +6,8 @@ import com.example.codebase.domain.post.service.PostService;
 import com.example.codebase.util.SecurityUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.tags.Tags;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,6 +21,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+@Tag(name = "Post", description = "제거 예정 , 매거진으로 이관됨")
+@Deprecated
 @RequestMapping("/api/posts")
 @RestController
 public class PostController {
