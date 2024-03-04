@@ -48,6 +48,7 @@ public class MagazineService {
         return MagazineResponse.Get.from(newMagazine);
     }
 
+    @Transactional
     public MagazineResponse.Get get(Long id) {
         Magazine magazine = magazineRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
