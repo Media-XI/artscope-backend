@@ -99,6 +99,7 @@ public class Magazine {
     public void update(MagazineRequest.Update magazineRequest) {
         this.title = magazineRequest.getTitle();
         this.content = magazineRequest.getContent();
+        this.metadata = magazineRequest.getMetadata();
         this.updatedTime = LocalDateTime.now();
     }
 

@@ -29,6 +29,7 @@ public class MagazineRequest {
         private Long categoryId;
 
         // TODO: metadata 에 대해 검증 필요 (보안)
+        @Schema(description = "JSON 형식의 메타데이터")
         private Map<String, String> metadata;
 
         @Size(max = 10, message = "최대 10개 까지 미디어 첨부 가능합니다.")
@@ -45,6 +46,8 @@ public class MagazineRequest {
 
         @NotEmpty
         private String content;
+
+        private Map<String, String> metadata;
 
         private List<String> mediaUrls;
     }

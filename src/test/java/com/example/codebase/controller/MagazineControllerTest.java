@@ -29,9 +29,9 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -89,6 +89,14 @@ class MagazineControllerTest {
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
         magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setMetadata(Map.of(
+                "color", "blue",
+                "font", "godic"
+        ));
+        magazineRequest.setMediaUrls(List.of(
+                "https://cdn.artscope.kr/local/1.jpg",
+                "https://cdn.artscope.kr/local/2.jpg"
+        ));
 
         return magazineService.create(magazineRequest, member, category);
     }
@@ -243,7 +251,7 @@ class MagazineControllerTest {
 
         // when
         String response = mockMvc.perform(
-                        patch("/api/magazines/" + magazine.getId())
+                        put("/api/magazines/" + magazine.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(magazineRequest))
                 )
@@ -269,7 +277,7 @@ class MagazineControllerTest {
 
         // when
         String content = mockMvc.perform(
-                        patch("/api/magazines/0")
+                        put("/api/magazines/0")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(magazineRequest))
                 )
@@ -550,5 +558,69 @@ class MagazineControllerTest {
                 .andDo(print())
                 // then
                 .andExpect(status().isBadRequest());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("매거진 생성 시 메타데이터를 첨부한다.")
+    @Test
+    void 매거진_메타데이터_생성 () throws Exception {
+        // given
+        createMember("testid");
+        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("글");
+
+        MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
+        magazineRequest.setTitle("제목");
+        magazineRequest.setContent("내용");
+        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setMetadata(Map.of(
+                "color", "blue",
+                "font", "godic"
+        ));
+
+        // when
+        mockMvc.perform(
+                        post("/api/magazines")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(magazineRequest))
+                )
+                .andDo(print())
+                // then
+                .andExpect(status().isCreated());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("매거진 메타데이터 수정이 된다.")
+    @Test
+    void 매거진_메타데이터_수정 () throws Exception {
+        // given
+        Member member = createMember("testid");
+        MagazineResponse.Get magaizne = createMagaizne(member);
+
+        MagazineRequest.Update magazineRequest = new MagazineRequest.Update();
+        magazineRequest.setTitle(magaizne.getTitle());
+        magazineRequest.setContent(magaizne.getContent());
+        magazineRequest.setMediaUrls(magaizne.getMediaUrls());
+        magazineRequest.setMetadata(Map.of(
+                "color", "빨강으로",
+                "font", "다른 폰트"
+        ));
+
+        // when
+        String response = mockMvc.perform(
+                        put("/api/magazines/" + magaizne.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(magazineRequest))
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        // then
+        MagazineResponse.Get magazineResponse = objectMapper.readValue(response, MagazineResponse.Get.class);
+        assertTrue(magazineResponse.getMetadata().containsKey("color"));
+        assertTrue(magazineResponse.getMetadata().containsKey("font"));
+        assertEquals(magazineResponse.getMetadata().get("color"), "빨강으로");
+        assertEquals(magazineResponse.getMetadata().get("font"), "다른 폰트");
+
     }
 }
