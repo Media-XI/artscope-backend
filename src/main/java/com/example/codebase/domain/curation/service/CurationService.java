@@ -25,7 +25,7 @@ public class CurationService {
 
     @Transactional
     public CurationResponse.Get createCuration(CurationRequest.Create curationRequest){
-        Curation curation = curationRepository.findEmptyOrOldCuration();
+        Curation curation = curationRepository.findEmptyOrOldCuration(); // 아직 magazine이 없는 큐레이션, 없다면 가장 오래된 큐레이션을 찾아서 반환
 
         Magazine magazine = megazineRepository.findById(curationRequest.getMagazineId())
                 .orElseThrow(() -> new RuntimeException("해당 매거진이 없습니다."));
