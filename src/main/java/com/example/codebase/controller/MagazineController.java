@@ -41,7 +41,7 @@ public class MagazineController {
         this.memberService = memberService;
     }
 
-    @Operation(summary = "매거진 생성")
+    @Operation(summary = "매거진 생성", description = "로그인한 사용자만 매거진을 생성할 수 있습니다. 매거진 생성 시 미디어 첨부 가능합니다. 또한 JSON 형식의 메타데이터를 추가할 수 있습니다.")
     @PostMapping
     @UserOnly
     public ResponseEntity createMagazine(
@@ -82,8 +82,8 @@ public class MagazineController {
         return new ResponseEntity(allMagazines, HttpStatus.OK);
     }
 
-    @Operation(summary = "매거진 수정")
-    @PatchMapping("/{id}")
+    @Operation(summary = "매거진 수정", description = "자신의 매거진만 수정 가능합니다. 기존 항목도 모두 업데이트 됩니다.")
+    @PutMapping("/{id}")
     @UserOnly
     public ResponseEntity updateMagazine(
             @PathVariable Long id,
