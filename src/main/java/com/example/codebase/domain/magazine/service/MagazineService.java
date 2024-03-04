@@ -1,5 +1,6 @@
 package com.example.codebase.domain.magazine.service;
 
+import com.example.codebase.domain.curation.repository.CurationRepository;
 import com.example.codebase.domain.magazine.dto.MagazineCommentRequest;
 import com.example.codebase.domain.magazine.dto.MagazineRequest;
 import com.example.codebase.domain.magazine.dto.MagazineResponse;
@@ -30,20 +31,24 @@ public class MagazineService {
 
     private final MagazineMediaRepository magazineMediaRepository;
 
+    private final CurationRepository curationRepository;
+
     @Autowired
-    public MagazineService(MagazineRepository magazineRepository, MagazineCommentRepository magazineCommentRepository, MagazineMediaRepository magazineMediaRepository) {
+    public MagazineService(MagazineRepository magazineRepository, MagazineCommentRepository magazineCommentRepository, MagazineMediaRepository magazineMediaRepository,
+                           CurationRepository curationRepository) {
         this.magazineRepository = magazineRepository;
         this.magazineCommentRepository = magazineCommentRepository;
         this.magazineMediaRepository = magazineMediaRepository;
+        this.curationRepository = curationRepository;
     }
 
     @Transactional
     public MagazineResponse.Get create(MagazineRequest.Create magazineRequest, Member member, MagazineCategory category) {
         Magazine newMagazine = Magazine.toEntity(magazineRequest, member, category);
-        List<MagazineMedia> magazineMedias = MagazineMedia.toList(magazineRequest.getMediaUrls(), newMagazine);
-
-        magazineMediaRepository.saveAll(magazineMedias);
         magazineRepository.save(newMagazine);
+
+        List<MagazineMedia> magazineMedias = MagazineMedia.toList(magazineRequest.getMediaUrls(), newMagazine);
+        magazineMediaRepository.saveAll(magazineMedias);
         return MagazineResponse.Get.from(newMagazine);
     }
 
@@ -68,6 +73,11 @@ public class MagazineService {
                 .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
 
         validateOwner(loginUsername, magazine);
+
+        curationRepository.findByMagazine(magazine).ifPresent(curation -> {
+            curation.clearMagazine();
+            curationRepository.save(curation);
+        });
 
         magazine.delete();
     }
