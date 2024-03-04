@@ -621,6 +621,30 @@ class MagazineControllerTest {
         assertTrue(magazineResponse.getMetadata().containsKey("font"));
         assertEquals(magazineResponse.getMetadata().get("color"), "빨강으로");
         assertEquals(magazineResponse.getMetadata().get("font"), "다른 폰트");
+    }
 
+    @DisplayName("해당 사용자의 매거진 전체 조회 시")
+    @Test
+    void 해당_사용자의_매거진_전체_조회() throws Exception {
+        // given
+        Member member = createMember("testid");
+        createMagaizne(member);
+        createMagaizne(member);
+        createMagaizne(member);
+        createMagaizne(member);
+
+        // when
+        String response = mockMvc.perform(
+                        get("/api/magazines/members/{username}", member.getUsername())
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        // then
+        MagazineResponse.GetAll magazineList = objectMapper.readValue(response, MagazineResponse.GetAll.class);
+        assertEquals(magazineList.getMagazines().size(), 4);
     }
 }

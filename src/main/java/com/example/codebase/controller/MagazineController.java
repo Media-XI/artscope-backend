@@ -15,7 +15,6 @@ import com.example.codebase.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 @Tag(name = "매거진 API", description = "매거진 관련 API")
 @RestController
 @RequestMapping("/api/magazines")
@@ -78,6 +78,22 @@ public class MagazineController {
     ) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortDirection), "createdTime"));
         MagazineResponse.GetAll allMagazines = magazineService.getAll(pageRequest);
+
+        return new ResponseEntity(allMagazines, HttpStatus.OK);
+    }
+
+    @Operation(summary = "해당 사용자의 매거진 전체 조회", description = "해당 사용자가 작성한 매거진을 조회합니다. 페이지네이션")
+    @GetMapping("/members/{username}")
+    public ResponseEntity getMyMagazines(
+            @PathVariable String username,
+            @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,
+            @PositiveOrZero @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(defaultValue = "DESC", required = false) String sortDirection
+    ) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortDirection), "createdTime"));
+        Member member = memberService.getEntity(username);
+
+        MagazineResponse.GetAll allMagazines = magazineService.getMemberMagazines(member, pageRequest);
 
         return new ResponseEntity(allMagazines, HttpStatus.OK);
     }

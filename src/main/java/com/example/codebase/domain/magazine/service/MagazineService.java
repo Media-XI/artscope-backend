@@ -162,4 +162,9 @@ public class MagazineService {
             throw new RuntimeException("댓글 작성자가 아닙니다.");
         }
     }
+
+    public MagazineResponse.GetAll getMemberMagazines(Member member, PageRequest pageRequest) {
+        Page<Magazine> magazines = magazineRepository.findByMember(member, pageRequest);
+        return MagazineResponse.GetAll.from(magazines);
+    }
 }
