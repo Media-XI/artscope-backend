@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
@@ -66,14 +67,17 @@ public class Magazine {
     private MagazineCategory category;
 
     @Builder.Default
+    @BatchSize(size = 25)
     @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL)
     private List<MagazineComment> magazineComments = new ArrayList<>();
 
     @Builder.Default
+    @BatchSize(size = 25)
     @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL)
     private List<MagazineLike> magazineLikes = new ArrayList<>();
 
     @Builder.Default
+    @BatchSize(size = 25)
     @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL)
     private List<MagazineMedia> magazineMedias = new ArrayList<>();
 
