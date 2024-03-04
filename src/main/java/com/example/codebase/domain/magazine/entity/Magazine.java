@@ -46,6 +46,10 @@ public class Magazine {
     private Integer comments = 0;
 
     @Builder.Default
+    @Column(name = "visibled")
+    private Boolean visibled = true;
+
+    @Builder.Default
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 

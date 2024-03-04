@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Deprecated
 public class ArtworkService {
     private final ArtworkRepository artworkRepository;
     private final ArtworkCommentRepository artworkCommentRepository;
