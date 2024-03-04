@@ -15,7 +15,7 @@ public class CurationResponse {
 
     @Getter
     @Setter
-    @Schema(name = "큐레이션 생성 응답", description = "큐레이션 생성 응답")
+    @Schema(name = "CurationResponse.Get", description = "큐레이션 생성 응답 DTO")
     public static class Get{
 
         private Long curationId;
