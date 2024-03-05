@@ -1,5 +1,6 @@
 package com.example.codebase.domain.magazine.service;
 
+import com.example.codebase.domain.curation.repository.CurationRepository;
 import com.example.codebase.domain.magazine.dto.MagazineCommentRequest;
 import com.example.codebase.domain.magazine.dto.MagazineRequest;
 import com.example.codebase.domain.magazine.dto.MagazineResponse;
@@ -30,6 +31,7 @@ public class MagazineService {
 
     private final MagazineMediaRepository magazineMediaRepository;
 
+
     @Autowired
     public MagazineService(MagazineRepository magazineRepository, MagazineCommentRepository magazineCommentRepository, MagazineMediaRepository magazineMediaRepository) {
         this.magazineRepository = magazineRepository;
@@ -43,7 +45,6 @@ public class MagazineService {
         magazineRepository.save(newMagazine);
 
         List<MagazineMedia> magazineMedias = MagazineMedia.toList(magazineRequest.getMediaUrls(), newMagazine);
-
         magazineMediaRepository.saveAll(magazineMedias);
         return MagazineResponse.Get.from(newMagazine);
     }
