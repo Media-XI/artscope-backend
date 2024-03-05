@@ -29,7 +29,6 @@ public class CurationRequest {
     public static class Update{
 
         @NotNull(message = "알림 아이디를 입력해주세요.")
-        @Range(min = 1, max = 22, message = "알림 아이디는 1~22 사이여야 합니다.")
         private Long curationId;
 
         @NotNull(message = "매거진 아이디를 입력해주세요.")
