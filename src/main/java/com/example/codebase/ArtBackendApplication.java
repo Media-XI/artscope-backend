@@ -13,4 +13,12 @@ public class ArtBackendApplication {
     public static void main(String[] args) {
         SpringApplication.run(ArtBackendApplication.class, args);
     }
+    
+    @Bean
+    public FlywayMigrationStrategy cleanMigrateStrategy() {
+        return flyway -> {
+            flyway.repair();
+            flyway.migrate();
+        };
+    }
 }
