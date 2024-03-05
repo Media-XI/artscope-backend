@@ -21,7 +21,7 @@ public class CurationResponse {
 
         private MagazineResponse.Get magazine;
 
-        private Long curationsId;
+        private Long curationId;
 
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime curationUpdatedTime;
@@ -29,7 +29,7 @@ public class CurationResponse {
         public static CurationResponse.Get from(Curation curation) {
             Get get = new Get();
             get.magazine = MagazineResponse.Get.from(curation.getMagazine());
-            get.curationsId = curation.getId();
+            get.curationId = curation.getId();
             get.setCurationUpdatedTime(curation.getUpdatedTime());
             return get;
         }
