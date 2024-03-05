@@ -149,7 +149,7 @@ public class CurationControllerTest {
         CurationRequest.Create curationRequest = new CurationRequest.Create();
         List<Long> magazineIds = new ArrayList<>();
         magazineIds.add(magazine.getId());
-        curationRequest.setMagazineId(magazineIds);
+        curationRequest.setMagazineIds(magazineIds);
 
         return curationService.createCuration(curationRequest);
     }
@@ -160,7 +160,7 @@ public class CurationControllerTest {
 
         List<Long> magazineIds = new ArrayList<>();
         magazineIds.add(megazineId);
-        curationRequest.setMagazineId(magazineIds);
+        curationRequest.setMagazineIds(magazineIds);
 
         return curationService.createCuration(curationRequest);
     }
@@ -181,7 +181,7 @@ public class CurationControllerTest {
         magazineIds.add(magazineResponse.getId());
 
         CurationRequest.Create curationRequest = new CurationRequest.Create();
-        curationRequest.setMagazineId(magazineIds);
+        curationRequest.setMagazineIds(magazineIds);
 
         mockMvc.perform(post("/api/curations")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -199,7 +199,7 @@ public class CurationControllerTest {
         magazineIds.add(magazineResponse.getId());
 
         CurationRequest.Create curationRequest = new CurationRequest.Create();
-        curationRequest.setMagazineId(magazineIds);
+        curationRequest.setMagazineIds(magazineIds);
 
         mockMvc.perform(post("/api/curations")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -218,7 +218,7 @@ public class CurationControllerTest {
         magazineIds.add(magazineResponse.getId());
 
         CurationRequest.Create curationRequest = new CurationRequest.Create();
-        curationRequest.setMagazineId(magazineIds);
+        curationRequest.setMagazineIds(magazineIds);
 
         mockMvc.perform(post("/api/curations")
                         .contentType(MediaType.APPLICATION_JSON)
