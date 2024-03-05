@@ -71,7 +71,7 @@ public class CurationController {
     @GetMapping()
     public ResponseEntity getCuration(@RequestParam(value = "time", defaultValue = "MONTH") CurationTime time,
                                       @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,
-                                      @PositiveOrZero @RequestParam(value = "size", defaultValue = "10") int size,
+                                      @PositiveOrZero @RequestParam(value = "size", defaultValue = "22") int size,
                                       @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
 
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "updatedTime");

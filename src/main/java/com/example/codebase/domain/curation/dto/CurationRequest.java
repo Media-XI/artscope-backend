@@ -2,6 +2,7 @@ package com.example.codebase.domain.curation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,8 +17,11 @@ public class CurationRequest {
     @Setter
     @Schema(name = "CurationRequest.Create", description = "큐레이션 생성 DTO")
     public static class Create{
+
         @NotNull(message = "매거진 아이디를 입력해주세요.")
+        @Size(min = 1, max = 22, message = "매거진 아이디는 1개에서 22개까지 입력이 가능합니다.")
         private List<Long> magazineIds;
+
     }
 
 
