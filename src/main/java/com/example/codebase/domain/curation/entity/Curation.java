@@ -15,8 +15,6 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Where(clause = "is_deleted = false")
 public class Curation {
 
     @Id
@@ -28,20 +26,15 @@ public class Curation {
     @JoinColumn(name = "magazine_id")
     private Magazine magazine;
 
-    @Builder.Default
     @Column(name = "created_time")
-    private LocalDateTime createdTime = LocalDateTime.now();
+    private LocalDateTime createdTime;
 
-    @Builder.Default
     @Column(name = "updated_time")
-    private LocalDateTime updatedTime = LocalDateTime.now();
+    private LocalDateTime updatedTime;
 
-    @Builder.Default
-    @Column(name = "is_deleted")
-    private Boolean isDeleted = false;
-
-    public void delete(){
-        this.isDeleted = true;
+    public Curation(Magazine magazine) {
+        this.magazine = magazine;
+        this.createdTime = LocalDateTime.now();
         this.updatedTime = LocalDateTime.now();
     }
 
