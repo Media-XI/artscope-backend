@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface CurationRepository extends JpaRepository<Curation, Long> {
-    @Query("SELECT c FROM Curation c WHERE c.magazine = :magazine")
+
     Optional<Curation> findByMagazine(Magazine magazine);
 
     @Query("SELECT c FROM Curation c LEFT JOIN Magazine m ON c.magazine = m WHERE c.updatedTime >= :startTime AND m.isDeleted = false")
