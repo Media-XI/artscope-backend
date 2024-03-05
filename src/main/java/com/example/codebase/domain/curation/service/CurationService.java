@@ -33,7 +33,7 @@ public class CurationService {
     public CurationResponse.GetAll createCuration(CurationRequest.Create curationRequest) {
         List<Curation> curations = new ArrayList<>();
 
-        curationRequest.getMagazineId().forEach(magazineId -> {
+        curationRequest.getMagazineIds().forEach(magazineId -> {
             Magazine magazine = megazineRepository.findById(magazineId)
                     .orElseThrow(() -> new NotFoundException("id가 " + magazineId + "인 매거진이 없습니다."));
 

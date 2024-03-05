@@ -17,7 +17,7 @@ public class CurationRequest {
     @Schema(name = "CurationRequest.Create", description = "큐레이션 생성 DTO")
     public static class Create{
         @NotNull(message = "매거진 아이디를 입력해주세요.")
-        private List<Long> magazineId;
+        private List<Long> magazineIds;
     }
 
 
