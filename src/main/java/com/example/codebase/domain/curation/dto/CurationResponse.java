@@ -1,22 +1,23 @@
 package com.example.codebase.domain.curation.dto;
 
+import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.curation.entity.Curation;
 import com.example.codebase.domain.magazine.dto.AuthorResponse;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CurationResponse {
 
     @Getter
     @Setter
     @Schema(name = "CurationResponse.Get", description = "큐레이션 생성 응답 DTO")
-    public static class Get{
+    public static class Get {
 
         private Long curationId;
 
@@ -42,7 +43,10 @@ public class CurationResponse {
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime updatedTime;
 
-        public static CurationResponse.Get from(Curation curation){
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+        private LocalDateTime curationUpdatedTime;
+
+        public static CurationResponse.Get from(Curation curation) {
             Get get = new Get();
             get.setCurationId((curation.getId()));
             get.setMagazineId(curation.getMagazine().getId());
@@ -55,21 +59,28 @@ public class CurationResponse {
             get.setAuthor(AuthorResponse.from(curation.getMagazine().getMember()));
             get.setCreatedTime(curation.getMagazine().getCreatedTime());
             get.setUpdatedTime(curation.getMagazine().getUpdatedTime());
+            get.setCurationUpdatedTime(curation.getUpdatedTime());
             return get;
         }
     }
 
     @Getter
     @Setter
-    @Schema(name = "Many CurationResponse", description = "Many Curation Response")
-    public static class GetAll{
-        private List<Get> curationList;
+    @Schema(name = "CurationResponse.GetALL", description = "큐레이션 목록 조회 응답 DTO")
+    public static class GetAll {
+        private List<Get> curations;
 
-        public static CurationResponse.GetAll from(List<Curation> curationList){
-            GetAll getAll = new GetAll();
-            List<CurationResponse.Get> curationResponseList = curationList.stream().map(CurationResponse.Get::from).collect(Collectors.toList());
-            getAll.setCurationList(curationResponseList);
-            return getAll;
+        private PageInfo pageInfo;
+
+        public static CurationResponse.GetAll from(Page<Curation> curations) {
+            GetAll response = new GetAll();
+
+            response.curations = curations.stream()
+                    .map(Get::from)
+                    .toList();
+            response.pageInfo = PageInfo.from(curations);
+
+            return response;
         }
     }
 }
