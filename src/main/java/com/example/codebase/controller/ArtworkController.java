@@ -18,7 +18,8 @@ import jakarta.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.Optional;
 
-@Tag(name = "Artwork", description = "아트워크 API")
+@Deprecated
+@Tag(name = "Artwork", description = "제거 예정 , 매거진으로 이관됨")
 @RestController
 @RequestMapping("/api/artworks")
 public class ArtworkController {

@@ -75,6 +75,9 @@ class MagazineLikeControllerTest {
     private MagazineLikeService magazineLikeService;
 
     @Autowired
+    private MemberService memberService;
+
+    @Autowired
     private MagazineRepository magazineRepository;
 
     @Autowired
@@ -102,7 +105,7 @@ class MagazineLikeControllerTest {
                 .build();
         objectMapper.registerModule(new JavaTimeModule());
 
-        member = createOrLoadMember("testid", "ROLE_USER");
+        member = createOrLoadMember("testid");
         magazine = createMagaizne(member);
     }
 
@@ -112,30 +115,21 @@ class MagazineLikeControllerTest {
         memberRepository.deleteAll();
     }
 
-    public Member createOrLoadMember(String username, String role) {
-        Optional<Member> testMember = memberRepository.findByUsername(username);
-        if (testMember.isPresent()) {
-            return testMember.get();
-        }
-
-        Member dummy = Member.builder()
-                .username(username)
-                .password(passwordEncoder.encode("1234"))
-                .email(username + "@test.com")
-                .name(username)
-                .activated(true)
-                .createdTime(LocalDateTime.now())
-                .build();
-
-        MemberAuthority memberAuthority = new MemberAuthority();
-        memberAuthority.setAuthority(Authority.of(role));
-        memberAuthority.setMember(dummy);
-        dummy.addAuthority(memberAuthority);
-
-        Member save = memberRepository.saveAndFlush(dummy);
-        return save;
+    public Member createOrLoadMember(){
+        return createOrLoadMember("testid");
     }
 
+    public Member createOrLoadMember(String username) {
+        CreateMemberDTO createMemberDTO = new CreateMemberDTO();
+        createMemberDTO.setUsername(username);
+        createMemberDTO.setPassword("password");
+        createMemberDTO.setName("name");
+        createMemberDTO.setEmail("email");
+        createMemberDTO.setAllowEmailReceive(true);
+
+        memberService.createMember(createMemberDTO);
+        return memberService.getEntity(username);
+    }
     public Magazine createMagaizne(Member member) {
         MagazineCategory category = MagazineCategory.builder()
                 .name("카테고리")

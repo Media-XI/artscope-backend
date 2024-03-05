@@ -2,7 +2,6 @@ package com.example.codebase.domain.magazine.dto;
 
 import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.magazine.entity.Magazine;
-import com.example.codebase.domain.magazine.entity.MagazineComment;
 import com.example.codebase.domain.magazine.entity.MagazineMedia;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -12,9 +11,9 @@ import lombok.Setter;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class MagazineResponse {
 
@@ -27,6 +26,8 @@ public class MagazineResponse {
         private String title;
 
         private String content;
+
+        private Map<String, String> metadata;
 
         private String category;
 
@@ -53,6 +54,7 @@ public class MagazineResponse {
             response.id = magazine.getId();
             response.title = magazine.getTitle();
             response.content = magazine.getContent();
+            response.metadata = magazine.getMetadata();
             response.mediaUrls = magazine.getMagazineMedias().stream()
                     .map(MagazineMedia::getUrl)
                     .toList();

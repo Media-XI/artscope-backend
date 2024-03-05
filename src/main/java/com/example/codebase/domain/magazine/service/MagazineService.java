@@ -52,6 +52,7 @@ public class MagazineService {
         return MagazineResponse.Get.from(newMagazine);
     }
 
+    @Transactional
     public MagazineResponse.Get get(Long id) {
         Magazine magazine = magazineRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
@@ -165,5 +166,10 @@ public class MagazineService {
         if (!magazineComment.isCommentAuthor(member)) {
             throw new RuntimeException("댓글 작성자가 아닙니다.");
         }
+    }
+
+    public MagazineResponse.GetAll getMemberMagazines(Member member, PageRequest pageRequest) {
+        Page<Magazine> magazines = magazineRepository.findByMember(member, pageRequest);
+        return MagazineResponse.GetAll.from(magazines);
     }
 }
