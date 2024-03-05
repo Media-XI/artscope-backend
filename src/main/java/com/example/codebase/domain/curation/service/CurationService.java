@@ -64,7 +64,7 @@ public class CurationService {
 
         Optional<Curation> checkCuration = curationRepository.findByMagazine(magazine);
         if(checkCuration.isPresent()){
-            throw new RuntimeException("해당 매거진의 큐레이션이 이미 존재 합니다.");
+            throw new RuntimeException("이미 큐레이팅된 매거진입니다");
         }
 
         curation.setMagazine(magazine);
