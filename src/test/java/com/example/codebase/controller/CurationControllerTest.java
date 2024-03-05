@@ -41,6 +41,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -143,15 +145,23 @@ public class CurationControllerTest {
         return magazineService.create(magazineRequest, member, category);
     }
 
-    public CurationResponse.Get createCuration(Magazine magazine) {
+    public CurationResponse.GetAll createCuration(Magazine magazine) {
         CurationRequest.Create curationRequest = new CurationRequest.Create();
-        curationRequest.setMagazineId(magazine.getId());
+        List<Long> magazineIds = new ArrayList<>();
+        magazineIds.add(magazine.getId());
+        curationRequest.setMagazineId(magazineIds);
+
         return curationService.createCuration(curationRequest);
     }
 
-    public CurationResponse.Get createCuration(Long megazineId) {
+
+    public CurationResponse.GetAll createCuration(Long megazineId) {
         CurationRequest.Create curationRequest = new CurationRequest.Create();
-        curationRequest.setMagazineId(megazineId);
+
+        List<Long> magazineIds = new ArrayList<>();
+        magazineIds.add(megazineId);
+        curationRequest.setMagazineId(magazineIds);
+
         return curationService.createCuration(curationRequest);
     }
 
@@ -162,23 +172,22 @@ public class CurationControllerTest {
         return magazineResponse;
     }
 
-
     @WithMockCustomUser(username = "testid", role = "ADMIN")
     @DisplayName("큐레이션 생성")
     @Test
     void 큐레이션_생성() throws Exception {
         MagazineResponse.Get magazineResponse = createMagaizne(createOrLoadMember());
-        Long magazineId = magazineResponse.getId();
+        List<Long> magazineIds = new ArrayList<>();
+        magazineIds.add(magazineResponse.getId());
 
         CurationRequest.Create curationRequest = new CurationRequest.Create();
-        curationRequest.setMagazineId(magazineId);
+        curationRequest.setMagazineId(magazineIds);
 
         mockMvc.perform(post("/api/curations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(curationRequest)))
                 .andDo(print())
                 .andExpect(status().isCreated());
-
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -186,10 +195,11 @@ public class CurationControllerTest {
     @Test
     void 관리자가_아닐시_큐레이션_생성_실패() throws Exception {
         MagazineResponse.Get magazineResponse = createMagaizne(createOrLoadMember());
-        Long magazineId = magazineResponse.getId();
+        List<Long> magazineIds = new ArrayList<>();
+        magazineIds.add(magazineResponse.getId());
 
         CurationRequest.Create curationRequest = new CurationRequest.Create();
-        curationRequest.setMagazineId(magazineId);
+        curationRequest.setMagazineId(magazineIds);
 
         mockMvc.perform(post("/api/curations")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -204,10 +214,11 @@ public class CurationControllerTest {
     void 큐레이션_생성시_이미_존재할시_업데이트() throws Exception {
         MagazineResponse.Get magazineResponse = createMegazineAndCuration(createOrLoadMember());
 
-        Long megazineId = magazineResponse.getId();
+        List<Long> magazineIds = new ArrayList<>();
+        magazineIds.add(magazineResponse.getId());
 
         CurationRequest.Create curationRequest = new CurationRequest.Create();
-        curationRequest.setMagazineId(megazineId);
+        curationRequest.setMagazineId(magazineIds);
 
         mockMvc.perform(post("/api/curations")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -221,15 +232,16 @@ public class CurationControllerTest {
     @Test
     void 큐레이션_수정() throws Exception {
         Member member = createOrLoadMember();
+        MagazineResponse.Get megazine수정전 = createMagaizne(member);
+        MagazineResponse.Get megazine수정후 = createMagaizne(member);
 
-        createMegazineAndCuration(createOrLoadMember());
-        MagazineResponse.Get magaizne = createMagaizne(member);
+        CurationResponse.GetAll curationResponse = createCuration(megazine수정전.getId());
 
         CurationRequest.Update curationRequest = new CurationRequest.Update();
-        curationRequest.setMagazineId(magaizne.getId());
-        curationRequest.setCurationId(1L);
+        curationRequest.setMagazineId(megazine수정후.getId());
+        curationRequest.setCurationId(curationResponse.getCurations().get(0).getCurationsId());
 
-        mockMvc.perform(post("/api/curations/update")
+        mockMvc.perform(patch("/api/curations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(curationRequest)))
                 .andDo(print())
@@ -237,17 +249,21 @@ public class CurationControllerTest {
     }
 
     @WithMockCustomUser(username = "testid", role = "ADMIN")
-    @DisplayName("이미 해당 매거진의 큐레이션이 존재할시 큐레이션 수정 실패")
+    @DisplayName("이미 큐레이팅된 매거진으로 수정할시")
     @Test
-    void 이미_해당메거진의_큐레이션이_존재할시_에러() throws Exception {
-        MagazineResponse.Get magazineResponse = createMegazineAndCuration(createOrLoadMember());
-        Long megazineId = magazineResponse.getId();
+    void 이미_큐레이팅된_매거진이_존재할때_수정시_에러() throws Exception {
+        Member member = createOrLoadMember();
+        MagazineResponse.Get megazine수정전 = createMagaizne(member);
+        MagazineResponse.Get megazine큐레이션된 = createMagaizne(member);
+
+        CurationResponse.GetAll curationResponse = createCuration(megazine수정전.getId());
+        createCuration(megazine큐레이션된.getId());
 
         CurationRequest.Update curationRequest = new CurationRequest.Update();
-        curationRequest.setCurationId(1L);
-        curationRequest.setMagazineId(megazineId);
+        curationRequest.setMagazineId(megazine큐레이션된.getId());
+        curationRequest.setCurationId(curationResponse.getCurations().get(0).getCurationsId());
 
-        mockMvc.perform(post("/api/curations/update")
+        mockMvc.perform(patch("/api/curations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(curationRequest)))
                 .andDo(print())
@@ -261,9 +277,10 @@ public class CurationControllerTest {
         MagazineResponse.Get magazineResponse = createMegazineAndCuration(createOrLoadMember());
         Long megazineId = magazineResponse.getId();
 
-        CurationResponse.Get curationResponse = createCuration(megazineId);
+        CurationResponse.GetAll curationResponse = createCuration(megazineId);
+        Long curationsId = curationResponse.getCurations().get(0).getCurationsId();
 
-        mockMvc.perform(delete("/api/curations/" + curationResponse.getCurationId()))
+        mockMvc.perform(delete("/api/curations/" + curationsId))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
@@ -271,9 +288,16 @@ public class CurationControllerTest {
     @DisplayName("큐레이션 전체 조회")
     @Test
     void 큐레이션_() throws Exception {
-        MagazineResponse.Get magazineResponse = createMegazineAndCuration(createOrLoadMember());
+        Member member = createOrLoadMember();
+        createMegazineAndCuration(member);
+        createMegazineAndCuration(member);
+        createMegazineAndCuration(member);
+        createMegazineAndCuration(member);
+        createMegazineAndCuration(member);
+        createMegazineAndCuration(member);
+        createMegazineAndCuration(member);
 
-        mockMvc.perform(get("/api/curations" + "/WEEK"))
+        mockMvc.perform(get("/api/curations"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -287,10 +311,9 @@ public class CurationControllerTest {
 
         magazineService.delete("testid", megazineId);
 
-        mockMvc.perform(get("/api/curations" + "/WEEK"))
+        mockMvc.perform(get("/api/curations"))
                 .andDo(print())
                 .andExpect(status().isOk());
-
     }
 
 
