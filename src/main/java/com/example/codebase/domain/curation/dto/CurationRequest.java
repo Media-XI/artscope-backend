@@ -28,7 +28,7 @@ public class CurationRequest {
     @Schema(name = "CurationRequest.Update", description = "큐레이션 수정 DTO")
     public static class Update{
 
-        @NotNull(message = "알림 아이디를 입력해주세요.")
+        @NotNull(message = "큐레이션 아이디를 입력해주세요.")
         private Long curationId;
 
         @NotNull(message = "매거진 아이디를 입력해주세요.")
