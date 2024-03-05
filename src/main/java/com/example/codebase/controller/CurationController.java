@@ -40,13 +40,13 @@ public class CurationController {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow();
         memberService.getEntity(loginUsername);
 
-        CurationResponse.Get curation = curationService.createCuration(curationRequest);
+        CurationResponse.GetAll curation = curationService.createCuration(curationRequest);
 
         return new ResponseEntity(curation, HttpStatus.CREATED);
     }
 
     @Operation(summary = "큐레이션 수정", description = "[ADMIN] 큐레이션을 수정합니다")
-    @PostMapping("/update")
+    @PatchMapping
     @AdminOnly
     public ResponseEntity updateCuration(@RequestBody CurationRequest.Update curationRequest) {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow();
@@ -67,9 +67,10 @@ public class CurationController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @Operation(summary = "큐레이션 전체 조회", description = "금일의 큐레이션을 전체 조회합니다")
+    @Operation(summary = "큐레이션 전체 조회", description = "금일로 부터 일주일, 한달 이내의 큐레이션을 전체 조회합니다, (기본값 MONTH)")
     @GetMapping()
-    public ResponseEntity getCuration(@RequestParam(value = "time", defaultValue = "MONTH") CurationTime time, @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,
+    public ResponseEntity getCuration(@RequestParam(value = "time", defaultValue = "MONTH") CurationTime time,
+                                      @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,
                                       @PositiveOrZero @RequestParam(value = "size", defaultValue = "10") int size,
                                       @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
 
