@@ -75,7 +75,7 @@ public class MagazineService {
         validateOwner(loginUsername, magazine);
 
         curationRepository.findByMagazine(magazine).ifPresent(curation -> {
-            curation.clearMagazine();
+            curation.delete();
             curationRepository.save(curation);
         });
 
