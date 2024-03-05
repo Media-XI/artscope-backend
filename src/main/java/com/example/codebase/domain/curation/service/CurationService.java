@@ -73,7 +73,7 @@ public class CurationService {
         return CurationResponse.Get.from(curation);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public CurationResponse.GetAll getAllCuration(CurationTime time, PageRequest pageRequest) {
         return CurationResponse.GetAll.from(curationRepository.findByUpdatedTimeAfter(time, pageRequest));
     }
