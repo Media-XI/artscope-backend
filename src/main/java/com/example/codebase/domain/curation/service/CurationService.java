@@ -2,13 +2,17 @@ package com.example.codebase.domain.curation.service;
 
 import com.example.codebase.domain.curation.dto.CurationRequest;
 import com.example.codebase.domain.curation.dto.CurationResponse;
+import com.example.codebase.domain.curation.dto.CurationTime;
 import com.example.codebase.domain.curation.entity.Curation;
 import com.example.codebase.domain.curation.repository.CurationRepository;
 import com.example.codebase.domain.magazine.entity.Magazine;
 import com.example.codebase.domain.magazine.repository.MagazineRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 public class CurationService {
@@ -24,22 +28,30 @@ public class CurationService {
     }
 
     @Transactional
-    public CurationResponse.Get createCuration(CurationRequest.Create curationRequest){
-        Curation curation = curationRepository.findEmptyOrOldCuration(); // 아직 magazine이 없는 큐레이션, 없다면 가장 오래된 큐레이션을 찾아서 반환
-
+    public CurationResponse.Get createCuration(CurationRequest.Create curationRequest) {
         Magazine magazine = megazineRepository.findById(curationRequest.getMagazineId())
                 .orElseThrow(() -> new RuntimeException("해당 매거진이 없습니다."));
 
-        curation.setMagazine(magazine);
+        Optional<Curation> optionalCuration = curationRepository.findByMagazine(magazine);
+        Curation curation;
+        if (optionalCuration.isPresent()) {
+            curation = optionalCuration.get();
+            curation.setUpdatedTime(); // 재 게시
+        } else {
+            curation = Curation.builder().build();
+            curation.setMagazine(magazine);
+        }
+
+        curationRepository.save(curation);
 
         return CurationResponse.Get.from(curation);
     }
 
     @Transactional
-    public void deleteCuration(Long curationId){
+    public void deleteCuration(Long curationId) {
         Curation curation = curationRepository.findById(curationId).orElseThrow(() -> new RuntimeException("해당 큐레이션이 존재하지 않습니다."));
 
-        curation.clearMagazine();
+        curation.delete();
     }
 
     @Transactional
@@ -47,16 +59,22 @@ public class CurationService {
         Curation curation = curationRepository.findById(curationRequest.getCurationId())
                 .orElseThrow(() -> new RuntimeException("해당 큐레이션이 존재하지 않습니다."));
 
-        Magazine megazine = megazineRepository.findById(curationRequest.getMagazineId()).orElseThrow(() -> new RuntimeException("해당 메거진이 존재하지 않습니다."));
+        Magazine magazine = megazineRepository.findById(curationRequest.getMagazineId())
+                .orElseThrow(() -> new RuntimeException("해당 매거진이 존재하지 않습니다."));
 
-        curation.setMagazine(megazine);
+        Optional<Curation> checkCuration = curationRepository.findByMagazine(magazine);
+        if(checkCuration.isPresent()){
+            throw new RuntimeException("해당 매거진의 큐레이션이 이미 존재 합니다.");
+        }
+
+        curation.setMagazine(magazine);
 
         return CurationResponse.Get.from(curation);
     }
 
     @Transactional
-    public CurationResponse.GetAll getAllCuration(){
-        return CurationResponse.GetAll.from(curationRepository.findAllCuration());
+    public CurationResponse.GetAll getAllCuration(CurationTime time, PageRequest pageRequest) {
+        return CurationResponse.GetAll.from(curationRepository.findByUpdatedTimeAfter(time, pageRequest));
     }
 
 

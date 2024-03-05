@@ -3,13 +3,17 @@ package com.example.codebase.controller;
 import com.example.codebase.annotation.AdminOnly;
 import com.example.codebase.domain.curation.dto.CurationRequest;
 import com.example.codebase.domain.curation.dto.CurationResponse;
+import com.example.codebase.domain.curation.dto.CurationTime;
 import com.example.codebase.domain.curation.service.CurationService;
 import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +33,7 @@ public class CurationController {
         this.memberService = memberService;
     }
 
-    @Operation(summary = "큐레이션 생성", description = "[ADMIN] 큐레이션을 생성합니다(만약 큐레이션이 22개 이상이라면 가장 오래된 큐레이션을 대체 합니다.)")
+    @Operation(summary = "큐레이션 생성", description = "[ADMIN] 큐레이션을 생성합니다")
     @PostMapping
     @AdminOnly
     public ResponseEntity createCuration(@RequestBody @Valid CurationRequest.Create curationRequest) {
@@ -64,12 +68,17 @@ public class CurationController {
     }
 
     @Operation(summary = "큐레이션 전체 조회", description = "금일의 큐레이션을 전체 조회합니다")
-    @GetMapping
-    public ResponseEntity getCuration() {
-        CurationResponse.GetAll curation = curationService.getAllCuration();
+    @GetMapping()
+    public ResponseEntity getCuration(@RequestParam(value = "time", defaultValue = "MONTH") CurationTime time, @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,
+                                      @PositiveOrZero @RequestParam(value = "size", defaultValue = "10") int size,
+                                      @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
+
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "updatedTime");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        CurationResponse.GetAll curation = curationService.getAllCuration(time, pageRequest);
 
         return new ResponseEntity(curation, HttpStatus.OK);
     }
-
 
 }
