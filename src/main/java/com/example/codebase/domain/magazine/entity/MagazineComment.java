@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
@@ -67,6 +68,7 @@ public class MagazineComment {
     private MagazineComment parentComment;
 
     @Builder.Default
+    @BatchSize(size = 10) // TODO : 배치 사이즈를 부모 댓글 개수에 따라 조절
     @OneToMany(mappedBy = "parentComment", fetch = FetchType.LAZY)
     private List<MagazineComment> childComments = new ArrayList<>();
 

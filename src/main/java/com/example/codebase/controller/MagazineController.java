@@ -15,7 +15,6 @@ import com.example.codebase.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 @Tag(name = "매거진 API", description = "매거진 관련 API")
 @RestController
 @RequestMapping("/api/magazines")
@@ -41,7 +41,7 @@ public class MagazineController {
         this.memberService = memberService;
     }
 
-    @Operation(summary = "매거진 생성")
+    @Operation(summary = "매거진 생성", description = "로그인한 사용자만 매거진을 생성할 수 있습니다. 매거진 생성 시 미디어 첨부 가능합니다. 또한 JSON 형식의 메타데이터를 추가할 수 있습니다.")
     @PostMapping
     @UserOnly
     public ResponseEntity createMagazine(
@@ -82,8 +82,24 @@ public class MagazineController {
         return new ResponseEntity(allMagazines, HttpStatus.OK);
     }
 
-    @Operation(summary = "매거진 수정")
-    @PatchMapping("/{id}")
+    @Operation(summary = "해당 사용자의 매거진 전체 조회", description = "해당 사용자가 작성한 매거진을 조회합니다. 페이지네이션")
+    @GetMapping("/members/{username}")
+    public ResponseEntity getMyMagazines(
+            @PathVariable String username,
+            @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,
+            @PositiveOrZero @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(defaultValue = "DESC", required = false) String sortDirection
+    ) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortDirection), "createdTime"));
+        Member member = memberService.getEntity(username);
+
+        MagazineResponse.GetAll allMagazines = magazineService.getMemberMagazines(member, pageRequest);
+
+        return new ResponseEntity(allMagazines, HttpStatus.OK);
+    }
+
+    @Operation(summary = "매거진 수정", description = "자신의 매거진만 수정 가능합니다. 기존 항목도 모두 업데이트 됩니다.")
+    @PutMapping("/{id}")
     @UserOnly
     public ResponseEntity updateMagazine(
             @PathVariable Long id,

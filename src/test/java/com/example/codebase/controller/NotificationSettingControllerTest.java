@@ -2,10 +2,12 @@ package com.example.codebase.controller;
 
 
 import com.example.codebase.domain.auth.WithMockCustomUser;
+import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
 import com.example.codebase.domain.member.repository.MemberRepository;
+import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.domain.notification.entity.NotificationSetting;
 import com.example.codebase.domain.notification.entity.NotificationType;
 import com.example.codebase.domain.notification.repository.NotificationRepository;
@@ -53,6 +55,9 @@ public class NotificationSettingControllerTest {
     private MemberRepository memberRepository;
 
     @Autowired
+    private MemberService memberService;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -76,43 +81,25 @@ public class NotificationSettingControllerTest {
     }
 
     public Member createOrLoadMember() {
-        return createOrLoadMember("testid", "ROLE_ADMIN");
+        return createOrLoadMember("testid");
     }
 
-    public Member createOrLoadMember(String username, String... authorities) {
-        Optional<Member> testMember = memberRepository.findByUsername(username);
-        if (testMember.isPresent()) {
-            return testMember.get();
-        }
+    public Member createOrLoadMember(String username) {
+        CreateMemberDTO createMemberDTO = new CreateMemberDTO();
+        createMemberDTO.setUsername(username);
+        createMemberDTO.setPassword("password");
+        createMemberDTO.setName("name");
+        createMemberDTO.setEmail("email");
+        createMemberDTO.setAllowEmailReceive(true);
 
-        Member dummy = Member.builder()
-                .username(username)
-                .password(passwordEncoder.encode("1234"))
-                .email(username + "@test.com")
-                .name(username)
-                .activated(true)
-                .createdTime(LocalDateTime.now())
-                .build();
-
-        for (String authority : authorities) {
-            MemberAuthority memberAuthority = new MemberAuthority();
-            memberAuthority.setAuthority(Authority.of(authority));
-            memberAuthority.setMember(dummy);
-        }
-
-        NotificationSetting notificationSetting = NotificationSetting.builder().member(dummy).build();
-        dummy.setNotificationSetting(notificationSetting);
-
-        memberRepository.save(dummy);
-
-        return dummy;
+        memberService.createMember(createMemberDTO);
+        return memberService.getEntity(username);
     }
 
     @WithMockCustomUser(username = "testid", role = "ADMIN")
     @DisplayName("알림 설정을 조회")
     @Test
     public void 알림_설정_조회() throws Exception {
-        // given
         Member testMember = createOrLoadMember();
 
         mockMvc.perform(get("/api/notification-setting"))
