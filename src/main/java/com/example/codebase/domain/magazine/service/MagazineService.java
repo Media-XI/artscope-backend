@@ -31,15 +31,12 @@ public class MagazineService {
 
     private final MagazineMediaRepository magazineMediaRepository;
 
-    private final CurationRepository curationRepository;
 
     @Autowired
-    public MagazineService(MagazineRepository magazineRepository, MagazineCommentRepository magazineCommentRepository, MagazineMediaRepository magazineMediaRepository,
-                           CurationRepository curationRepository) {
+    public MagazineService(MagazineRepository magazineRepository, MagazineCommentRepository magazineCommentRepository, MagazineMediaRepository magazineMediaRepository) {
         this.magazineRepository = magazineRepository;
         this.magazineCommentRepository = magazineCommentRepository;
         this.magazineMediaRepository = magazineMediaRepository;
-        this.curationRepository = curationRepository;
     }
 
     @Transactional
