@@ -7,6 +7,7 @@ import com.example.codebase.domain.curation.entity.Curation;
 import com.example.codebase.domain.curation.repository.CurationRepository;
 import com.example.codebase.domain.magazine.entity.Magazine;
 import com.example.codebase.domain.magazine.repository.MagazineRepository;
+import com.example.codebase.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class CurationService {
     @Transactional
     public CurationResponse.Get createCuration(CurationRequest.Create curationRequest) {
         Magazine magazine = megazineRepository.findById(curationRequest.getMagazineId())
-                .orElseThrow(() -> new RuntimeException("해당 매거진이 없습니다."));
+                .orElseThrow(() -> new NotFoundException("해당 매거진이 없습니다."));
 
         Optional<Curation> optionalCuration = curationRepository.findByMagazine(magazine);
         Curation curation;
@@ -49,7 +50,7 @@ public class CurationService {
 
     @Transactional
     public void deleteCuration(Long curationId) {
-        Curation curation = curationRepository.findById(curationId).orElseThrow(() -> new RuntimeException("해당 큐레이션이 존재하지 않습니다."));
+        Curation curation = curationRepository.findById(curationId).orElseThrow(() -> new NotFoundException("해당 큐레이션이 존재하지 않습니다."));
 
         curation.delete();
     }
@@ -57,10 +58,10 @@ public class CurationService {
     @Transactional
     public CurationResponse.Get updateCuration(CurationRequest.Update curationRequest) {
         Curation curation = curationRepository.findById(curationRequest.getCurationId())
-                .orElseThrow(() -> new RuntimeException("해당 큐레이션이 존재하지 않습니다."));
+                .orElseThrow(() -> new NotFoundException("해당 큐레이션이 존재하지 않습니다."));
 
         Magazine magazine = megazineRepository.findById(curationRequest.getMagazineId())
-                .orElseThrow(() -> new RuntimeException("해당 매거진이 존재하지 않습니다."));
+                .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
 
         Optional<Curation> checkCuration = curationRepository.findByMagazine(magazine);
         if(checkCuration.isPresent()){
