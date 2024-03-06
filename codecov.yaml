@@ -1,0 +1,8 @@
+codecov:
+  bot: "Artscope CodeCov"
+  require_ci_to_pass: yes
+
+comment:
+  layout: "reach,diff,flags,files,footer"
+  behavior: default
+  require_changes: false
