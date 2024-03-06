@@ -35,11 +35,6 @@ public class CustomAspectLogging {
         }
     }
 
-    @AfterThrowing(value = "within(com.example.codebase..*)", throwing = "throwable")
-    public void logResponseException(JoinPoint joinPoint, Throwable throwable) {
-        log.error("Advice  : ", throwable);
-    }
-
     @AfterReturning(value = "within(com.example.codebase.controller.advice.FileSizeExceptionHandler)", returning = "response")
     public void logResponseFile(JoinPoint joinPoint, Object response) {
         if (response instanceof ResponseEntity) {
