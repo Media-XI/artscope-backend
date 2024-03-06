@@ -54,3 +54,9 @@ logging:
 #logging:
 #  level:
 #    com.example : DEBUG
+
+webhook:
+  url: ENC(zFU82/rmw5XeGwXpF3faHzvyU4JSiMJPFKkLQpWuaGmA4LfXmtsu/UKBUJ8eKRiBHGsIS+hGG9/QCw8VDiGqSPyO+cSceqNvg8kfw4FTVOgSJkVBAiVm4G/HA/8KG3mDHRHQ9yeeMuMQCV/o8zPhFX7PPALZCZfcQWr33MZ6E3w3PvDy2zy5tmWU3VipP2gW)
+
+build:
+  info: ${BUILD_INFO:native}
