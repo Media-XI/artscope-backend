@@ -62,8 +62,6 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity handleRuntimeException(RuntimeException e) {
-        log.info(String.valueOf(e.getCause()));
-        log.info(printStackTrage(e));
         RestResponse response = new RestResponse(false, e.getMessage(), HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity(response, HttpStatus.BAD_REQUEST);
     }
@@ -129,9 +127,4 @@ public class CustomExceptionHandler {
         return new ResponseEntity(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private String printStackTrage(Exception e) {
-        StringWriter sw = new StringWriter();
-        e.printStackTrace(new PrintWriter(sw));
-        return sw.toString();
-    }
 }

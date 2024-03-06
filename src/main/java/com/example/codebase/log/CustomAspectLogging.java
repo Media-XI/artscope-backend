@@ -5,31 +5,39 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 @Slf4j
 @Aspect
 @Component
 public class CustomAspectLogging {
 
+    @Before("within(com.example.codebase.controller.advice.CustomExceptionHandler)")
+    public void logBeforeException(JoinPoint joinPoint) {
+        Exception e = (Exception) joinPoint.getArgs()[0];
+        log.error(printStackTrage(e));
+    }
+
     @AfterReturning(value = "within(com.example.codebase.controller.advice.CustomExceptionHandler)", returning = "response")
     public void logResponseException(JoinPoint joinPoint, Object response) {
         if (response instanceof ResponseEntity) {
             ResponseEntity res = (ResponseEntity) response;
             log.info("Advice Method : {}", joinPoint.getSignature().toString());
-            // log.info("Advice Error : {}", joinPoint.toLongString());
             log.info("Advice Response : {}", res.getBody());
         } else {
             log.info("Advice Method : {}", joinPoint.getSignature().toString());
-            // log.info("Advice Error : {}", joinPoint.getTarget());
             log.info("Advice Response : {}", response);
         }
     }
 
-    @AfterThrowing(value = "within(com.example.codebase.*)", throwing = "throwable")
+    @AfterThrowing(value = "within(com.example.codebase..*)", throwing = "throwable")
     public void logResponseException(JoinPoint joinPoint, Throwable throwable) {
-        log.info("Advice Exception : ", throwable);
+        log.error("Advice  : ", throwable);
     }
 
     @AfterReturning(value = "within(com.example.codebase.controller.advice.FileSizeExceptionHandler)", returning = "response")
@@ -43,5 +51,12 @@ public class CustomAspectLogging {
             log.info("Advice Response : {}", response);
         }
     }
+
+    private String printStackTrage(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
+    }
+
 
 }
