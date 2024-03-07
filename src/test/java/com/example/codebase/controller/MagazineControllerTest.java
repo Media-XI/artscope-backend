@@ -1,6 +1,7 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.auth.WithMockCustomUser;
+import com.example.codebase.domain.follow.service.FollowService;
 import com.example.codebase.domain.magazine.dto.MagazineCategoryResponse;
 import com.example.codebase.domain.magazine.dto.MagazineCommentRequest;
 import com.example.codebase.domain.magazine.dto.MagazineRequest;
@@ -13,6 +14,7 @@ import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.service.MemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,6 +61,9 @@ class MagazineControllerTest {
     @Autowired
     private MemberService memberService;
 
+    @Autowired
+    private FollowService followService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
@@ -75,7 +80,7 @@ class MagazineControllerTest {
         createMemberDTO.setUsername(username);
         createMemberDTO.setPassword("password");
         createMemberDTO.setName("name");
-        createMemberDTO.setEmail("email");
+        createMemberDTO.setEmail("email" + "@" + username + ".com");
         createMemberDTO.setAllowEmailReceive(true);
 
         memberService.createMember(createMemberDTO);
@@ -646,5 +651,37 @@ class MagazineControllerTest {
         // then
         MagazineResponse.GetAll magazineList = objectMapper.readValue(response, MagazineResponse.GetAll.class);
         assertEquals(magazineList.getMagazines().size(), 4);
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("해당 사용자가 팔로우 중인 유저의 매거진 목록 조회")
+    @Test
+    void 해당_사용자가_팔로우_중인_유저의_매거진_목록_조회() throws Exception{
+        // given
+        Member member = createMember("testid");
+        Member following = createMember("following");
+        Member notFollowing = createMember("notFollowing");
+
+        followService.followMember(member.getUsername(), following.getUsername());
+
+        createMagaizne(following);
+        createMagaizne(following);
+        createMagaizne(following);
+        createMagaizne(member);
+        createMagaizne(notFollowing);
+
+        //when
+        String response = mockMvc.perform(
+                get("/api/magazines/my/following/members")
+                        .param("page", "0")
+                        .param("size", "10")
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        //then
+        MagazineResponse.GetAll magazineList = objectMapper.readValue(response, MagazineResponse.GetAll.class);
+        assertEquals(magazineList.getMagazines().size(), 3);
     }
 }
