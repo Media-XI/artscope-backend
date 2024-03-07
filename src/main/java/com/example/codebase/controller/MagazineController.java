@@ -169,4 +169,21 @@ public class MagazineController {
 
         return new ResponseEntity(magazine, HttpStatus.NO_CONTENT);
     }
+
+    @LoginOnly
+    @Operation(summary = "내가(사용자가) 팔로우 중인 유저의 매거진 목록 조회")
+    @GetMapping("my/following/members")
+    public ResponseEntity getFollowedMagazines(
+            @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,
+            @PositiveOrZero @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        String loginUsername = SecurityUtil.getCurrentUsernameValue();
+        Member member = memberService.getEntity(loginUsername);
+
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
+
+        MagazineResponse.GetAll allMagazines = magazineService.getFollowingMagazine(member, pageRequest);
+
+        return new ResponseEntity(allMagazines, HttpStatus.OK);
+    }
 }

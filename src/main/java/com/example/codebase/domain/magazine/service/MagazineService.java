@@ -1,6 +1,5 @@
 package com.example.codebase.domain.magazine.service;
 
-import com.example.codebase.domain.curation.repository.CurationRepository;
 import com.example.codebase.domain.magazine.dto.MagazineCommentRequest;
 import com.example.codebase.domain.magazine.dto.MagazineRequest;
 import com.example.codebase.domain.magazine.dto.MagazineResponse;
@@ -167,6 +166,11 @@ public class MagazineService {
 
     public MagazineResponse.GetAll getMemberMagazines(Member member, PageRequest pageRequest) {
         Page<Magazine> magazines = magazineRepository.findByMember(member, pageRequest);
+        return MagazineResponse.GetAll.from(magazines);
+    }
+
+    public MagazineResponse.GetAll getFollowingMagazine(Member member, PageRequest pageRequest) {
+        Page<Magazine> magazines = magazineRepository.findByMemberToFollowing(member, pageRequest);
         return MagazineResponse.GetAll.from(magazines);
     }
 }
