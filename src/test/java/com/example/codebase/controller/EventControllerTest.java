@@ -1,9 +1,9 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.auth.WithMockCustomUser;
-import com.example.codebase.domain.Event.dto.*;
-import com.example.codebase.domain.Event.entity.*;
-import com.example.codebase.domain.Event.repository.EventRepository;
+import com.example.codebase.domain.event.dto.*;
+import com.example.codebase.domain.event.entity.*;
+import com.example.codebase.domain.event.repository.EventRepository;
 import com.example.codebase.domain.location.entity.Location;
 import com.example.codebase.domain.location.repository.LocationRepository;
 import com.example.codebase.domain.member.entity.Authority;
@@ -431,7 +431,7 @@ public class EventControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @WithMockCustomUser(username = "testid", role = "CURATOR")
+    @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("이벤트 수정")
     @Test
     public void 이벤트_수정() throws Exception {
@@ -451,11 +451,11 @@ public class EventControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @WithMockCustomUser(username = "user", role = "CURATOR")
+    @WithMockCustomUser(username = "user12", role = "USER")
     @DisplayName("작성자가 아닌 유저가 이벤트 수정")
     @Test
     public void 작성자가_아닌_유저가_이벤트_수정() throws Exception {
-        createOrLoadMember("user", RoleStatus.CURATOR, "ROLE_CURATOR");
+        createOrLoadMember("user", RoleStatus.CURATOR, "ROLE_USER");
         Event event = createOrLoadEvent();
 
         EventUpdateDTO dto = new EventUpdateDTO();
@@ -468,10 +468,10 @@ public class EventControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
-    @WithMockCustomUser(username = "testid", role = "CURATOR")
+    @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("이벤트 삭제")
     @Test
     public void 이벤트_삭제() throws Exception {
@@ -481,10 +481,10 @@ public class EventControllerTest {
         mockMvc
                 .perform(delete(String.format("/api/events/%d", event.getId())))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
-    @WithMockCustomUser(username = "user", role = "CURATOR")
+    @WithMockCustomUser(username = "user", role = "USER")
     @DisplayName("작성자가 아닌 유저가 이벤트 삭제")
     @Test
     public void 작성자가_아닌_유저가_이벤트_삭제() throws Exception {

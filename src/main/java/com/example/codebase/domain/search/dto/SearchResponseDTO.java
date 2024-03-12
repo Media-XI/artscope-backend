@@ -1,8 +1,7 @@
 package com.example.codebase.domain.search.dto;
 
 import com.example.codebase.controller.dto.PageInfo;
-import com.example.codebase.domain.Event.dto.EventResponseDTO;
-import com.example.codebase.domain.Event.dto.EventsResponseDTO;
+import com.example.codebase.domain.event.dto.EventsResponseDTO;
 import com.example.codebase.domain.agora.dto.AgorasResponseDTO;
 import com.example.codebase.domain.artwork.dto.ArtworksResponseDTO;
 import com.example.codebase.domain.post.dto.PostsResponseDTO;

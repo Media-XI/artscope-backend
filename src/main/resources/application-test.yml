@@ -25,7 +25,8 @@ spring:
     properties:
       hibernate:
         show_sql: true
-      format_sql: true
+        format_sql: true
+        highlight_sql: true
     defer-datasource-initialization: true
   h2:
     console:
@@ -50,6 +51,7 @@ logging:
   level:
     org:
       hibernate:
+        SQL: debug
         type:
           descriptor:
-            sql: trace
+            sql: TRACE

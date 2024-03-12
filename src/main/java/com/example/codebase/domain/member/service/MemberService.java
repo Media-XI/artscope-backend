@@ -13,6 +13,10 @@ import com.example.codebase.domain.member.exception.ExistsEmailException;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
+import com.example.codebase.domain.notification.entity.Notification;
+import com.example.codebase.domain.notification.entity.NotificationSetting;
+import com.example.codebase.domain.notification.repository.NotificationRepository;
+import com.example.codebase.domain.notification.repository.NotificationSettingRepository;
 import com.example.codebase.s3.S3Service;
 import com.example.codebase.util.RedisUtil;
 import jakarta.transaction.Transactional;
@@ -36,6 +40,9 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
     private final MemberAuthorityRepository memberAuthorityRepository;
+
+    private final NotificationSettingRepository notificationSettingRepository;
+
     private final S3Service s3Service;
 
     private final RedisUtil redisUtil;
@@ -45,12 +52,14 @@ public class MemberService {
             PasswordEncoder passwordEncoder,
             MemberRepository memberRepository,
             MemberAuthorityRepository memberAuthorityRepository,
-            S3Service s3Service, RedisUtil redisUtil) {
+            S3Service s3Service, RedisUtil redisUtil,
+            NotificationSettingRepository notificationSettingRepository) {
         this.passwordEncoder = passwordEncoder;
         this.memberRepository = memberRepository;
         this.memberAuthorityRepository = memberAuthorityRepository;
         this.s3Service = s3Service;
         this.redisUtil = redisUtil;
+        this.notificationSettingRepository = notificationSettingRepository;
     }
 
     @Transactional
@@ -70,6 +79,9 @@ public class MemberService {
         MemberAuthority memberAuthority =
                 MemberAuthority.builder().authority(authority).member(newMember).build();
         newMember.addAuthority(memberAuthority);
+
+        NotificationSetting notificationSetting = NotificationSetting.builder().member(newMember).build();
+        newMember.setNotificationSetting(notificationSetting);
 
         Member save = memberRepository.save(newMember);
         return MemberResponseDTO.from(save);
@@ -357,5 +369,10 @@ public class MemberService {
 
     public List<String> getAllUsername() {
         return memberRepository.findAllUsername();
+    }
+
+    public Member getEntity(String username) {
+        return memberRepository.findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
     }
 }

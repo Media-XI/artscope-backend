@@ -1,0 +1,5 @@
+ALTER TABLE location
+    ADD COLUMN member_id    BINARY(16) NULL,
+    ADD COLUMN created_time datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ADD COLUMN updated_time datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    ADD FOREIGN KEY (member_id) REFERENCES member (member_id);

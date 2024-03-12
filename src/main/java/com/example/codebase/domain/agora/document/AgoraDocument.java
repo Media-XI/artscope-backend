@@ -10,7 +10,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.time.LocalDateTime;
 
-@Document(indexName = "agoras")
+@Document(indexName = "agoras", createIndex = false)
 @Getter
 public class AgoraDocument {
 
