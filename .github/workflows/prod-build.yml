@@ -63,7 +63,7 @@ jobs:
         run: echo "DOCKER_IMAGE_NAME=${{ env.IMAGE_NAME }}:${{ secrets.MAJOR }}.${{ secrets.MINOR }}" >> $GITHUB_ENV
 
       - name: Build the Docker image
-        run: docker build --tag ${{ DOCKER_IMAGE_NAME }} --build-arg BUILD_INFO=${{ env.DOCKER_IMAGE_NAME }} -f Dockerfile.prod .
+        run: docker build --tag ${{ env.DOCKER_IMAGE_NAME }} --build-arg BUILD_INFO=${{ env.DOCKER_IMAGE_NAME }} -f Dockerfile.prod .
 
       - name: Login to registry ${{ env.REGISTRY }}
         run: echo "$DOCKER_REGISTRY_PASSWORD" | docker login "$REGISTRY" -u "$DOCKER_REGISTRY_USERNAME" --password-stdin
