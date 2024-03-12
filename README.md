@@ -1,6 +1,10 @@
-# SpringBoot Codebase
+# Artscope Backend
 
-스프링부트 코드베이스
+## Architecture
+
+![서버아키텍처](https://github.com/Media-XI/artscope-backend/assets/5029567/9de3c56c-d699-4e81-8751-76f5f95fa12b)
+
+
 
 ## 적용된 기술들
 ```
