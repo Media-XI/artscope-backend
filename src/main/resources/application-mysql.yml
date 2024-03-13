@@ -16,6 +16,7 @@ spring:
         #        show_sql: true
         #        format_sql: true
         enable_lazy_load_no_trans: true # LAZY 로드를 default로 설정
+        default_batch_fetch_size: 30 # TODO : 상황에 맞게 조절
 
 # # Flyway 사용으로 초기화 주석
 #    defer-datasource-initialization: true

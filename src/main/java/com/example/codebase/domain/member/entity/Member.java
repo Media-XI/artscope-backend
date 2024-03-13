@@ -119,7 +119,7 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<NotificationReceivedStatus> notifications = new ArrayList<>();
 
-    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "member", optional=false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private NotificationSetting notificationSettings;
 
     @Builder.Default

@@ -30,6 +30,7 @@ public class MagazineService {
 
     private final MagazineMediaRepository magazineMediaRepository;
 
+
     @Autowired
     public MagazineService(MagazineRepository magazineRepository, MagazineCommentRepository magazineCommentRepository, MagazineMediaRepository magazineMediaRepository) {
         this.magazineRepository = magazineRepository;
@@ -43,11 +44,11 @@ public class MagazineService {
         magazineRepository.save(newMagazine);
 
         List<MagazineMedia> magazineMedias = MagazineMedia.toList(magazineRequest.getMediaUrls(), newMagazine);
-
         magazineMediaRepository.saveAll(magazineMedias);
         return MagazineResponse.Get.from(newMagazine);
     }
 
+    @Transactional
     public MagazineResponse.Get get(Long id) {
         Magazine magazine = magazineRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
@@ -161,5 +162,15 @@ public class MagazineService {
         if (!magazineComment.isCommentAuthor(member)) {
             throw new RuntimeException("댓글 작성자가 아닙니다.");
         }
+    }
+
+    public MagazineResponse.GetAll getMemberMagazines(Member member, PageRequest pageRequest) {
+        Page<Magazine> magazines = magazineRepository.findByMember(member, pageRequest);
+        return MagazineResponse.GetAll.from(magazines);
+    }
+
+    public MagazineResponse.GetAll getFollowingMagazine(Member member, PageRequest pageRequest) {
+        Page<Magazine> magazines = magazineRepository.findByMemberToFollowing(member, pageRequest);
+        return MagazineResponse.GetAll.from(magazines);
     }
 }

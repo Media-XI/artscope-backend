@@ -34,8 +34,6 @@
         <RollingFile name="daily_error" fileName="/logs/error/error.log" filePattern="/logs/error/error.%d{yyyy-MM-dd}_%i.log">
             <JsonLayout compact="true" eventEol="true" properties="true" complete="true"/>
             <PatternLayout disableAnsi="false" pattern="${LOG_REQUEST_ID_PATTERN} ${LOG_FILE_PATTERN}"/>
-            <!--LevelRangeFilter필터를 사용할때에 단일 level의 필터만 허용한다. -->
-            <LevelRangeFilter minLevel="WARN" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1"/> <!-- 시간별 로그 생성 -->
                 <SizeBasedTriggeringPolicy size="10MB"/>
@@ -64,8 +62,6 @@
         <RollingFile name="sql_error" fileName="/logs/sql/error/error.log" filePattern="/logs/sql/error/error.%d{yyyy-MM-dd}_%i.log">
             <JsonLayout compact="true" eventEol="true" properties="true" complete="true"/>
             <PatternLayout disableAnsi="false" pattern="${LOG_REQUEST_ID_PATTERN} ${LOG_FILE_PATTERN}"/>
-            <!--LevelRangeFilter필터를 사용할때에 단일 level의 필터만 허용한다. -->
-            <LevelRangeFilter minLevel="WARN" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1"/> <!-- 시간별 로그 생성 -->
                 <SizeBasedTriggeringPolicy size="10MB"/>
@@ -88,6 +84,7 @@
         <logger name="org.springframework" level="info" additivity="false">
             <AppenderRef ref="console"/>
             <AppenderRef ref="file_appender"/>
+            <AppenderRef ref="daily_error" level="warn"/>
         </logger>
 
         <!-- rolling file에는 debug, console에는 info 분리하여 처리 가능하다. -->
@@ -138,7 +135,7 @@
         <Root level="info" additivity="false">
             <AppenderRef ref="console"/>
             <AppenderRef ref="file_appender"/>
-            <AppenderRef ref="daily_error"/>
+            <AppenderRef ref="daily_error" level="warn"/>
         </Root>
     </Loggers>
 
