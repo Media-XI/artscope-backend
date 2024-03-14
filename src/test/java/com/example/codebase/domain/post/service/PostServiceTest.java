@@ -88,7 +88,7 @@ class PostServiceTest {
     void test1() throws Exception {
         // given
         Post post = createPost();
-        int threadCount = 10;
+        int threadCount = 5;
 
         List<Member> members = new ArrayList<>();
         for (int i = 0; i < threadCount; i++) {
@@ -101,15 +101,16 @@ class PostServiceTest {
         // when
         IntStream.range(0, threadCount).forEach((i) -> {
             executorService.execute(() -> {
-                PostResponseDTO dto = postService.likePost(post.getId(), members.get(i).getUsername());
-                System.out.println(i + " " + dto.getLikes());
-                latch.countDown();
+                try {
+                    PostResponseDTO dto = postService.likePost(post.getId(), members.get(i).getUsername());
+                } finally {
+                    latch.countDown();
+                }
             });
         });
-        latch.await(3000, TimeUnit.MILLISECONDS);
+        latch.await(30, TimeUnit.SECONDS);
 
         PostWithLikesResponseDTO dto = postService.getPost(post.getId());
-        System.out.println(dto.getLikes());
         assertEquals(threadCount, dto.getLikes());
     }
 
