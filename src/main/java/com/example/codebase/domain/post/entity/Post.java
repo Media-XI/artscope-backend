@@ -44,6 +44,7 @@ public class Post {
     @Column(name = "created_time")
     private LocalDateTime createdTime;
 
+    @Version
     @Column(name = "updated_time")
     private LocalDateTime updatedTime;
 
@@ -109,5 +110,15 @@ public class Post {
 
     public void removeMedia(PostMedia postMedia) {
         this.postMedias.remove(postMedia);
+    }
+
+    public void incressLike() {
+        this.likes++;
+        this.updatedTime = LocalDateTime.now();
+    }
+
+    public void decreaseLike() {
+        this.likes--;
+        this.updatedTime = LocalDateTime.now();
     }
 }
