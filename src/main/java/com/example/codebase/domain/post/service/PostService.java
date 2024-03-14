@@ -1,6 +1,6 @@
 package com.example.codebase.domain.post.service;
 
-import co.elastic.clients.elasticsearch._types.query_dsl.Like;
+import com.example.codebase.annotation.DistributedLock;
 import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
@@ -170,6 +170,8 @@ public class PostService {
         return post;
     }
 
+//    @Transactional(isolation = Isolation.SERIALIZABLE) //
+    @DistributedLock(key = "#postId")
     @Transactional
     public PostResponseDTO likePost(Long postId, String loginUsername) {
         if (isDuplicatedRequest(postId, loginUsername)) {
