@@ -55,24 +55,25 @@ jobs:
         with:
           arguments: |
             build
-#            -Pprofile=prod
-#            -Dspring.profiles.active=prod
 
       - name: Setup Docker buildx
         uses: docker/setup-buildx-action@79abd3f86f79a9d68a23c75a09a9a85889262adf
 
+      - name: Set Docker Image Name (Build Info)
+        run: echo "DOCKER_IMAGE_NAME=${{ env.IMAGE_NAME }}:${{ secrets.MAJOR }}.${{ secrets.MINOR }}" >> $GITHUB_ENV
+
       - name: Build the Docker image
-        run: docker build --tag ${{ env.IMAGE_NAME }}:${{ secrets.MAJOR }}.${{ secrets.MINOR }} -f Dockerfile.prod .
+        run: docker build --tag ${{ env.DOCKER_IMAGE_NAME }} --build-arg BUILD_INFO=${{ env.DOCKER_IMAGE_NAME }} -f Dockerfile.prod .
 
       - name: Login to registry ${{ env.REGISTRY }}
         run: echo "$DOCKER_REGISTRY_PASSWORD" | docker login "$REGISTRY" -u "$DOCKER_REGISTRY_USERNAME" --password-stdin
 
       - name: Push to ${{ env.REGISTRY }}
-        run: docker push ${{ env.IMAGE_NAME }}:${{ secrets.MAJOR }}.${{ secrets.MINOR }}
+        run: docker push ${{ env.DOCKER_IMAGE_NAME }}
 
       # Docker 이미지 이름을 image.txt 파일에 쓰기
       - name: Write Docker image name to file
-        run: echo "${{ env.IMAGE_NAME }}:${{ secrets.MAJOR }}.${{ secrets.MINOR }}" > image.txt
+        run: echo "${{ env.DOCKER_IMAGE_NAME }}" > image.txt
 
       - name: Create zip file for AWS CodeDeploy
         run: mkdir ${{ env.AWS_CODE_DEPLOY_NAME }} && cp -r appspec.yml image.txt scripts ${{ env.AWS_CODE_DEPLOY_NAME }}

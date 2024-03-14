@@ -1,6 +1,7 @@
 package com.example.codebase.domain.magazine.entity;
 
 import com.example.codebase.domain.magazine.repository.MagazineMediaRepository;
+import com.example.codebase.domain.media.MediaType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,10 +26,6 @@ public class MagazineMedia {
     @Column(name = "magazine_media_id")
     private Long id;
 
-    enum MagazineMediaType {
-        IMAGE, VIDEO
-    }
-
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
     private MagazineMediaType type;
@@ -50,7 +47,7 @@ public class MagazineMedia {
 
     public static MagazineMedia toEntity(String mediaUrl, Magazine newMagazine) {
         MagazineMedia magazineMedia = MagazineMedia.builder()
-                .type(MagazineMediaType.IMAGE)
+                .type(MagazineMediaType.url)
                 .url(mediaUrl)
                 .build();
         magazineMedia.setMagaizne(newMagazine);

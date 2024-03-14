@@ -7,11 +7,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "magazine")
@@ -33,6 +37,10 @@ public class Magazine {
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @Column(name = "metadata", columnDefinition = "json")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Map<String, String> metadata;
+
     @Builder.Default
     @Column(name = "views", columnDefinition = "integer default 0")
     private Integer views = 0;
@@ -44,6 +52,10 @@ public class Magazine {
     @Builder.Default
     @Column(name = "comments", columnDefinition = "integer default 0")
     private Integer comments = 0;
+
+    @Builder.Default
+    @Column(name = "visibled")
+    private Boolean visibled = true;
 
     @Builder.Default
     @Column(name = "is_deleted", nullable = false)
@@ -62,14 +74,17 @@ public class Magazine {
     private MagazineCategory category;
 
     @Builder.Default
+    @BatchSize(size = 25)
     @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL)
     private List<MagazineComment> magazineComments = new ArrayList<>();
 
     @Builder.Default
+    @BatchSize(size = 25)
     @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL)
     private List<MagazineLike> magazineLikes = new ArrayList<>();
 
     @Builder.Default
+    @BatchSize(size = 25)
     @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL)
     private List<MagazineMedia> magazineMedias = new ArrayList<>();
 
@@ -77,6 +92,7 @@ public class Magazine {
         return Magazine.builder()
                 .title(magazineRequest.getTitle())
                 .content(magazineRequest.getContent())
+                .metadata(magazineRequest.getMetadata())
                 .member(member)
                 .category(category)
                 .createdTime(LocalDateTime.now())
@@ -91,6 +107,7 @@ public class Magazine {
     public void update(MagazineRequest.Update magazineRequest) {
         this.title = magazineRequest.getTitle();
         this.content = magazineRequest.getContent();
+        this.metadata = magazineRequest.getMetadata();
         this.updatedTime = LocalDateTime.now();
     }
 
