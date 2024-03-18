@@ -110,4 +110,14 @@ public class Post {
     public void removeMedia(PostMedia postMedia) {
         this.postMedias.remove(postMedia);
     }
+
+    public void incressLike() {
+        this.likes++;
+        this.updatedTime = LocalDateTime.now();
+    }
+
+    public void decreaseLike() {
+        this.likes--;
+        this.updatedTime = LocalDateTime.now();
+    }
 }

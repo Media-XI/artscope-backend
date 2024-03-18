@@ -1,91 +1,26 @@
-# SpringBoot Codebase
+# Artscope Backend
 
-스프링부트 코드베이스
+부산 금샘미술관의 청년전시전 공모를 받기 위해 시작한 프로젝트로, 작품 전시를 온라인 갤러리 공간으로 형성하고 누구나 좋아하는 작품을 감상할 수 있고 예술인들의 교류를 할 수 있는 서비스입니다.
 
-## 적용된 기술들
-```
-Spring Boot
-Spring Data JPA
-Spring Security
-JUnit5, Swagger2
-JWT
-Docker, Docker Compose
-Gradle
-Flyway
-MySQL
-PostgreSQL
-Redis
-```
+## Tech
+- Java 17
+- Spring Boot 3.2, Spring MVC, Spring Security, Swagger
+- Spring Data JPA
+- MySQL, H2, Redis, ElasticSearch, log4jdbc
+- OAuth 2.0, JWT
+- Docker, Gradle, Nginx, Kubernetes, Pinpoint, Prometheus, Grafana, ELK
+- AWS EC2, AWS CloudFront, AWS S3, AWS Lambda@Edge
+- Github Actions, ArgoCD, AWS CodeDeploy
 
-## 적용할 기술들
-```
-Spring Multi module
-```
+## Architecture
+![artscope drawio](https://github.com/Media-XI/artscope-backend/assets/5029567/b18e0b00-e7d8-430a-9d29-bbbbc5bd22e0)
 
-# How to Use
-## 프로젝트 설정 변경
-- docker-compose.yml을 수정해주세요
-  - DB 관련 Secrert 값 수정
-  - 경로 및 포트 수정
-      ```yaml
-      version: '3.8'
-    
-      services:
-        backend:
-          image: backend:latest
-          ports:
-            - 8080:8080
-          depends_on:
-            - mysql
-    
-        mysql:
-          image: library/mysql:5.7
-          platform: linux/bamd64
-          volumes:
-            - db_datas:/var/lib/mysql
-          environment:
-            - MYSQL_DATABASE=**디비이름**
-            - MYSQL_ROOT_HOST='%'
-            - MYSQL_ROOT_PASSWORD=**비밀번호**
-            - TZ= Asia/Seoul
-          ports:
-            - 13306:3306
-    
-      volumes:
-        db_datas:
-    
-      ```
-- application-jwt.yml을 수정해주세요
-  ```yaml
-  jwt:
-  header: Authorization
-  secret : '시크릿값'
-  token-validity-in-seconds : 3600
-    ```
+## 정적 파일 업로드 로직
+![정적파일](https://github.com/Media-XI/artscope-backend/assets/5029567/6a02d4fd-1920-458c-901b-69f0309dff0b)
 
-- application-mysql.yml을 수정해주세요
-    ```yaml
-    spring:
-      datasource:
-        username: root
-        password: **비밀번호**
-        url: jdbc:mysql://localhost:13306/**디비이름**?allowPublicKeyRetrieval=true&useSSL=false
-      jpa:
-        hibernate:
-          ddl-auto: create-drop
-        properties:
-          hibernate:
-            show_sql: true
-            format_sql: true
-        defer-datasource-initialization: true
-      sql:
-        init:
-          schema-locations:
-          data-locations: classpath:sql/data.sql
-          mode: ALWAYS
-    
-    ```
-  
+## CI/CD 파이프라인
+![CI_CD](https://github.com/Media-XI/artscope-backend/assets/5029567/b72723e8-a190-4e73-8712-db4173b82eb5)
+
 # 서버 구동
 ```shell
 > ./gradlew bootRun
