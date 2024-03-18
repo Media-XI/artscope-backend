@@ -15,7 +15,6 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 
 @Aspect
 @Component
@@ -33,9 +32,7 @@ public class DistributedLockAop {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         DistributedLock distributedLock = method.getAnnotation(DistributedLock.class);
-        if (distributedLock == null) {
-            return aopForTransaction.proceed(joinPoint);
-        }
+
         String key = REDISSON_LOCK_PREFIX + CustomSpringELParser.getDynamicValue(signature.getParameterNames(), joinPoint.getArgs(), distributedLock.key());
         RLock rLock = redissonClient.getLock(key);
         try {
@@ -44,7 +41,7 @@ public class DistributedLockAop {
                 log.info("Redisson Lock Not Available serviceName : {} key : {}", method.getName(), key);
                 throw new IllegalArgumentException();
             }
-            return aopForTransaction.proceed(joinPoint);
+            return proceed(distributedLock, joinPoint);
         } catch (InterruptedException e) {
             throw new InterruptedException();
         } finally {
@@ -54,6 +51,13 @@ public class DistributedLockAop {
                 log.info("Redisson Lock Already UnLock serviceName : {} key : {}", method.getName(), key);
             }
         }
+    }
+
+    private Object proceed(DistributedLock distributedLock, ProceedingJoinPoint joinPoint) throws Throwable {
+        if (distributedLock.transactional()) {
+            return aopForTransaction.proceed(joinPoint);
+        }
+        return joinPoint.proceed();
     }
 
     static class CustomSpringELParser {
