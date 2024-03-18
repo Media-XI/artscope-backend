@@ -51,7 +51,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Test with Gradle
-        run: ./gradlew --info test -DJASYPT_ENCRYPTOR_PASSWORD=${{ secrets.JASYPT_ENCRYPTOR_PASSWORD }}
+        run: ./gradlew test -DJASYPT_ENCRYPTOR_PASSWORD=${{ secrets.JASYPT_ENCRYPTOR_PASSWORD }}
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3.1.1

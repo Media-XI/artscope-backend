@@ -471,6 +471,8 @@ class PostControllerTest {
             .andDo(print())
             .andExpect(status().isOk());
 
+        Thread.sleep(3000);
+        
         mockMvc.perform(
                 post("/api/posts/" + post.getId() + "/like")
             )
