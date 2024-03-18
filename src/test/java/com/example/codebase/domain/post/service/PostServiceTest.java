@@ -83,12 +83,12 @@ class PostServiceTest {
     }
 
 
-    @DisplayName("2명 이상의 사용자가 동시에 좋아요 요청 시")
+    @DisplayName("2명 이상의 사용자가 동시에 좋아요 요청 시 - 100명 동시 요청")
     @Test
     void test1() throws Exception {
         // given
         Post post = createPost();
-        int threadCount = 5;
+        int threadCount = 100;
 
         List<Member> members = new ArrayList<>();
         for (int i = 0; i < threadCount; i++) {
@@ -103,6 +103,7 @@ class PostServiceTest {
             executorService.execute(() -> {
                 try {
                     PostResponseDTO dto = postService.likePost(post.getId(), members.get(i).getUsername());
+                    assertEquals(true, dto.getIsLiked());
                 } finally {
                     latch.countDown();
                 }
@@ -131,7 +132,6 @@ class PostServiceTest {
                 Thread.sleep(500);
                 executorService.execute(() -> {
                     PostResponseDTO dto = postService.likePost(post.getId(), member.getUsername());
-                    System.out.println(i + " " + dto.getLikes());
                     latch.countDown();
                 });
             } catch (InterruptedException e) {

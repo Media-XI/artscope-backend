@@ -44,7 +44,6 @@ public class Post {
     @Column(name = "created_time")
     private LocalDateTime createdTime;
 
-    @Version
     @Column(name = "updated_time")
     private LocalDateTime updatedTime;
 

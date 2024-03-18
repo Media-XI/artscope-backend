@@ -173,7 +173,6 @@ public class PostService {
 
 //    @Transactional(isolation = Isolation.SERIALIZABLE) //
     @DistributedLock(key = "#postId")
-    @Transactional
     public PostResponseDTO likePost(Long postId, String loginUsername) {
         if (isDuplicatedRequest(postId, loginUsername)) {
             throw new LikePostDuplicatedRequestException();
