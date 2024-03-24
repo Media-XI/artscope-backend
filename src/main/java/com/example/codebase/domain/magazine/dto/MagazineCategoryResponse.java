@@ -7,7 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MagazineCategoryResponse {
 
@@ -20,18 +22,30 @@ public class MagazineCategoryResponse {
 
         private String name;
 
+        private String slug;
+
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime createdTime;
 
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime updatedTime;
 
+        private List<Get> childrenCategories = new ArrayList<>();
+
         public static MagazineCategoryResponse.Get from(MagazineCategory category) {
             Get get = new Get();
             get.setId(category.getId());
             get.setName(category.getName());
+            get.setSlug(category.getSlug());
             get.setCreatedTime(category.getCreatedTime());
             get.setUpdatedTime(category.getUpdatedTime());
+
+            if (category.getChildren() != null) {
+                get.setChildrenCategories(category.getChildren().stream().map(Get::from).collect(Collectors.toList()));
+            } else {
+                get.setChildrenCategories(new ArrayList<>());
+            }
+
             return get;
         }
     }
@@ -42,7 +56,6 @@ public class MagazineCategoryResponse {
     public static class GetAll {
 
         private List<Get> categories;
-
 
         public static GetAll from(List<MagazineCategory> all) {
             GetAll getAll = new GetAll();
