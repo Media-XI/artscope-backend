@@ -140,4 +140,9 @@ public class Magazine {
     public void addMedia(MagazineMedia magazineMedia) {
         this.magazineMedias.add(magazineMedia);
     }
+
+    public void setCategory(MagazineCategory category) {
+        this.category = category;
+        this.updatedTime = LocalDateTime.now();
+    }
 }
