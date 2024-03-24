@@ -1,6 +1,7 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.auth.WithMockCustomUser;
+import com.example.codebase.domain.magazine.dto.MagazineCategoryRequest;
 import com.example.codebase.domain.magazine.dto.MagazineCategoryResponse;
 import com.example.codebase.domain.magazine.dto.MagazineRequest;
 import com.example.codebase.domain.magazine.dto.MagazineResponse;
@@ -83,6 +84,8 @@ class MagazineLikeControllerTest {
     @Autowired
     private MagazineCategoryRepository magazineCategoryRepository;
 
+    @Autowired
+    private MagazineCategoryService magazineCategoryService;
 
     @Autowired
     private MemberRepository memberRepository;
@@ -108,6 +111,7 @@ class MagazineLikeControllerTest {
         member = createOrLoadMember("testid");
         magazine = createMagaizne(member);
     }
+    private static int categoryCount = 0;
 
     @AfterEach
     public void tearDown() {
@@ -131,10 +135,7 @@ class MagazineLikeControllerTest {
         return memberService.getEntity(username);
     }
     public Magazine createMagaizne(Member member) {
-        MagazineCategory category = MagazineCategory.builder()
-                .name("카테고리")
-                .build();
-         magazineCategoryRepository.save(category);
+        MagazineCategory category = createCategory();
 
         Magazine saved = magazineRepository.saveAndFlush(Magazine.builder()
                 .title("제목")
@@ -145,6 +146,19 @@ class MagazineLikeControllerTest {
 
         return saved;
     }
+
+    public MagazineCategory createCategory() {
+        categoryCount++;
+
+        String categoryName = "카테고리" + categoryCount;
+        String categorySlug =  String.valueOf((char)('a' + categoryCount - 1)); // slug의 영어 조건
+
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
+
+        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(request);
+        return magazineCategoryService.getEntity(category.getId());
+    }
+
 
     @WithMockCustomUser(username = "testid")
     @DisplayName("매거진 좋아요 시")

@@ -5,11 +5,13 @@ import com.example.codebase.domain.curation.dto.CurationRequest;
 import com.example.codebase.domain.curation.dto.CurationResponse;
 import com.example.codebase.domain.curation.repository.CurationRepository;
 import com.example.codebase.domain.curation.service.CurationService;
+import com.example.codebase.domain.magazine.dto.MagazineCategoryRequest;
 import com.example.codebase.domain.magazine.dto.MagazineCategoryResponse;
 import com.example.codebase.domain.magazine.dto.MagazineRequest;
 import com.example.codebase.domain.magazine.dto.MagazineResponse;
 import com.example.codebase.domain.magazine.entity.Magazine;
 import com.example.codebase.domain.magazine.entity.MagazineCategory;
+import com.example.codebase.domain.magazine.repository.MagazineCategoryRepository;
 import com.example.codebase.domain.magazine.repository.MagazineRepository;
 import com.example.codebase.domain.magazine.service.MagazineCategoryService;
 import com.example.codebase.domain.magazine.service.MagazineService;
@@ -91,6 +93,9 @@ public class CurationControllerTest {
     @Autowired
     private CurationRepository curationRepository;
 
+    @Autowired
+    private MagazineCategoryRepository magazineCategoryRepository;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
@@ -101,6 +106,8 @@ public class CurationControllerTest {
                 .build();
         objectMapper.registerModule(new JavaTimeModule());
     }
+
+    private static int categoryCount = 0;
 
     public Member createOrLoadMember() {
         return createOrLoadMember("testid", "ROLE_ADMIN");
@@ -131,8 +138,27 @@ public class CurationControllerTest {
     }
 
     public MagazineCategory createCategory() {
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("카테고리");
+        categoryCount++;
+
+        String categoryName = "카테고리" + categoryCount;
+        String categorySlug =  String.valueOf((char)('a' + categoryCount - 1));
+
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
+
+        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(request);
         return magazineCategoryService.getEntity(category.getId());
+    }
+
+    public MagazineCategory createCategory(String name, String slug) {
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(name, slug, null);
+        List<MagazineCategory> categories = magazineCategoryRepository.findBySlug(request.getSlug());
+
+        if (!categories.isEmpty()) {
+            return categories.get(0);
+        } else {
+            MagazineCategoryResponse.Get categoryResponse = magazineCategoryService.createCategory(request);
+            return magazineCategoryService.getEntity(categoryResponse.getId());
+        }
     }
 
     public MagazineResponse.Get createMagazine(Member member) {
@@ -145,6 +171,16 @@ public class CurationControllerTest {
 
         return magazineService.create(magazineRequest, member, category);
     }
+
+    MagazineResponse.Get createMagazine(Member member, MagazineCategory category) {
+        MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
+        magazineRequest.setTitle("제목");
+        magazineRequest.setContent("내용");
+        magazineRequest.setCategoryId(category.getId());
+
+        return magazineService.create(magazineRequest, member, category);
+    }
+
 
     public CurationResponse.GetAll createCuration(Magazine magazine) {
         CurationRequest.Create curationRequest = new CurationRequest.Create();
@@ -166,7 +202,6 @@ public class CurationControllerTest {
         return curationService.createCuration(curationRequest);
     }
 
-    @Transactional
     public MagazineResponse.Get createMagazineAndCuration(Member member) {
         MagazineResponse.Get magazineResponse = createMagazine(member);
         createCuration(magazineResponse.getId());
@@ -223,9 +258,11 @@ public class CurationControllerTest {
 
     @WithMockCustomUser(username = "testid", role = "ADMIN")
     @DisplayName("큐레이션 수정")
+    @BeforeEach
     @Test
     void 큐레이션_수정() throws Exception {
         Member member = createOrLoadMember();
+
         MagazineResponse.Get magazineBefore = createMagazine(member);
         MagazineResponse.Get magazineAfter = createMagazine(member);
 

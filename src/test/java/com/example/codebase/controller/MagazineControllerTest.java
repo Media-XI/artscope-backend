@@ -2,10 +2,7 @@ package com.example.codebase.controller;
 
 import com.example.codebase.domain.auth.WithMockCustomUser;
 import com.example.codebase.domain.follow.service.FollowService;
-import com.example.codebase.domain.magazine.dto.MagazineCategoryResponse;
-import com.example.codebase.domain.magazine.dto.MagazineCommentRequest;
-import com.example.codebase.domain.magazine.dto.MagazineRequest;
-import com.example.codebase.domain.magazine.dto.MagazineResponse;
+import com.example.codebase.domain.magazine.dto.*;
 import com.example.codebase.domain.magazine.entity.MagazineCategory;
 import com.example.codebase.domain.magazine.service.MagazineCategoryService;
 import com.example.codebase.domain.magazine.service.MagazineService;
@@ -14,7 +11,6 @@ import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.service.MemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,6 +71,8 @@ class MagazineControllerTest {
         objectMapper.registerModule(new JavaTimeModule());
     }
 
+    private static int categoryCount = 0;
+
     public Member createMember(String username) {
         CreateMemberDTO createMemberDTO = new CreateMemberDTO();
         createMemberDTO.setUsername(username);
@@ -107,7 +105,14 @@ class MagazineControllerTest {
     }
 
     public MagazineCategory createCategory() {
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("카테고리");
+        categoryCount++;
+
+        String categoryName = "카테고리" + categoryCount;
+        String categorySlug =  String.valueOf((char)('a' + categoryCount - 1)); // slug의 영어 조건
+
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
+
+        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(request);
         return magazineCategoryService.getEntity(category.getId());
     }
 
@@ -133,7 +138,8 @@ class MagazineControllerTest {
     void 매거진_생성() throws Exception {
         // given
         createMember("testid");
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("글");
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
+        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(request);
 
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
@@ -471,7 +477,8 @@ class MagazineControllerTest {
     void 매거진_미디어_생성() throws Exception {
         // given
         createMember("testid");
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("글");
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
+        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(request);
 
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
@@ -506,7 +513,8 @@ class MagazineControllerTest {
     void 매거진_미디어_잘못된_생성() throws Exception {
         // given
         createMember("testid");
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("글");
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
+        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(request);
 
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
@@ -534,7 +542,8 @@ class MagazineControllerTest {
     void 매거진_미디어_잘못된_생성2() throws Exception {
         // given
         createMember("testid");
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("글");
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
+        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(request);
 
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
@@ -571,7 +580,8 @@ class MagazineControllerTest {
     void 매거진_메타데이터_생성 () throws Exception {
         // given
         createMember("testid");
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("글");
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
+        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(request);
 
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
