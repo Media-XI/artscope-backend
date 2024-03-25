@@ -28,6 +28,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -71,8 +72,6 @@ class MagazineControllerTest {
         objectMapper.registerModule(new JavaTimeModule());
     }
 
-    private static int categoryCount = 0;
-
     public Member createMember(String username) {
         CreateMemberDTO createMemberDTO = new CreateMemberDTO();
         createMemberDTO.setUsername(username);
@@ -104,11 +103,14 @@ class MagazineControllerTest {
         return magazineService.create(magazineRequest, member, category);
     }
 
-    public MagazineCategory createCategory() {
-        categoryCount++;
+    private Random random = new Random();
 
-        String categoryName = "카테고리" + categoryCount;
-        String categorySlug =  String.valueOf((char)('a' + categoryCount - 1)); // slug의 영어 조건
+    public MagazineCategory createCategory() {
+        String categoryName = "카테고리" + random.nextInt(300);
+
+        char randomChar1 = (char) ('a' + random.nextInt(26));
+        char randomChar2 = (char) ('a' + random.nextInt(26));
+        String categorySlug = new StringBuilder().append(randomChar1).append(randomChar2).toString();
 
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
 

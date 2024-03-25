@@ -25,6 +25,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -59,13 +60,14 @@ class MagazineCategoryControllerTest {
         objectMapper.registerModule(new JavaTimeModule());
     }
 
-    private static int categoryCount = 0; 
+    private Random random = new Random();
 
     public MagazineCategory createCategoryAndLoad() {
-        categoryCount++;
+        String categoryName = "카테고리" + random.nextInt(300);
 
-        String categoryName = "카테고리" + categoryCount;
-        String categorySlug = String.valueOf((char) ('a' + categoryCount - 1));
+        char randomChar1 = (char) ('a' + random.nextInt(26));
+        char randomChar2 = (char) ('a' + random.nextInt(26));
+        String categorySlug = new StringBuilder().append(randomChar1).append(randomChar2).toString();
 
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
 

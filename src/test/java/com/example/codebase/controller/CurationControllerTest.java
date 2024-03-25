@@ -46,6 +46,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -107,8 +108,6 @@ public class CurationControllerTest {
         objectMapper.registerModule(new JavaTimeModule());
     }
 
-    private static int categoryCount = 0;
-
     public Member createOrLoadMember() {
         return createOrLoadMember("testid", "ROLE_ADMIN");
     }
@@ -137,11 +136,14 @@ public class CurationControllerTest {
         return memberRepository.save(dummy);
     }
 
-    public MagazineCategory createCategory() {
-        categoryCount++;
+    private Random random = new Random();
 
-        String categoryName = "카테고리" + categoryCount;
-        String categorySlug =  String.valueOf((char)('a' + categoryCount - 1));
+    public MagazineCategory createCategory() {
+        String categoryName = "카테고리" + random.nextInt(300);
+
+        char randomChar1 = (char) ('a' + random.nextInt(26));
+        char randomChar2 = (char) ('a' + random.nextInt(26));
+        String categorySlug = new StringBuilder().append(randomChar1).append(randomChar2).toString();
 
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
 

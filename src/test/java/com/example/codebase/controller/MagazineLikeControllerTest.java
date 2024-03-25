@@ -45,6 +45,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -111,7 +112,6 @@ class MagazineLikeControllerTest {
         member = createOrLoadMember("testid");
         magazine = createMagaizne(member);
     }
-    private static int categoryCount = 0;
 
     @AfterEach
     public void tearDown() {
@@ -147,18 +147,20 @@ class MagazineLikeControllerTest {
         return saved;
     }
 
-    public MagazineCategory createCategory() {
-        categoryCount++;
+    private Random random = new Random();
 
-        String categoryName = "카테고리" + categoryCount;
-        String categorySlug =  String.valueOf((char)('a' + categoryCount - 1)); // slug의 영어 조건
+    public MagazineCategory createCategory() {
+        String categoryName = "카테고리" + random.nextInt(300);
+
+        char randomChar1 = (char) ('a' + random.nextInt(26));
+        char randomChar2 = (char) ('a' + random.nextInt(26));
+        String categorySlug = new StringBuilder().append(randomChar1).append(randomChar2).toString();
 
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
 
         MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
         return magazineCategoryService.getEntity(category.getId());
     }
-
 
     @WithMockCustomUser(username = "testid")
     @DisplayName("매거진 좋아요 시")
