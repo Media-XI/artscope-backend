@@ -9,13 +9,12 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MagazineCategoryResponse {
 
     @Getter
     @Setter
-    @Schema(name = "MagazineCategoryResponse", description = "Category Response")
+    @Schema(name = "MagazineCategoryResponse.Get", description = "Category Response")
     public static class Get {
 
         private Long id;
@@ -32,6 +31,8 @@ public class MagazineCategoryResponse {
 
         private List<Get> childrenCategories = new ArrayList<>();
 
+        private Create parentCategory = null;
+
         public static MagazineCategoryResponse.Get from(MagazineCategory category) {
             Get get = new Get();
             get.setId(category.getId());
@@ -39,14 +40,49 @@ public class MagazineCategoryResponse {
             get.setSlug(category.getSlug());
             get.setCreatedTime(category.getCreatedTime());
             get.setUpdatedTime(category.getUpdatedTime());
-
             if (category.getChildren() != null) {
-                get.setChildrenCategories(category.getChildren().stream().map(Get::from).collect(Collectors.toList()));
-            } else {
-                get.setChildrenCategories(new ArrayList<>());
+                get.setChildrenCategories(category.getChildren().stream().map(Get::from).toList());
+            }
+
+            if (category.getParent() != null) {
+                get.setParentCategory(Create.from(category.getParent()));
             }
 
             return get;
+        }
+    }
+
+
+    @Getter
+    @Setter
+    @Schema(name = "MagazineCategoryResponse.Create", description = "Category Response Create")
+    public static class Create {
+
+        private Long id;
+
+        private String name;
+
+        private String slug;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+        private LocalDateTime createdTime;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+        private LocalDateTime updatedTime;
+
+        private Create parentCategory = null;
+        public static MagazineCategoryResponse.Create from(MagazineCategory category) {
+            Create create = new Create();
+            create.setId(category.getId());
+            create.setName(category.getName());
+            create.setSlug(category.getSlug());
+            create.setCreatedTime(category.getCreatedTime());
+            create.setUpdatedTime(category.getUpdatedTime());
+
+            if (category.getParent() != null) {
+                create.setParentCategory(Create.from(category.getParent()));
+            }
+            return create;
         }
     }
 
