@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -58,17 +59,17 @@ class MagazineCategoryControllerTest {
         objectMapper.registerModule(new JavaTimeModule());
     }
 
-    private static int categoryCount = 0;
+    private static int categoryCount = 0; 
 
     public MagazineCategory createCategoryAndLoad() {
         categoryCount++;
 
         String categoryName = "카테고리" + categoryCount;
-        String categorySlug =  String.valueOf((char)('a' + categoryCount - 1));
+        String categorySlug = String.valueOf((char) ('a' + categoryCount - 1));
 
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
 
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(request);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
         return magazineCategoryService.getEntity(category.getId());
     }
 
@@ -134,15 +135,15 @@ class MagazineCategoryControllerTest {
         MagazineCategory parentCategory = createCategoryAndLoad();
 
         // 자식 카테고리 생성
-        MagazineCategoryResponse.Get childCategory1 = magazineCategoryService.createCategory(
+        MagazineCategoryResponse.Create childCategory1 = magazineCategoryService.createCategory(
                 new MagazineCategoryRequest.Create("자식1", "firstChild", parentCategory.getId())
         );
 
-        MagazineCategoryResponse.Get childCategory2 = magazineCategoryService.createCategory(
+        MagazineCategoryResponse.Create childCategory2 = magazineCategoryService.createCategory(
                 new MagazineCategoryRequest.Create("자식2", "secondChild", parentCategory.getId())
         );
         // 손자 카테고리 생성
-        MagazineCategoryResponse.Get grandsonCategory = magazineCategoryService.createCategory(
+        MagazineCategoryResponse.Create grandsonCategory = magazineCategoryService.createCategory(
                 new MagazineCategoryRequest.Create("손자", "grandson", childCategory1.getId())
         );
 
@@ -157,9 +158,26 @@ class MagazineCategoryControllerTest {
 
         // then
         MagazineCategoryResponse.GetAll subCategory = objectMapper.readValue(response, MagazineCategoryResponse.GetAll.class); // json to object (역직렬화)
-        assertTrue(subCategory.getCategories().stream()
-                .map(MagazineCategoryResponse.Get::getName)
-                .allMatch(List.of(childCategory1.getName(), childCategory2.getName(), grandsonCategory.getName())::contains));
+
+        List<String> allNames = new ArrayList<>();
+        for (MagazineCategoryResponse.Get category : subCategory.getCategories()) {
+            // 부모 카테고리
+            allNames.add(category.getName());
+
+            // 자식 카테고리
+            for (MagazineCategoryResponse.Get child : category.getChildrenCategories()) {
+                allNames.add(child.getName());
+
+                // 손자 카테고리
+                for (MagazineCategoryResponse.Get grandchild : child.getChildrenCategories()) {
+                    allNames.add(grandchild.getName());
+                }
+            }
+        }
+
+        boolean allCategoriesPresent = allNames.containsAll(List.of(childCategory1.getName(), childCategory2.getName(), grandsonCategory.getName()));
+
+        assertTrue(allCategoriesPresent);
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
@@ -185,12 +203,12 @@ class MagazineCategoryControllerTest {
     public void updateCategory() throws Exception {
         // given
         // 부모 카테고리 생성
-        MagazineCategory parentCategoryBefore =createCategoryAndLoad();
+        MagazineCategory parentCategoryBefore = createCategoryAndLoad();
 
         MagazineCategory parentCategoryAfter = createCategoryAndLoad();
 
         // 자식 카테고리 생성
-        MagazineCategoryResponse.Get childCategory = magazineCategoryService.createCategory(
+        MagazineCategoryResponse.Create childCategory = magazineCategoryService.createCategory(
                 new MagazineCategoryRequest.Create("수정된카테고리", "changeCategory", parentCategoryBefore.getId())
         );
 

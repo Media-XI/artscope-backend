@@ -145,7 +145,7 @@ public class CurationControllerTest {
 
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
 
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(request);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
         return magazineCategoryService.getEntity(category.getId());
     }
 
@@ -156,7 +156,7 @@ public class CurationControllerTest {
         if (!categories.isEmpty()) {
             return categories.get(0);
         } else {
-            MagazineCategoryResponse.Get categoryResponse = magazineCategoryService.createCategory(request);
+            MagazineCategoryResponse.Create categoryResponse = magazineCategoryService.createCategory(request);
             return magazineCategoryService.getEntity(categoryResponse.getId());
         }
     }
@@ -258,7 +258,6 @@ public class CurationControllerTest {
 
     @WithMockCustomUser(username = "testid", role = "ADMIN")
     @DisplayName("큐레이션 수정")
-    @BeforeEach
     @Test
     void 큐레이션_수정() throws Exception {
         Member member = createOrLoadMember();

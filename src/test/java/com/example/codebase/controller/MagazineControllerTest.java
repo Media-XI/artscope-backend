@@ -112,7 +112,7 @@ class MagazineControllerTest {
 
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
 
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(request);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
         return magazineCategoryService.getEntity(category.getId());
     }
 
@@ -139,7 +139,7 @@ class MagazineControllerTest {
         // given
         createMember("testid");
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(request);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
 
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
@@ -478,7 +478,7 @@ class MagazineControllerTest {
         // given
         createMember("testid");
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(request);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
 
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
@@ -514,7 +514,7 @@ class MagazineControllerTest {
         // given
         createMember("testid");
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(request);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
 
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
@@ -543,7 +543,7 @@ class MagazineControllerTest {
         // given
         createMember("testid");
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(request);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
 
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
@@ -581,7 +581,7 @@ class MagazineControllerTest {
         // given
         createMember("testid");
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(request);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
 
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");

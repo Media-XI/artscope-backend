@@ -155,7 +155,7 @@ class MagazineLikeControllerTest {
 
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
 
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(request);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
         return magazineCategoryService.getEntity(category.getId());
     }
 
