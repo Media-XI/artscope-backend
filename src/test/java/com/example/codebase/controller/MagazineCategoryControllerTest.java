@@ -60,14 +60,14 @@ class MagazineCategoryControllerTest {
         objectMapper.registerModule(new JavaTimeModule());
     }
 
-    private Random random = new Random();
-
     public MagazineCategory createCategoryAndLoad() {
+        Random random = new Random(System.currentTimeMillis());
+
         String categoryName = "카테고리" + random.nextInt(300);
 
         char randomChar1 = (char) ('a' + random.nextInt(26));
         char randomChar2 = (char) ('a' + random.nextInt(26));
-        String categorySlug = new StringBuilder().append(randomChar1).append(randomChar2).toString();
+        String categorySlug = String.valueOf(randomChar1) + randomChar2;
 
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
 

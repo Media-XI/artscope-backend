@@ -136,20 +136,21 @@ public class CurationControllerTest {
         return memberRepository.save(dummy);
     }
 
-    private Random random = new Random();
-
     public MagazineCategory createCategory() {
+        Random random = new Random(System.currentTimeMillis());
+
         String categoryName = "카테고리" + random.nextInt(300);
 
         char randomChar1 = (char) ('a' + random.nextInt(26));
         char randomChar2 = (char) ('a' + random.nextInt(26));
-        String categorySlug = new StringBuilder().append(randomChar1).append(randomChar2).toString();
+        String categorySlug = String.valueOf(randomChar1) + randomChar2;
 
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
 
         MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
         return magazineCategoryService.getEntity(category.getId());
     }
+
 
     public MagazineCategory createCategory(String name, String slug) {
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(name, slug, null);
