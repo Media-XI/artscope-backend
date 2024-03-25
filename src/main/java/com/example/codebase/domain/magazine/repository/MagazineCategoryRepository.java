@@ -20,4 +20,6 @@ public interface MagazineCategoryRepository extends JpaRepository<MagazineCatego
 
     boolean existsByNameAndParent(String name, MagazineCategory parentCategory);
 
+    @Query("SELECT COUNT(m) FROM Magazine m WHERE m.category = :category")
+    Long countMagazineByCategory(MagazineCategory category);
 }

@@ -7,6 +7,7 @@ import com.example.codebase.domain.magazine.repository.MagazineCategoryRepositor
 import com.example.codebase.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.dao.DataAccessException;
 
 import java.util.*;
 
@@ -20,7 +21,7 @@ public class MagazineCategoryService {
         this.magazineCategoryRepository = magazineCategoryRepository;
     }
 
-    public MagazineCategoryResponse.Get createCategory(MagazineCategoryRequest.Create request) {
+    public MagazineCategoryResponse.Create createCategory(MagazineCategoryRequest.Create request) {
         MagazineCategory parentCategory = findParentCategory(request.getParentId());
 
         if (parentCategory != null) {
@@ -30,8 +31,13 @@ public class MagazineCategoryService {
         checkCategoryExists(request, parentCategory);
 
         MagazineCategory category = MagazineCategory.toEntity(request.getName(), request.getSlug(), parentCategory);
-        magazineCategoryRepository.save(category);
-        return MagazineCategoryResponse.Get.from(category);
+        try {
+            magazineCategoryRepository.save(category);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("이미 이름이나 슬러그가 중복되는 카테고리가 존재합니다.");
+        }
+
+        return MagazineCategoryResponse.Create.from(category);
     }
 
     private MagazineCategory findParentCategory(Long parentId) throws NotFoundException {
@@ -70,6 +76,11 @@ public class MagazineCategoryService {
     public void deleteCategory(Long categoryId) {
         MagazineCategory category = magazineCategoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotFoundException("해당 카테고리가 존재하지 않습니다."));
+
+        Long magazineCount = magazineCategoryRepository.countMagazineByCategory(category);
+        if (magazineCount > 0) {
+            throw new RuntimeException("해당 카테고리에 속한 매거진이 존재합니다.");
+        }
 
         category.delete();
     }
