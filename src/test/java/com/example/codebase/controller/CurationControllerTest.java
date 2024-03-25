@@ -143,7 +143,7 @@ public class CurationControllerTest {
 
         char randomChar1 = (char) ('a' + random.nextInt(26));
         char randomChar2 = (char) ('a' + random.nextInt(26));
-        String categorySlug = String.valueOf(randomChar1) + randomChar2;
+        String categorySlug = new StringBuilder().append(randomChar1).append(randomChar2).toString();
 
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
 
