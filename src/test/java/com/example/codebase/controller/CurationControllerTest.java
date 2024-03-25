@@ -315,9 +315,10 @@ public class CurationControllerTest {
                 .andExpect(status().isNoContent());
     }
 
+    @WithMockCustomUser(username = "testid", role = "ADMIN")
     @DisplayName("큐레이션 전체 조회")
     @Test
-    void 큐레이션_() throws Exception {
+    void 큐레이션_전체조회() throws Exception {
         Member member = createOrLoadMember();
         createMagazineAndCuration(member);
         createMagazineAndCuration(member);
