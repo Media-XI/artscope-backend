@@ -55,15 +55,17 @@ public class MagazineCategory {
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private List<MagazineCategory> children = new ArrayList<>();
 
-    @OneToOne(mappedBy = "category", fetch = FetchType.LAZY)
-    private Magazine magazine;
-
     public static MagazineCategory toEntity(String name, String slug, MagazineCategory parent) {
-        return MagazineCategory.builder()
+        MagazineCategory magazineCategory = MagazineCategory.builder()
                 .name(name)
                 .slug(slug)
                 .parent(parent)
                 .build();
+
+        if(parent != null)
+            parent.getChildren().add(magazineCategory);
+
+        return magazineCategory;
     }
 
     public void delete() {
@@ -71,9 +73,6 @@ public class MagazineCategory {
             throw new RuntimeException("하위 카테고리가 존재합니다.");
         }
 
-        if (this.magazine != null) {
-            this.magazine.delete();
-        }
         this.isDeleted = true;
         this.updatedTime = LocalDateTime.now();
     }

@@ -25,7 +25,7 @@ public class MagazineCategoryController {
     @PostMapping
     @AdminOnly
     public ResponseEntity createCategory(@RequestBody @Valid MagazineCategoryRequest.Create request) {
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory(request);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
         return new ResponseEntity(category, HttpStatus.CREATED);
     }
 
