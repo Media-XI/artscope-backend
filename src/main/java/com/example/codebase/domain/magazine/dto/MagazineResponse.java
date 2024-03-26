@@ -19,7 +19,7 @@ public class MagazineResponse {
 
     @Getter
     @Setter
-    @Schema(description = "매거진 생성 응답")
+    @Schema(description = "매거진 조회 응답")
     public static class Get {
         private Long id;
 
@@ -29,7 +29,11 @@ public class MagazineResponse {
 
         private Map<String, String> metadata;
 
-        private String category;
+        private Long categoryId;
+
+        private String categorySlug;
+
+        private String categoryName;
 
         private List<String> mediaUrls;
 
@@ -58,7 +62,9 @@ public class MagazineResponse {
             response.mediaUrls = magazine.getMagazineMedias().stream()
                     .map(MagazineMedia::getUrl)
                     .toList();
-            response.category = magazine.getCategory().getName();
+            response.categoryId = magazine.getCategory().getId();
+            response.categorySlug = magazine.getCategory().getSlug();
+            response.categoryName = magazine.getCategory().getName();
             response.views = magazine.getViews();
             response.likes = magazine.getLikes();
             response.comments = magazine.getComments();

@@ -47,6 +47,9 @@ public class MagazineRequest {
         @NotEmpty
         private String content;
 
+        @NotNull
+        private Long categoryId;
+
         private Map<String, String> metadata;
 
         private List<String> mediaUrls;
