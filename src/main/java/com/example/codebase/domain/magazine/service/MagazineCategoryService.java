@@ -7,7 +7,6 @@ import com.example.codebase.domain.magazine.repository.MagazineCategoryRepositor
 import com.example.codebase.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.dao.DataAccessException;
 
 import java.util.*;
 
@@ -31,12 +30,8 @@ public class MagazineCategoryService {
         checkCategoryExists(request, parentCategory);
 
         MagazineCategory category = MagazineCategory.toEntity(request.getName(), request.getSlug(), parentCategory);
-        try {
-            magazineCategoryRepository.save(category);
-        } catch (DataAccessException e) {
-            throw new RuntimeException("이미 이름이나 슬러그가 중복되는 카테고리가 존재합니다.");
-        }
 
+        magazineCategoryRepository.save(category);
         return MagazineCategoryResponse.Create.from(category);
     }
 
@@ -51,7 +46,11 @@ public class MagazineCategoryService {
     private void checkCategoryExists(MagazineCategoryRequest.Create request, MagazineCategory parentCategory) {
         boolean exists = magazineCategoryRepository.existsByNameAndParent(request.getName(), parentCategory);
         if (exists) {
-            throw new RuntimeException("이미 이름이나 슬러그가 중복되는 카테고리가 존재합니다.");
+            throw new RuntimeException("해당 부모 카테고리 산하 이름이 같은 카테고리가 존재합니다.");
+        }
+        boolean existsSlug = magazineCategoryRepository.existsBySlug(request.getSlug());
+        if (existsSlug) {
+            throw new RuntimeException("슬러그가 중복되는 카테고리가 존재합니다.");
         }
     }
 
@@ -89,15 +88,28 @@ public class MagazineCategoryService {
         MagazineCategory category = magazineCategoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotFoundException("해당 카테고리가 존재하지 않습니다."));
 
-        Optional.ofNullable(request.getParentId()).ifPresent(parentId -> {
-            MagazineCategory parentCategory = magazineCategoryRepository.findById(parentId)
-                    .orElseThrow(() -> new NotFoundException("부모 카테고리가 존재하지 않습니다."));
+        MagazineCategory parentCategory = findParentCategory(request.getParentId());
+
+        if (parentCategory != null) {
             parentCategory.checkDepth();
-            category.update(parentCategory);
-        });
+        }
+
+        checkCategoryExists(request, parentCategory);
+        category.changeParentCategory(parentCategory);
 
         category.update(request);
         magazineCategoryRepository.save(category);
         return MagazineCategoryResponse.Get.from(category);
+    }
+
+    private void checkCategoryExists(MagazineCategoryRequest.Update request, MagazineCategory parentCategory) {
+        boolean exists = magazineCategoryRepository.existsByNameAndParent(request.getName(), parentCategory);
+        if (exists) {
+            throw new RuntimeException("해당 부모 카테고리 산하 이름이 같은 카테고리가 존재합니다.");
+        }
+        boolean existsSlug = magazineCategoryRepository.existsBySlug(request.getSlug());
+        if (existsSlug) {
+            throw new RuntimeException("슬러그가 중복되는 카테고리가 존재합니다.");
+        }
     }
 }

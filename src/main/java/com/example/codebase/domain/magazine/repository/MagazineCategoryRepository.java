@@ -22,4 +22,6 @@ public interface MagazineCategoryRepository extends JpaRepository<MagazineCatego
 
     @Query("SELECT COUNT(m) FROM Magazine m WHERE m.category = :category")
     Long countMagazineByCategory(MagazineCategory category);
+
+    boolean existsBySlug(String slug);
 }

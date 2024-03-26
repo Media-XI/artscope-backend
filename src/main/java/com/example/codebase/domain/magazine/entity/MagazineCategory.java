@@ -86,7 +86,7 @@ public class MagazineCategory {
         }
 
         if (depth >= 2) {
-            throw new RuntimeException("카테고리는 최대 2단계 까지만 생성 가능합니다.");
+            throw new RuntimeException("카테고리는 최대 2단계 까지만 생성 및 수정이 가능합니다.");
         }
     }
 
