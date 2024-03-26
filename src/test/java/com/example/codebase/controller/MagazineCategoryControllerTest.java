@@ -3,9 +3,14 @@ package com.example.codebase.controller;
 import com.example.codebase.domain.auth.WithMockCustomUser;
 import com.example.codebase.domain.magazine.dto.MagazineCategoryRequest;
 import com.example.codebase.domain.magazine.dto.MagazineCategoryResponse;
+import com.example.codebase.domain.magazine.dto.MagazineRequest;
 import com.example.codebase.domain.magazine.dto.MagazineResponse;
 import com.example.codebase.domain.magazine.entity.MagazineCategory;
 import com.example.codebase.domain.magazine.service.MagazineCategoryService;
+import com.example.codebase.domain.magazine.service.MagazineService;
+import com.example.codebase.domain.member.dto.CreateMemberDTO;
+import com.example.codebase.domain.member.entity.Member;
+import com.example.codebase.domain.member.service.MemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.transaction.Transactional;
@@ -25,6 +30,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,6 +54,12 @@ class MagazineCategoryControllerTest {
 
     @Autowired
     private MagazineCategoryService magazineCategoryService;
+
+    @Autowired
+    private MagazineService magazineService;
+
+    @Autowired
+    private MemberService memberService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -73,6 +85,35 @@ class MagazineCategoryControllerTest {
 
         MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
         return magazineCategoryService.getEntity(category.getId());
+    }
+
+    public MagazineResponse.Get createMagaizne(Member member, MagazineCategory category) {
+        MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
+        magazineRequest.setTitle("제목");
+        magazineRequest.setContent("내용");
+        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setMetadata(Map.of(
+                "color", "blue",
+                "font", "godic"
+        ));
+        magazineRequest.setMediaUrls(List.of(
+                "https://cdn.artscope.kr/local/1.jpg",
+                "https://cdn.artscope.kr/local/2.jpg"
+        ));
+
+        return magazineService.create(magazineRequest, member, category);
+    }
+
+    public Member createMember(String username) {
+        CreateMemberDTO createMemberDTO = new CreateMemberDTO();
+        createMemberDTO.setUsername(username);
+        createMemberDTO.setPassword("password");
+        createMemberDTO.setName("name");
+        createMemberDTO.setEmail("email" + "@" + username + ".com");
+        createMemberDTO.setAllowEmailReceive(true);
+
+        memberService.createMember(createMemberDTO);
+        return memberService.getEntity(username);
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
@@ -233,9 +274,9 @@ class MagazineCategoryControllerTest {
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
-    @DisplayName("카테고리는 최대 2단계 까지만 생성 가능하다")
+    @DisplayName("카테고리는 생성시 깊이 2단계 까지만 생성이 가능하다")
     @Test
-    public void 카테고리_최대_2단계_검증() throws Exception {
+    public void 카테고리_생성시_깊이_2단계_초과시_에러() throws Exception {
         // given
         // 부모 카테고리 생성
         MagazineCategory parentCategory = createCategoryAndLoad();
@@ -258,14 +299,108 @@ class MagazineCategoryControllerTest {
                                 .content(objectMapper.writeValueAsString(request))
                 )
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("카테고리는 최대 2단계 까지만 생성 및 수정이 가능합니다.", result.getResolvedException().getMessage()));
+    }
 
-        // then
-        Throwable exception = assertThrows(RuntimeException.class, () -> {
-            magazineCategoryService.createCategory(request);
-        });
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("카테고리는 생성시 깊이 2단계 까지만 수정이 가능하다 404")
+    @Test
+    public void 카테고리_수정시_깊이_2단계_초과시_에러() throws Exception {
+        // given
+        // 부모 카테고리 생성
+        MagazineCategory parentCategoryBefore = createCategoryAndLoad();
 
-        assertEquals("카테고리는 최대 2단계 까지만 생성 가능합니다.", exception.getMessage());
+        MagazineCategoryResponse.Create childDepth1 = magazineCategoryService.createCategory(
+                new MagazineCategoryRequest.Create("깊이1", "depthOne", parentCategoryBefore.getId())
+        );
+
+        MagazineCategoryResponse.Create childDepth2 = magazineCategoryService.createCategory(
+                new MagazineCategoryRequest.Create("깊이2", "depthTwo", childDepth1.getId())
+        );
+
+        // 자식 카테고리 생성
+        MagazineCategoryResponse.Create updateCategoryBefore = magazineCategoryService.createCategory(
+                new MagazineCategoryRequest.Create("수정될카테고리", "changeCategory", parentCategoryBefore.getId())
+        );
+
+        MagazineCategoryRequest.Update updateRequest = new MagazineCategoryRequest.Update("수정된카테고리", "updated-word", childDepth2.getId());
+
+        // when
+        mockMvc.perform(
+                        put("/api/magazine-category/" + updateCategoryBefore.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updateRequest))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("카테고리는 최대 2단계 까지만 생성 및 수정이 가능합니다.", result.getResolvedException().getMessage()));
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("카테고리 생성시 slug가 중복되는 카테고리가 존재할 경우 에러 404")
+    @Test
+    public void 슬러그가_같은_카테고리_생성시_중복() throws Exception {
+        // given
+        MagazineCategoryResponse.Create existingCategory = magazineCategoryService.createCategory(
+                new MagazineCategoryRequest.Create("기존카테고리", "category", null)
+        );
+
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("검증할카테고리", "category", null);
+
+        // when
+        mockMvc.perform(
+                        post("/api/magazine-category")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("슬러그가 중복되는 카테고리가 존재합니다.", result.getResolvedException().getMessage()));
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("카테고리 수정시 slug가 중복되는 카테고리가 존재할 경우 에러 404")
+    @Test
+    public void 슬러그가_같은_카테고리_수정시_중복() throws Exception {
+        // given
+        MagazineCategoryResponse.Create existingCategory = magazineCategoryService.createCategory(
+                new MagazineCategoryRequest.Create("비교카테고리", "category", null)
+        );
+
+        MagazineCategoryResponse.Create updateCategoryBefore = magazineCategoryService.createCategory(
+                new MagazineCategoryRequest.Create("수정될카테고리", "changeCategory", null)
+        );
+
+        MagazineCategoryRequest.Create updateRequest = new MagazineCategoryRequest.Create("검증할카테고리", "category", null);
+
+        // when
+        mockMvc.perform(
+                        put("/api/magazine-category/" + updateCategoryBefore.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updateRequest))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("슬러그가 중복되는 카테고리가 존재합니다.", result.getResolvedException().getMessage()));
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("카테고리 삭제시 산하 메거진이 존재할 경우 에러 404")
+    @Test
+    public void 카테고리_삭제시_산하_매거진_존재시_에러() throws Exception {
+        // given
+        MagazineCategory parentCategory = createCategoryAndLoad();
+
+        createMagaizne(createMember("admin"),parentCategory);
+
+        // when
+        mockMvc.perform(
+                        delete("/api/magazine-category/" + parentCategory.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("해당 카테고리에 속한 매거진이 존재합니다.", result.getResolvedException().getMessage()));
     }
 
 }
