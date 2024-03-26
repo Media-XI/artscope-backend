@@ -163,6 +163,7 @@ class MagazineControllerTest {
         assertTrue(magazine.getId() > 0);
         assertEquals(magazine.getTitle(), magazineRequest.getTitle());
         assertEquals(magazine.getContent(), magazineRequest.getContent());
+        assertEquals(magazine.getCategoryId(), category.getId());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -233,6 +234,7 @@ class MagazineControllerTest {
         assertEquals(magazine.getId(), magazineResponse.getId());
         assertEquals(magazine.getTitle(), magazineResponse.getTitle());
         assertEquals(magazine.getContent(), magazineResponse.getContent());
+        assertEquals(magazine.getCategoryId(), magazineResponse.getCategoryId());
     }
 
     @DisplayName("매거진 상세 조회시 없는 매거진이면 404.")
@@ -261,6 +263,7 @@ class MagazineControllerTest {
         MagazineRequest.Update magazineRequest = new MagazineRequest.Update();
         magazineRequest.setTitle("수정된 제목");
         magazineRequest.setContent("수정된 내용");
+        magazineRequest.setCategoryId(createCategory().getId());
 
         // when
         String response = mockMvc.perform(
@@ -277,6 +280,7 @@ class MagazineControllerTest {
         assertEquals(magazine.getId(), magazineResponse.getId());
         assertEquals(magazineRequest.getTitle(), magazineResponse.getTitle());
         assertEquals(magazineRequest.getContent(), magazineResponse.getContent());
+        assertEquals(magazineRequest.getCategoryId(), magazineResponse.getCategoryId());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -284,9 +288,11 @@ class MagazineControllerTest {
     @Test
     void 매거진_수정_에러() throws Exception {
         // given
+        MagazineCategory category = createCategory();
         MagazineRequest.Update magazineRequest = new MagazineRequest.Update();
         magazineRequest.setTitle("수정된 제목");
         magazineRequest.setContent("수정된 내용");
+        magazineRequest.setCategoryId(category.getId());
 
         // when
         String content = mockMvc.perform(
@@ -612,6 +618,7 @@ class MagazineControllerTest {
         // given
         Member member = createMember("testid");
         MagazineResponse.Get magaizne = createMagaizne(member);
+        MagazineCategory category = createCategory();
 
         MagazineRequest.Update magazineRequest = new MagazineRequest.Update();
         magazineRequest.setTitle(magaizne.getTitle());
@@ -621,6 +628,7 @@ class MagazineControllerTest {
                 "color", "빨강으로",
                 "font", "다른 폰트"
         ));
+        magazineRequest.setCategoryId(category.getId());
 
         // when
         String response = mockMvc.perform(

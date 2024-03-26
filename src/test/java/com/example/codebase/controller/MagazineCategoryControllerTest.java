@@ -403,4 +403,59 @@ class MagazineCategoryControllerTest {
                 .andExpect(result -> assertEquals("해당 카테고리에 속한 매거진이 존재합니다.", result.getResolvedException().getMessage()));
     }
 
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("카테고리 생성시 부모 카테고리 산하 이름이 같은 카테고리가 존재할 경우 에러 404")
+    @Test
+    public void 카테고리_생성시_같은부모_산하_이름_중복_에러() throws Exception {
+        // given
+        MagazineCategoryResponse.Create parentCategory = magazineCategoryService.createCategory(
+                new MagazineCategoryRequest.Create("비교카테고리", "parentCategory", null)
+        );
+
+        MagazineCategoryResponse.Create existingCategory = magazineCategoryService.createCategory(
+                new MagazineCategoryRequest.Create("이름이같은카테고리", "otherCategory", parentCategory.getId())
+        );
+
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("이름이같은카테고리", "category", parentCategory.getId());
+
+        // when
+        mockMvc.perform(
+                        post("/api/magazine-category")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("해당 부모 카테고리 산하 이름이 같은 카테고리가 존재합니다.", result.getResolvedException().getMessage()));
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("카테고리 수정시 부모 카테고리 산하 이름이 같은 카테고리가 존재할 경우 에러 404")
+    @Test
+    public void 카테고리_수정시_같은부모_산하_이름_중복_에러() throws Exception {
+        // given
+        MagazineCategoryResponse.Create parentCategory = magazineCategoryService.createCategory(
+                new MagazineCategoryRequest.Create("비교카테고리", "parentCategory", null)
+        );
+
+        magazineCategoryService.createCategory(
+                new MagazineCategoryRequest.Create("이름이같은카테고리", "childCategory", parentCategory.getId())
+        );
+
+        MagazineCategoryResponse.Create changeCategory = magazineCategoryService.createCategory(
+                new MagazineCategoryRequest.Create("수정할카테고리", "otherCategory", parentCategory.getId())
+        );
+
+        MagazineCategoryRequest.Update updateRequest = new MagazineCategoryRequest.Update("이름이같은카테고리", "otherCategory", parentCategory.getId());
+
+        // when
+        mockMvc.perform(
+                        put("/api/magazine-category/" + changeCategory.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updateRequest))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("해당 부모 카테고리 산하 이름이 같은 카테고리가 존재합니다.", result.getResolvedException().getMessage()));
+    }
 }
