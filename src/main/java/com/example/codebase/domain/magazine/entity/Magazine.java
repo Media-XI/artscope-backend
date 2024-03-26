@@ -104,10 +104,11 @@ public class Magazine {
         return member.getUsername().equals(loginUsername);
     }
 
-    public void update(MagazineRequest.Update magazineRequest) {
+    public void update(MagazineRequest.Update magazineRequest, MagazineCategory category) {
         this.title = magazineRequest.getTitle();
         this.content = magazineRequest.getContent();
         this.metadata = magazineRequest.getMetadata();
+        this.category = category;
         this.updatedTime = LocalDateTime.now();
     }
 
@@ -141,8 +142,4 @@ public class Magazine {
         this.magazineMedias.add(magazineMedia);
     }
 
-    public void setCategory(MagazineCategory category) {
-        this.category = category;
-        this.updatedTime = LocalDateTime.now();
-    }
 }
