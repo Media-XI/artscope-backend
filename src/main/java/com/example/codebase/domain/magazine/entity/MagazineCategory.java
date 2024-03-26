@@ -100,7 +100,7 @@ public class MagazineCategory {
         this.updatedTime = LocalDateTime.now();
     }
 
-    public void update(MagazineCategory newParent) {
+    public void changeParentCategory(MagazineCategory newParent) {
         if (this.parent != null) {
             this.parent.getChildren().remove(this);
         }
