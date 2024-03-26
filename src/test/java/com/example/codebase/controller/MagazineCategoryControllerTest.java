@@ -232,4 +232,40 @@ class MagazineCategoryControllerTest {
         assertEquals(updateRequest.getParentId(), updatedCategory.getParent().getId());
     }
 
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("카테고리는 최대 2단계 까지만 생성 가능하다")
+    @Test
+    public void 카테고리_최대_2단계_검증() throws Exception {
+        // given
+        // 부모 카테고리 생성
+        MagazineCategory parentCategory = createCategoryAndLoad();
+
+        // 자식 카테고리 생성
+        MagazineCategoryResponse.Create childDepth1 = magazineCategoryService.createCategory(
+                new MagazineCategoryRequest.Create("깊이1", "depthOne", parentCategory.getId())
+        );
+
+        MagazineCategoryResponse.Create childDepth2 = magazineCategoryService.createCategory(
+                new MagazineCategoryRequest.Create("깊이2", "depthTwo", childDepth1.getId())
+        );
+        // 깊이 3 카테고리 생성
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("깊이3", "depthThree", childDepth2.getId());
+
+        // when
+        mockMvc.perform(
+                        post("/api/magazine-category")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
+        // then
+        Throwable exception = assertThrows(RuntimeException.class, () -> {
+            magazineCategoryService.createCategory(request);
+        });
+
+        assertEquals("카테고리는 최대 2단계 까지만 생성 가능합니다.", exception.getMessage());
+    }
+
 }
