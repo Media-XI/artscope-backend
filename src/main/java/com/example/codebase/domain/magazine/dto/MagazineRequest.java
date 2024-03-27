@@ -26,7 +26,7 @@ public class MagazineRequest {
         private String content;
 
         @NotNull
-        private Long categoryId;
+        private String categorySlug;
 
         // TODO: metadata 에 대해 검증 필요 (보안)
         @Schema(description = "JSON 형식의 메타데이터")
@@ -48,7 +48,7 @@ public class MagazineRequest {
         private String content;
 
         @NotNull
-        private Long categoryId;
+        private String categorySlug;
 
         private Map<String, String> metadata;
 

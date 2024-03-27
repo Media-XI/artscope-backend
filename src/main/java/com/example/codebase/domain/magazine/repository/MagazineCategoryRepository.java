@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MagazineCategoryRepository extends JpaRepository<MagazineCategory, Long> {
 
@@ -16,7 +17,7 @@ public interface MagazineCategoryRepository extends JpaRepository<MagazineCatego
 
     @EntityGraph(attributePaths = {"children"})
     @Query("SELECT mc FROM MagazineCategory mc WHERE mc.slug = :slug")
-    List<MagazineCategory> findBySlug(String slug);
+    List<MagazineCategory> findBySlugWithChild(String slug);
 
     boolean existsByNameAndParent(String name, MagazineCategory parentCategory);
 
@@ -24,4 +25,6 @@ public interface MagazineCategoryRepository extends JpaRepository<MagazineCatego
     Long countMagazineByCategory(MagazineCategory category);
 
     boolean existsBySlug(String slug);
+
+    Optional<MagazineCategory> findBySlug(String slug);
 }

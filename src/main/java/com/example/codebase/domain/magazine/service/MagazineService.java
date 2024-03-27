@@ -79,12 +79,9 @@ public class MagazineService {
     }
 
     @Transactional
-    public MagazineResponse.Get update(Long id, String loginUsername, MagazineRequest.Update magazineRequest) {
+    public MagazineResponse.Get update(Long id, String loginUsername, MagazineRequest.Update magazineRequest, MagazineCategory magazineCategory) {
         Magazine magazine = magazineRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
-
-        MagazineCategory magazineCategory = magazineCategoryRepository.findById(magazineRequest.getCategoryId())
-                .orElseThrow(() -> new NotFoundException("해당 카테고리가 존재하지 않습니다."));
 
         validateOwner(loginUsername, magazine);
 

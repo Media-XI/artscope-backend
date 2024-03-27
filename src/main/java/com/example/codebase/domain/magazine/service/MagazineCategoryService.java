@@ -62,13 +62,13 @@ public class MagazineCategoryService {
 
     @Transactional(readOnly = true)
     public MagazineCategoryResponse.GetAll getSubCategories(String slug) {
-        List<MagazineCategory> subCategories = magazineCategoryRepository.findBySlug(slug);
+        List<MagazineCategory> subCategories = magazineCategoryRepository.findBySlugWithChild(slug);
         return MagazineCategoryResponse.GetAll.from(subCategories);
     }
 
     @Transactional(readOnly = true)
-    public MagazineCategory getEntity(Long categoryId) {
-        return magazineCategoryRepository.findById(categoryId)
+    public MagazineCategory getEntity(String categorySlug) {
+        return magazineCategoryRepository.findBySlug(categorySlug)
                 .orElseThrow(() -> new NotFoundException("해당 카테고리가 존재하지 않습니다."));
     }
 
