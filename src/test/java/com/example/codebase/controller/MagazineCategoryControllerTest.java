@@ -459,4 +459,27 @@ class MagazineCategoryControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertEquals("해당 부모 카테고리 산하 이름이 같은 카테고리가 존재합니다.", result.getResolvedException().getMessage()));
     }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("카테고리 삭제시 카테고리를 가진 메거진이 있을경우 에러 404")
+    @Test
+    public void 카테고리_삭제시_매거진이_있을_경우_에러() throws Exception {
+        // given
+        MagazineCategory category = createCategoryAndLoad();
+
+        Member member = createMember("admin");
+
+        createMagaizne(member, category);
+
+        // when
+        mockMvc.perform(
+                        delete("/api/magazine-category/" + category.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("해당 카테고리에 속한 매거진이 존재합니다.", result.getResolvedException().getMessage()));
+    }
+
+
 }
+
