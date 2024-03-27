@@ -51,7 +51,7 @@ public class MagazineController {
 
         // 연관 객체 조회
         Member member = memberService.getEntity(loginUsername);
-        MagazineCategory category = magazineCategoryService.getEntity(magazineRequest.getCategoryId());
+        MagazineCategory category = magazineCategoryService.getEntity(magazineRequest.getCategorySlug());
 
         // 매거진 생성 로직 수행
         MagazineResponse.Get magazine = magazineService.create(magazineRequest, member, category);
@@ -107,7 +107,9 @@ public class MagazineController {
     ) {
         String loginUsername = SecurityUtil.getCurrentUsername()
                 .orElseThrow(LoginRequiredException::new);
-        MagazineResponse.Get magazine = magazineService.update(id, loginUsername, magazineRequest);
+
+        MagazineCategory category = magazineCategoryService.getEntity(magazineRequest.getCategorySlug());
+        MagazineResponse.Get magazine = magazineService.update(id, loginUsername, magazineRequest, category);
 
         return new ResponseEntity(magazine, HttpStatus.OK);
     }

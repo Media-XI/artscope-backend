@@ -5,11 +5,13 @@ import com.example.codebase.domain.curation.dto.CurationRequest;
 import com.example.codebase.domain.curation.dto.CurationResponse;
 import com.example.codebase.domain.curation.repository.CurationRepository;
 import com.example.codebase.domain.curation.service.CurationService;
+import com.example.codebase.domain.magazine.dto.MagazineCategoryRequest;
 import com.example.codebase.domain.magazine.dto.MagazineCategoryResponse;
 import com.example.codebase.domain.magazine.dto.MagazineRequest;
 import com.example.codebase.domain.magazine.dto.MagazineResponse;
 import com.example.codebase.domain.magazine.entity.Magazine;
 import com.example.codebase.domain.magazine.entity.MagazineCategory;
+import com.example.codebase.domain.magazine.repository.MagazineCategoryRepository;
 import com.example.codebase.domain.magazine.repository.MagazineRepository;
 import com.example.codebase.domain.magazine.service.MagazineCategoryService;
 import com.example.codebase.domain.magazine.service.MagazineService;
@@ -44,6 +46,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -91,6 +94,9 @@ public class CurationControllerTest {
     @Autowired
     private CurationRepository curationRepository;
 
+    @Autowired
+    private MagazineCategoryRepository magazineCategoryRepository;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
@@ -131,8 +137,31 @@ public class CurationControllerTest {
     }
 
     public MagazineCategory createCategory() {
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("카테고리");
-        return magazineCategoryService.getEntity(category.getId());
+        Random random = new Random(System.currentTimeMillis());
+
+        String categoryName = "카테고리" + random.nextInt(300);
+
+        char randomChar1 = (char) ('a' + random.nextInt(26));
+        char randomChar2 = (char) ('a' + random.nextInt(26));
+        String categorySlug = new StringBuilder().append(randomChar1).append(randomChar2).toString();
+
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
+
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
+        return magazineCategoryService.getEntity(category.getSlug());
+    }
+
+
+    public MagazineCategory createCategory(String name, String slug) {
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(name, slug, null);
+        List<MagazineCategory> categories = magazineCategoryRepository.findBySlugWithChild(request.getSlug());
+
+        if (!categories.isEmpty()) {
+            return categories.get(0);
+        } else {
+            MagazineCategoryResponse.Create categoryResponse = magazineCategoryService.createCategory(request);
+            return magazineCategoryService.getEntity(categoryResponse.getSlug());
+        }
     }
 
     public MagazineResponse.Get createMagazine(Member member) {
@@ -141,10 +170,20 @@ public class CurationControllerTest {
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
-        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setCategorySlug(category.getSlug());
 
         return magazineService.create(magazineRequest, member, category);
     }
+
+    MagazineResponse.Get createMagazine(Member member, MagazineCategory category) {
+        MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
+        magazineRequest.setTitle("제목");
+        magazineRequest.setContent("내용");
+        magazineRequest.setCategorySlug(category.getSlug());
+
+        return magazineService.create(magazineRequest, member, category);
+    }
+
 
     public CurationResponse.GetAll createCuration(Magazine magazine) {
         CurationRequest.Create curationRequest = new CurationRequest.Create();
@@ -166,7 +205,6 @@ public class CurationControllerTest {
         return curationService.createCuration(curationRequest);
     }
 
-    @Transactional
     public MagazineResponse.Get createMagazineAndCuration(Member member) {
         MagazineResponse.Get magazineResponse = createMagazine(member);
         createCuration(magazineResponse.getId());
@@ -226,6 +264,7 @@ public class CurationControllerTest {
     @Test
     void 큐레이션_수정() throws Exception {
         Member member = createOrLoadMember();
+
         MagazineResponse.Get magazineBefore = createMagazine(member);
         MagazineResponse.Get magazineAfter = createMagazine(member);
 
@@ -278,9 +317,10 @@ public class CurationControllerTest {
                 .andExpect(status().isNoContent());
     }
 
+    @WithMockCustomUser(username = "testid", role = "ADMIN")
     @DisplayName("큐레이션 전체 조회")
     @Test
-    void 큐레이션_() throws Exception {
+    void 큐레이션_전체조회() throws Exception {
         Member member = createOrLoadMember();
         createMagazineAndCuration(member);
         createMagazineAndCuration(member);

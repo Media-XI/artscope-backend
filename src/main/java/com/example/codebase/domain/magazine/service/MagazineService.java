@@ -7,6 +7,7 @@ import com.example.codebase.domain.magazine.entity.Magazine;
 import com.example.codebase.domain.magazine.entity.MagazineCategory;
 import com.example.codebase.domain.magazine.entity.MagazineComment;
 import com.example.codebase.domain.magazine.entity.MagazineMedia;
+import com.example.codebase.domain.magazine.repository.MagazineCategoryRepository;
 import com.example.codebase.domain.magazine.repository.MagazineCommentRepository;
 import com.example.codebase.domain.magazine.repository.MagazineMediaRepository;
 import com.example.codebase.domain.magazine.repository.MagazineRepository;
@@ -30,12 +31,15 @@ public class MagazineService {
 
     private final MagazineMediaRepository magazineMediaRepository;
 
+    private final MagazineCategoryRepository magazineCategoryRepository;
+
 
     @Autowired
-    public MagazineService(MagazineRepository magazineRepository, MagazineCommentRepository magazineCommentRepository, MagazineMediaRepository magazineMediaRepository) {
+    public MagazineService(MagazineRepository magazineRepository, MagazineCommentRepository magazineCommentRepository, MagazineMediaRepository magazineMediaRepository, MagazineCategoryRepository magazineCategoryRepository) {
         this.magazineRepository = magazineRepository;
         this.magazineCommentRepository = magazineCommentRepository;
         this.magazineMediaRepository = magazineMediaRepository;
+        this.magazineCategoryRepository = magazineCategoryRepository;
     }
 
     @Transactional
@@ -75,13 +79,13 @@ public class MagazineService {
     }
 
     @Transactional
-    public MagazineResponse.Get update(Long id, String loginUsername, MagazineRequest.Update magazineRequest) {
+    public MagazineResponse.Get update(Long id, String loginUsername, MagazineRequest.Update magazineRequest, MagazineCategory magazineCategory) {
         Magazine magazine = magazineRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
 
         validateOwner(loginUsername, magazine);
 
-        magazine.update(magazineRequest);
+        magazine.update(magazineRequest, magazineCategory);
 
         return MagazineResponse.Get.from(magazine);
     }

@@ -1,6 +1,7 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.auth.WithMockCustomUser;
+import com.example.codebase.domain.magazine.dto.MagazineCategoryRequest;
 import com.example.codebase.domain.magazine.dto.MagazineCategoryResponse;
 import com.example.codebase.domain.magazine.dto.MagazineRequest;
 import com.example.codebase.domain.magazine.dto.MagazineResponse;
@@ -44,6 +45,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -83,6 +85,8 @@ class MagazineLikeControllerTest {
     @Autowired
     private MagazineCategoryRepository magazineCategoryRepository;
 
+    @Autowired
+    private MagazineCategoryService magazineCategoryService;
 
     @Autowired
     private MemberRepository memberRepository;
@@ -131,10 +135,7 @@ class MagazineLikeControllerTest {
         return memberService.getEntity(username);
     }
     public Magazine createMagaizne(Member member) {
-        MagazineCategory category = MagazineCategory.builder()
-                .name("카테고리")
-                .build();
-         magazineCategoryRepository.save(category);
+        MagazineCategory category = createCategory();
 
         Magazine saved = magazineRepository.saveAndFlush(Magazine.builder()
                 .title("제목")
@@ -144,6 +145,21 @@ class MagazineLikeControllerTest {
                 .build());
 
         return saved;
+    }
+
+    public MagazineCategory createCategory() {
+        Random random = new Random(System.currentTimeMillis());
+
+        String categoryName = "카테고리" + random.nextInt(300);
+
+        char randomChar1 = (char) ('a' + random.nextInt(26));
+        char randomChar2 = (char) ('a' + random.nextInt(26));
+        String categorySlug = new StringBuilder().append(randomChar1).append(randomChar2).toString();
+
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
+
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
+        return magazineCategoryService.getEntity(category.getSlug());
     }
 
     @WithMockCustomUser(username = "testid")
