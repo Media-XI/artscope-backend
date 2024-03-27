@@ -84,14 +84,14 @@ class MagazineCategoryControllerTest {
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
 
         MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
-        return magazineCategoryService.getEntity(category.getId());
+        return magazineCategoryService.getEntity(category.getSlug());
     }
 
     public MagazineResponse.Get createMagaizne(Member member, MagazineCategory category) {
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
-        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setCategorySlug(category.getSlug());
         magazineRequest.setMetadata(Map.of(
                 "color", "blue",
                 "font", "godic"
@@ -258,19 +258,20 @@ class MagazineCategoryControllerTest {
         MagazineCategoryRequest.Update updateRequest = new MagazineCategoryRequest.Update("수정된 글", "updated-word", parentCategoryAfter.getId());
 
         // when
-        mockMvc.perform(
+        String response = mockMvc.perform(
                         put("/api/magazine-category/" + childCategory.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(updateRequest))
                 )
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
 
         // then
-        MagazineCategory updatedCategory = magazineCategoryService.getEntity(childCategory.getId());
+        MagazineCategoryResponse.Get updatedCategory =objectMapper.readValue(response, MagazineCategoryResponse.Get.class);
         assertEquals(updateRequest.getName(), updatedCategory.getName());
         assertEquals(updateRequest.getSlug(), updatedCategory.getSlug());
-        assertEquals(updateRequest.getParentId(), updatedCategory.getParent().getId());
+        assertEquals(updateRequest.getParentId(), updatedCategory.getParentCategory().getId());
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")

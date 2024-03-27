@@ -148,19 +148,19 @@ public class CurationControllerTest {
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
 
         MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
-        return magazineCategoryService.getEntity(category.getId());
+        return magazineCategoryService.getEntity(category.getSlug());
     }
 
 
     public MagazineCategory createCategory(String name, String slug) {
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(name, slug, null);
-        List<MagazineCategory> categories = magazineCategoryRepository.findBySlug(request.getSlug());
+        List<MagazineCategory> categories = magazineCategoryRepository.findBySlugWithChild(request.getSlug());
 
         if (!categories.isEmpty()) {
             return categories.get(0);
         } else {
             MagazineCategoryResponse.Create categoryResponse = magazineCategoryService.createCategory(request);
-            return magazineCategoryService.getEntity(categoryResponse.getId());
+            return magazineCategoryService.getEntity(categoryResponse.getSlug());
         }
     }
 
@@ -170,7 +170,7 @@ public class CurationControllerTest {
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
-        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setCategorySlug(category.getSlug());
 
         return magazineService.create(magazineRequest, member, category);
     }
@@ -179,7 +179,7 @@ public class CurationControllerTest {
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
-        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setCategorySlug(category.getSlug());
 
         return magazineService.create(magazineRequest, member, category);
     }

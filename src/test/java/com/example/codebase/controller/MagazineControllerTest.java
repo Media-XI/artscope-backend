@@ -90,7 +90,7 @@ class MagazineControllerTest {
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
-        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setCategorySlug(category.getSlug());
         magazineRequest.setMetadata(Map.of(
                 "color", "blue",
                 "font", "godic"
@@ -115,7 +115,7 @@ class MagazineControllerTest {
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
 
         MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
-        return magazineCategoryService.getEntity(category.getId());
+        return magazineCategoryService.getEntity(category.getSlug());
     }
 
     public MagazineResponse.Get createComment(MagazineResponse.Get magaizne, Member member, String comment) {
@@ -146,7 +146,7 @@ class MagazineControllerTest {
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
-        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setCategorySlug(category.getSlug());
 
         // when
         String response = mockMvc.perform(
@@ -175,7 +175,7 @@ class MagazineControllerTest {
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
-        magazineRequest.setCategoryId(0L);
+        magazineRequest.setCategorySlug("slug");
 
         // when
         String content = mockMvc.perform(
@@ -263,7 +263,7 @@ class MagazineControllerTest {
         MagazineRequest.Update magazineRequest = new MagazineRequest.Update();
         magazineRequest.setTitle("수정된 제목");
         magazineRequest.setContent("수정된 내용");
-        magazineRequest.setCategoryId(createCategory().getId());
+        magazineRequest.setCategorySlug(createCategory().getSlug());
 
         // when
         String response = mockMvc.perform(
@@ -280,7 +280,7 @@ class MagazineControllerTest {
         assertEquals(magazine.getId(), magazineResponse.getId());
         assertEquals(magazineRequest.getTitle(), magazineResponse.getTitle());
         assertEquals(magazineRequest.getContent(), magazineResponse.getContent());
-        assertEquals(magazineRequest.getCategoryId(), magazineResponse.getCategoryId());
+        assertEquals(magazineRequest.getCategorySlug(), magazineResponse.getCategorySlug());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -292,7 +292,7 @@ class MagazineControllerTest {
         MagazineRequest.Update magazineRequest = new MagazineRequest.Update();
         magazineRequest.setTitle("수정된 제목");
         magazineRequest.setContent("수정된 내용");
-        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setCategorySlug(category.getSlug());
 
         // when
         String content = mockMvc.perform(
@@ -491,7 +491,7 @@ class MagazineControllerTest {
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
-        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setCategorySlug(category.getSlug());
         magazineRequest.setMediaUrls(List.of(
                 "https://cdn.artscope.kr/local/1.jpg",
                 "https://cdn.artscope.kr/local/2.jpg"
@@ -527,7 +527,7 @@ class MagazineControllerTest {
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
-        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setCategorySlug(category.getSlug());
         magazineRequest.setMediaUrls(List.of(
                 "/local/1.jpg",
                 "1.jpg"
@@ -556,7 +556,7 @@ class MagazineControllerTest {
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
-        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setCategorySlug(category.getSlug());
         magazineRequest.setMediaUrls(List.of(
                 "https://cdn.artscope.kr/local/1.jpg",
                 "https://cdn.artscope.kr/local/2.jpg",
@@ -594,7 +594,7 @@ class MagazineControllerTest {
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
-        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setCategorySlug(category.getSlug());
         magazineRequest.setMetadata(Map.of(
                 "color", "blue",
                 "font", "godic"
@@ -628,7 +628,7 @@ class MagazineControllerTest {
                 "color", "빨강으로",
                 "font", "다른 폰트"
         ));
-        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setCategorySlug(category.getSlug());
 
         // when
         String response = mockMvc.perform(

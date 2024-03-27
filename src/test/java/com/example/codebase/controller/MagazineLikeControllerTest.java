@@ -159,7 +159,7 @@ class MagazineLikeControllerTest {
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
 
         MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
-        return magazineCategoryService.getEntity(category.getId());
+        return magazineCategoryService.getEntity(category.getSlug());
     }
 
     @WithMockCustomUser(username = "testid")
