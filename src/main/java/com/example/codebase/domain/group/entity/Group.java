@@ -2,7 +2,8 @@ package com.example.codebase.domain.group.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.SoftDeleteType;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +15,6 @@ import static lombok.AccessLevel.PROTECTED;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor(access = PROTECTED)
-@SQLRestriction("is_deleted = false")
 public class Group {
 
     @Id
@@ -46,6 +46,7 @@ public class Group {
     private LocalDateTime updatedTime = LocalDateTime.now();
 
     @Builder.Default
+    @SoftDelete(strategy = SoftDeleteType.DELETED)
     @Column(name = "is_deleted")
     private Boolean isDeleted = false;
 
