@@ -1,24 +1,25 @@
-package com.example.codebase.domain.group.entity;
+package com.example.codebase.domain.team.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.SoftDeleteType;
 
 import java.time.LocalDateTime;
 
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
-@Table(name = "group")
+@Table(name = "team")
 @Getter
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor(access = PROTECTED)
-@SQLRestriction("is_deleted = false")
-public class Group {
+@SoftDelete(columnName = "is_deleted", strategy = SoftDeleteType.DELETED)
+public class Team {
 
     @Id
-    @Column(name = "group_id")
+    @Column(name = "team_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -44,9 +45,5 @@ public class Group {
     @Builder.Default
     @Column(name = "updated_time")
     private LocalDateTime updatedTime = LocalDateTime.now();
-
-    @Builder.Default
-    @Column(name = "is_deleted")
-    private Boolean isDeleted = false;
 
 }
