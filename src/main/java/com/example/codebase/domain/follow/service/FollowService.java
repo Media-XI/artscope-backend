@@ -74,7 +74,7 @@ public class FollowService {
 
         List<FollowMemberDetailResponseDTO> followingMemberResponses = followingList.getContent().stream()
                 .map(followWithIsFollow ->
-                        FollowMemberDetailResponseDTO.of(followWithIsFollow.getFollow().getFollowing(), followWithIsFollow.getStatus()))
+                        FollowMemberDetailResponseDTO.of(followWithIsFollow.getFollow().getFollowingMember(), followWithIsFollow.getStatus()))
                 .toList();
 
         return FollowMembersResponseDTO.of(followingMemberResponses, pageInfo);

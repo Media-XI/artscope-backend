@@ -122,14 +122,6 @@ public class Member {
     @OneToOne(mappedBy = "member", optional=false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private NotificationSetting notificationSettings;
 
-    @Builder.Default
-    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL)
-    private List<Follow> followings = new ArrayList<>();
-
-    @Builder.Default
-    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL)
-    private List<Follow> followers = new ArrayList<>();
-
     public static User toUser(Member member) {
         return new User(member.getUsername(), member.getPassword(), member.getAuthorities().stream()
             .map(authority -> new SimpleGrantedAuthority(authority.getAuthority().getAuthorityName()))
