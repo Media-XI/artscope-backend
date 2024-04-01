@@ -5,6 +5,7 @@ import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.domain.team.dto.TeamRequest;
 import com.example.codebase.domain.team.dto.TeamResponse;
+import com.example.codebase.domain.team.dto.TeamUserResponse;
 import com.example.codebase.domain.team.entity.TeamUser;
 import com.example.codebase.domain.team.service.TeamService;
 import com.example.codebase.domain.team.service.TeamUserService;
@@ -81,5 +82,10 @@ public class TeamController {
         return new ResponseEntity("팀이 삭제되었습니다.", HttpStatus.NO_CONTENT);
     }
 
-
+    @GetMapping("/{teamId}/people")
+    @Operation(summary = "팀 소속 유저 조회", description = "팀에 속한 유저를 모두 조회 합니다.")
+    public ResponseEntity getTeamUsers(@PathVariable Long teamId) {
+        TeamUserResponse.GetAll response = teamUserService.getTeamUsers(teamId);
+        return new ResponseEntity(response, HttpStatus.OK);
+    }
 }

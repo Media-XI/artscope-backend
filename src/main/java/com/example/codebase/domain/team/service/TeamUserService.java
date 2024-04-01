@@ -63,12 +63,6 @@ public class TeamUserService {
         teamUserRepository.delete(deleteUser);
     }
 
-    public void leaveTeamUser(TeamUser member) {
-        if (member.isOwner()) throw new RuntimeException("팀장은 팀을 나갈 수 없습니다.");
-
-        teamUserRepository.delete(member);
-    }
-
     public void transferToOwner(TeamUser loginUser, TeamUser transferUser) {
         loginUser.transferOwner(transferUser);
 
@@ -76,8 +70,8 @@ public class TeamUserService {
         teamUserRepository.save(transferUser);
     }
 
-    public void updateTeamUser(TeamUser member, TeamUserRequest.Update request) {
-        if (!Objects.equals(member.getMember().getUsername(), request.getUsername()) && !member.isOwner()) {
+    public void updateTeamUser(TeamUser member, TeamUser changeMember, TeamUserRequest.Update request) {
+        if(!(Objects.equals(member.getId(), changeMember.getId())) && !member.isOwner()) {
             throw new RuntimeException("본인 또는 팀장만 정보를 수정할 수 있습니다.");
         }
 

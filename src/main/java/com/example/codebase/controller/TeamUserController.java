@@ -3,7 +3,6 @@ package com.example.codebase.controller;
 import com.example.codebase.annotation.LoginOnly;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.service.MemberService;
-import com.example.codebase.domain.notification.service.NotificationSendService;
 import com.example.codebase.domain.team.dto.TeamUserRequest;
 import com.example.codebase.domain.team.dto.TeamUserResponse;
 import com.example.codebase.domain.team.entity.TeamUser;
@@ -32,22 +31,15 @@ public class TeamUserController {
         this.memberService = memberService;
     }
 
-    @GetMapping("{teamId}")
-    @Operation(summary = "팀 소속 유저 조회", description = "팀에 속한 유저를 모두 조회 합니다.")
-    public ResponseEntity getTeamUsers(@PathVariable Long teamId) {
-        TeamUserResponse.GetAll response = teamUserService.getTeamUsers(teamId);
-        return new ResponseEntity(response, HttpStatus.OK);
-    }
-
-    @PostMapping("{teamId}/invitations")
+    @PostMapping("/{username}")
     @LoginOnly
     @Operation(summary = "팀 유저 추가", description = "팀에 유저를 추가합니다.")
-    public ResponseEntity addTeamUser(@PathVariable Long teamId, @RequestBody @Valid TeamUserRequest.Create request) {
+    public ResponseEntity addTeamUser(@PathVariable String username, @RequestParam Long teamId, @RequestBody @Valid TeamUserRequest.Create request) {
         String loginUsername = SecurityUtil.getCurrentUsernameValue();
         TeamUser loginUser = teamUserService.findByTeamIdAndUsername(teamId, loginUsername);
         loginUser.validOwner();
 
-        Member inviteUser = memberService.getEntity(request.getUsername());
+        Member inviteUser = memberService.getEntity(username);
 
         teamUserService.addTeamUser(loginUser, inviteUser, request);
         TeamUserResponse.GetAll response = teamUserService.getTeamUsers(teamId);
@@ -55,25 +47,24 @@ public class TeamUserController {
         return new ResponseEntity(response, HttpStatus.OK);
     }
 
-    @DeleteMapping("{teamId}/{username}")
+    @DeleteMapping("/{username}")
     @LoginOnly
     @Operation(summary = "팀 유저 삭제(추방)", description = "팀에 속한 유저를 삭제합니다.")
-    public ResponseEntity deleteTeamUser(@PathVariable Long teamId, @PathVariable String username) {
+    public ResponseEntity deleteTeamUser(@PathVariable String username, @RequestParam Long teamId) {
         String loginUsername = SecurityUtil.getCurrentUsernameValue();
         TeamUser loginUser = teamUserService.findByTeamIdAndUsername(teamId, loginUsername);
-        loginUser.validOwner();
 
         TeamUser deleteUser = teamUserService.findByTeamIdAndUsername(teamId, username);
 
-        teamUserService.deleteTeamUser(loginUser,deleteUser);
+        teamUserService.deleteTeamUser(loginUser, deleteUser);
         TeamUserResponse.GetAll response = teamUserService.getTeamUsers(teamId);
         return new ResponseEntity(response, HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("{teamId}/{username}/transfer")
+    @PatchMapping("/{username}/owner")
     @LoginOnly
     @Operation(summary = "팀 권한 양도", description = "팀의 권한을 양도합니다.")
-    public ResponseEntity transferToOwner(@PathVariable Long teamId, @PathVariable String username) {
+    public ResponseEntity transferToOwner(@PathVariable String username, @RequestParam Long teamId) {
         String loginUsername = SecurityUtil.getCurrentUsernameValue();
         TeamUser loginUser = teamUserService.findByTeamIdAndUsername(teamId, loginUsername);
         loginUser.validOwner();
@@ -85,25 +76,16 @@ public class TeamUserController {
         return new ResponseEntity(response, HttpStatus.OK);
     }
 
-    @DeleteMapping("{teamId}/leave")
-    @LoginOnly
-    @Operation(summary = "팀 탈퇴", description = "팀에서 탈퇴합니다.")
-    public ResponseEntity leaveTeam(@PathVariable Long teamId) {
-        String loginUsername = SecurityUtil.getCurrentUsernameValue();
-        TeamUser member = teamUserService.findByTeamIdAndUsername(teamId, loginUsername);
-        teamUserService.leaveTeamUser(member);
-
-        return new ResponseEntity("팀에서 탈퇴했습니다.", HttpStatus.NO_CONTENT);
-    }
-
-    @PutMapping ("{teamId}")
+    @PatchMapping("{username}")
     @LoginOnly
     @Operation(summary = "팀 유저 직책 변경", description = "팀 유저의 직책을 변경합니다.")
-    public ResponseEntity updateTeamUser(@PathVariable Long teamId, @RequestBody @Valid TeamUserRequest.Update request) {
+    public ResponseEntity updateTeamUser(@PathVariable String username, @RequestParam Long teamId, @RequestBody @Valid TeamUserRequest.Update request) {
         String loginUsername = SecurityUtil.getCurrentUsernameValue();
         TeamUser member = teamUserService.findByTeamIdAndUsername(teamId, loginUsername);
 
-        teamUserService.updateTeamUser(member, request);
+        TeamUser changeMember = teamUserService.findByTeamIdAndUsername(teamId, username);
+
+        teamUserService.updateTeamUser(member, changeMember, request);
 
         return new ResponseEntity("직책이 변경되었습니다.", HttpStatus.OK);
     }

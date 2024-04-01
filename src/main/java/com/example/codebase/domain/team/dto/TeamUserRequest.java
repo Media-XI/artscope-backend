@@ -19,9 +19,6 @@ public class TeamUserRequest {
     @Schema(name = "TeamUserRequest.Create", description = "팀 유저 추가 DTO")
     public static class Create {
 
-        @NotEmpty(message = "유저 이름은 필수입니다.")
-        private String username;
-
         @NotEmpty(message = "포지션은 필수입니다.")
         @Size(max = 100 , message = "포지션은 100자 이하여야 합니다.")
         private String position;
@@ -33,8 +30,6 @@ public class TeamUserRequest {
     @NoArgsConstructor(access = PROTECTED)
     @Schema(name = "TeamUserRequest.Update", description = "팀 유저 수정 DTO")
     public static class Update {
-
-        private String username;
 
         @NotEmpty(message = "포지션은 필수입니다.")
         @Size(max = 100 , message = "포지션은 100자 이하여야 합니다.")
