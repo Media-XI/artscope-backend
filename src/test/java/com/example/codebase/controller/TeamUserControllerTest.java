@@ -98,30 +98,9 @@ class TeamUserControllerTest {
 
     public void createAndInviteMember(TeamUser loginUser, Member inviteMember) {
         TeamUserRequest.Create request = new TeamUserRequest.Create(
-                inviteMember.getUsername(),
                 "팀원"
         );
         teamUserService.addTeamUser(loginUser, inviteMember, request);
-    }
-
-    @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("팀 소속 유저 조회")
-    @Test
-    void 팀_소속_유저_조회() throws Exception {
-        // given
-        Member member = createMember("testid");
-        TeamResponse.Get team = createTeam(member, "팀이름");
-
-        // when
-        String response = mockMvc.perform(get("/api/team-users/" + team.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
-
-        // then
-        TeamUserResponse.GetAll teamUserResponse = objectMapper.readValue(response, TeamUserResponse.GetAll.class);
-        assertEquals(1, teamUserResponse.getTeamUsers().size());
-        assertEquals("testid", teamUserResponse.getTeamUsers().get(0).getUsername());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -131,16 +110,15 @@ class TeamUserControllerTest {
         // given
         Member member = createMember("testid");
         TeamResponse.Get team = createTeam(member, "팀이름");
-        Member inviteMember = createMember("추가할사람");
+        Member inviteMember = createMember("inviteMember");
 
         TeamUserRequest.Create request = new TeamUserRequest.Create(
-                inviteMember.getUsername(),
                 "팀원"
         );
 
         // when
         String response = mockMvc.perform(
-                        post("/api/team-users/" + team.getId() + "/invitations")
+                        post("/api/team-users/" + inviteMember.getUsername() + "?teamId=" + team.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
@@ -151,7 +129,7 @@ class TeamUserControllerTest {
         TeamUserResponse.GetAll teamUserResponse = objectMapper.readValue(response, TeamUserResponse.GetAll.class);
         assertEquals(2, teamUserResponse.getTeamUsers().size());
         assertEquals("testid", teamUserResponse.getTeamUsers().get(0).getUsername());
-        assertEquals("추가할사람", teamUserResponse.getTeamUsers().get(1).getUsername());
+        assertEquals("inviteMember", teamUserResponse.getTeamUsers().get(1).getUsername());
         assertEquals("팀원", teamUserResponse.getTeamUsers().get(1).getPosition());
     }
 
@@ -169,7 +147,7 @@ class TeamUserControllerTest {
 
         // when
         String response = mockMvc.perform(
-                        delete("/api/team-users/" + team.getId() + "/" + inviteMember.getUsername())
+                        delete("/api/team-users/" + inviteMember.getUsername() + "?teamId=" + team.getId())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent())
@@ -190,7 +168,7 @@ class TeamUserControllerTest {
 
         // when
         String response = mockMvc.perform(
-                        delete("/api/team-users/" + team.getId() + "/" + member.getUsername())
+                        delete("/api/team-users/" + member.getUsername() + "?teamId=" + team.getId())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -214,7 +192,7 @@ class TeamUserControllerTest {
 
         // when
         String response = mockMvc.perform(
-                        post("/api/team-users/" + team.getId() + "/" + inviteMember.getUsername() + "/transfer")
+                       patch("/api/team-users/" + inviteMember.getUsername() + "/owner?teamId=" + team.getId())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -243,7 +221,7 @@ class TeamUserControllerTest {
 
         // when
         String response = mockMvc.perform(
-                        delete("/api/team-users/" + team.getId() + "/" + inviteMember.getUsername())
+                        delete("/api/team-users/" + inviteMember.getUsername() + "?teamId=" + team.getId())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent())
@@ -267,13 +245,12 @@ class TeamUserControllerTest {
         createAndInviteMember(teamOwner, inviteMember); // 팀원
 
         TeamUserRequest.Update request = new TeamUserRequest.Update(
-                inviteMember.getUsername(),
                 "변경된포지션"
         );
 
         // when
         String response = mockMvc.perform(
-                        put("/api/team-users/" + team.getId())
+                        patch("/api/team-users/" + inviteMember.getUsername() + "?teamId=" + team.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
@@ -284,7 +261,7 @@ class TeamUserControllerTest {
         assertTrue(response.contains("직책이 변경되었습니다."));
     }
 
-    @WithMockCustomUser(username = "프로필변경할사람", role = "USER")
+    @WithMockCustomUser(username = "changePositionUser", role = "USER")
     @DisplayName("팀원이 본인 직책 변경")
     @Test
     void 팀원이_본인_직책_변경() throws Exception {
@@ -293,17 +270,16 @@ class TeamUserControllerTest {
         TeamResponse.Get team = createTeam(member, "팀이름");
         TeamUser teamOwner = teamUserService.findByTeamIdAndUsername(team.getId(), member.getUsername());
 
-        Member inviteMember = createMember("프로필변경할사람");
+        Member inviteMember = createMember("changePositionUser");
         createAndInviteMember(teamOwner, inviteMember); // 팀원
 
         TeamUserRequest.Update request = new TeamUserRequest.Update(
-                inviteMember.getUsername(),
                 "변경된포지션"
         );
 
         // when
         String response = mockMvc.perform(
-                        put("/api/team-users/" + team.getId())
+                        patch("/api/team-users/" + inviteMember.getUsername() + "?teamId=" + team.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
@@ -314,7 +290,7 @@ class TeamUserControllerTest {
         assertTrue(response.contains("직책이 변경되었습니다."));
     }
 
-    @WithMockCustomUser(username = "다른유저", role = "USER")
+    @WithMockCustomUser(username = "otherUser", role = "USER")
     @DisplayName("다른 유저가 팀원 직책 변경시도시 실패")
     @Test
     void 다른_유저가_팀원_직책_변경시도시_실패() throws Exception {
@@ -323,20 +299,19 @@ class TeamUserControllerTest {
         TeamResponse.Get team = createTeam(member, "팀이름");
         TeamUser teamOwner = teamUserService.findByTeamIdAndUsername(team.getId(), member.getUsername());
 
-        Member teamMember1 = createMember("팀원1");
+        Member teamMember1 = createMember("user1");
         createAndInviteMember(teamOwner, teamMember1); // 팀원
 
-        Member teamMember2 = createMember("다른유저");
+        Member teamMember2 = createMember("otherUser");
         createAndInviteMember(teamOwner, teamMember2); // 팀원
 
         TeamUserRequest.Update request = new TeamUserRequest.Update(
-                teamMember1.getUsername(),
                 "변경된포지션"
         );
 
         // when
         String response = mockMvc.perform(
-                        put("/api/team-users/" + team.getId())
+                        patch("/api/team-users/" + teamMember1.getUsername() + "?teamId=" + team.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
@@ -356,17 +331,16 @@ class TeamUserControllerTest {
         TeamResponse.Get team = createTeam(member, "팀이름");
         TeamUser teamOwner = teamUserService.findByTeamIdAndUsername(team.getId(), member.getUsername());
 
-        Member inviteMember = createMember("추가할사람");
+        Member inviteMember = createMember("addMember");
         createAndInviteMember(teamOwner, inviteMember);
 
         TeamUserRequest.Create request = new TeamUserRequest.Create(
-                inviteMember.getUsername(),
                 "팀원"
         );
 
         // when
         String response = mockMvc.perform(
-                        post("/api/team-users/" + team.getId() + "/invitations")
+                        post("/api/team-users/" + inviteMember.getUsername() + "?teamId=" + team.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
@@ -385,9 +359,8 @@ class TeamUserControllerTest {
         Member member = createMember("testid");
         TeamResponse.Get team = createTeam(member, "팀이름");
 
-        // when
         String response = mockMvc.perform(
-                        delete("/api/team-users/" + team.getId() + "/" + member.getUsername())
+                        delete("/api/team-users/" + member.getUsername() + "?teamId=" + team.getId())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -396,6 +369,4 @@ class TeamUserControllerTest {
         //then
         assertTrue(response.contains("팀장은 자신을 추방할 수 없습니다."));
     }
-
-
 }

@@ -6,6 +6,7 @@ import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.domain.team.dto.TeamRequest;
 import com.example.codebase.domain.team.dto.TeamResponse;
+import com.example.codebase.domain.team.dto.TeamUserResponse;
 import com.example.codebase.domain.team.service.TeamService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -258,5 +259,25 @@ class TeamControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("팀 소속 유저 조회")
+    @Test
+    void 팀_소속_유저_조회() throws Exception {
+        // given
+        Member member = createMember("testid");
+        TeamResponse.Get team = createTeam(member, "팀이름");
+
+        // when
+        String response = mockMvc.perform(get("/api/teams/" + team.getId() + "/people")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        // then
+        TeamUserResponse.GetAll teamUserResponse = objectMapper.readValue(response, TeamUserResponse.GetAll.class);
+        assertEquals(1, teamUserResponse.getTeamUsers().size());
+        assertEquals("testid", teamUserResponse.getTeamUsers().get(0).getUsername());
     }
 }
