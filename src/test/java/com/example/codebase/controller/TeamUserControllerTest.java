@@ -13,7 +13,6 @@ import com.example.codebase.domain.team.service.TeamService;
 import com.example.codebase.domain.team.service.TeamUserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -230,7 +229,7 @@ class TeamUserControllerTest {
         assertEquals("MEMBER", teamUserResponse.getTeamUsers().get(1).getRole().name());
     }
 
-    @WithMockCustomUser(username = "탈퇴할사람", role = "USER")
+    @WithMockCustomUser(username = "leaveUser", role = "USER")
     @DisplayName("팀 탈퇴 성공")
     @Test
     void 팀_탈퇴_성공() throws Exception {
@@ -239,39 +238,20 @@ class TeamUserControllerTest {
         TeamResponse.Get team = createTeam(member, "팀이름");
         TeamUser teamOwner = teamUserService.findByTeamIdAndUsername(team.getId(), member.getUsername());
 
-        Member inviteMember = createMember("탈퇴할사람");
+        Member inviteMember = createMember("leaveUser");
         createAndInviteMember(teamOwner, inviteMember);
 
         // when
         String response = mockMvc.perform(
-                        delete("/api/team-users/" + team.getId() + "/" + "leave")
+                        delete("/api/team-users/" + team.getId() + "/" + inviteMember.getUsername())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent())
                 .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
 
         // then
-        assertTrue(response.contains("팀에서 탈퇴했습니다."));
-    }
-
-    @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("팀장이 팀 탈퇴 시 실패")
-    @Test
-    void 팀장이_팀탈퇴_시_실패() throws Exception {
-        // given
-        Member member = createMember("testid");
-        TeamResponse.Get team = createTeam(member, "팀이름");
-
-        // when
-        String response = mockMvc.perform(
-                        delete("/api/team-users/" + team.getId() + "/" + "leave")
-                                .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
-
-        // then
-        assertTrue(response.contains("팀장은 팀을 나갈 수 없습니다."));
+        TeamUserResponse.GetAll teamUserResponse = objectMapper.readValue(response, TeamUserResponse.GetAll.class);
+        assertEquals(1, teamUserResponse.getTeamUsers().size());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -293,7 +273,7 @@ class TeamUserControllerTest {
 
         // when
         String response = mockMvc.perform(
-                        put("/api/team-users/" + team.getId() )
+                        put("/api/team-users/" + team.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
@@ -323,7 +303,7 @@ class TeamUserControllerTest {
 
         // when
         String response = mockMvc.perform(
-                        put("/api/team-users/" + team.getId() )
+                        put("/api/team-users/" + team.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
@@ -356,7 +336,7 @@ class TeamUserControllerTest {
 
         // when
         String response = mockMvc.perform(
-                        put("/api/team-users/" + team.getId() )
+                        put("/api/team-users/" + team.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
@@ -366,4 +346,56 @@ class TeamUserControllerTest {
         // then
         assertTrue(response.contains("본인 또는 팀장만 정보를 수정할 수 있습니다."));
     }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("팀 소속 유저 추가시 이미 팀에 속한 멤버인 경우 실패")
+    @Test
+    void 팀_소속_유저_추가시_이미_팀에_속했을경우_실패() throws Exception {
+        // given
+        Member member = createMember("testid");
+        TeamResponse.Get team = createTeam(member, "팀이름");
+        TeamUser teamOwner = teamUserService.findByTeamIdAndUsername(team.getId(), member.getUsername());
+
+        Member inviteMember = createMember("추가할사람");
+        createAndInviteMember(teamOwner, inviteMember);
+
+        TeamUserRequest.Create request = new TeamUserRequest.Create(
+                inviteMember.getUsername(),
+                "팀원"
+        );
+
+        // when
+        String response = mockMvc.perform(
+                        post("/api/team-users/" + team.getId() + "/invitations")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        // then
+        assertTrue(response.contains("이미 팀에 속한 멤버입니다."));
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("팀장이 자기 자신을 추방 할 경우 실패")
+    @Test
+    void 팀장이_자기_자신을_추방_할_경우_실패() throws Exception {
+        // given
+        Member member = createMember("testid");
+        TeamResponse.Get team = createTeam(member, "팀이름");
+
+        // when
+        String response = mockMvc.perform(
+                        delete("/api/team-users/" + team.getId() + "/" + member.getUsername())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        //then
+        assertTrue(response.contains("팀장은 자신을 추방할 수 없습니다."));
+    }
+
+
 }
