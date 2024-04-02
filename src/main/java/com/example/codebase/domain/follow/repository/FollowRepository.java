@@ -3,6 +3,7 @@ package com.example.codebase.domain.follow.repository;
 import com.example.codebase.domain.follow.entity.Follow;
 import com.example.codebase.domain.follow.entity.FollowWithIsFollow;
 import com.example.codebase.domain.member.entity.Member;
+import com.example.codebase.domain.team.entity.Team;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -40,4 +41,8 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     Optional<Follow> findByFollowerAndFollowingMember(Member follower, Member followingMember);
 
     boolean existsByFollowerAndFollowingMember(Member follower, Member followingMember);
+
+    boolean existsByFollowerAndFollowingTeam(Member follower, Team team);
+
+    Optional<Follow> findByFollowerAndFollowingTeam(Member follower, Team team);
 }

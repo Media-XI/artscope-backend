@@ -1,6 +1,7 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.follow.dto.FollowMembersResponseDTO;
+import com.example.codebase.domain.follow.dto.FollowRequest;
 import com.example.codebase.domain.follow.service.FollowService;
 import com.example.codebase.domain.notification.entity.NotificationType;
 import com.example.codebase.domain.notification.service.NotificationSendService;
@@ -8,6 +9,9 @@ import com.example.codebase.exception.LoginRequiredException;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -35,17 +39,51 @@ public class FollowController {
         this.notificationService = notificationService;
     }
 
-    @Operation(summary = "팔로우", description = "상대방을 팔로잉 합니다")
+    @Operation(summary = "팔로우/언팔로우", description = "상대방을 팔로우/언팔로우 합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    @PostMapping("{username}")
-    public ResponseEntity followMember(@PathVariable("username") String followMember) {
+    @PostMapping
+    public ResponseEntity follow(
+            @RequestParam("action") @Pattern(regexp = "follow|unfollow", message = "잘못된 action 값입니다.") String action,
+            @RequestBody FollowRequest.Create request
+    ) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
-        checkSameMember(username, followMember, "팔로잉");
+        FollowRequest.FollowEntityUrn entityUrn = FollowRequest.FollowEntityUrn.from(request.getUrn());
 
-        followService.followMember(username, followMember);
-        notificationService.send(username, followMember, NotificationType.NEW_FOLLOWER);
+        if (action.equals("unfollow")) {
+            return unfollow(username, entityUrn);
+        }
+        return follow(username, entityUrn);
+    }
 
-        return new ResponseEntity("팔로잉 했습니다.", HttpStatus.CREATED);
+    private ResponseEntity follow(String username, FollowRequest.FollowEntityUrn entityUrn) {
+        switch (entityUrn) {
+            case MEMBER -> {
+                checkSameMember(username, entityUrn.getId(), "팔로잉");
+                followService.followMember(username, entityUrn.getId());
+                notificationService.send(username, entityUrn.getId(), NotificationType.NEW_FOLLOWER);
+                return new ResponseEntity("팔로잉 했습니다.", HttpStatus.CREATED);
+            }
+            case TEAM -> {
+                followService.followTeam(username, entityUrn.getId());
+                return new ResponseEntity("팔로잉 했습니다.", HttpStatus.CREATED);
+            }
+            default -> throw new RuntimeException("유효하지 않는 URN 입니다.");
+        }
+    }
+
+    private ResponseEntity unfollow(String username, FollowRequest.FollowEntityUrn entityUrn) {
+        switch (entityUrn) {
+            case MEMBER -> {
+                checkSameMember(username, entityUrn.getId(), "언팔로우");
+                followService.unfollowMember(username, entityUrn.getId());
+                return new ResponseEntity("언팔로잉 했습니다.", HttpStatus.OK);
+            }
+            case TEAM -> {
+                followService.unfollowTeam(username, entityUrn.getId());
+                return new ResponseEntity("언팔로잉 했습니다.", HttpStatus.OK);
+            }
+            default -> throw new RuntimeException("유효하지 않는 URN 입니다.");
+        }
     }
 
     private void checkSameMember(String username1, String username2, String message) {
@@ -53,19 +91,6 @@ public class FollowController {
             throw new RuntimeException("자기 자신을 %s 할 수 없습니다".formatted(message));
         }
     }
-
-    @Operation(summary = "언팔로우" , description = "상대방을 언 팔로잉 합니다")
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    @DeleteMapping("{username}")
-    public ResponseEntity unfollowMember(@PathVariable("username") String followMember) {
-        String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
-        checkSameMember(username, followMember, "언팔로잉");
-
-        followService.unfollowMember(username, followMember);
-
-        return new ResponseEntity("언팔로잉 했습니다.", HttpStatus.NO_CONTENT);
-    }
-
 
     @Operation(summary = "팔로잉", description = "해당 유저가 팔로잉 하는 사람 목록을 조회 합니다")
     @GetMapping("/{username}/following")
