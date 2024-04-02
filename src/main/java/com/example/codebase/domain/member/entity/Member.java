@@ -124,14 +124,6 @@ public class Member {
     private NotificationSetting notificationSettings;
 
     @Builder.Default
-    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL)
-    private List<Follow> followings = new ArrayList<>();
-
-    @Builder.Default
-    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL)
-    private List<Follow> followers = new ArrayList<>();
-
-    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<TeamUser> teamUserRoles = new ArrayList<>();
 
