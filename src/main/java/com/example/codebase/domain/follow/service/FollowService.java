@@ -52,7 +52,7 @@ public class FollowService {
         Member following = memberRepository.findByUsername(followMember).orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
 
         if (followRepository.existsByFollowerAndFollowingMember(follower, following)) {
-            throw new RuntimeException("이미 팔로잉 중입니다.");
+            throw new RuntimeException("이미 팔로우 중입니다.");
         }
 
         followRepository.save(Follow.of(follower, following));
@@ -67,7 +67,7 @@ public class FollowService {
 
         Optional<Follow> alreadyFollow = followRepository.findByFollowerAndFollowingMember(follower, following);
         if (alreadyFollow.isEmpty()) {
-            throw new RuntimeException("팔로잉 중이 아닙니다.");
+            throw new RuntimeException("팔로우 중이 아닙니다.");
         }
         followRepository.delete(alreadyFollow.get());
     }
@@ -80,7 +80,7 @@ public class FollowService {
         Team team = teamRepository.findById(Long.valueOf(teamId)).orElseThrow(() -> new RuntimeException("존재하지 않는 팀입니다."));
 
         if (followRepository.existsByFollowerAndFollowingTeam(follower, team)) {
-            throw new RuntimeException("이미 팔로잉 중입니다.");
+            throw new RuntimeException("이미 팔로우 중입니다.");
         }
 
         followRepository.save(Follow.of(follower, team));
@@ -95,7 +95,7 @@ public class FollowService {
 
         Optional<Follow> alreadyFollow = followRepository.findByFollowerAndFollowingTeam(follower, team);
         if (alreadyFollow.isEmpty()) {
-            throw new RuntimeException("팔로잉 중이 아닙니다.");
+            throw new RuntimeException("팔로우 중이 아닙니다.");
         }
         followRepository.delete(alreadyFollow.get());
     }

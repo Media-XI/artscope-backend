@@ -57,7 +57,7 @@ public class FollowController {
     private ResponseEntity follow(String username, FollowRequest.FollowEntityUrn entityUrn) {
         switch (entityUrn) {
             case MEMBER -> {
-                checkSameMember(username, entityUrn.getId(), "팔로잉");
+                checkSameMember(username, entityUrn.getId(), "팔로우");
                 followService.followMember(username, entityUrn.getId());
                 notificationService.send(username, entityUrn.getId(), NotificationType.NEW_FOLLOWER);
             }

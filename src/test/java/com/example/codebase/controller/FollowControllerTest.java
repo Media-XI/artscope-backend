@@ -165,39 +165,66 @@ class FollowControllerTest {
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
-    @DisplayName("자기 자신을 팔로우 할시")
+    @DisplayName("팔로우 중인데 다시 팔로잉 시")
     @Test
-    public void 자기_자신을_팔로우_할떄() throws Exception {
-        createOrLoadMember("testid", "ROLE_CURATOR");
+    public void 다시_팔로잉() throws Exception {
+        Member member = createOrLoadMember("testid", "ROLE_USER");
+        Member member2 = createOrLoadMember("testid2", "ROLE_USER");
+        createOrLoadFollow(member , member2);
 
         FollowRequest.Create request = new FollowRequest.Create();
-        request.setUrn("urn:member:testid");
+        request.setUrn("urn:member:" + member2.getUsername());
 
-        mockMvc.perform(post("/api/follow")
+        String content = mockMvc.perform(post("/api/follow")
                         .param("action", "follow")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsBytes(request))
                 )
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+        assertTrue(content.contains("이미 팔로우 중입니다."));
+    }
+
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("자기 자신을 팔로우 할시")
+    @Test
+    public void 자기_자신을_팔로우_할떄() throws Exception {
+        createOrLoadMember("testid", "ROLE_USER");
+
+        FollowRequest.Create request = new FollowRequest.Create();
+        request.setUrn("urn:member:testid");
+
+        String content = mockMvc.perform(post("/api/follow")
+                        .param("action", "follow")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsBytes(request))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+        assertTrue(content.contains("자기 자신을 팔로우 할 수 없습니다"));
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("자기 자신을 언 팔로우 할시")
     @Test
     public void 자기_자신을_언팔로우_할떄() throws Exception {
-        createOrLoadMember("testid", "ROLE_CURATOR");
+        createOrLoadMember("testid", "ROLE_USER");
 
         FollowRequest.Create request = new FollowRequest.Create();
         request.setUrn("urn:member:testid");
 
-        mockMvc.perform(post("/api/follow")
+        String content = mockMvc.perform(post("/api/follow")
                         .param("action", "unfollow")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsBytes(request))
                 )
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+        assertTrue(content.contains("자기 자신을 언팔로우 할 수 없습니다"));
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -205,18 +232,20 @@ class FollowControllerTest {
     @Test
     public void 언팔로우_실패() throws Exception {
         createOrLoadMember();
-        Member followUser = createOrLoadMember("followUser", "ROLE_USER");
+        Member followUser = createOrLoadMember("followUserasda", "ROLE_USER");
 
         FollowRequest.Create request = new FollowRequest.Create();
         request.setUrn("urn:member:" + followUser.getUsername());
 
-        mockMvc.perform(post("/api/follow")
+        String content = mockMvc.perform(post("/api/follow")
                         .param("action", "unfollow")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsBytes(request))
                 )
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+        assertTrue(content.contains("팔로우 중이 아닙니다."));
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -260,6 +289,30 @@ class FollowControllerTest {
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("팀 팔로잉 중인데 다시 팔로잉할 시")
+    @Test
+    public void 팀_팔로우_실패() throws Exception {
+        Member member = createOrLoadMember();
+        Team team = createOrLoadTeam();
+
+        createOrLoadFollow(member, team);
+
+        FollowRequest.Create request = new FollowRequest.Create();
+        request.setUrn("urn:team:" + team.getId());
+
+        String content = mockMvc.perform(post("/api/follow")
+                        .param("action", "follow")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsBytes(request))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+        assertTrue(content.contains("이미 팔로우 중입니다."));
+    }
+
+
+    @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("팀 언팔로우 시")
     @Test
     public void 팀_언팔로잉() throws Exception {
@@ -279,6 +332,28 @@ class FollowControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
     }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("팀 팔로우 중이 아닐때 언팔로우를 시도할시")
+    @Test
+    public void 팀_언팔로우_실패() throws Exception {
+        createOrLoadMember();
+        Team team = createOrLoadTeam();
+
+        FollowRequest.Create request = new FollowRequest.Create();
+        request.setUrn("urn:team:" + team.getId());
+
+        String content = mockMvc.perform(post("/api/follow")
+                        .param("action", "unfollow")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsBytes(request))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+        assertTrue(content.contains("팔로우 중이 아닙니다."));
+    }
+
 
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("팔로우 API를 연속으로 호출할 시")
