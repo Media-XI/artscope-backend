@@ -52,7 +52,7 @@ public class FollowRequest {
     public static class Create {
 
         @NotBlank(message = "URN을 입력해주세요.")
-        @Pattern(regexp = "urn:[a-z]:+", message = "올바른 URN 형식이 아닙니다.")
+        @Pattern(regexp = "^urn:[a-z]+:\\w+$", message = "올바른 URN 형식이 아닙니다.")
         private String urn;
     }
 }

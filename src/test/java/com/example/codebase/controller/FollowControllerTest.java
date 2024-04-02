@@ -1,6 +1,7 @@
 package com.example.codebase.controller;
 
 import com.example.codebase.domain.auth.WithMockCustomUser;
+import com.example.codebase.domain.follow.dto.FollowRequest;
 import com.example.codebase.domain.follow.entity.Follow;
 import com.example.codebase.domain.follow.repository.FollowRepository;
 import com.example.codebase.domain.member.entity.Authority;
@@ -9,10 +10,15 @@ import com.example.codebase.domain.member.entity.MemberAuthority;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.domain.notification.entity.NotificationSetting;
+import com.example.codebase.domain.team.entity.Team;
+import com.example.codebase.domain.team.repository.TeamRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,11 +29,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import jakarta.transaction.Transactional;
-
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -60,6 +67,9 @@ class FollowControllerTest {
 
     @Autowired
     private FollowRepository followRepository;
+
+    @Autowired
+    private TeamRepository teamRepository;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -103,9 +113,36 @@ class FollowControllerTest {
         return memberRepository.save(dummy);
     }
 
+    public Team createOrLoadTeam() {
+        return createOrLoadTeam("testteam");
+    }
+
+    public Team createOrLoadTeam(String teamName) {
+        Optional<Team> team = teamRepository.findByName(teamName);
+        if (team.isPresent()) {
+            return team.get();
+        }
+
+        Team dummy = Team.builder()
+                .name(teamName)
+                .description("test")
+                .backgroundImage("test")
+                .profileImage("test")
+                .address("test")
+                .createdTime(LocalDateTime.now())
+                .build();
+
+        return teamRepository.save(dummy);
+    }
+
     public Follow createOrLoadFollow(Member follower, Member following) {
         return followRepository.save(Follow.of(follower, following));
     }
+
+    public Follow createOrLoadFollow(Member follower, Team following) {
+        return followRepository.save(Follow.of(follower, following));
+    }
+
 
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("상대방 팔로우 성공")
@@ -114,7 +151,15 @@ class FollowControllerTest {
         createOrLoadMember();
         Member followUser = createOrLoadMember("followUser", "ROLE_USER");
 
-        mockMvc.perform(post("/api/follow/" + followUser.getUsername()))
+        FollowRequest.Create request = new FollowRequest.Create();
+        request.setUrn("urn:member:" + followUser.getUsername());
+
+        mockMvc.perform(
+                        post("/api/follow")
+                                .param("action", "follow")
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsBytes(request))
+                )
                 .andDo(print())
                 .andExpect(status().isCreated());
     }
@@ -125,7 +170,14 @@ class FollowControllerTest {
     public void 자기_자신을_팔로우_할떄() throws Exception {
         createOrLoadMember("testid", "ROLE_CURATOR");
 
-        mockMvc.perform(post(String.format("/api/follow/%s", "testid")))
+        FollowRequest.Create request = new FollowRequest.Create();
+        request.setUrn("urn:member:testid");
+
+        mockMvc.perform(post("/api/follow")
+                        .param("action", "follow")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsBytes(request))
+                )
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -136,7 +188,14 @@ class FollowControllerTest {
     public void 자기_자신을_언팔로우_할떄() throws Exception {
         createOrLoadMember("testid", "ROLE_CURATOR");
 
-        mockMvc.perform(delete(String.format("/api/follow/%s", "testid")))
+        FollowRequest.Create request = new FollowRequest.Create();
+        request.setUrn("urn:member:testid");
+
+        mockMvc.perform(post("/api/follow")
+                        .param("action", "unfollow")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsBytes(request))
+                )
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -148,7 +207,14 @@ class FollowControllerTest {
         createOrLoadMember();
         Member followUser = createOrLoadMember("followUser", "ROLE_USER");
 
-        mockMvc.perform(delete(String.format("/api/follow/" + followUser.getUsername())))
+        FollowRequest.Create request = new FollowRequest.Create();
+        request.setUrn("urn:member:" + followUser.getUsername());
+
+        mockMvc.perform(post("/api/follow")
+                        .param("action", "unfollow")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsBytes(request))
+                )
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -158,13 +224,145 @@ class FollowControllerTest {
     @Test
     public void 언팔로우_성공() throws Exception {
         createOrLoadMember();
-        Member followUser = createOrLoadMember("followUser", "ROLE_USER");
+        Member followUser = createOrLoadMember("unfollowUser", "ROLE_USER");
 
         createOrLoadFollow(createOrLoadMember(), followUser);
 
-        mockMvc.perform(delete(String.format("/api/follow/" + followUser.getUsername())))
-                .andExpect(status().isNoContent());
+        FollowRequest.Create request = new FollowRequest.Create();
+        request.setUrn("urn:member:" + followUser.getUsername());
+
+        mockMvc.perform(post("/api/follow")
+                        .param("action", "unfollow")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsBytes(request))
+                )
+                .andExpect(status().isOk());
     }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("팀 팔로잉 시")
+    @Test
+    public void 팀_팔로잉() throws Exception {
+        createOrLoadMember();
+
+        Team team = createOrLoadTeam();
+
+        FollowRequest.Create request = new FollowRequest.Create();
+        request.setUrn("urn:team:" + team.getId());
+
+        mockMvc.perform(post("/api/follow")
+                        .param("action", "follow")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsBytes(request))
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("팀 언팔로우 시")
+    @Test
+    public void 팀_언팔로잉() throws Exception {
+        Member member = createOrLoadMember();
+        Team team = createOrLoadTeam();
+
+        createOrLoadFollow(member,team);
+
+        FollowRequest.Create request = new FollowRequest.Create();
+        request.setUrn("urn:team:" + team.getId());
+
+        mockMvc.perform(post("/api/follow")
+                        .param("action", "unfollow")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsBytes(request))
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("팔로우 API를 연속으로 호출할 시")
+    @Test
+    public void 팔로우API_연속호출() throws Exception {
+        // given
+        Member member = createOrLoadMember();
+        Member followUser = createOrLoadMember("followUser", "ROLE_USER");
+
+        FollowRequest.Create request = new FollowRequest.Create();
+        request.setUrn("urn:member:" + followUser.getUsername());
+
+        mockMvc.perform(post("/api/follow")
+                        .param("action", "follow")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsBytes(request))
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        // when
+        String response = mockMvc.perform(post("/api/follow")
+                        .param("action", "follow")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsBytes(request))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+        // then
+        assertTrue(response.contains("잠시 후 다시 시도해주세요."));
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("잘못된 URN 형식으로 요청 시")
+    @Test
+    public void 잘못된_URN() throws Exception {
+        // given
+        Member member = createOrLoadMember();
+        Team team = createOrLoadTeam();
+        createOrLoadFollow(member,team);
+
+        FollowRequest.Create request = new FollowRequest.Create();
+
+        // when1 -> urn:teamdd:1
+        request.setUrn("urn:teamdd:" + team.getId());
+        String response1 = mockMvc.perform(post("/api/follow")
+                        .param("action", "unfollow")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsBytes(request))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+        assertTrue(response1.contains("유효하지 않은 URN 입니다."));
+
+        // when2 -> asdsd
+        request.setUrn("aadsd");
+        String response2 = mockMvc.perform(post("/api/follow")
+                        .param("action", "unfollow")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsBytes(request))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        assertTrue(response2.contains("유효하지 않은 URN 입니다."));
+
+        // when3 -> urn::asd
+        request.setUrn("urn::asd");
+        String response3 = mockMvc.perform(post("/api/follow")
+                        .param("action", "unfollow")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsBytes(request))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        assertTrue(response3.contains("유효하지 않은 URN 입니다."));
+    }
+
+
 
     @DisplayName("비 로그인 상태로 팔로잉 목록 조회시")
     @Test
@@ -175,13 +373,14 @@ class FollowControllerTest {
         Member followUser3 = createOrLoadMember("followUser3", "ROLE_USER");
         Member followUser4 = createOrLoadMember("followUser4", "ROLE_USER");
         Member followUser5 = createOrLoadMember("followUser5", "ROLE_USER");
+        Team team = createOrLoadTeam();
 
         createOrLoadFollow(member, followUser4);
         createOrLoadFollow(member, followUser);
         createOrLoadFollow(member, followUser2);
         createOrLoadFollow(member, followUser3);
         createOrLoadFollow(member, followUser5);
-
+        createOrLoadFollow(member, team);
 
         mockMvc.perform(get(String.format("/api/follow/%s/following", member.getUsername())))
                 .andDo(print())
@@ -208,6 +407,7 @@ class FollowControllerTest {
         Member followUser11 = createOrLoadMember("followUser11", "ROLE_USER");
         Member followUser12 = createOrLoadMember("followUser12", "ROLE_USER");
         Member followUser13 = createOrLoadMember("followUser13", "ROLE_USER");
+        Team team = createOrLoadTeam();
 
         createOrLoadFollow(member, followUser4);
         createOrLoadFollow(member, followUser1);
@@ -228,6 +428,7 @@ class FollowControllerTest {
         createOrLoadFollow(loginUser, followUser1);
         createOrLoadFollow(loginUser, followUser4);
         createOrLoadFollow(loginUser, followUser6);
+        createOrLoadFollow(loginUser, team);
 
         mockMvc.perform(get(String.format("/api/follow/%s/following", member.getUsername())))
                 .andDo(print())
