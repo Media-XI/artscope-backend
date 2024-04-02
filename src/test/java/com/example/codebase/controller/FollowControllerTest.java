@@ -1,18 +1,7 @@
 package com.example.codebase.controller;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.example.codebase.config.S3MockConfig;
-import com.example.codebase.domain.artwork.dto.ArtworkCommentCreateDTO;
-import com.example.codebase.domain.artwork.dto.ArtworkCreateDTO;
-import com.example.codebase.domain.artwork.dto.ArtworkMediaCreateDTO;
-import com.example.codebase.domain.artwork.dto.ArtworkUpdateDTO;
-import com.example.codebase.domain.artwork.entity.Artwork;
-import com.example.codebase.domain.artwork.entity.ArtworkComment;
-import com.example.codebase.domain.artwork.entity.ArtworkMedia;
-import com.example.codebase.domain.artwork.repository.ArtworkRepository;
 import com.example.codebase.domain.auth.WithMockCustomUser;
 import com.example.codebase.domain.follow.entity.Follow;
-import com.example.codebase.domain.follow.entity.FollowIds;
 import com.example.codebase.domain.follow.repository.FollowRepository;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
@@ -20,19 +9,14 @@ import com.example.codebase.domain.member.entity.MemberAuthority;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.domain.notification.entity.NotificationSetting;
-import com.example.codebase.s3.S3Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.findify.s3mock.S3Mock;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -41,9 +25,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import jakarta.transaction.Transactional;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -145,6 +126,17 @@ class FollowControllerTest {
         createOrLoadMember("testid", "ROLE_CURATOR");
 
         mockMvc.perform(post(String.format("/api/follow/%s", "testid")))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("자기 자신을 언 팔로우 할시")
+    @Test
+    public void 자기_자신을_언팔로우_할떄() throws Exception {
+        createOrLoadMember("testid", "ROLE_CURATOR");
+
+        mockMvc.perform(delete(String.format("/api/follow/%s", "testid")))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }

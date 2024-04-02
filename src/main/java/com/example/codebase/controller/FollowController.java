@@ -38,20 +38,30 @@ public class FollowController {
     @Operation(summary = "팔로우", description = "상대방을 팔로잉 합니다")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @PostMapping("{username}")
-    public ResponseEntity followMember(@PathVariable("username") String followUser) {
+    public ResponseEntity followMember(@PathVariable("username") String followMember) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
-        followService.followMember(username, followUser);
-        notificationService.send(username, followUser, NotificationType.NEW_FOLLOWER);
+        checkSameMember(username, followMember, "팔로잉");
+
+        followService.followMember(username, followMember);
+        notificationService.send(username, followMember, NotificationType.NEW_FOLLOWER);
 
         return new ResponseEntity("팔로잉 했습니다.", HttpStatus.CREATED);
+    }
+
+    private void checkSameMember(String username1, String username2, String message) {
+        if (username1.equals(username2)) {
+            throw new RuntimeException("자기 자신을 %s 할 수 없습니다".formatted(message));
+        }
     }
 
     @Operation(summary = "언팔로우" , description = "상대방을 언 팔로잉 합니다")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @DeleteMapping("{username}")
-    public ResponseEntity unfollowMember(@PathVariable("username") String followUser) {
+    public ResponseEntity unfollowMember(@PathVariable("username") String followMember) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
-        followService.unfollowMember(username, followUser);
+        checkSameMember(username, followMember, "언팔로잉");
+
+        followService.unfollowMember(username, followMember);
 
         return new ResponseEntity("언팔로잉 했습니다.", HttpStatus.NO_CONTENT);
     }

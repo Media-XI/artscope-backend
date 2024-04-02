@@ -139,7 +139,7 @@ public class CurationControllerTest {
     public MagazineCategory createCategory() {
         Random random = new Random(System.currentTimeMillis());
 
-        String categoryName = "카테고리" + random.nextInt(300);
+        String categoryName = "카테고리" + random.nextInt(10000);
 
         char randomChar1 = (char) ('a' + random.nextInt(26));
         char randomChar2 = (char) ('a' + random.nextInt(26));
