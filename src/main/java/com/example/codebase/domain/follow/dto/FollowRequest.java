@@ -23,14 +23,18 @@ public class FollowRequest {
         }
 
         public static FollowEntityUrn from(String urn) {
-            String resource = urn.split(":")[1];
-            String id = urn.split(":")[2];
             try {
+                if (!urn.startsWith("urn:")) {
+                    throw new IllegalArgumentException();
+                }
+                String resource = urn.split(":")[1];
+                String id = urn.split(":")[2];
+
                 FollowEntityUrn followEntityUrn = FollowEntityUrn.valueOf(resource.toUpperCase());
                 followEntityUrn.id = id;
                 return followEntityUrn;
             } catch (IllegalArgumentException e) {
-                throw new RuntimeException("유효하지 않은 URN입니다.");
+                throw new RuntimeException("유효하지 않은 URN 입니다.");
             }
         }
 

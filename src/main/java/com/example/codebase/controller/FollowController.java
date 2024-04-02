@@ -9,6 +9,7 @@ import com.example.codebase.exception.LoginRequiredException;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -44,7 +45,7 @@ public class FollowController {
     @PostMapping
     public ResponseEntity follow(
             @RequestParam("action") @Pattern(regexp = "follow|unfollow", message = "잘못된 action 값입니다.") String action,
-            @RequestBody FollowRequest.Create request
+            @RequestBody @Valid FollowRequest.Create request
     ) {
         String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
         FollowRequest.FollowEntityUrn entityUrn = FollowRequest.FollowEntityUrn.from(request.getUrn());
@@ -61,14 +62,12 @@ public class FollowController {
                 checkSameMember(username, entityUrn.getId(), "팔로잉");
                 followService.followMember(username, entityUrn.getId());
                 notificationService.send(username, entityUrn.getId(), NotificationType.NEW_FOLLOWER);
-                return new ResponseEntity("팔로잉 했습니다.", HttpStatus.CREATED);
             }
             case TEAM -> {
                 followService.followTeam(username, entityUrn.getId());
-                return new ResponseEntity("팔로잉 했습니다.", HttpStatus.CREATED);
             }
-            default -> throw new RuntimeException("유효하지 않는 URN 입니다.");
         }
+        return new ResponseEntity("팔로잉 했습니다.", HttpStatus.CREATED);
     }
 
     private ResponseEntity unfollow(String username, FollowRequest.FollowEntityUrn entityUrn) {
@@ -76,14 +75,12 @@ public class FollowController {
             case MEMBER -> {
                 checkSameMember(username, entityUrn.getId(), "언팔로우");
                 followService.unfollowMember(username, entityUrn.getId());
-                return new ResponseEntity("언팔로잉 했습니다.", HttpStatus.OK);
             }
             case TEAM -> {
                 followService.unfollowTeam(username, entityUrn.getId());
-                return new ResponseEntity("언팔로잉 했습니다.", HttpStatus.OK);
             }
-            default -> throw new RuntimeException("유효하지 않는 URN 입니다.");
         }
+        return new ResponseEntity("언팔로잉 했습니다.", HttpStatus.OK);
     }
 
     private void checkSameMember(String username1, String username2, String message) {
