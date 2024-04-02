@@ -16,7 +16,7 @@ public interface MagazineRepository extends JpaRepository<Magazine, Long> {
 
     Page<Magazine> findByMember(Member member, PageRequest pageRequest);
 
-    @Query("SELECT m FROM Magazine m LEFT JOIN Follow f ON (f.follower= :member) WHERE f.following = m.member")
+    @Query("SELECT m FROM Magazine m LEFT JOIN Follow f ON (f.follower= :member) WHERE f.followingMember = m.member")
     Page<Magazine> findByMemberToFollowing(Member member, PageRequest pageRequest);
 
 }
