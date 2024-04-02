@@ -125,7 +125,7 @@ class FollowControllerTest {
 
         Team dummy = Team.builder()
                 .name(teamName)
-                .description("test")
+                .description("우리 회사는 최고의 국내 기업이고 현재는 어쩌구 저쩌구 연매출은 어떻고 뭐 복지는 좋고 말고")
                 .backgroundImage("test")
                 .profileImage("test")
                 .address("test")
@@ -399,14 +399,6 @@ class FollowControllerTest {
         Member followUser3 = createOrLoadMember("followUser3", "ROLE_USER");
         Member followUser4 = createOrLoadMember("followUser4", "ROLE_USER");
         Member followUser5 = createOrLoadMember("followUser5", "ROLE_USER");
-        Member followUser6 = createOrLoadMember("followUser6", "ROLE_USER");
-        Member followUser7 = createOrLoadMember("followUser7", "ROLE_USER");
-        Member followUser8 = createOrLoadMember("followUser8", "ROLE_USER");
-        Member followUser9 = createOrLoadMember("followUser9", "ROLE_USER");
-        Member followUser10 = createOrLoadMember("followUser10", "ROLE_USER");
-        Member followUser11 = createOrLoadMember("followUser11", "ROLE_USER");
-        Member followUser12 = createOrLoadMember("followUser12", "ROLE_USER");
-        Member followUser13 = createOrLoadMember("followUser13", "ROLE_USER");
         Team team = createOrLoadTeam();
 
         createOrLoadFollow(member, followUser4);
@@ -414,20 +406,39 @@ class FollowControllerTest {
         createOrLoadFollow(member, followUser2);
         createOrLoadFollow(member, followUser3);
         createOrLoadFollow(member, followUser5);
-        createOrLoadFollow(member, followUser6);
-        createOrLoadFollow(member, followUser7);
-        createOrLoadFollow(member, followUser8);
-        createOrLoadFollow(member, followUser9);
-        createOrLoadFollow(member, followUser10);
-        createOrLoadFollow(member, followUser11);
-        createOrLoadFollow(member, followUser12);
-        createOrLoadFollow(member, followUser13);
+        createOrLoadFollow(member, team);
 
         createOrLoadFollow(member, loginUser);
 
         createOrLoadFollow(loginUser, followUser1);
         createOrLoadFollow(loginUser, followUser4);
-        createOrLoadFollow(loginUser, followUser6);
+        createOrLoadFollow(loginUser, followUser5);
+        createOrLoadFollow(loginUser, team);
+
+        mockMvc.perform(get(String.format("/api/follow/%s/following", member.getUsername())))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("로그인 상태로 팔로잉 목록 조회시 - 팀 팔로잉 여부")
+    @Test
+    public void 로그인_상태로_팔로잉_목록_조회2() throws Exception {
+        Member loginUser = createOrLoadMember();
+
+        Member member = createOrLoadMember("targetUser", "ROLE_USER");
+        Member followUser1 = createOrLoadMember("followUser1", "ROLE_USER");
+        Member followUser2 = createOrLoadMember("followUser2", "ROLE_USER");
+        Team team = createOrLoadTeam();
+        Team team2 = createOrLoadTeam("team2");
+
+        createOrLoadFollow(member, followUser1);
+        createOrLoadFollow(member, followUser2);
+        createOrLoadFollow(member, team);
+        createOrLoadFollow(member, team2);
+        createOrLoadFollow(member, loginUser);
+
+        createOrLoadFollow(loginUser, followUser1);
         createOrLoadFollow(loginUser, team);
 
         mockMvc.perform(get(String.format("/api/follow/%s/following", member.getUsername())))
@@ -469,32 +480,21 @@ class FollowControllerTest {
         Member followUser3 = createOrLoadMember("followUser3", "ROLE_USER");
         Member followUser4 = createOrLoadMember("followUser4", "ROLE_USER");
         Member followUser5 = createOrLoadMember("followUser5", "ROLE_USER");
-        Member followUser6 = createOrLoadMember("followUser6", "ROLE_USER");
-        Member followUser7 = createOrLoadMember("followUser7", "ROLE_USER");
-        Member followUser8 = createOrLoadMember("followUser8", "ROLE_USER");
-        Member followUser9 = createOrLoadMember("followUser9", "ROLE_USER");
-        Member followUser10 = createOrLoadMember("followUser10", "ROLE_USER");
-        Member followUser11 = createOrLoadMember("followUser11", "ROLE_USER");
 
         createOrLoadFollow(followUser4, member);
         createOrLoadFollow(followUser1, member);
         createOrLoadFollow(followUser2, member);
         createOrLoadFollow(followUser3, member);
         createOrLoadFollow(followUser5, member);
-        createOrLoadFollow(followUser6, member);
-
-        createOrLoadFollow(followUser7, member);
-        createOrLoadFollow(followUser8, member);
 
         createOrLoadFollow(loginUser, followUser1);
         createOrLoadFollow(loginUser, followUser4);
-        createOrLoadFollow(loginUser, followUser6);
         createOrLoadFollow(loginUser, followUser2);
         createOrLoadFollow(loginUser, followUser3);
 
-        createOrLoadFollow(followUser9, member);
-        createOrLoadFollow(followUser10, member);
-        createOrLoadFollow(followUser11, member);
+        createOrLoadFollow(followUser4, member);
+        createOrLoadFollow(followUser2, member);
+        createOrLoadFollow(followUser3, member);
 
         createOrLoadFollow(loginUser, member);
 
