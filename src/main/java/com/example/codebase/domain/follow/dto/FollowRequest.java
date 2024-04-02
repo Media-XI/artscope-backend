@@ -5,8 +5,6 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.annotation.RegEx;
-
 public class FollowRequest {
 
     public enum FollowEntityUrn {
@@ -24,9 +22,6 @@ public class FollowRequest {
 
         public static FollowEntityUrn from(String urn) {
             try {
-                if (!urn.startsWith("urn:")) {
-                    throw new IllegalArgumentException();
-                }
                 String resource = urn.split(":")[1];
                 String id = urn.split(":")[2];
 
@@ -34,16 +29,8 @@ public class FollowRequest {
                 followEntityUrn.id = id;
                 return followEntityUrn;
             } catch (IllegalArgumentException e) {
-                throw new RuntimeException("유효하지 않은 URN 입니다.");
+                throw new RuntimeException("유효하지 않은 EntityUrn 입니다.");
             }
-        }
-
-        public boolean isMember() {
-            return this == MEMBER;
-        }
-
-        public boolean isTeam() {
-            return this == TEAM;
         }
     }
 

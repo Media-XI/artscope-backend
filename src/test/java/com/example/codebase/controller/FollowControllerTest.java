@@ -333,7 +333,7 @@ class FollowControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
-        assertTrue(response1.contains("유효하지 않은 URN 입니다."));
+        assertTrue(response1.contains("유효하지 않은 EntityUrn 입니다."));
 
         // when2 -> asdsd
         request.setUrn("aadsd");
@@ -346,7 +346,7 @@ class FollowControllerTest {
                 .andExpect(status().isBadRequest())
                 .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
 
-        assertTrue(response2.contains("유효하지 않은 URN 입니다."));
+        assertTrue(response2.contains("올바른 URN 형식이 아닙니다."));
 
         // when3 -> urn::asd
         request.setUrn("urn::asd");
@@ -359,10 +359,41 @@ class FollowControllerTest {
                 .andExpect(status().isBadRequest())
                 .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
 
-        assertTrue(response3.contains("유효하지 않은 URN 입니다."));
+        assertTrue(response3.contains("올바른 URN 형식이 아닙니다."));
     }
 
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("잘못된 Action으로 API 호출 시")
+    @Test
+    public void 잘못된_ACTION () throws Exception {
+        Member member = createOrLoadMember();
+        Team team = createOrLoadTeam();
 
+        FollowRequest.Create request = new FollowRequest.Create();
+        request.setUrn("urn:team:" + team.getId());
+
+        // when1
+        String response1 = mockMvc.perform(post("/api/follow")
+                        .param("action", "cc")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsBytes(request))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+        assertTrue(response1.contains("잘못된 action 값입니다."));
+
+        // when2
+        String response2 = mockMvc.perform(post("/api/follow")
+                        .param("action", "")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsBytes(request))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+        assertTrue(response2.contains("잘못된 action 값입니다."));
+    }
 
     @DisplayName("비 로그인 상태로 팔로잉 목록 조회시")
     @Test
