@@ -4,7 +4,6 @@ import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.follow.dto.FollowMemberDetailResponseDTO;
 import com.example.codebase.domain.follow.dto.FollowMembersResponseDTO;
 import com.example.codebase.domain.follow.entity.Follow;
-import com.example.codebase.domain.follow.entity.FollowIds;
 import com.example.codebase.domain.follow.entity.FollowWithIsFollow;
 import com.example.codebase.domain.follow.repository.FollowRepository;
 import com.example.codebase.domain.member.entity.Member;
@@ -19,7 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+
 @Service
+@Transactional(readOnly = true)
 public class FollowService {
 
     private final FollowRepository followRepository;
@@ -33,36 +34,34 @@ public class FollowService {
     }
 
     @Transactional
-    public void followMember(String username, String followUser) {
-        Member followerUser = memberRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
-        Member followingUser = memberRepository.findByUsername(followUser).orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
+    public void followMember(String username, String followMember) {
+        Member follower = memberRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
+        Member following = memberRepository.findByUsername(followMember).orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
 
-        FollowIds followIds = FollowIds.of(followerUser, followingUser);
-        followIds.valid();
+        checkFollowing(follower, following);
 
-        Optional<Follow> alreadyFollow = followRepository.findById(followIds);
-        if (alreadyFollow.isPresent()) {
+        followRepository.save(Follow.of(follower, following));
+    }
+
+    private void checkFollowing(Member follower, Member following) {
+        if (followRepository.existsByFollowerAndFollowingMember(follower, following)) {
             throw new RuntimeException("이미 팔로잉 중입니다.");
         }
-        followRepository.save(Follow.of(followerUser, followingUser));
-
     }
 
     @Transactional
-    public void unfollowMember(String username, String followUser) {
-        Member followerUser = memberRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
-        Member followingUser = memberRepository.findByUsername(followUser).orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
+    public void unfollowMember(String username, String followMember) {
+        Member follower = memberRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
+        Member following = memberRepository.findByUsername(followMember).orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
 
-        FollowIds followIds = FollowIds.of(followerUser, followingUser);
-
-        Optional<Follow> alreadyFollow = followRepository.findById(followIds);
+        Optional<Follow> alreadyFollow = followRepository.findByFollowerAndFollowingMember(follower, following);
         if (alreadyFollow.isEmpty()) {
             throw new RuntimeException("팔로잉 중이 아닙니다.");
         }
         followRepository.delete(alreadyFollow.get());
     }
 
-    @Transactional(readOnly = true)
+
     public FollowMembersResponseDTO getFollowingList(Optional<String> loginUsername, String targetUsername, PageRequest pageRequest) {
         Member targetMember = memberRepository.findByUsername(targetUsername).orElseThrow(NotFoundMemberException::new);
         Member loginMember = loginUsername.map(s -> memberRepository.findByUsername(s)
@@ -80,7 +79,6 @@ public class FollowService {
         return FollowMembersResponseDTO.of(followingMemberResponses, pageInfo);
     }
 
-    @Transactional(readOnly = true)
     public FollowMembersResponseDTO getFollowerList(Optional<String> loginUsername, String targetUsername, PageRequest pageRequest) {
         Member targetMember = memberRepository.findByUsername(targetUsername).orElseThrow(NotFoundMemberException::new);
         Member loginMember = loginUsername.map(s -> memberRepository.findByUsername(s)
