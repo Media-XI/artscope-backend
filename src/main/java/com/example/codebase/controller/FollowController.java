@@ -1,6 +1,6 @@
 package com.example.codebase.controller;
 
-import com.example.codebase.domain.follow.dto.FollowMembersResponseDTO;
+import com.example.codebase.domain.follow.dto.FollowResponseDTO;
 import com.example.codebase.domain.follow.dto.FollowRequest;
 import com.example.codebase.domain.follow.service.FollowService;
 import com.example.codebase.domain.notification.entity.NotificationType;
@@ -10,8 +10,6 @@ import com.example.codebase.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,27 +87,27 @@ public class FollowController {
         }
     }
 
-    @Operation(summary = "팔로잉", description = "해당 유저가 팔로잉 하는 사람 목록을 조회 합니다")
+    @Operation(summary = "팔로잉 조회", description = "해당 유저가 팔로잉 하는 사람 목록을 조회 합니다")
     @GetMapping("/{username}/following")
     public ResponseEntity getFollowingList(@PathVariable("username") String username,
                                            @PositiveOrZero @RequestParam(defaultValue = "0") int page,
                                            @PositiveOrZero @RequestParam(defaultValue = "10") int size) {
         Optional<String> loginUsername = SecurityUtil.getCurrentUsername();
         PageRequest pageRequest = PageRequest.of(page, size);
-        FollowMembersResponseDTO followingListResponse = followService.getFollowingList(loginUsername, username, pageRequest);
+        FollowResponseDTO followingListResponse = followService.getFollowingList(loginUsername, username, pageRequest);
 
         return new ResponseEntity(followingListResponse, HttpStatus.OK);
     }
 
 
-    @Operation(summary = "팔로워", description = "해당 유저를 팔로워 하는 사람 목록을 조회 합니다")
+    @Operation(summary = "팔로워 조회", description = "해당 유저를 팔로워 하는 사람 목록을 조회 합니다")
     @GetMapping("{username}/follower")
     public ResponseEntity getFollowerList(@PathVariable("username") String username,
                                           @PositiveOrZero @RequestParam(defaultValue = "0") int page,
                                           @PositiveOrZero @RequestParam(defaultValue = "10") int size) {
         Optional<String> loginUsername = SecurityUtil.getCurrentUsername();
         PageRequest pageRequest = PageRequest.of(page, size);
-        FollowMembersResponseDTO followingListResponse = followService.getFollowerList(loginUsername, username, pageRequest);
+        FollowResponseDTO followingListResponse = followService.getFollowerList(loginUsername, username, pageRequest);
 
         return new ResponseEntity(followingListResponse, HttpStatus.OK);
     }

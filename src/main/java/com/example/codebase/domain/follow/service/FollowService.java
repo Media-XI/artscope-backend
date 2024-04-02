@@ -1,8 +1,8 @@
 package com.example.codebase.domain.follow.service;
 
 import com.example.codebase.controller.dto.PageInfo;
-import com.example.codebase.domain.follow.dto.FollowMemberDetailResponseDTO;
-import com.example.codebase.domain.follow.dto.FollowMembersResponseDTO;
+import com.example.codebase.domain.follow.dto.FollowDetailResponseDTO;
+import com.example.codebase.domain.follow.dto.FollowResponseDTO;
 import com.example.codebase.domain.follow.entity.Follow;
 import com.example.codebase.domain.follow.entity.FollowWithIsFollow;
 import com.example.codebase.domain.follow.repository.FollowRepository;
@@ -102,45 +102,48 @@ public class FollowService {
 
     // TODO : AOP 로 분리하기
     private void checkDuplicatedRequest(String follower, String following) {
-        if(redisUtil.getData(follower + "->" + following).isPresent()) {
+        if (redisUtil.getData(follower + "->" + following).isPresent()) {
             throw new DuplicatedRequestException();
         }
         redisUtil.setDataAndExpire(follower + "->" + following, String.valueOf(LocalDateTime.now()), 3000);
     }
 
-
-    public FollowMembersResponseDTO getFollowingList(Optional<String> loginUsername, String targetUsername, PageRequest pageRequest) {
+    public FollowResponseDTO getFollowingList(Optional<String> loginUsername, String targetUsername, PageRequest pageRequest) {
         Member targetMember = memberRepository.findByUsername(targetUsername).orElseThrow(NotFoundMemberException::new);
         Member loginMember = loginUsername.map(s -> memberRepository.findByUsername(s)
-                .orElseThrow(NotFoundMemberException::new))
-                .orElse(null);
+                        .orElseThrow(NotFoundMemberException::new)).orElse(null);
 
         Page<FollowWithIsFollow> followingList = followRepository.findFollowingByTargetMember(targetMember, loginMember, pageRequest);
         PageInfo pageInfo = PageInfo.from(followingList);
 
-        List<FollowMemberDetailResponseDTO> followingMemberResponses = followingList.getContent().stream()
-                .map(followWithIsFollow ->
-                        FollowMemberDetailResponseDTO.of(followWithIsFollow.getFollow().getFollowingMember(), followWithIsFollow.getStatus()))
+        List<FollowDetailResponseDTO> followingMemberResponses = followingList.getContent().stream()
+                .map(this::getFollowMemberDetailResponseDTO)
                 .toList();
 
-        return FollowMembersResponseDTO.of(followingMemberResponses, pageInfo);
+        return FollowResponseDTO.of(followingMemberResponses, pageInfo);
     }
 
-    public FollowMembersResponseDTO getFollowerList(Optional<String> loginUsername, String targetUsername, PageRequest pageRequest) {
+    public FollowResponseDTO getFollowerList(Optional<String> loginUsername, String targetUsername, PageRequest pageRequest) {
         Member targetMember = memberRepository.findByUsername(targetUsername).orElseThrow(NotFoundMemberException::new);
         Member loginMember = loginUsername.map(s -> memberRepository.findByUsername(s)
-                .orElseThrow(NotFoundMemberException::new))
-                .orElse(null);
+                        .orElseThrow(NotFoundMemberException::new)).orElse(null);
 
         Page<FollowWithIsFollow> followerList = followRepository.findFollowerByTargetMember(targetMember, loginMember, pageRequest);
         PageInfo pageInfo = PageInfo.from(followerList);
 
-        List<FollowMemberDetailResponseDTO> followerMemberResponses = followerList.getContent().stream()
-                .map(followWithIsFollow ->
-                        FollowMemberDetailResponseDTO.of(followWithIsFollow.getFollow().getFollower(), followWithIsFollow.getStatus()))
+        List<FollowDetailResponseDTO> followerMemberResponses = followerList.getContent().stream()
+                .map(this::getFollowMemberDetailResponseDTO)
                 .toList();
 
-        return FollowMembersResponseDTO.of(followerMemberResponses, pageInfo);
+        return FollowResponseDTO.of(followerMemberResponses, pageInfo);
     }
 
+    private FollowDetailResponseDTO getFollowMemberDetailResponseDTO(FollowWithIsFollow followWithIsFollow) {
+        Follow follow = followWithIsFollow.getFollow();
+        // 팔로잉 대상이 사용자인 경우
+        if (follow.getFollowingMember() != null) {
+            return FollowDetailResponseDTO.of(follow.getFollowingMember(), followWithIsFollow.getStatus());
+        }
+        return FollowDetailResponseDTO.of(follow.getFollowingTeam(), followWithIsFollow.getStatus());
+    }
 }
