@@ -1,5 +1,6 @@
 package com.example.codebase.domain.follow.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
@@ -7,6 +8,7 @@ import lombok.Setter;
 
 public class FollowRequest {
 
+    @Schema(name = "FollowRequest.FollowEntityUrn", description = "FollowEntityUrn Request")
     public enum FollowEntityUrn {
         MEMBER("urn:member"),
         TEAM("urn:team");
@@ -36,6 +38,7 @@ public class FollowRequest {
 
     @Getter
     @Setter
+    @Schema(name = "FollowRequest.Create", description = "FollowRequest Create Request")
     public static class Create {
 
         @NotBlank(message = "URN을 입력해주세요.")

@@ -1,13 +1,16 @@
 package com.example.codebase.controller;
 
-import com.example.codebase.domain.follow.dto.FollowResponseDTO;
 import com.example.codebase.domain.follow.dto.FollowRequest;
+import com.example.codebase.domain.follow.dto.FollowResponseDTO;
 import com.example.codebase.domain.follow.service.FollowService;
 import com.example.codebase.domain.notification.entity.NotificationType;
 import com.example.codebase.domain.notification.service.NotificationSendService;
 import com.example.codebase.exception.LoginRequiredException;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
@@ -38,7 +41,18 @@ public class FollowController {
         this.notificationService = notificationService;
     }
 
-    @Operation(summary = "팔로우/언팔로우", description = "상대방을 팔로우/언팔로우 합니다.")
+    @Operation(summary = "팔로우/언팔로우", description = "상대방을 팔로우/언팔로우 합니다.",
+            parameters = @Parameter(name = "action", description = "follow: 팔로우, unfollow: 언팔로우", required = true, example = "follow"),
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "팔로우할 대상 URN", required = true, content = @io.swagger.v3.oas.annotations.media.Content(
+                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = FollowRequest.Create.class),
+                    examples = @io.swagger.v3.oas.annotations.media.ExampleObject(value = "{\"urn\": \"urn:member:admin\"}"))
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "팔로우 성공"),
+            @ApiResponse(responseCode = "200", description = "언팔로우 성공")
+    })
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity follow(
