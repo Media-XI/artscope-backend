@@ -65,7 +65,7 @@ public class MagazineController {
             parameters = @Parameter(name = "action", description = "member: 개인 매거진 생성, team: 팀 매거진 생성", required = true, example = "team"),
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "매거진 생성자 URN", required = true, content = @io.swagger.v3.oas.annotations.media.Content(
-                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = FollowRequest.Create.class),
+                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = MagazineRequest.Create.class),
                     examples = @io.swagger.v3.oas.annotations.media.ExampleObject(value =
                             "{\"title\": \"매거진 제목\"," +
                                     "\"content\": \"매거진 내용\", " +
