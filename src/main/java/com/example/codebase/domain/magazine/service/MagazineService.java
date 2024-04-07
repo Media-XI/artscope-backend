@@ -7,11 +7,12 @@ import com.example.codebase.domain.magazine.entity.Magazine;
 import com.example.codebase.domain.magazine.entity.MagazineCategory;
 import com.example.codebase.domain.magazine.entity.MagazineComment;
 import com.example.codebase.domain.magazine.entity.MagazineMedia;
-import com.example.codebase.domain.magazine.repository.MagazineCategoryRepository;
 import com.example.codebase.domain.magazine.repository.MagazineCommentRepository;
 import com.example.codebase.domain.magazine.repository.MagazineMediaRepository;
 import com.example.codebase.domain.magazine.repository.MagazineRepository;
 import com.example.codebase.domain.member.entity.Member;
+import com.example.codebase.domain.team.entity.Team;
+import com.example.codebase.domain.team.entity.TeamUser;
 import com.example.codebase.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -31,24 +32,33 @@ public class MagazineService {
 
     private final MagazineMediaRepository magazineMediaRepository;
 
-    private final MagazineCategoryRepository magazineCategoryRepository;
-
 
     @Autowired
-    public MagazineService(MagazineRepository magazineRepository, MagazineCommentRepository magazineCommentRepository, MagazineMediaRepository magazineMediaRepository, MagazineCategoryRepository magazineCategoryRepository) {
+    public MagazineService(MagazineRepository magazineRepository, MagazineCommentRepository magazineCommentRepository, MagazineMediaRepository magazineMediaRepository) {
         this.magazineRepository = magazineRepository;
         this.magazineCommentRepository = magazineCommentRepository;
         this.magazineMediaRepository = magazineMediaRepository;
-        this.magazineCategoryRepository = magazineCategoryRepository;
     }
 
     @Transactional
-    public MagazineResponse.Get create(MagazineRequest.Create magazineRequest, Member member, MagazineCategory category) {
+    public MagazineResponse.Get createMemberMagazine(MagazineRequest.Create magazineRequest, Member member, MagazineCategory category) {
         Magazine newMagazine = Magazine.toEntity(magazineRequest, member, category);
         magazineRepository.save(newMagazine);
 
         List<MagazineMedia> magazineMedias = MagazineMedia.toList(magazineRequest.getMediaUrls(), newMagazine);
         magazineMediaRepository.saveAll(magazineMedias);
+        return MagazineResponse.Get.from(newMagazine);
+    }
+
+    @Transactional
+    public MagazineResponse.Get createTeamMagazine(MagazineRequest.Create magazineRequest, TeamUser teamMember, MagazineCategory category) {
+        Magazine newMagazine = Magazine.toEntity(magazineRequest, teamMember, category);
+        magazineRepository.save(newMagazine);
+
+        List<MagazineMedia> magazineMedias = MagazineMedia.toList(magazineRequest.getMediaUrls(), newMagazine);
+        magazineMediaRepository.saveAll(magazineMedias);
+
+        magazineRepository.save(newMagazine);
         return MagazineResponse.Get.from(newMagazine);
     }
 
@@ -120,10 +130,9 @@ public class MagazineService {
         MagazineComment parentComment = magazineCommentRepository.findByIdAndMagazine(parentCommentId, newComment.getMagazine())
                 .orElseThrow(() -> new NotFoundException("부모댓글이 존재하지 않거나 해당 매거진에 작성된 댓글이 아닙니다."));
 
-        if (isMentionComment(parentComment)){
+        if (isMentionComment(parentComment)) {
             newComment.mentionComment(parentComment);
-        }
-        else {
+        } else {
             newComment.setParentComment(parentComment);
         }
     }
@@ -173,8 +182,14 @@ public class MagazineService {
         return MagazineResponse.GetAll.from(magazines);
     }
 
+    public MagazineResponse.GetAll getTeamMagazines(Team team, PageRequest pageRequest) {
+        Page<Magazine> magazines = magazineRepository.findByTeam(team, pageRequest);
+        return MagazineResponse.GetAll.from(magazines);
+    }
+
     public MagazineResponse.GetAll getFollowingMagazine(Member member, PageRequest pageRequest) {
         Page<Magazine> magazines = magazineRepository.findByMemberToFollowing(member, pageRequest);
         return MagazineResponse.GetAll.from(magazines);
     }
+
 }

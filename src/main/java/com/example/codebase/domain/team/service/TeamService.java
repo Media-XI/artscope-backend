@@ -43,6 +43,11 @@ public class TeamService {
         return TeamResponse.Get.from(team);
     }
 
+    @Transactional(readOnly = true)
+    public Team getEntity(String teamName) {
+        return teamRepository.findByName(teamName).orElseThrow(() -> new NotFoundException("팀이 존재하지 않습니다."));
+    }
+
     public TeamResponse.Get updateTeam(TeamRequest.Update request, TeamUser teamUser) {
         Team team = teamUser.getTeam();
 

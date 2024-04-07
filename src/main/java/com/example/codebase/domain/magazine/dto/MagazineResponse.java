@@ -45,6 +45,10 @@ public class MagazineResponse {
 
         private AuthorResponse author;
 
+        private String teamName;
+
+        private Long teamId;
+
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime createdTime;
 
@@ -71,6 +75,12 @@ public class MagazineResponse {
             response.author = AuthorResponse.from(magazine.getMember());
             response.createdTime = magazine.getCreatedTime();
             response.updatedTime = magazine.getUpdatedTime();
+
+            if (magazine.getTeam() != null) {
+                response.setTeamId(magazine.getTeam().getId());
+                response.setTeamName(magazine.getTeam().getName());
+            }
+
 
             // 1차 댓글만 가져오기
             response.magazineComments = magazine.getMagazineComments().stream()
