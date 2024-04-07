@@ -172,7 +172,7 @@ public class CurationControllerTest {
         magazineRequest.setContent("내용");
         magazineRequest.setCategorySlug(category.getSlug());
 
-        return magazineService.create(magazineRequest, member, category);
+        return magazineService.createMemberMagazine(magazineRequest, member, category);
     }
 
     MagazineResponse.Get createMagazine(Member member, MagazineCategory category) {
@@ -181,7 +181,7 @@ public class CurationControllerTest {
         magazineRequest.setContent("내용");
         magazineRequest.setCategorySlug(category.getSlug());
 
-        return magazineService.create(magazineRequest, member, category);
+        return magazineService.createMemberMagazine(magazineRequest, member, category);
     }
 
 

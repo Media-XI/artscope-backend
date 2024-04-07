@@ -101,7 +101,7 @@ class MagazineCategoryControllerTest {
                 "https://cdn.artscope.kr/local/2.jpg"
         ));
 
-        return magazineService.create(magazineRequest, member, category);
+        return magazineService.createMemberMagazine(magazineRequest, member, category);
     }
 
     public Member createMember(String username) {
