@@ -2,6 +2,8 @@ package com.example.codebase.domain.magazine.entity;
 
 import com.example.codebase.domain.magazine.dto.MagazineRequest;
 import com.example.codebase.domain.member.entity.Member;
+import com.example.codebase.domain.team.entity.Team;
+import com.example.codebase.domain.team.entity.TeamUser;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -88,6 +90,10 @@ public class Magazine {
     @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL)
     private List<MagazineMedia> magazineMedias = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn( name = "team_id")
+    private Team team;
+
     public static Magazine toEntity(MagazineRequest.Create magazineRequest, Member member, MagazineCategory category) {
         return Magazine.builder()
                 .title(magazineRequest.getTitle())
@@ -99,6 +105,20 @@ public class Magazine {
                 .updatedTime(LocalDateTime.now())
                 .build();
     }
+
+    public static Magazine toEntity(MagazineRequest.Create magazineRequest, TeamUser teamUser, MagazineCategory category){
+        return Magazine.builder()
+                .title(magazineRequest.getTitle())
+                .content(magazineRequest.getContent())
+                .metadata(magazineRequest.getMetadata())
+                .team(teamUser.getTeam())
+                .member(teamUser.getMember())
+                .category(category)
+                .createdTime(LocalDateTime.now())
+                .updatedTime(LocalDateTime.now())
+                .build();
+    }
+
 
     public boolean isOwner(String loginUsername) {
         return member.getUsername().equals(loginUsername);
