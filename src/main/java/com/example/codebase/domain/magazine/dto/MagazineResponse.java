@@ -3,6 +3,7 @@ package com.example.codebase.domain.magazine.dto;
 import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.magazine.entity.Magazine;
 import com.example.codebase.domain.magazine.entity.MagazineMedia;
+import com.example.codebase.domain.magazine.entity.MagazineWithIsLiked;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -45,6 +46,8 @@ public class MagazineResponse {
 
         private AuthorResponse author;
 
+        private Boolean isLiked = false;
+
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime createdTime;
 
@@ -79,6 +82,12 @@ public class MagazineResponse {
                     .map(MagazineCommentRepsonse.Get::from) // 1차 댓글을 DTO로 변환 (이때 자식 댓글도 변환)
                     .toList();
 
+            return response;
+        }
+
+        public static Get from(MagazineWithIsLiked magazineWithIsLiked) {
+            Get response = from(magazineWithIsLiked.getMagazine());
+            response.isLiked = magazineWithIsLiked.getIsLiked();
             return response;
         }
 
@@ -118,5 +127,16 @@ public class MagazineResponse {
             response.pageInfo = PageInfo.from(magazines);
             return response;
         }
+
+        public static GetAll withLike(Page<MagazineWithIsLiked> magazines) {
+            GetAll response = new GetAll();
+
+            response.magazines = magazines.stream()
+                    .map(Get::from)
+                    .toList();
+            response.pageInfo = PageInfo.from(magazines);
+            return response;
+        }
+
     }
 }
