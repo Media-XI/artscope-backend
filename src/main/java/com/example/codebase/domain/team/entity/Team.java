@@ -1,5 +1,6 @@
 package com.example.codebase.domain.team.entity;
 
+import com.example.codebase.domain.magazine.entity.Magazine;
 import com.example.codebase.domain.team.dto.TeamRequest;
 import jakarta.persistence.*;
 import lombok.*;

@@ -90,9 +90,10 @@ public class Magazine {
     @OneToMany(mappedBy = "magazine", cascade = CascadeType.ALL)
     private List<MagazineMedia> magazineMedias = new ArrayList<>();
 
+    @Builder.Default
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn( name = "team_id")
-    private Team team;
+    @JoinColumn(name = "team_id")
+    private Team team = null;
 
     public static Magazine toEntity(MagazineRequest.Create magazineRequest, Member member, MagazineCategory category) {
         return Magazine.builder()
@@ -106,7 +107,7 @@ public class Magazine {
                 .build();
     }
 
-    public static Magazine toEntity(MagazineRequest.Create magazineRequest, TeamUser teamUser, MagazineCategory category){
+    public static Magazine toEntity(MagazineRequest.Create magazineRequest, TeamUser teamUser, MagazineCategory category) {
         return Magazine.builder()
                 .title(magazineRequest.getTitle())
                 .content(magazineRequest.getContent())
@@ -114,6 +115,19 @@ public class Magazine {
                 .team(teamUser.getTeam())
                 .member(teamUser.getMember())
                 .category(category)
+                .createdTime(LocalDateTime.now())
+                .updatedTime(LocalDateTime.now())
+                .build();
+    }
+
+    public static Magazine toEntity(MagazineRequest.Create magazineRequest, Member member, MagazineCategory category, Team team) {
+        return Magazine.builder()
+                .title(magazineRequest.getTitle())
+                .content(magazineRequest.getContent())
+                .metadata(magazineRequest.getMetadata())
+                .member(member)
+                .category(category)
+                .team(team)
                 .createdTime(LocalDateTime.now())
                 .updatedTime(LocalDateTime.now())
                 .build();

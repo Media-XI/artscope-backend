@@ -62,7 +62,6 @@ public class MagazineController {
     }
 
     @Operation(summary = "매거진 생성", description = "로그인한 사용자만 매거진을 생성할 수 있습니다. 매거진 생성 시 미디어 첨부 가능합니다. 또한 JSON 형식의 메타데이터를 추가할 수 있습니다.",
-            parameters = @Parameter(name = "action", description = "member: 개인 매거진 생성, team: 팀 매거진 생성", required = true, example = "team"),
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "매거진 생성자 URN", required = true, content = @io.swagger.v3.oas.annotations.media.Content(
                     schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = MagazineRequest.Create.class),
@@ -77,14 +76,18 @@ public class MagazineController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "매거진 작성 성공"),
-            @ApiResponse(responseCode = "200", description = "매거진 작성 실패")
+            @ApiResponse(responseCode = "404", description = "매거진 작성 실패")
     })
     @UserOnly
     @PostMapping
-    @CheckDuplicatedRequest(target = "magazine")
+    @CheckDuplicatedRequest()
     public ResponseEntity createMagazine(
             @RequestBody @Valid MagazineRequest.Create magazineRequest) {
         String loginUsername = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
+
+        if (magazineRequest.isDefaultUrn()) {
+            magazineRequest.addUsernameUrn(loginUsername);
+        }
 
         MagazineRequest.MagazineEntityUrn entityUrn = MagazineRequest.MagazineEntityUrn.from(magazineRequest.getUrn());
 
@@ -93,16 +96,19 @@ public class MagazineController {
         return createMagazine(magazineRequest, loginUsername, category, entityUrn);
     }
 
-    private ResponseEntity createMagazine(MagazineRequest.Create magazineRequest, String username, MagazineCategory category, MagazineRequest.MagazineEntityUrn entityUrn) {
+    private ResponseEntity createMagazine(MagazineRequest.Create magazineRequest, String loginUsername, MagazineCategory category, MagazineRequest.MagazineEntityUrn entityUrn) {
         MagazineResponse.Get magazine = null;
         switch (entityUrn) {
             case MEMBER -> {
-                Member member = memberService.getEntity(username);
-                magazine = magazineService.createMemberMagazine(magazineRequest, member, category);
+                if (!loginUsername.equals(entityUrn.getId())) {
+                    throw new RuntimeException("요청한 urn과 로그인한 유저의 정보가 다릅니다.");
+                }
+                Member member = memberService.getEntity(entityUrn.getId());
+                magazine = magazineService.createMagazine(magazineRequest, member, category, null);
             }
             case TEAM -> {
-                TeamUser teamUser = teamUserService.findByTeamIdAndUsername(Long.valueOf(entityUrn.getId()), username);
-                magazine = magazineService.createTeamMagazine(magazineRequest, teamUser, category);
+                TeamUser teamUser = teamUserService.findByTeamIdAndUsername(Long.valueOf(entityUrn.getId()), loginUsername);
+                magazine = magazineService.createMagazine(magazineRequest, teamUser.getMember(), category, teamUser.getTeam());
             }
         }
         return new ResponseEntity(magazine, HttpStatus.CREATED);
@@ -118,37 +124,32 @@ public class MagazineController {
         return new ResponseEntity(magazine, HttpStatus.OK);
     }
 
+    @Operation(summary = "해당 사용자의 매거진 전체 조회", description = "해당 사용자가 작성한 매거진을 조회합니다. 페이지네이션")
+    @GetMapping("/members/{username}")
+    public ResponseEntity getMyMagazines(
+            @PathVariable String username,
+            @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,
+            @PositiveOrZero @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(defaultValue = "DESC", required = false) String sortDirection
+    ) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortDirection), "createdTime"));
+        Member member = memberService.getEntity(username);
+
+        MagazineResponse.GetAll allMagazines = magazineService.getMemberMagazines(member, pageRequest);
+
+        return new ResponseEntity(allMagazines, HttpStatus.OK);
+    }
+
     @Operation(summary = "매거진 전체 조회", description = "해당 사용자 또는 팀이 작성한 매거진을 조회합니다( 만약 action, name이 없다면 전체 매거진을 조회합니다). 페이지네이션")
     @GetMapping
     public ResponseEntity getAllMagazines(
-            @RequestParam("action") Optional<@Pattern(regexp = "team|member", message = "잘못된 action 값입니다.") String> action,
-            @RequestParam("name") Optional<String> name,
             @PositiveOrZero @RequestParam(value = "page", defaultValue = "0") int page,
             @PositiveOrZero @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(defaultValue = "DESC", required = false) String sortDirection
     ) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortDirection), "createdTime"));
 
-        if (action.isPresent() && name.isPresent()) {
-            return getAllMagazines(action.get(), name.get(), pageRequest);
-        }
-
         MagazineResponse.GetAll allMagazines = magazineService.getAll(pageRequest);
-        return new ResponseEntity(allMagazines, HttpStatus.OK);
-    }
-
-    private ResponseEntity getAllMagazines(String action, String name, PageRequest pageRequest) {
-        MagazineResponse.GetAll allMagazines = null;
-        switch (action) {
-            case ("member") -> {
-                Member member = memberService.getEntity(name);
-                allMagazines = magazineService.getMemberMagazines(member, pageRequest);
-            }
-            case ("team") -> {
-                Team team = teamService.getEntity(name);
-                allMagazines = magazineService.getTeamMagazines(team, pageRequest);
-            }
-        }
         return new ResponseEntity(allMagazines, HttpStatus.OK);
     }
 

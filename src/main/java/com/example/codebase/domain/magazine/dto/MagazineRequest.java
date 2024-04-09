@@ -1,5 +1,7 @@
 package com.example.codebase.domain.magazine.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -34,9 +36,19 @@ public class MagazineRequest {
         private List<@URL(message = "올바른 URL 형식이 아닙니다.") String> mediaUrls = Collections.emptyList();
 
         @NotBlank(message = "URN을 입력해주세요.")
-        @Pattern(regexp = "^urn:(member|team:\\w+)$", message = "올바른 URN 형식이 아닙니다.")
-        private String urn;
+        @JsonIgnoreProperties(ignoreUnknown = true)
+        @Pattern(regexp = "^urn:[a-z]+:.*$", message = "올바른 URN 형식이 아닙니다.")
+        private String urn = "urn:member:";
 
+        @JsonIgnore
+        public boolean isDefaultUrn() {
+            return this.getUrn().equals("urn:member:");
+        }
+
+        @JsonIgnore
+        public void addUsernameUrn(String username) {
+            this.urn = new StringBuilder(this.urn).append(username).toString();
+        }
     }
 
     @Getter
@@ -65,14 +77,15 @@ public class MagazineRequest {
 
         private final String resource;
 
-        @Getter String id;
+        @Getter
+        String id;
 
-        MagazineEntityUrn(String resource){
+        MagazineEntityUrn(String resource) {
             this.resource = resource;
             this.id = null;
         }
 
-        public static MagazineEntityUrn from (String urn){
+        public static MagazineEntityUrn from(String urn) {
             try {
                 String[] checkSplit = urn.split(":");
 
@@ -84,14 +97,23 @@ public class MagazineRequest {
 
                     MagazineEntityUrn magazineEntityUrn = MagazineEntityUrn.valueOf(resource.toUpperCase());
                     magazineEntityUrn.id = id;
+
+                    if (magazineEntityUrn == TEAM) {
+                        magazineEntityUrn.validTeamId();
+                    }
+
                     return magazineEntityUrn;
-                }
-                else{
+                } else {
                     throw new RuntimeException("유효하지 않은 EntityUrn 입니다.");
                 }
-            }
-            catch (IllegalArgumentException e){
+            } catch (IllegalArgumentException e) {
                 throw new RuntimeException("유효하지 않은 EntityUrn 입니다.");
+            }
+        }
+
+        public void validTeamId() {
+            if (!this.id.matches("\\d+")) {
+                throw new RuntimeException("Team URN의 ID는 숫자여야 합니다.");
             }
         }
     }

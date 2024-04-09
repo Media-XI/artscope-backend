@@ -13,6 +13,7 @@ import com.example.codebase.domain.magazine.repository.MagazineRepository;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.team.entity.Team;
 import com.example.codebase.domain.team.entity.TeamUser;
+import com.example.codebase.domain.team.repository.TeamRepository;
 import com.example.codebase.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 @Service
@@ -41,18 +43,9 @@ public class MagazineService {
     }
 
     @Transactional
-    public MagazineResponse.Get createMemberMagazine(MagazineRequest.Create magazineRequest, Member member, MagazineCategory category) {
-        Magazine newMagazine = Magazine.toEntity(magazineRequest, member, category);
-        magazineRepository.save(newMagazine);
+    public MagazineResponse.Get createMagazine(MagazineRequest.Create magazineRequest, Member member, MagazineCategory category, @Nullable Team team) {
+        Magazine newMagazine = Magazine.toEntity(magazineRequest, member, category, team);
 
-        List<MagazineMedia> magazineMedias = MagazineMedia.toList(magazineRequest.getMediaUrls(), newMagazine);
-        magazineMediaRepository.saveAll(magazineMedias);
-        return MagazineResponse.Get.from(newMagazine);
-    }
-
-    @Transactional
-    public MagazineResponse.Get createTeamMagazine(MagazineRequest.Create magazineRequest, TeamUser teamMember, MagazineCategory category) {
-        Magazine newMagazine = Magazine.toEntity(magazineRequest, teamMember, category);
         magazineRepository.save(newMagazine);
 
         List<MagazineMedia> magazineMedias = MagazineMedia.toList(magazineRequest.getMediaUrls(), newMagazine);
@@ -179,11 +172,6 @@ public class MagazineService {
 
     public MagazineResponse.GetAll getMemberMagazines(Member member, PageRequest pageRequest) {
         Page<Magazine> magazines = magazineRepository.findByMember(member, pageRequest);
-        return MagazineResponse.GetAll.from(magazines);
-    }
-
-    public MagazineResponse.GetAll getTeamMagazines(Team team, PageRequest pageRequest) {
-        Page<Magazine> magazines = magazineRepository.findByTeam(team, pageRequest);
         return MagazineResponse.GetAll.from(magazines);
     }
 
