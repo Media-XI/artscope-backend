@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,27 +20,31 @@ public class SecurityUtil {
     public SecurityUtil() {
     }
 
-    public static Optional<String> getCurrentUsername() {
+    @Nullable
+    public static String getLoginUsername() {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || isAnonymous()) {
             log.debug("Security Context에 인증 정보 없습니다.");
-            return Optional.empty();
+            return null;
         }
 
         String username = null;
-        if (authentication.getPrincipal() instanceof UserDetails) {
-            UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
+        if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
             username = springSecurityUser.getUsername();
         } else if (authentication.getPrincipal() instanceof String) {
             username = (String) authentication.getPrincipal();
         }
 
-        return Optional.ofNullable(username);
+        return username;
+    }
+
+    public static Optional<String> getCurrentUsername() {
+        return Optional.ofNullable(getLoginUsername());
     }
 
     public static String getCurrentUsernameValue() {
-        return getCurrentUsername().orElseThrow(LoginRequiredException::new);
+        return Optional.ofNullable(getLoginUsername()).orElseThrow(LoginRequiredException::new);
     }
 
     public static boolean isAnonymous() {
@@ -76,6 +81,7 @@ public class SecurityUtil {
     }
 
     public static Boolean isSameUser(String username1, String username2) {
+        if (username2 == null) return false;
         return username1.equals(username2);
     }
 
@@ -83,7 +89,7 @@ public class SecurityUtil {
         Username을 가진 사람이 관리자 이거나, 현재 스프링 컨텍스트에 저장된 유저와 같은 사람인가(같은 스레드 요청인지)
      */
     public static Boolean isAdminOrSameUser(String username) {
-        return isAdmin() || isSameUser(username, getCurrentUsername().get());
+        return isAdmin() || isSameUser(username, getLoginUsername());
     }
 
     public static String getCookieAccessTokenValue(TokenResponseDTO tokenDto) {
