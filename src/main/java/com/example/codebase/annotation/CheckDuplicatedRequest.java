@@ -8,5 +8,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CheckDuplicatedRequest {
-    String target();
+    String target() default "";
+
+    int aliveMillisecondTime() default 3000;
 }
