@@ -101,7 +101,7 @@ class MagazineCategoryControllerTest {
                 "https://cdn.artscope.kr/local/2.jpg"
         ));
 
-        return magazineService.create(magazineRequest, member, category);
+        return magazineService.createMagazine(magazineRequest, member, category, null);
     }
 
     public Member createMember(String username) {
@@ -268,7 +268,7 @@ class MagazineCategoryControllerTest {
                 .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
 
         // then
-        MagazineCategoryResponse.Get updatedCategory =objectMapper.readValue(response, MagazineCategoryResponse.Get.class);
+        MagazineCategoryResponse.Get updatedCategory = objectMapper.readValue(response, MagazineCategoryResponse.Get.class);
         assertEquals(updateRequest.getName(), updatedCategory.getName());
         assertEquals(updateRequest.getSlug(), updatedCategory.getSlug());
         assertEquals(updateRequest.getParentId(), updatedCategory.getParentCategory().getId());
@@ -393,7 +393,7 @@ class MagazineCategoryControllerTest {
         // given
         MagazineCategory parentCategory = createCategoryAndLoad();
 
-        createMagaizne(createMember("admin"),parentCategory);
+        createMagaizne(createMember("admin"), parentCategory);
 
         // when
         mockMvc.perform(

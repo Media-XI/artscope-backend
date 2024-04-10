@@ -9,6 +9,9 @@ import com.example.codebase.domain.magazine.repository.MagazineCommentRepository
 import com.example.codebase.domain.magazine.repository.MagazineMediaRepository;
 import com.example.codebase.domain.magazine.repository.MagazineRepository;
 import com.example.codebase.domain.member.entity.Member;
+import com.example.codebase.domain.team.entity.Team;
+import com.example.codebase.domain.team.entity.TeamUser;
+import com.example.codebase.domain.team.repository.TeamRepository;
 import com.example.codebase.exception.NotFoundException;
 import com.example.codebase.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 @Service
@@ -29,24 +33,24 @@ public class MagazineService {
 
     private final MagazineMediaRepository magazineMediaRepository;
 
-    private final MagazineCategoryRepository magazineCategoryRepository;
-
 
     @Autowired
-    public MagazineService(MagazineRepository magazineRepository, MagazineCommentRepository magazineCommentRepository, MagazineMediaRepository magazineMediaRepository, MagazineCategoryRepository magazineCategoryRepository) {
+    public MagazineService(MagazineRepository magazineRepository, MagazineCommentRepository magazineCommentRepository, MagazineMediaRepository magazineMediaRepository) {
         this.magazineRepository = magazineRepository;
         this.magazineCommentRepository = magazineCommentRepository;
         this.magazineMediaRepository = magazineMediaRepository;
-        this.magazineCategoryRepository = magazineCategoryRepository;
     }
 
     @Transactional
-    public MagazineResponse.Get create(MagazineRequest.Create magazineRequest, Member member, MagazineCategory category) {
-        Magazine newMagazine = Magazine.toEntity(magazineRequest, member, category);
+    public MagazineResponse.Get createMagazine(MagazineRequest.Create magazineRequest, Member member, MagazineCategory category, @Nullable Team team) {
+        Magazine newMagazine = Magazine.toEntity(magazineRequest, member, category, team);
+
         magazineRepository.save(newMagazine);
 
         List<MagazineMedia> magazineMedias = MagazineMedia.toList(magazineRequest.getMediaUrls(), newMagazine);
         magazineMediaRepository.saveAll(magazineMedias);
+
+        magazineRepository.save(newMagazine);
         return MagazineResponse.Get.from(newMagazine);
     }
 
@@ -118,10 +122,9 @@ public class MagazineService {
         MagazineComment parentComment = magazineCommentRepository.findByIdAndMagazine(parentCommentId, newComment.getMagazine())
                 .orElseThrow(() -> new NotFoundException("부모댓글이 존재하지 않거나 해당 매거진에 작성된 댓글이 아닙니다."));
 
-        if (isMentionComment(parentComment)){
+        if (isMentionComment(parentComment)) {
             newComment.mentionComment(parentComment);
-        }
-        else {
+        } else {
             newComment.setParentComment(parentComment);
         }
     }
@@ -175,4 +178,5 @@ public class MagazineService {
         Page<Magazine> magazines = magazineRepository.findByMemberToFollowing(member, pageRequest);
         return MagazineResponse.GetAll.from(magazines);
     }
+
 }
