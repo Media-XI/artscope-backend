@@ -27,7 +27,7 @@ public class CheckDuplicatedRequestAspect {
     private final RedisUtil redisUtil;
 
     @Autowired
-    private CheckDuplicatedRequestAspect(RedisUtil redisUtil) {
+    protected CheckDuplicatedRequestAspect(RedisUtil redisUtil) {
         this.redisUtil = redisUtil;
     }
 
@@ -39,13 +39,13 @@ public class CheckDuplicatedRequestAspect {
 
         if (!isValidAnnotation(method)) return;
 
-        String username = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
+        String key = SecurityUtil.getCurrentUsername().orElseThrow(LoginRequiredException::new);
 
-        if (username.isEmpty()) return;
+        if (key.isEmpty()) return;
 
         String target = annotation.target().isEmpty() ? String.valueOf(method) : annotation.target();
 
-        String uniqueKey = username + "->" + target;
+        String uniqueKey = key + "->" + target;
         if (redisUtil.getData(uniqueKey).isPresent()) {
             throw new DuplicatedRequestException();
         }
