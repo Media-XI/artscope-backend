@@ -27,7 +27,7 @@ public interface MagazineRepository extends JpaRepository<Magazine, Long> {
     @Query("SELECT m AS magazine, CASE WHEN ml.member.username = :username THEN true ELSE false END As isLiked " +
             "FROM Magazine m LEFT JOIN MagazineLike ml ON m = ml.magazine AND ml.member.username = :username " +
             "WHERE m.id = :id")
-    Optional<MagazineWithIsLiked> findMagazineWithLikeeByIdAndMember(Long id, String username);
+    Optional<MagazineWithIsLiked> findMagazineWithLikedByIdAndMember(Long id, String username);
 
     @Query("SELECT m AS magazine, false AS isLiked FROM Magazine m WHERE m.isDeleted = false")
     Page<MagazineWithIsLiked> findAllMagazineWithIsLiked(PageRequest pageRequest);
@@ -38,7 +38,7 @@ public interface MagazineRepository extends JpaRepository<Magazine, Long> {
 
     default Optional<MagazineWithIsLiked> findMagazineWithIsLiked(Long id, String username) {
         if (username != null) {
-            return findMagazineWithLikeeByIdAndMember(id, username);
+            return findMagazineWithLikedByIdAndMember(id, username);
         }
         return findMagazineWithIsLikedById(id);
     }
