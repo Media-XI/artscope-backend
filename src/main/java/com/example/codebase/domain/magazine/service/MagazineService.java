@@ -3,10 +3,8 @@ package com.example.codebase.domain.magazine.service;
 import com.example.codebase.domain.magazine.dto.MagazineCommentRequest;
 import com.example.codebase.domain.magazine.dto.MagazineRequest;
 import com.example.codebase.domain.magazine.dto.MagazineResponse;
-import com.example.codebase.domain.magazine.entity.Magazine;
-import com.example.codebase.domain.magazine.entity.MagazineCategory;
-import com.example.codebase.domain.magazine.entity.MagazineComment;
-import com.example.codebase.domain.magazine.entity.MagazineMedia;
+import com.example.codebase.domain.magazine.entity.*;
+import com.example.codebase.domain.magazine.repository.MagazineCategoryRepository;
 import com.example.codebase.domain.magazine.repository.MagazineCommentRepository;
 import com.example.codebase.domain.magazine.repository.MagazineMediaRepository;
 import com.example.codebase.domain.magazine.repository.MagazineRepository;
@@ -15,6 +13,7 @@ import com.example.codebase.domain.team.entity.Team;
 import com.example.codebase.domain.team.entity.TeamUser;
 import com.example.codebase.domain.team.repository.TeamRepository;
 import com.example.codebase.exception.NotFoundException;
+import com.example.codebase.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -57,18 +56,18 @@ public class MagazineService {
 
     @Transactional
     public MagazineResponse.Get get(Long id) {
-        Magazine magazine = magazineRepository.findById(id)
+        MagazineWithIsLiked magazine = magazineRepository.findMagazineWithIsLiked(id, SecurityUtil.getLoginUsername())
                 .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
 
-        magazine.incressView();
+        magazine.getMagazine().incressView();
 
-        magazineRepository.save(magazine);
+        magazineRepository.save(magazine.getMagazine());
         return MagazineResponse.Get.from(magazine);
     }
 
     public MagazineResponse.GetAll getAll(PageRequest pageRequest) {
-        Page<Magazine> magazines = magazineRepository.findAll(pageRequest);
-        return MagazineResponse.GetAll.from(magazines);
+        Page<MagazineWithIsLiked> magazines = magazineRepository.findAllMagazineWithIsLiked(pageRequest, SecurityUtil.getLoginUsername());
+        return MagazineResponse.GetAll.withLike(magazines);
     }
 
     @Transactional
