@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -79,4 +80,9 @@ public class TeamUserService {
         teamUserRepository.save(member);
     }
 
+    @Transactional(readOnly = true)
+    public TeamUserResponse.GetAll getTeamsByUsername(Member member) {
+        List<TeamUser> teams = teamUserRepository.findByMember(member);
+        return TeamUserResponse.GetAll.from(teams);
+    }
 }
