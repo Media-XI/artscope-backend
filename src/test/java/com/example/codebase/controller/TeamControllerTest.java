@@ -6,8 +6,11 @@ import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.domain.team.dto.TeamRequest;
 import com.example.codebase.domain.team.dto.TeamResponse;
+import com.example.codebase.domain.team.dto.TeamUserRequest;
 import com.example.codebase.domain.team.dto.TeamUserResponse;
+import com.example.codebase.domain.team.entity.TeamUser;
 import com.example.codebase.domain.team.service.TeamService;
+import com.example.codebase.domain.team.service.TeamUserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +57,9 @@ class TeamControllerTest {
     @Autowired
     private TeamService teamService;
 
+    @Autowired
+    private TeamUserService teamUserService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
@@ -91,6 +97,13 @@ class TeamControllerTest {
 
     public TeamResponse.Get createTeam(Member member, String name) {
         return teamService.createTeam(createTeamRequest(name), member);
+    }
+
+    public void createAndInviteMember(TeamUser loginUser, Member inviteMember) {
+        TeamUserRequest.Create request = new TeamUserRequest.Create(
+                "팀원"
+        );
+        teamUserService.addTeamUser(loginUser, inviteMember, request);
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -279,5 +292,31 @@ class TeamControllerTest {
         TeamUserResponse.GetAll teamUserResponse = objectMapper.readValue(response, TeamUserResponse.GetAll.class);
         assertEquals(1, teamUserResponse.getTeamUsers().size());
         assertEquals("testid", teamUserResponse.getTeamUsers().get(0).getUsername());
+    }
+
+    @DisplayName("해당 유저의 팀 목록 조회 ")
+    @Test
+    void 유저가_속한_팀_조회() throws Exception {
+        //given
+        Member member = createMember("testid");
+        Member member2 = createMember("testid2");
+        TeamResponse.Get createTeam1 = createTeam(member, "ownerTeam1");
+        TeamResponse.Get createTeam2 = createTeam(member, "ownerTeam2");
+        TeamResponse.Get inviteTeam = createTeam(member2, "memberTeam1");
+        TeamUser teamOwner = teamUserService.findByTeamIdAndUsername(inviteTeam.getId(),member2.getUsername());
+        createAndInviteMember(teamOwner, member);
+
+        //when
+        String response = mockMvc.perform(get("/api/teams/members/" + member.getUsername())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        //then
+        TeamUserResponse.GetAll teamUserResponse = objectMapper.readValue(response, TeamUserResponse.GetAll.class);
+        assertEquals(3, teamUserResponse.getTeamUsers().size());
+        assertEquals("OWNER", teamUserResponse.getTeamUsers().get(0).getRole().name());
+        assertEquals("OWNER", teamUserResponse.getTeamUsers().get(1).getRole().name());
+        assertEquals("MEMBER", teamUserResponse.getTeamUsers().get(2).getRole().name());
     }
 }
