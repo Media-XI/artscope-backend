@@ -18,4 +18,6 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
     List<TeamUser> findAllByTeamOrderByRole(Team team);
 
     boolean existsByTeamAndMember(Team team, Member member);
+
+    List<TeamUser> findByMember(Member member);
 }
