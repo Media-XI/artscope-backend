@@ -47,7 +47,7 @@ public class TeamUserResponse {
             get.setRole(teamUser.getRole());
             get.setCreatedTime(teamUser.getCreatedTime());
             get.setUpdatedTime(teamUser.getUpdatedTime());
-            get.setTeamId(teamUser.getId());
+            get.setTeamId(teamUser.getTeam().getId());
             return get;
         }
     }
