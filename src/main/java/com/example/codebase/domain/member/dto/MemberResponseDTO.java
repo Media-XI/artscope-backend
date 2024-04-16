@@ -90,8 +90,8 @@ public class MemberResponseDTO {
         dto.setAllowEmailReceive(member.isAllowEmailReceive());
         dto.setAllowEmailReceiveDateTime(member.getAllowEmailReceiveDatetime());
 
-        if (member.getTeamUserRoles() != null) {
-            for (TeamUser teamUser : member.getTeamUserRoles()) {
+        if (member.getTeamUser() != null) {
+            for (TeamUser teamUser : member.getTeamUser()) {
                 dto.teams.add(TeamResponse.ProfileGet.from(teamUser.getTeam()));
             }
         }

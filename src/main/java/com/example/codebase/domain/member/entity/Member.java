@@ -125,7 +125,7 @@ public class Member {
 
     @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<TeamUser> teamUserRoles = new ArrayList<>();
+    private List<TeamUser> teamUser = new ArrayList<>();
 
     public static User toUser(Member member) {
         return new User(member.getUsername(), member.getPassword(), member.getAuthorities().stream()
@@ -326,11 +326,14 @@ public class Member {
 
     @PreRemove
     private void preRemove() {
-        for(TeamUser teamUser : teamUserRoles) {
+        for(TeamUser teamUser : teamUser) {
             if(teamUser.isOwner()) {
                 throw new RuntimeException("팀장인 팀이 존재합니다. 팀장을 변경하거나 팀을 삭제한 후에 시도해주세요.");
             }
         }
     }
 
+    public void addTeamUser(TeamUser teamUser) {
+        this.teamUser.add(teamUser);
+    }
 }
