@@ -316,7 +316,10 @@ class TeamControllerTest {
         TeamUserResponse.GetAll teamUserResponse = objectMapper.readValue(response, TeamUserResponse.GetAll.class);
         assertEquals(3, teamUserResponse.getTeamUsers().size());
         assertEquals("OWNER", teamUserResponse.getTeamUsers().get(0).getRole().name());
+        assertEquals(createTeam1.getId(),teamUserResponse.getTeamUsers().get(0).getTeamId());
         assertEquals("OWNER", teamUserResponse.getTeamUsers().get(1).getRole().name());
+        assertEquals(createTeam2.getId(),teamUserResponse.getTeamUsers().get(1).getTeamId());
         assertEquals("MEMBER", teamUserResponse.getTeamUsers().get(2).getRole().name());
+        assertEquals(inviteTeam.getId(),teamUserResponse.getTeamUsers().get(2).getTeamId());
     }
 }

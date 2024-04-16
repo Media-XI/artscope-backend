@@ -3,17 +3,22 @@ package com.example.codebase.controller;
 import com.amazonaws.services.s3.AmazonS3;
 import com.example.codebase.config.S3MockConfig;
 import com.example.codebase.domain.auth.WithMockCustomUser;
-import com.example.codebase.domain.member.dto.CreateArtistMemberDTO;
-import com.example.codebase.domain.member.dto.CreateCuratorMemberDTO;
-import com.example.codebase.domain.member.dto.CreateMemberDTO;
-import com.example.codebase.domain.member.dto.UpdateMemberDTO;
+import com.example.codebase.domain.member.dto.*;
 import com.example.codebase.domain.member.entity.Authority;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.entity.MemberAuthority;
 import com.example.codebase.domain.member.entity.RoleStatus;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
+import com.example.codebase.domain.team.dto.TeamRequest;
+import com.example.codebase.domain.team.dto.TeamResponse;
+import com.example.codebase.domain.team.dto.TeamUserResponse;
+import com.example.codebase.domain.team.entity.TeamUser;
+import com.example.codebase.domain.team.repository.TeamUserRepository;
+import com.example.codebase.domain.team.service.TeamService;
+import com.example.codebase.domain.team.service.TeamUserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.findify.s3mock.S3Mock;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
@@ -36,10 +41,12 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -73,6 +80,9 @@ class MemberControllerTest {
     @Autowired
     private MemberRepository memberRepository;
 
+    @Autowired
+    private TeamService teamService;
+
     @BeforeAll
     static void setUp(@Autowired S3Mock s3Mock,
                       @Autowired AmazonS3 amazonS3,
@@ -91,7 +101,11 @@ class MemberControllerTest {
 
     @BeforeEach
     public void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
+        objectMapper.registerModule(new JavaTimeModule());
     }
 
     public Member createOrLoadMember() {
@@ -135,6 +149,20 @@ class MemberControllerTest {
         return Files.readAllBytes(file.toPath());
     }
 
+    public TeamResponse.Get createTeam(Member member, String name) {
+        return teamService.createTeam(createTeamRequest(name), member);
+    }
+
+    public TeamRequest.Create createTeamRequest(String name) {
+        return new TeamRequest.Create(
+                name,
+                "팀 주소",
+                "http://test.com/profile.jpg",
+                "http://test.com/background.jpg",
+                "팀소개",
+                "자신의 포지션, 직급"
+        );
+    }
 
     @DisplayName("회원가입 API가 작동한다")
     @Test
@@ -572,7 +600,7 @@ class MemberControllerTest {
 
         mockMvc
                 .perform(
-                        put("/api/members/" + member.getUsername() +"/email-receive")
+                        put("/api/members/" + member.getUsername() + "/email-receive")
                                 .param("emailReceive", "true")
                 )
                 .andDo(print())
@@ -602,4 +630,53 @@ class MemberControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @DisplayName("회원 프로필 조회시 팀 목록 반환 성공")
+    @WithMockCustomUser(username = "testid1", role = "USER")
+    @Test
+    void 회원_프로필_팀_조회시_팀_반환_확인() throws Exception {
+        // given
+        Member member = createOrLoadMember();
+        TeamResponse.Get team1 = createTeam(member, "팀이름1");
+        TeamResponse.Get team2 = createTeam(member, "팀이름2");
+
+        // when
+        String response = mockMvc.perform(
+                        get("/api/members/profile")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        // then
+        MemberResponseDTO memberResponse = objectMapper.readValue(response, MemberResponseDTO.class);
+        assertEquals(2, memberResponse.getTeams().size());
+        assertEquals(team1.getName(), memberResponse.getTeams().get(0).getName());
+        assertEquals(team2.getName(), memberResponse.getTeams().get(1).getName());
+    }
+
+    @DisplayName("사용자 프로필 조회 시 팀 반환 성공")
+    @Test
+    void 사용자_프로필_조회시_팀_반환_확인() throws Exception {
+        // given
+        Member member = createOrLoadMember();
+        TeamResponse.Get team1 = createTeam(member, "팀이름1");
+        TeamResponse.Get team2 = createTeam(member, "팀이름2");
+
+        // when
+        String response = mockMvc.perform(
+                        get(String.format("/api/members/%s", member.getUsername()))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+
+        // then
+        MemberResponseDTO memberResponse = objectMapper.readValue(response, MemberResponseDTO.class);
+        assertEquals(2, memberResponse.getTeams().size());
+        assertEquals(team1.getName(), memberResponse.getTeams().get(0).getName());
+        assertEquals(team2.getName(), memberResponse.getTeams().get(1).getName());
+    }
 }
