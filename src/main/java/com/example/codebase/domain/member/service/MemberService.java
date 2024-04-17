@@ -19,7 +19,7 @@ import com.example.codebase.domain.notification.repository.NotificationRepositor
 import com.example.codebase.domain.notification.repository.NotificationSettingRepository;
 import com.example.codebase.s3.S3Service;
 import com.example.codebase.util.RedisUtil;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -164,6 +164,7 @@ public class MemberService {
         return MemberResponseDTO.from(member);
     }
 
+    @Transactional(readOnly = true)
     public MemberResponseDTO getProfile(String username) {
         Member member =
                 memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);

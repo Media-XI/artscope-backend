@@ -49,12 +49,14 @@ public class TeamUser {
     private LocalDateTime updatedTime = LocalDateTime.now();
 
     public static TeamUser toEntity(String position, Member member, Team team, TeamUserRole role) {
-        return TeamUser.builder()
+        TeamUser teamUser = TeamUser.builder()
                 .member(member)
                 .team(team)
                 .role(role)
                 .position(position)
                 .build();
+        member.addTeamUser(teamUser);
+        return teamUser;
     }
 
     public void validOwner() {

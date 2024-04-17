@@ -1,11 +1,16 @@
 package com.example.codebase.domain.member.dto;
 
 import com.example.codebase.domain.member.entity.Member;
+import com.example.codebase.domain.team.dto.TeamResponse;
+import com.example.codebase.domain.team.entity.TeamUser;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Getter
 @Setter
@@ -50,6 +55,8 @@ public class MemberResponseDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedTime;
 
+    private List<TeamResponse.ProfileGet> teams = new ArrayList<>();
+
     public static MemberResponseDTO from(Member member) {
         MemberResponseDTO dto = new MemberResponseDTO();
         dto.setUsername(member.getUsername());
@@ -82,6 +89,12 @@ public class MemberResponseDTO {
 
         dto.setAllowEmailReceive(member.isAllowEmailReceive());
         dto.setAllowEmailReceiveDateTime(member.getAllowEmailReceiveDatetime());
+
+        if (!member.getTeamUser().isEmpty()) {
+            for (TeamUser teamUser : member.getTeamUser()) {
+                dto.teams.add(TeamResponse.ProfileGet.from(teamUser.getTeam()));
+            }
+        }
 
         return dto;
     }

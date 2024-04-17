@@ -30,6 +30,8 @@ public class TeamUserResponse {
 
         private TeamUserRole role;
 
+        private Long teamId;
+
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime createdTime;
 
@@ -45,6 +47,7 @@ public class TeamUserResponse {
             get.setRole(teamUser.getRole());
             get.setCreatedTime(teamUser.getCreatedTime());
             get.setUpdatedTime(teamUser.getUpdatedTime());
+            get.setTeamId(teamUser.getTeam().getId());
             return get;
         }
     }
