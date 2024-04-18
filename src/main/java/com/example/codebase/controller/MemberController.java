@@ -1,10 +1,8 @@
 package com.example.codebase.controller;
 
-import com.example.codebase.domain.mail.service.MailService;
 import com.example.codebase.domain.member.dto.*;
 import com.example.codebase.domain.member.entity.RoleStatus;
 import com.example.codebase.domain.member.service.MemberService;
-import com.example.codebase.domain.notification.service.NotificationSettingService;
 import com.example.codebase.exception.NotAcceptTypeException;
 import com.example.codebase.util.FileUtil;
 import com.example.codebase.util.SecurityUtil;
@@ -77,7 +75,7 @@ public class MemberController {
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PutMapping("/{uesrname}")
     public ResponseEntity updateMember(@PathVariable String uesrname,
-            @Valid @RequestBody UpdateMemberDTO updateMemberDTO) {
+                                       @Valid @RequestBody UpdateMemberDTO updateMemberDTO) {
         String loginUsername = SecurityUtil.getCurrentUsername()
                 .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
@@ -185,7 +183,7 @@ public class MemberController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/{username}/role-status")
     public ResponseEntity updateRoleStatus(@PathVariable @Valid @NotBlank String username,
-            @RequestParam @Valid @NotBlank(message = "역할 상태는 필수입니다.") String roleStatus) {
+                                           @RequestParam @Valid @NotBlank(message = "역할 상태는 필수입니다.") String roleStatus) {
         MemberResponseDTO member = memberService.updateRoleStatus(username, RoleStatus.create(roleStatus));
         return new ResponseEntity(member, HttpStatus.OK);
     }
@@ -194,7 +192,7 @@ public class MemberController {
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PutMapping("/{username}/username")
     public ResponseEntity updateUsername(@PathVariable String username,
-            @Valid @RequestParam UsernameDTO newUsername) {
+                                         @Valid @RequestParam UsernameDTO newUsername) {
         String currentUsername = SecurityUtil.getCurrentUsername()
                 .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
         if (!SecurityUtil.isAdmin() && !currentUsername.equals(username)) { // 관리자가 아니고, 본인의 아이디가 아닐 경우
@@ -208,7 +206,7 @@ public class MemberController {
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @PutMapping("/{username}/password")
     public ResponseEntity updatePassword(@PathVariable String username,
-            @NotBlank @RequestParam(value = "newPassword") String newPassword) {
+                                         @NotBlank @RequestParam(value = "newPassword") String newPassword) {
         String currentUsername = SecurityUtil.getCurrentUsername()
                 .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 
@@ -239,7 +237,7 @@ public class MemberController {
     @Operation(summary = "비밀번호 재설정", description = "비밀번호 재설정 합니다.")
     @PostMapping("/reset-password")
     public ResponseEntity resetPassword(@RequestParam @NotBlank String code,
-            @RequestBody PasswordResetRequestDTO password) {
+                                        @RequestBody PasswordResetRequestDTO password) {
 
         memberService.resetPassword(code, password);
 
@@ -250,7 +248,7 @@ public class MemberController {
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PutMapping("/{username}/email-receive")
     public ResponseEntity updateEmailReceive(@PathVariable String username,
-            @RequestParam boolean emailReceive) {
+                                             @RequestParam boolean emailReceive) {
         String currentUsername = SecurityUtil.getCurrentUsername()
                 .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
 

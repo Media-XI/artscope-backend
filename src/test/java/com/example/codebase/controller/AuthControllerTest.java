@@ -10,6 +10,7 @@ import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.jwt.TokenProvider;
 import com.example.codebase.util.RedisUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -110,9 +110,9 @@ class AuthControllerTest {
         loginDTO.setPassword("1234");
 
         mockMvc.perform(
-                post("/api/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginDTO)))
+                        post("/api/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(loginDTO)))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -129,9 +129,9 @@ class AuthControllerTest {
         String refreshToken = tokenProvider.generateToken(loginDTO).getRefreshToken();
 
         mockMvc.perform(
-                post("/api/refresh")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(refreshToken))
+                        post("/api/refresh")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(refreshToken))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -149,7 +149,7 @@ class AuthControllerTest {
         tokenProvider.generateToken(loginDTO);
 
         mockMvc.perform(
-                post("/api/logout"))
+                        post("/api/logout"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -163,8 +163,8 @@ class AuthControllerTest {
         redisUtil.setDataAndExpire(code, member.getEmail(), 60 * 5 * 1000);
 
         mockMvc.perform(
-                get("/api/mail/authenticate")
-                        .param("code", code))
+                        get("/api/mail/authenticate")
+                                .param("code", code))
                 .andDo(print())
                 .andExpect(status().isOk());
 
@@ -177,8 +177,8 @@ class AuthControllerTest {
         createOrLoadMember();
 
         mockMvc.perform(
-                get("/api/auth/me")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        get("/api/auth/me")
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
