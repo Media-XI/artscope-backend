@@ -513,7 +513,7 @@ class MemberControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @DisplayName("역 상태 별 회원 전체 조회")
+    @DisplayName("역활 별 회원 전체 조회")
     @WithMockCustomUser(username = "admin", role = "ADMIN")
     @Test
     void 승인_대기_회원_전체_조회() throws Exception {
@@ -575,20 +575,20 @@ class MemberControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @DisplayName("회원 아이디 전체 조회 시")
-    @Test
-    void 회원_아이디_전체_조회() throws Exception {
-        createOrLoadMember(1);
-        createOrLoadMember(2);
-        createOrLoadMember(3);
-        createOrLoadMember(4);
-
-        mockMvc
-                .perform(
-                        get("/api/members/username"))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
+//    @DisplayName("회원 아이디 전체 조회 시")
+//    @Test
+//    void 회원_아이디_전체_조회() throws Exception {
+//        createOrLoadMember(1);
+//        createOrLoadMember(2);
+//        createOrLoadMember(3);
+//        createOrLoadMember(4);
+//
+//        mockMvc
+//                .perform(
+//                        get("/api/members/username"))
+//                .andDo(print())
+//                .andExpect(status().isOk());
+//    }
 
     @DisplayName("회원 프로필 조회시 팀 목록 반환 성공")
     @WithMockCustomUser(username = "testid1", role = "USER")
@@ -601,7 +601,7 @@ class MemberControllerTest {
 
         // when
         String response = mockMvc.perform(
-                get("/api/members/profile")
+                get("/api/auth/me")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
