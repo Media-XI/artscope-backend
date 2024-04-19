@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Getter
 @Setter
 public class MemberResponseDTO {
@@ -19,8 +18,6 @@ public class MemberResponseDTO {
     private String username;
 
     private String name;
-
-    private String email;
 
     private String picture;
 
@@ -61,7 +58,6 @@ public class MemberResponseDTO {
         MemberResponseDTO dto = new MemberResponseDTO();
         dto.setUsername(member.getUsername());
         dto.setName(member.getName());
-        dto.setEmail(member.getEmail());
         dto.setPicture(member.getPicture());
         dto.setOauthProvider(String.valueOf(member.getOauthProvider()));
         // dto.setOauthProviderId(Optional.ofNullable(member.getOauthProviderId()));
