@@ -11,6 +11,7 @@ import com.example.codebase.domain.team.dto.TeamUserResponse;
 import com.example.codebase.domain.team.entity.TeamUser;
 import com.example.codebase.domain.team.service.TeamService;
 import com.example.codebase.domain.team.service.TeamUserService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -313,13 +315,13 @@ class TeamControllerTest {
                 .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
 
         //then
-        TeamUserResponse.GetAll teamUserResponse = objectMapper.readValue(response, TeamUserResponse.GetAll.class);
-        assertEquals(3, teamUserResponse.getTeamUsers().size());
-        assertEquals("OWNER", teamUserResponse.getTeamUsers().get(0).getRole().name());
-        assertEquals(createTeam1.getId(),teamUserResponse.getTeamUsers().get(0).getTeamId());
-        assertEquals("OWNER", teamUserResponse.getTeamUsers().get(1).getRole().name());
-        assertEquals(createTeam2.getId(),teamUserResponse.getTeamUsers().get(1).getTeamId());
-        assertEquals("MEMBER", teamUserResponse.getTeamUsers().get(2).getRole().name());
-        assertEquals(inviteTeam.getId(),teamUserResponse.getTeamUsers().get(2).getTeamId());
+        List<TeamResponse.ProfileGet> teamUserResponse = objectMapper.readValue(response, new TypeReference<>() {});
+        assertEquals(3, teamUserResponse.size());
+        assertEquals("OWNER",  teamUserResponse.get(0).getRole().name());
+        assertEquals(createTeam1.getId(),teamUserResponse.get(0).getId());
+        assertEquals("OWNER", teamUserResponse.get(1).getRole().name());
+        assertEquals(createTeam2.getId(),teamUserResponse.get(1).getId());
+        assertEquals("MEMBER", teamUserResponse.get(2).getRole().name());
+        assertEquals(inviteTeam.getId(),teamUserResponse.get(2).getId());
     }
 }
