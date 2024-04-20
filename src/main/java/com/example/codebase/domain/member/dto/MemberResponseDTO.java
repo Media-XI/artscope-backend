@@ -92,7 +92,7 @@ public class MemberResponseDTO {
 
         if (!member.getTeamUser().isEmpty()) {
             for (TeamUser teamUser : member.getTeamUser()) {
-                dto.teams.add(TeamResponse.ProfileGet.from(teamUser.getTeam()));
+                dto.getTeams().add(TeamResponse.ProfileGet.from(teamUser));
             }
         }
 
