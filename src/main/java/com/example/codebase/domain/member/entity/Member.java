@@ -124,6 +124,7 @@ public class Member {
     private NotificationSetting notificationSettings;
 
     @Builder.Default
+    @OrderBy("createdTime ASC")
     @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<TeamUser> teamUser = new ArrayList<>();
 
