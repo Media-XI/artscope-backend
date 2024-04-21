@@ -291,4 +291,11 @@ public class MemberController {
         List<String> usernameList = memberService.getAllUsername();
         return new ResponseEntity(usernameList, HttpStatus.OK);
     }
+
+    @GetMapping("/{username}/teams")
+    @Operation(summary = "회원이 속한 팀 목록 조회", description = "회원이 속한 모든 팀들을 조회합니다.")
+    public ResponseEntity getTeamsByUsername(@PathVariable String username) {
+        MemberResponseDTO.TeamProfiles response = memberService.getTeamProfiles(username);
+        return new ResponseEntity(response, HttpStatus.OK);
+    }
 }
