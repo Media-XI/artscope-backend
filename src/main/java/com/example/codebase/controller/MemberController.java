@@ -1,10 +1,8 @@
 package com.example.codebase.controller;
 
-import com.example.codebase.domain.mail.service.MailService;
 import com.example.codebase.domain.member.dto.*;
 import com.example.codebase.domain.member.entity.RoleStatus;
 import com.example.codebase.domain.member.service.MemberService;
-import com.example.codebase.domain.notification.service.NotificationSettingService;
 import com.example.codebase.exception.NotAcceptTypeException;
 import com.example.codebase.util.FileUtil;
 import com.example.codebase.util.SecurityUtil;
@@ -33,7 +31,6 @@ import java.util.List;
 public class MemberController {
 
     private final MemberService memberService;
-
 
     @Autowired
     public MemberController(MemberService memberService) {
@@ -95,8 +92,7 @@ public class MemberController {
     @PutMapping("/{username}/picture")
     public ResponseEntity updateProfile(
             @PathVariable String username,
-            @RequestPart MultipartFile profile
-    ) throws Exception {
+            @RequestPart MultipartFile profile) throws Exception {
         String currentUsername = SecurityUtil.getCurrentUsername()
                 .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
         if (!currentUsername.equals(username)) {
@@ -121,8 +117,7 @@ public class MemberController {
     public ResponseEntity getAllMember(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "DESC", required = false) String sortDirection
-    ) {
+            @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
@@ -130,33 +125,18 @@ public class MemberController {
         return new ResponseEntity(members, HttpStatus.OK);
     }
 
-    @Operation(summary = "역할 상태로 회원 전체 조회", description = "[ADMIN] 역할 상태로 회원 전체 조회합니다.",
-            parameters = @Parameter(
-                    name = "roleStatus",
-                    description = "역할 상태",
-                    example = "NONE | PENDING | REJECTED | ARTIST | CURATOR")
-    )
+    @Operation(summary = "역할 상태로 회원 전체 조회", description = "[ADMIN] 역할 상태로 회원 전체 조회합니다.", parameters = @Parameter(name = "roleStatus", description = "역할 상태", example = "NONE | PENDING | REJECTED | ARTIST | CURATOR"))
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/role-status")
     public ResponseEntity getAllRoleStatusMember(
             @RequestParam(defaultValue = "NONE") @NotBlank(message = "역할 상태는 필수입니다.") String roleStatus,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "DESC", required = false) String sortDirection
-    ) {
+            @RequestParam(defaultValue = "DESC", required = false) String sortDirection) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), "createdTime");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
         MembersResponseDTO members = memberService.getAllRoleStatusMember(roleStatus, pageRequest);
         return new ResponseEntity(members, HttpStatus.OK);
-    }
-
-    @Operation(summary = "내 프로필 조회", description = "[USER] 내 프로필을 조회합니다.")
-    @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
-    @GetMapping("/profile")
-    public ResponseEntity getProfile() {
-        String username = SecurityUtil.getCurrentUsername().orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
-        MemberResponseDTO member = memberService.getProfile(username);
-        return new ResponseEntity(member, HttpStatus.OK);
     }
 
     @Operation(summary = "회원 프로필 조회", description = "[USER] 회원의 프로필을 조회합니다.")
@@ -199,12 +179,7 @@ public class MemberController {
         return new ResponseEntity("사용 가능한 아이디 입니다.", HttpStatus.OK);
     }
 
-    @Operation(summary = "회원 역할 상태 변경", description = "[ADMIN] 해당 회원의 역할 상태를 변경합니다.",
-            parameters = @Parameter(
-                    name = "roleStatus",
-                    description = "역할 상태",
-                    example = "NONE | ARTIST_PENDING | ARTIST_REJECTED | ARTIST | CURATOR_PENDING | CURATOR_REJECTED | CURATOR")
-    )
+    @Operation(summary = "회원 역할 상태 변경", description = "[ADMIN] 해당 회원의 역할 상태를 변경합니다.", parameters = @Parameter(name = "roleStatus", description = "역할 상태", example = "NONE | ARTIST_PENDING | ARTIST_REJECTED | ARTIST | CURATOR_PENDING | CURATOR_REJECTED | CURATOR"))
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/{username}/role-status")
     public ResponseEntity updateRoleStatus(@PathVariable @Valid @NotBlank String username,
@@ -284,6 +259,7 @@ public class MemberController {
         String message = memberService.updateEmailReceive(username, emailReceive);
         return new ResponseEntity(message, HttpStatus.OK);
     }
+
 
     @Operation(summary = "회원 아이디 전체 조회", description = "검색엔진 노출 용 회원 아이디 리스트를 조회합니다.")
     @GetMapping("/username")

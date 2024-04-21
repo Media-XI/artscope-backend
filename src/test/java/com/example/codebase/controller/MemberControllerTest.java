@@ -12,6 +12,7 @@ import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.domain.team.dto.TeamRequest;
 import com.example.codebase.domain.team.dto.TeamResponse;
+
 import com.example.codebase.domain.team.dto.TeamUserRequest;
 import com.example.codebase.domain.team.dto.TeamUserResponse;
 import com.example.codebase.domain.team.entity.TeamUser;
@@ -19,6 +20,7 @@ import com.example.codebase.domain.team.repository.TeamUserRepository;
 import com.example.codebase.domain.team.service.TeamService;
 import com.example.codebase.domain.team.service.TeamUserService;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.findify.s3mock.S3Mock;
@@ -29,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Role;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -128,19 +129,18 @@ class MemberControllerTest {
             return testMember.get();
         }
 
-        Member dummy =
-                Member.builder()
-                        .username("testid" + index)
-                        .password(passwordEncoder.encode("1234"))
-                        .email("email" + index + "@test.com")
-                        .name("test" + index)
-                        .companyName("company" + index)
-                        .roleStatus(role)
-                        .activated(true)
-                        .allowEmailReceive(true)
-                        .allowEmailReceiveDatetime(LocalDateTime.now())
-                        .createdTime(LocalDateTime.now().plusSeconds(index))
-                        .build();
+        Member dummy = Member.builder()
+                .username("testid" + index)
+                .password(passwordEncoder.encode("1234"))
+                .email("email" + index + "@test.com")
+                .name("test" + index)
+                .companyName("company" + index)
+                .roleStatus(role)
+                .activated(true)
+                .allowEmailReceive(true)
+                .allowEmailReceiveDatetime(LocalDateTime.now())
+                .createdTime(LocalDateTime.now().plusSeconds(index))
+                .build();
 
         MemberAuthority memberAuthority = new MemberAuthority();
         memberAuthority.setAuthority(Authority.of("ROLE_USER"));
@@ -166,8 +166,7 @@ class MemberControllerTest {
                 "http://test.com/profile.jpg",
                 "http://test.com/background.jpg",
                 "팀소개",
-                "자신의 포지션, 직급"
-        );
+                "자신의 포지션, 직급");
     }
 
     public void createAndInviteMember(TeamUser loginUser, Member inviteMember) {
@@ -190,8 +189,7 @@ class MemberControllerTest {
         mockMvc.perform(
                         post("/api/members")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
-                )
+                                .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
                 .andDo(print());
     }
@@ -210,8 +208,7 @@ class MemberControllerTest {
         mockMvc.perform(
                         post("/api/members/admin")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
-                )
+                                .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
                 .andDo(print());
     }
@@ -231,8 +228,7 @@ class MemberControllerTest {
         mockMvc.perform(
                         post("/api/members/artist")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
-                )
+                                .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
                 .andDo(print());
     }
@@ -249,22 +245,7 @@ class MemberControllerTest {
                         get("/api/members")
                                 .param("page", "0")
                                 .param("size", "10")
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
-
-    @WithMockCustomUser(username = "testid1", role = "USER")
-    @DisplayName("로그인한 사용자 프로필 조회 시")
-    @Test
-    void test4() throws Exception {
-        createOrLoadMember();
-
-        mockMvc.perform(
-                        get("/api/members/profile")
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
@@ -276,8 +257,7 @@ class MemberControllerTest {
 
         mockMvc.perform(
                         get(String.format("/api/members/%s", "testid1"))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
@@ -297,8 +277,7 @@ class MemberControllerTest {
         mockMvc.perform(
                         put("/api/members/testid1")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
-                )
+                                .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
@@ -353,8 +332,7 @@ class MemberControllerTest {
 
         mockMvc.perform(
                         delete("/api/members/testid1")
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
@@ -365,8 +343,7 @@ class MemberControllerTest {
         createOrLoadMember();
 
         mockMvc.perform(
-                        get(String.format("/api/members/email/%s", "email1"))
-                )
+                        get(String.format("/api/members/email/%s", "email1")))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
     }
@@ -377,8 +354,7 @@ class MemberControllerTest {
         Member member = createOrLoadMember();
 
         mockMvc.perform(
-                        get(String.format("/api/members/username/%s", member.getUsername()))
-                )
+                        get(String.format("/api/members/username/%s", member.getUsername())))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -392,8 +368,7 @@ class MemberControllerTest {
         String status = "ARTIST";
 
         mockMvc.perform(
-                        put(String.format("/api/members/%s/role-status?roleStatus=%s", "testid1", status))
-                )
+                        put(String.format("/api/members/%s/role-status?roleStatus=%s", "testid1", status)))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -408,8 +383,7 @@ class MemberControllerTest {
 
         mockMvc.perform(
                         put("/api/members/testid1/role-status")
-                                .param("roleStatus", status)
-                )
+                                .param("roleStatus", status))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -421,8 +395,7 @@ class MemberControllerTest {
         Member loadMember = createOrLoadMember();
 
         mockMvc.perform(
-                        put(String.format("/api/members/%s/username?newUsername=%s", loadMember.getUsername(), "newid"))
-                )
+                        put(String.format("/api/members/%s/username?newUsername=%s", loadMember.getUsername(), "newid")))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -436,8 +409,7 @@ class MemberControllerTest {
 
         mockMvc.perform(
                         put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(),
-                                loadMember2.getUsername()))
-                )
+                                loadMember2.getUsername())))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -449,25 +421,21 @@ class MemberControllerTest {
         Member loadMember1 = createOrLoadMember();
 
         mockMvc.perform(
-                        put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(), "1"))
-                )
+                        put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(), "1")))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
         mockMvc.perform(
-                        put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(), "한글"))
-                )
+                        put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(), "한글")))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
         mockMvc.perform(
                         put(String.format("/api/members/%s/username?newUsername=%s", loadMember1.getUsername(),
-                                "asdasdasdsadasdasdasdsa"))
-                )
+                                "asdasdasdsadasdasdasdsa")))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
-
 
     @WithMockCustomUser(username = "testid1", role = "USER")
     @DisplayName("비밀번호 변경 시")
@@ -477,8 +445,7 @@ class MemberControllerTest {
 
         mockMvc.perform(
                         put(String.format("/api/members/%s/password", loadMember.getUsername()))
-                                .param("newPassword", "newpassword123!")
-                )
+                                .param("newPassword", "newpassword123!"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -495,8 +462,7 @@ class MemberControllerTest {
         mockMvc.perform(
                         post("/api/members")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto))
-                )
+                                .content(objectMapper.writeValueAsString(dto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -561,7 +527,7 @@ class MemberControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @DisplayName("역 상태 별 회원 전체 조회")
+    @DisplayName("역활 별 회원 전체 조회")
     @WithMockCustomUser(username = "admin", role = "ADMIN")
     @Test
     void 승인_대기_회원_전체_조회() throws Exception {
@@ -577,8 +543,7 @@ class MemberControllerTest {
         mockMvc
                 .perform(
                         get("/api/members/role-status")
-                                .param("roleStatus", "PENDING")
-                )
+                                .param("roleStatus", "PENDING"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -599,8 +564,7 @@ class MemberControllerTest {
         mockMvc
                 .perform(
                         get("/api/members/role-status")
-                                .param("roleStatus", "asd")
-                )
+                                .param("roleStatus", "asd"))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -614,34 +578,31 @@ class MemberControllerTest {
         mockMvc
                 .perform(
                         put("/api/members/" + member.getUsername() + "/email-receive")
-                                .param("emailReceive", "true")
-                )
+                                .param("emailReceive", "true"))
                 .andDo(print())
                 .andExpect(status().isOk());
 
         mockMvc
                 .perform(
-                        get("/api/members/" + member.getUsername())
-                )
+                        get("/api/members/" + member.getUsername()))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
-    @DisplayName("회원 아이디 전체 조회 시")
-    @Test
-    void 회원_아이디_전체_조회() throws Exception {
-        createOrLoadMember(1);
-        createOrLoadMember(2);
-        createOrLoadMember(3);
-        createOrLoadMember(4);
-
-        mockMvc
-                .perform(
-                        get("/api/members/username")
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
+//    @DisplayName("회원 아이디 전체 조회 시")
+//    @Test
+//    void 회원_아이디_전체_조회() throws Exception {
+//        createOrLoadMember(1);
+//        createOrLoadMember(2);
+//        createOrLoadMember(3);
+//        createOrLoadMember(4);
+//
+//        mockMvc
+//                .perform(
+//                        get("/api/members/username"))
+//                .andDo(print())
+//                .andExpect(status().isOk());
+//    }
 
     @DisplayName("회원 프로필 조회시 팀 목록 반환 성공")
     @WithMockCustomUser(username = "testid1", role = "USER")
@@ -654,9 +615,8 @@ class MemberControllerTest {
 
         // when
         String response = mockMvc.perform(
-                        get("/api/members/profile")
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
+                        get("/api/auth/me")
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -679,12 +639,10 @@ class MemberControllerTest {
         // when
         String response = mockMvc.perform(
                         get(String.format("/api/members/%s", member.getUsername()))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
-
 
         // then
         MemberResponseDTO memberResponse = objectMapper.readValue(response, MemberResponseDTO.class);
