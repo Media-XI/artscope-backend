@@ -104,6 +104,7 @@ public class MemberResponseDTO {
 
     @Getter
     @Setter
+    @Schema(name = "MemberResponseDTO.TeamProfile", description = "팀의 기본 정보")
     public static class TeamProfile {
 
         private Long id;
@@ -123,6 +124,7 @@ public class MemberResponseDTO {
 
     @Getter
     @Setter
+    @Schema(name = "MemberResponseDTO.TeamProfileWithRole", description = "팀의 기본 정보와 속한 사용자의 역할")
     public static class TeamProfileWithRole extends TeamProfile {
         private String role;
 
