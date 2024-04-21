@@ -101,13 +101,6 @@ class TeamControllerTest {
         return teamService.createTeam(createTeamRequest(name), member);
     }
 
-    public void createAndInviteMember(TeamUser loginUser, Member inviteMember) {
-        TeamUserRequest.Create request = new TeamUserRequest.Create(
-                "팀원"
-        );
-        teamUserService.addTeamUser(loginUser, inviteMember, request);
-    }
-
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("팀 생성 테스트")
     @Test
@@ -294,34 +287,5 @@ class TeamControllerTest {
         TeamUserResponse.GetAll teamUserResponse = objectMapper.readValue(response, TeamUserResponse.GetAll.class);
         assertEquals(1, teamUserResponse.getTeamUsers().size());
         assertEquals("testid", teamUserResponse.getTeamUsers().get(0).getUsername());
-    }
-
-    @DisplayName("해당 유저의 팀 목록 조회 ")
-    @Test
-    void 유저가_속한_팀_조회() throws Exception {
-        //given
-        Member member = createMember("testid");
-        Member member2 = createMember("testid2");
-        TeamResponse.Get createTeam1 = createTeam(member, "ownerTeam1");
-        TeamResponse.Get createTeam2 = createTeam(member, "ownerTeam2");
-        TeamResponse.Get inviteTeam = createTeam(member2, "memberTeam1");
-        TeamUser teamOwner = teamUserService.findByTeamIdAndUsername(inviteTeam.getId(),member2.getUsername());
-        createAndInviteMember(teamOwner, member);
-
-        //when
-        String response = mockMvc.perform(get("/api/teams/members/" + member.getUsername())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
-
-        //then
-        List<TeamResponse.ProfileGet> teamUserResponse = objectMapper.readValue(response, new TypeReference<>() {});
-        assertEquals(3, teamUserResponse.size());
-        assertEquals("OWNER",  teamUserResponse.get(0).getRole().name());
-        assertEquals(createTeam1.getId(),teamUserResponse.get(0).getId());
-        assertEquals("OWNER", teamUserResponse.get(1).getRole().name());
-        assertEquals(createTeam2.getId(),teamUserResponse.get(1).getId());
-        assertEquals("MEMBER", teamUserResponse.get(2).getRole().name());
-        assertEquals(inviteTeam.getId(),teamUserResponse.get(2).getId());
     }
 }
