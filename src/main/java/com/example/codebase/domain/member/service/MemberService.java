@@ -376,4 +376,12 @@ public class MemberService {
         return memberRepository.findByUsername(username)
                 .orElseThrow(NotFoundMemberException::new);
     }
+
+    @Transactional(readOnly = true)
+    public MemberResponseDTO.TeamProfiles getTeamProfiles(String username) {
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(NotFoundMemberException::new);
+
+        return MemberResponseDTO.TeamProfiles.from(member.getTeamUser());
+    }
 }

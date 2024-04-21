@@ -19,5 +19,4 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
 
     boolean existsByTeamAndMember(Team team, Member member);
 
-    List<TeamUser> findByMemberOrderByCreatedTimeAsc(Member member);
 }

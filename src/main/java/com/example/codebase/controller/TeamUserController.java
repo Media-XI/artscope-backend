@@ -76,7 +76,7 @@ public class TeamUserController {
         return new ResponseEntity(response, HttpStatus.OK);
     }
 
-    @PatchMapping("{username}")
+    @PatchMapping("/{username}")
     @LoginOnly
     @Operation(summary = "팀 유저 직책 변경", description = "팀 유저의 직책을 변경합니다.")
     public ResponseEntity updateTeamUser(@PathVariable String username, @RequestParam Long teamId, @RequestBody @Valid TeamUserRequest.Update request) {

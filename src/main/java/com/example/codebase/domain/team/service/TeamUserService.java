@@ -81,17 +81,4 @@ public class TeamUserService {
         member.update(request);
         teamUserRepository.save(member);
     }
-
-    @Transactional(readOnly = true)
-    public List<TeamResponse.ProfileGet> getTeamsByUsername(Member member) {
-        List<TeamUser> teamUsers = teamUserRepository.findByMemberOrderByCreatedTimeAsc(member);
-
-        List<TeamResponse.ProfileGet> response = new ArrayList<>();
-        for (TeamUser teamUser : teamUsers) {
-            TeamResponse.ProfileGet profileGet = TeamResponse.ProfileGet.from(teamUser);
-            response.add(profileGet);
-        }
-
-        return response;
-    }
 }
