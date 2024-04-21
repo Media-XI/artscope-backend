@@ -1,8 +1,6 @@
 package com.example.codebase.domain.team.dto;
 
 import com.example.codebase.domain.team.entity.Team;
-import com.example.codebase.domain.team.entity.TeamUser;
-import com.example.codebase.domain.team.entity.TeamUserRole;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -15,7 +13,7 @@ public class TeamResponse {
     @Getter
     @Setter
     @Schema(name = "TeamResponse.Get", description = "팀 조회 DTO")
-    public static class Get{
+    public static class Get {
 
         private Long id;
 
@@ -46,28 +44,6 @@ public class TeamResponse {
             get.setCreatedTime(team.getCreatedTime());
             get.setUpdatedTime(team.getUpdatedTime());
             return get;
-        }
-    }
-
-    @Getter
-    @Setter
-    @Schema(name = "TeamResponse.ProfileGet", description = "팀 프로파일 조회 DTO")
-    public static class ProfileGet{
-        private Long id;
-
-        private String profileImage;
-
-        private String name;
-
-        private TeamUserRole role;
-
-        public static TeamResponse.ProfileGet from(TeamUser teamUser){
-            ProfileGet profileGet = new ProfileGet();
-            profileGet.setId(teamUser.getTeam().getId());
-            profileGet.setProfileImage(teamUser.getTeam().getProfileImage());
-            profileGet.setName(teamUser.getTeam().getName());
-            profileGet.setRole(teamUser.getRole());
-            return profileGet;
         }
     }
 }
