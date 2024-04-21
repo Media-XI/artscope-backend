@@ -146,7 +146,7 @@ public class MemberResponseDTO {
             TeamProfiles teamProfiles = new TeamProfiles();
             teamProfiles.setProfiles(teamUsers.stream()
                     .map(TeamProfileWithRole::from)
-                    .collect(Collectors.toList()));
+                    .toList());
             return teamProfiles;
         }
     }
