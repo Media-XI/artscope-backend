@@ -18,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Tag(name = "팀 API", description = "팀과 관련된 API")
 @RequestMapping("/api/teams")
@@ -86,14 +88,6 @@ public class TeamController {
     @Operation(summary = "팀 소속 유저 조회", description = "팀에 속한 유저를 모두 조회 합니다.")
     public ResponseEntity getTeamUsers(@PathVariable Long teamId) {
         TeamUserResponse.GetAll response = teamUserService.getTeamUsers(teamId);
-        return new ResponseEntity(response, HttpStatus.OK);
-    }
-
-    @GetMapping("/members/{username}")
-    @Operation(summary = "유저가 속한 팀 목록 조회", description = "유저가 속한 모든 팀들을 조회합니다.")
-    public ResponseEntity getTeamsByUsername(@PathVariable String username) {
-        Member member = memberService.getEntity(username);
-        TeamUserResponse.GetAll response = teamUserService.getTeamsByUsername(member);
         return new ResponseEntity(response, HttpStatus.OK);
     }
 }

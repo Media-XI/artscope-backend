@@ -1,6 +1,7 @@
 package com.example.codebase.domain.team.service;
 
 import com.example.codebase.domain.member.entity.Member;
+import com.example.codebase.domain.team.dto.TeamResponse;
 import com.example.codebase.domain.team.dto.TeamUserRequest;
 import com.example.codebase.domain.team.dto.TeamUserResponse;
 import com.example.codebase.domain.team.entity.Team;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -58,7 +60,7 @@ public class TeamUserService {
     }
 
     public void deleteTeamUser(TeamUser loginUser, TeamUser deleteUser) {
-        if(loginUser.isOwner() && deleteUser.isOwner()) {
+        if (loginUser.isOwner() && deleteUser.isOwner()) {
             throw new RuntimeException("팀장은 자신을 추방할 수 없습니다.");
         }
         teamUserRepository.delete(deleteUser);
@@ -72,17 +74,11 @@ public class TeamUserService {
     }
 
     public void updateTeamUser(TeamUser member, TeamUser changeMember, TeamUserRequest.Update request) {
-        if(!(Objects.equals(member.getId(), changeMember.getId())) && !member.isOwner()) {
+        if (!(Objects.equals(member.getId(), changeMember.getId())) && !member.isOwner()) {
             throw new RuntimeException("본인 또는 팀장만 정보를 수정할 수 있습니다.");
         }
 
         member.update(request);
         teamUserRepository.save(member);
-    }
-
-    @Transactional(readOnly = true)
-    public TeamUserResponse.GetAll getTeamsByUsername(Member member) {
-        List<TeamUser> teams = teamUserRepository.findByMember(member);
-        return TeamUserResponse.GetAll.from(teams);
     }
 }

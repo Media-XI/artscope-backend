@@ -12,7 +12,15 @@ import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.domain.team.dto.TeamRequest;
 import com.example.codebase.domain.team.dto.TeamResponse;
+
+import com.example.codebase.domain.team.dto.TeamUserRequest;
+import com.example.codebase.domain.team.dto.TeamUserResponse;
+import com.example.codebase.domain.team.entity.TeamUser;
+import com.example.codebase.domain.team.repository.TeamUserRepository;
 import com.example.codebase.domain.team.service.TeamService;
+import com.example.codebase.domain.team.service.TeamUserService;
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.findify.s3mock.S3Mock;
@@ -39,6 +47,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -77,6 +86,9 @@ class MemberControllerTest {
 
     @Autowired
     private TeamService teamService;
+
+    @Autowired
+    private TeamUserService teamUserService;
 
     @BeforeAll
     static void setUp(@Autowired S3Mock s3Mock,
@@ -155,6 +167,13 @@ class MemberControllerTest {
                 "http://test.com/background.jpg",
                 "팀소개",
                 "자신의 포지션, 직급");
+    }
+
+    public void createAndInviteMember(TeamUser loginUser, Member inviteMember) {
+        TeamUserRequest.Create request = new TeamUserRequest.Create(
+                "팀원"
+        );
+        teamUserService.addTeamUser(loginUser, inviteMember, request);
     }
 
     @DisplayName("회원가입 API가 작동한다")
@@ -605,8 +624,8 @@ class MemberControllerTest {
         // then
         MemberResponseDTO memberResponse = objectMapper.readValue(response, MemberResponseDTO.class);
         assertEquals(2, memberResponse.getTeams().size());
-        assertEquals(team1.getName(), memberResponse.getTeams().get(0).getName());
-        assertEquals(team2.getName(), memberResponse.getTeams().get(1).getName());
+        assertEquals("팀이름1", memberResponse.getTeams().get(0).getName());
+        assertEquals("팀이름2", memberResponse.getTeams().get(1).getName());
     }
 
     @DisplayName("사용자 프로필 조회 시 팀 반환 성공")
@@ -628,7 +647,37 @@ class MemberControllerTest {
         // then
         MemberResponseDTO memberResponse = objectMapper.readValue(response, MemberResponseDTO.class);
         assertEquals(2, memberResponse.getTeams().size());
-        assertEquals(team1.getName(), memberResponse.getTeams().get(0).getName());
-        assertEquals(team2.getName(), memberResponse.getTeams().get(1).getName());
+        assertEquals("팀이름1", memberResponse.getTeams().get(0).getName());
+        assertEquals("팀이름2", memberResponse.getTeams().get(1).getName());
+    }
+
+    @DisplayName("해당 유저의 팀 목록 조회 ")
+    @Test
+    void 유저가_속한_팀_조회() throws Exception {
+        //given
+        Member member = createOrLoadMember();
+        Member member2 = createOrLoadMember(2, RoleStatus.ARTIST);
+        TeamResponse.Get createTeam1 = createTeam(member, "ownerTeam1");
+        TeamResponse.Get createTeam2 = createTeam(member, "ownerTeam2");
+        TeamResponse.Get inviteTeam = createTeam(member2, "memberTeam1");
+        TeamUser teamOwner = teamUserService.findByTeamIdAndUsername(inviteTeam.getId(),member2.getUsername());
+        createAndInviteMember(teamOwner, member);
+
+        //when
+        String response = mockMvc.perform(get("/api/members/" + member.getUsername() + "/teams")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        //then
+        MemberResponseDTO.TeamProfiles teamProfiles= objectMapper.readValue(response, MemberResponseDTO.TeamProfiles.class);
+        List<MemberResponseDTO.TeamProfileWithRole> profiles = teamProfiles.getProfiles();
+        assertEquals(3, profiles.size());
+        assertEquals("OWNER", profiles.get(0).getRole());
+        assertEquals(createTeam1.getId(), profiles.get(0).getId());
+        assertEquals("OWNER", profiles.get(1).getRole());
+        assertEquals(createTeam2.getId(), profiles.get(1).getId());
+        assertEquals("MEMBER", profiles.get(2).getRole());
+        assertEquals(inviteTeam.getId(), profiles.get(2).getId());
     }
 }
