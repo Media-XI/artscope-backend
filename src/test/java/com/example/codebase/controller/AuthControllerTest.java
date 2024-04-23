@@ -10,6 +10,7 @@ import com.example.codebase.domain.member.repository.MemberRepository;
 import com.example.codebase.jwt.TokenProvider;
 import com.example.codebase.util.RedisUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -67,9 +67,9 @@ class AuthControllerTest {
     @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders
-            .webAppContextSetup(context)
-            .apply(springSecurity())
-            .build();
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
     }
 
     public Member createOrLoadMember() {
@@ -83,13 +83,13 @@ class AuthControllerTest {
         }
 
         Member dummy = Member.builder()
-            .username("testid")
-            .password(passwordEncoder.encode("1234"))
-            .email("email")
-            .name("test")
-            .activated(activated)
-            .createdTime(LocalDateTime.now())
-            .build();
+                .username("testid")
+                .password(passwordEncoder.encode("1234"))
+                .email("email")
+                .name("test")
+                .activated(activated)
+                .createdTime(LocalDateTime.now())
+                .build();
 
         MemberAuthority memberAuthority = new MemberAuthority();
         memberAuthority.setAuthority(Authority.of("ROLE_USER"));
@@ -110,12 +110,11 @@ class AuthControllerTest {
         loginDTO.setPassword("1234");
 
         mockMvc.perform(
-                post("/api/login")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(loginDTO))
-            )
-            .andDo(print())
-            .andExpect(status().isOk());
+                        post("/api/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(loginDTO)))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @DisplayName("토큰 재발급 시")
@@ -130,12 +129,11 @@ class AuthControllerTest {
         String refreshToken = tokenProvider.generateToken(loginDTO).getRefreshToken();
 
         mockMvc.perform(
-                post("/api/refresh")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(refreshToken)
-            )
-            .andDo(print())
-            .andExpect(status().isOk());
+                        post("/api/refresh")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(refreshToken))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @WithMockCustomUser(username = "testid")
@@ -151,10 +149,9 @@ class AuthControllerTest {
         tokenProvider.generateToken(loginDTO);
 
         mockMvc.perform(
-                post("/api/logout")
-            )
-            .andDo(print())
-            .andExpect(status().isOk());
+                        post("/api/logout"))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @DisplayName("사용자 이메일 코드 입력 시 ")
@@ -166,12 +163,23 @@ class AuthControllerTest {
         redisUtil.setDataAndExpire(code, member.getEmail(), 60 * 5 * 1000);
 
         mockMvc.perform(
-                get("/api/mail/authenticate")
-                    .param("code", code)
-            )
-            .andDo(print())
-            .andExpect(status().isOk());
+                        get("/api/mail/authenticate")
+                                .param("code", code))
+                .andDo(print())
+                .andExpect(status().isOk());
 
     }
 
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("로그인한 사용자 프로필 조회 시")
+    @Test
+    void test4() throws Exception {
+        createOrLoadMember();
+
+        mockMvc.perform(
+                        get("/api/auth/me")
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
 }

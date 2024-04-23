@@ -12,6 +12,7 @@ import com.example.codebase.domain.member.entity.oauth2.oAuthProvider;
 import com.example.codebase.domain.notification.entity.NotificationReceivedStatus;
 import com.example.codebase.domain.notification.entity.NotificationSetting;
 import com.example.codebase.domain.post.entity.Post;
+import com.example.codebase.domain.team.entity.TeamUser;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -123,12 +124,8 @@ public class Member {
     private NotificationSetting notificationSettings;
 
     @Builder.Default
-    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL)
-    private List<Follow> followings = new ArrayList<>();
-
-    @Builder.Default
-    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL)
-    private List<Follow> followers = new ArrayList<>();
+    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<TeamUser> teamUser = new ArrayList<>();
 
     public static User toUser(Member member) {
         return new User(member.getUsername(), member.getPassword(), member.getAuthorities().stream()
@@ -325,5 +322,18 @@ public class Member {
 
     public void setNotificationSetting(NotificationSetting notificationSetting) {
         this.notificationSettings = notificationSetting;
+    }
+
+    @PreRemove
+    private void preRemove() {
+        for(TeamUser teamUser : teamUser) {
+            if(teamUser.isOwner()) {
+                throw new RuntimeException("팀장인 팀이 존재합니다. 팀장을 변경하거나 팀을 삭제한 후에 시도해주세요.");
+            }
+        }
+    }
+
+    public void addTeamUser(TeamUser teamUser) {
+        this.teamUser.add(teamUser);
     }
 }

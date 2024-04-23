@@ -2,19 +2,21 @@ package com.example.codebase.controller;
 
 import com.example.codebase.domain.auth.WithMockCustomUser;
 import com.example.codebase.domain.follow.service.FollowService;
-import com.example.codebase.domain.magazine.dto.MagazineCategoryResponse;
-import com.example.codebase.domain.magazine.dto.MagazineCommentRequest;
-import com.example.codebase.domain.magazine.dto.MagazineRequest;
-import com.example.codebase.domain.magazine.dto.MagazineResponse;
+import com.example.codebase.domain.magazine.dto.*;
 import com.example.codebase.domain.magazine.entity.MagazineCategory;
 import com.example.codebase.domain.magazine.service.MagazineCategoryService;
 import com.example.codebase.domain.magazine.service.MagazineService;
 import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.service.MemberService;
+import com.example.codebase.domain.team.dto.TeamRequest;
+import com.example.codebase.domain.team.dto.TeamResponse;
+import com.example.codebase.domain.team.dto.TeamUserRequest;
+import com.example.codebase.domain.team.entity.TeamUser;
+import com.example.codebase.domain.team.service.TeamService;
+import com.example.codebase.domain.team.service.TeamUserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +34,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -64,6 +67,12 @@ class MagazineControllerTest {
     @Autowired
     private FollowService followService;
 
+    @Autowired
+    private TeamService teamService;
+
+    @Autowired
+    private TeamUserService teamUserService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
@@ -93,7 +102,7 @@ class MagazineControllerTest {
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
-        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setCategorySlug(category.getSlug());
         magazineRequest.setMetadata(Map.of(
                 "color", "blue",
                 "font", "godic"
@@ -103,12 +112,41 @@ class MagazineControllerTest {
                 "https://cdn.artscope.kr/local/2.jpg"
         ));
 
-        return magazineService.create(magazineRequest, member, category);
+        return magazineService.createMagazine(magazineRequest, member, category, null);
+    }
+
+    public MagazineResponse.Get createMagaizne(TeamUser teamUser) {
+        MagazineCategory category = createCategory();
+
+        MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
+        magazineRequest.setTitle("제목");
+        magazineRequest.setContent("내용");
+        magazineRequest.setCategorySlug(category.getSlug());
+        magazineRequest.setMetadata(Map.of(
+                "color", "blue",
+                "font", "godic"
+        ));
+        magazineRequest.setMediaUrls(List.of(
+                "https://cdn.artscope.kr/local/1.jpg",
+                "https://cdn.artscope.kr/local/2.jpg"
+        ));
+
+        return magazineService.createMagazine(magazineRequest, teamUser.getMember(), category, teamUser.getTeam());
     }
 
     public MagazineCategory createCategory() {
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("카테고리");
-        return magazineCategoryService.getEntity(category.getId());
+        Random random = new Random(System.currentTimeMillis());
+
+        String categoryName = "카테고리" + random.nextInt(300);
+
+        char randomChar1 = (char) ('a' + random.nextInt(26));
+        char randomChar2 = (char) ('a' + random.nextInt(26));
+        String categorySlug = new StringBuilder().append(randomChar1).append(randomChar2).toString();
+
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create(categoryName, categorySlug, null);
+
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
+        return magazineCategoryService.getEntity(category.getSlug());
     }
 
     public MagazineResponse.Get createComment(MagazineResponse.Get magaizne, Member member, String comment) {
@@ -126,6 +164,28 @@ class MagazineControllerTest {
         return magazineService.newMagazineComment(magaizne.getId(), member, newChildComment);
     }
 
+    public TeamRequest.Create createTeamRequest(String name) {
+        return new TeamRequest.Create(
+                name,
+                "팀 주소",
+                "http://test.com/profile.jpg",
+                "http://test.com/background.jpg",
+                "팀소개",
+                "자신의 포지션, 직급"
+        );
+    }
+
+    public TeamResponse.Get createTeam(Member member, String name) {
+        return teamService.createTeam(createTeamRequest(name), member);
+    }
+
+    public void createAndInviteMember(TeamUser loginUser, Member inviteMember) {
+        TeamUserRequest.Create request = new TeamUserRequest.Create(
+                "팀원"
+        );
+        teamUserService.addTeamUser(loginUser, inviteMember, request);
+    }
+
 
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("매거진 생성이 된다.")
@@ -133,12 +193,13 @@ class MagazineControllerTest {
     void 매거진_생성() throws Exception {
         // given
         createMember("testid");
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("글");
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
 
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
-        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setCategorySlug(category.getSlug());
 
         // when
         String response = mockMvc.perform(
@@ -155,6 +216,7 @@ class MagazineControllerTest {
         assertTrue(magazine.getId() > 0);
         assertEquals(magazine.getTitle(), magazineRequest.getTitle());
         assertEquals(magazine.getContent(), magazineRequest.getContent());
+        assertEquals(magazine.getCategoryId(), category.getId());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -166,7 +228,7 @@ class MagazineControllerTest {
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
-        magazineRequest.setCategoryId(0L);
+        magazineRequest.setCategorySlug("slug");
 
         // when
         String content = mockMvc.perform(
@@ -225,6 +287,7 @@ class MagazineControllerTest {
         assertEquals(magazine.getId(), magazineResponse.getId());
         assertEquals(magazine.getTitle(), magazineResponse.getTitle());
         assertEquals(magazine.getContent(), magazineResponse.getContent());
+        assertEquals(magazine.getCategoryId(), magazineResponse.getCategoryId());
     }
 
     @DisplayName("매거진 상세 조회시 없는 매거진이면 404.")
@@ -253,6 +316,7 @@ class MagazineControllerTest {
         MagazineRequest.Update magazineRequest = new MagazineRequest.Update();
         magazineRequest.setTitle("수정된 제목");
         magazineRequest.setContent("수정된 내용");
+        magazineRequest.setCategorySlug(createCategory().getSlug());
 
         // when
         String response = mockMvc.perform(
@@ -269,6 +333,7 @@ class MagazineControllerTest {
         assertEquals(magazine.getId(), magazineResponse.getId());
         assertEquals(magazineRequest.getTitle(), magazineResponse.getTitle());
         assertEquals(magazineRequest.getContent(), magazineResponse.getContent());
+        assertEquals(magazineRequest.getCategorySlug(), magazineResponse.getCategorySlug());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -276,9 +341,11 @@ class MagazineControllerTest {
     @Test
     void 매거진_수정_에러() throws Exception {
         // given
+        MagazineCategory category = createCategory();
         MagazineRequest.Update magazineRequest = new MagazineRequest.Update();
         magazineRequest.setTitle("수정된 제목");
         magazineRequest.setContent("수정된 내용");
+        magazineRequest.setCategorySlug(category.getSlug());
 
         // when
         String content = mockMvc.perform(
@@ -471,12 +538,13 @@ class MagazineControllerTest {
     void 매거진_미디어_생성() throws Exception {
         // given
         createMember("testid");
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("글");
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
 
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
-        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setCategorySlug(category.getSlug());
         magazineRequest.setMediaUrls(List.of(
                 "https://cdn.artscope.kr/local/1.jpg",
                 "https://cdn.artscope.kr/local/2.jpg"
@@ -506,12 +574,13 @@ class MagazineControllerTest {
     void 매거진_미디어_잘못된_생성() throws Exception {
         // given
         createMember("testid");
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("글");
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
 
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
-        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setCategorySlug(category.getSlug());
         magazineRequest.setMediaUrls(List.of(
                 "/local/1.jpg",
                 "1.jpg"
@@ -534,12 +603,13 @@ class MagazineControllerTest {
     void 매거진_미디어_잘못된_생성2() throws Exception {
         // given
         createMember("testid");
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("글");
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
 
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
-        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setCategorySlug(category.getSlug());
         magazineRequest.setMediaUrls(List.of(
                 "https://cdn.artscope.kr/local/1.jpg",
                 "https://cdn.artscope.kr/local/2.jpg",
@@ -552,7 +622,7 @@ class MagazineControllerTest {
                 "https://cdn.artscope.kr/local/9.jpg",
                 "https://cdn.artscope.kr/local/10.jpg",
                 "https://cdn.artscope.kr/local/11.jpg"
-                ));
+        ));
 
         // when
         mockMvc.perform(
@@ -568,15 +638,16 @@ class MagazineControllerTest {
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("매거진 생성 시 메타데이터를 첨부한다.")
     @Test
-    void 매거진_메타데이터_생성 () throws Exception {
+    void 매거진_메타데이터_생성() throws Exception {
         // given
         createMember("testid");
-        MagazineCategoryResponse.Get category = magazineCategoryService.createCategory("글");
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
 
         MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
         magazineRequest.setTitle("제목");
         magazineRequest.setContent("내용");
-        magazineRequest.setCategoryId(category.getId());
+        magazineRequest.setCategorySlug(category.getSlug());
         magazineRequest.setMetadata(Map.of(
                 "color", "blue",
                 "font", "godic"
@@ -596,10 +667,11 @@ class MagazineControllerTest {
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("매거진 메타데이터 수정이 된다.")
     @Test
-    void 매거진_메타데이터_수정 () throws Exception {
+    void 매거진_메타데이터_수정() throws Exception {
         // given
         Member member = createMember("testid");
         MagazineResponse.Get magaizne = createMagaizne(member);
+        MagazineCategory category = createCategory();
 
         MagazineRequest.Update magazineRequest = new MagazineRequest.Update();
         magazineRequest.setTitle(magaizne.getTitle());
@@ -609,6 +681,7 @@ class MagazineControllerTest {
                 "color", "빨강으로",
                 "font", "다른 폰트"
         ));
+        magazineRequest.setCategorySlug(category.getSlug());
 
         // when
         String response = mockMvc.perform(
@@ -628,7 +701,7 @@ class MagazineControllerTest {
         assertEquals(magazineResponse.getMetadata().get("font"), "다른 폰트");
     }
 
-    @DisplayName("해당 사용자의 매거진 전체 조회 시")
+    @DisplayName("매거진 전체 조회 시")
     @Test
     void 해당_사용자의_매거진_전체_조회() throws Exception {
         // given
@@ -640,7 +713,7 @@ class MagazineControllerTest {
 
         // when
         String response = mockMvc.perform(
-                        get("/api/magazines/members/{username}", member.getUsername())
+                        get("/api/magazines", member.getUsername())
                                 .param("page", "0")
                                 .param("size", "10")
                 )
@@ -656,7 +729,7 @@ class MagazineControllerTest {
     @WithMockCustomUser(username = "testid", role = "USER")
     @DisplayName("해당 사용자가 팔로우 중인 유저의 매거진 목록 조회")
     @Test
-    void 해당_사용자가_팔로우_중인_유저의_매거진_목록_조회() throws Exception{
+    void 해당_사용자가_팔로우_중인_유저의_매거진_목록_조회() throws Exception {
         // given
         Member member = createMember("testid");
         Member following = createMember("following");
@@ -672,10 +745,10 @@ class MagazineControllerTest {
 
         //when
         String response = mockMvc.perform(
-                get("/api/magazines/my/following/members")
-                        .param("page", "0")
-                        .param("size", "10")
-        )
+                        get("/api/magazines/my/following/members")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -683,5 +756,273 @@ class MagazineControllerTest {
         //then
         MagazineResponse.GetAll magazineList = objectMapper.readValue(response, MagazineResponse.GetAll.class);
         assertEquals(magazineList.getMagazines().size(), 3);
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("매거진 생성 시 잘못된 urn 형식으로 요청시 실패")
+    @Test
+    void 매거진_생성_urn_문제_실패() throws Exception {
+        // given
+        createMember("admin");
+        Member loginMember = createMember("testid");
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
+
+        MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
+        magazineRequest.setTitle("제목");
+        magazineRequest.setContent("내용");
+        magazineRequest.setCategorySlug(category.getSlug());
+        magazineRequest.setMetadata(Map.of(
+                "color", "blue",
+                "font", "godic"
+        ));
+
+        // when1 urn에 urn:이상한값:id
+        magazineRequest.setUrn("urn:이상한값:1");
+        String response1 = mockMvc.perform(
+                        post("/api/magazines")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(magazineRequest))
+                )
+                .andDo(print())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        assertTrue(response1.contains("올바른 URN 형식이 아닙니다."));
+
+        // when2 urn:member urn을 완성하지 않았을 경우
+        createTeam(loginMember, "name");
+        magazineRequest.setUrn("urn:member");
+        String response2 = mockMvc.perform(
+                        post("/api/magazines")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(magazineRequest))
+                )
+                .andDo(print())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        assertTrue(response2.contains("올바른 URN 형식이 아닙니다."));
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("매거진 생성시 요청한 유저와 urn 유저정보가 일치 하지 않을경우")
+    @Test
+    void 매거진_생성시_요청한_유저와_urn_유저정보가_일치_하지_않을경우() throws Exception {
+        // given
+        createMember("testid");
+        createMember("notMe");
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
+
+        MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
+        magazineRequest.setTitle("제목");
+        magazineRequest.setContent("내용");
+        magazineRequest.setCategorySlug(category.getSlug());
+        magazineRequest.setUrn("urn:member:notMe");
+
+        // when
+        String response = mockMvc.perform(
+                        post("/api/magazines")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(magazineRequest))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+
+        //then
+        assertTrue(response.contains("요청한 urn과 로그인한 유저의 정보가 다릅니다."));
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("팀 매거진 생성시")
+    @Test
+    void 팀_매거진_생성() throws Exception {
+        // given
+        Member member = createMember("testid");
+        TeamResponse.Get team = createTeam(member, "팀이름");
+        TeamUser teamUser = teamUserService.findByTeamIdAndUsername(team.getId(), member.getUsername());
+
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
+
+        MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
+        magazineRequest.setTitle("제목");
+        magazineRequest.setContent("내용");
+        magazineRequest.setCategorySlug(category.getSlug());
+        magazineRequest.setMetadata(Map.of(
+                "color", "blue",
+                "font", "godic"
+        ));
+        magazineRequest.setUrn("urn:team:" + team.getId());
+
+        // when
+        String response = mockMvc.perform(
+                        post("/api/magazines")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(magazineRequest))
+                )
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        //then
+        MagazineResponse.Get magazine = objectMapper.readValue(response, MagazineResponse.Get.class);
+        assertTrue(magazine.getId() > 0);
+        assertEquals(magazine.getTitle(), magazineRequest.getTitle());
+        assertEquals(magazine.getContent(), magazineRequest.getContent());
+        assertEquals(magazine.getCategoryId(), category.getId());
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("팀 매거진 생성시 팀에 속해있지 않은경우 실패")
+    @Test
+    void 팀_매거진_생성시_해당_팀_유저가_아닌경우_실패() throws Exception {
+        // given
+        Member member = createMember("admin");
+        TeamResponse.Get team = createTeam(member, "팀이름");
+        TeamUser teamUser = teamUserService.findByTeamIdAndUsername(team.getId(), member.getUsername());
+
+        createMember("testid");
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
+
+        MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
+        magazineRequest.setTitle("제목");
+        magazineRequest.setContent("내용");
+        magazineRequest.setCategorySlug(category.getSlug());
+        magazineRequest.setMetadata(Map.of(
+                "color", "blue",
+                "font", "godic"
+        ));
+        magazineRequest.setUrn("urn:team:" + team.getId());
+
+        // when
+        mockMvc.perform(
+                        post("/api/magazines")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(magazineRequest))
+                )
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(result -> assertEquals("해당 팀에 속해있지 않습니다.", result.getResolvedException().getMessage()));
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("팀 매거진 생성시 urn에 string을 기입 할 경우 실패")
+    @Test
+    void 팀_매거진_생성시_urn에_string을_기입_할_경우_실패() throws Exception {
+        // given
+        Member member = createMember("admin");
+        TeamResponse.Get team = createTeam(member, "팀이름");
+        TeamUser teamUser = teamUserService.findByTeamIdAndUsername(team.getId(), member.getUsername());
+
+        createMember("testid");
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
+
+        MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
+        magazineRequest.setTitle("제목");
+        magazineRequest.setContent("내용");
+        magazineRequest.setCategorySlug(category.getSlug());
+        magazineRequest.setMetadata(Map.of(
+                "color", "blue",
+                "font", "godic"
+        ));
+        magazineRequest.setUrn("urn:team:" + team.getName());
+
+        // when
+        mockMvc.perform(
+                        post("/api/magazines")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(magazineRequest))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("Team URN의 ID는 숫자여야 합니다.", result.getResolvedException().getMessage()));
+    }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("팀 매거진 생성시 해당팀이 존재하지 않을 경우 실패")
+    @Test
+    void 팀_매거진_생성시_해당팀이_존재하지_않을_경우_실패() throws Exception {
+        // given
+        createMember("testid");
+        MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(request);
+
+        MagazineRequest.Create magazineRequest = new MagazineRequest.Create();
+        magazineRequest.setTitle("제목");
+        magazineRequest.setContent("내용");
+        magazineRequest.setCategorySlug(category.getSlug());
+        magazineRequest.setMetadata(Map.of(
+                "color", "blue",
+                "font", "godic"
+        ));
+        magazineRequest.setUrn("urn:team:" + 14);
+
+        // when
+        mockMvc.perform(
+                        post("/api/magazines")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(magazineRequest))
+                )
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(result -> assertEquals("해당 팀이 존재하지 않습니다.", result.getResolvedException().getMessage()));
+    }
+
+    @WithMockCustomUser(username = "admin", role = "USER")
+    @DisplayName("매거진 생성 api를 연속으로 호출할 시 실패 ")
+    @Test
+    void 매거진_생성_api를_연속으로_호출할_시_실패() throws Exception {
+        // given
+        createMember("admin");
+        MagazineCategoryRequest.Create request1 = new MagazineCategoryRequest.Create("글1", "slug1", null);
+        MagazineCategoryResponse.Create category1 = magazineCategoryService.createCategory(request1);
+
+        MagazineRequest.Create magazineRequest1 = new MagazineRequest.Create();
+        magazineRequest1.setTitle("제목");
+        magazineRequest1.setContent("내용");
+        magazineRequest1.setCategorySlug(category1.getSlug());
+        magazineRequest1.setMetadata(Map.of(
+                "color", "blue",
+                "font", "godic"
+        ));
+
+        MagazineCategoryRequest.Create request2 = new MagazineCategoryRequest.Create("글2", "slug2", category1.getId());
+        MagazineCategoryResponse.Create category2 = magazineCategoryService.createCategory(request2);
+
+        MagazineRequest.Create magazineRequest2 = new MagazineRequest.Create();
+        magazineRequest2.setTitle("제목");
+        magazineRequest2.setContent("내용");
+        magazineRequest2.setCategorySlug(category2.getSlug());
+        magazineRequest2.setMetadata(Map.of(
+                "color", "blue",
+                "font", "godic"
+        ));
+
+        //then
+        // 1차 요청
+        mockMvc.perform(
+                        post("/api/magazines")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(magazineRequest1))
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        // 2차 요청
+        String response = mockMvc.perform(
+                        post("/api/magazines")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(magazineRequest2))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        //then
+        assertTrue(response.contains("잠시 후 다시 시도해주세요."));
     }
 }

@@ -3,6 +3,7 @@ package com.example.codebase.domain.magazine.dto;
 import com.example.codebase.controller.dto.PageInfo;
 import com.example.codebase.domain.magazine.entity.Magazine;
 import com.example.codebase.domain.magazine.entity.MagazineMedia;
+import com.example.codebase.domain.magazine.entity.MagazineWithIsLiked;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,7 +20,7 @@ public class MagazineResponse {
 
     @Getter
     @Setter
-    @Schema(description = "매거진 생성 응답")
+    @Schema(description = "매거진 조회 응답")
     public static class Get {
         private Long id;
 
@@ -29,7 +30,11 @@ public class MagazineResponse {
 
         private Map<String, String> metadata;
 
-        private String category;
+        private Long categoryId;
+
+        private String categorySlug;
+
+        private String categoryName;
 
         private List<String> mediaUrls;
 
@@ -40,6 +45,12 @@ public class MagazineResponse {
         private Integer comments;
 
         private AuthorResponse author;
+
+        private String teamName;
+
+        private Long teamId;
+      
+        private Boolean isLiked = false;
 
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime createdTime;
@@ -58,13 +69,21 @@ public class MagazineResponse {
             response.mediaUrls = magazine.getMagazineMedias().stream()
                     .map(MagazineMedia::getUrl)
                     .toList();
-            response.category = magazine.getCategory().getName();
+            response.categoryId = magazine.getCategory().getId();
+            response.categorySlug = magazine.getCategory().getSlug();
+            response.categoryName = magazine.getCategory().getName();
             response.views = magazine.getViews();
             response.likes = magazine.getLikes();
             response.comments = magazine.getComments();
             response.author = AuthorResponse.from(magazine.getMember());
             response.createdTime = magazine.getCreatedTime();
             response.updatedTime = magazine.getUpdatedTime();
+
+            if (magazine.getTeam() != null) {
+                response.setTeamId(magazine.getTeam().getId());
+                response.setTeamName(magazine.getTeam().getName());
+            }
+
 
             // 1차 댓글만 가져오기
             response.magazineComments = magazine.getMagazineComments().stream()
@@ -73,6 +92,12 @@ public class MagazineResponse {
                     .map(MagazineCommentRepsonse.Get::from) // 1차 댓글을 DTO로 변환 (이때 자식 댓글도 변환)
                     .toList();
 
+            return response;
+        }
+
+        public static Get from(MagazineWithIsLiked magazineWithIsLiked) {
+            Get response = from(magazineWithIsLiked.getMagazine());
+            response.isLiked = magazineWithIsLiked.getIsLiked();
             return response;
         }
 
@@ -112,5 +137,16 @@ public class MagazineResponse {
             response.pageInfo = PageInfo.from(magazines);
             return response;
         }
+
+        public static GetAll withLike(Page<MagazineWithIsLiked> magazines) {
+            GetAll response = new GetAll();
+
+            response.magazines = magazines.stream()
+                    .map(Get::from)
+                    .toList();
+            response.pageInfo = PageInfo.from(magazines);
+            return response;
+        }
+
     }
 }
