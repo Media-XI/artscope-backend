@@ -9,7 +9,7 @@ name: Test by Gradle & Code Coverage
 
 on:
   pull_request:
-    branches: [ "develop", "main" ]
+    branches: [ "develop", "main", "hotfix" ]
   workflow_call:
     secrets:
       JASYPT_ENCRYPTOR_PASSWORD:
