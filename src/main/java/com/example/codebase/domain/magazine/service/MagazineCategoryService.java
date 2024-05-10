@@ -5,6 +5,7 @@ import com.example.codebase.domain.magazine.dto.MagazineCategoryResponse;
 import com.example.codebase.domain.magazine.entity.MagazineCategory;
 import com.example.codebase.domain.magazine.repository.MagazineCategoryRepository;
 import com.example.codebase.exception.NotFoundException;
+import io.micrometer.common.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -91,11 +92,9 @@ public class MagazineCategoryService {
         MagazineCategory parentCategory = findParentCategory(request.getParentId());
 
         validateParentCategory(category, parentCategory);
-
         checkCategoryExists(request, category, parentCategory);
-        category.changeParentCategory(parentCategory);
 
-        category.update(request);
+        category.update(request, parentCategory);
         magazineCategoryRepository.save(category);
         return MagazineCategoryResponse.Get.from(category);
     }
@@ -103,7 +102,7 @@ public class MagazineCategoryService {
     private void validateParentCategory(MagazineCategory category, MagazineCategory parentCategory) {
         if (parentCategory != null) {
             if (parentCategory.equals(category)) {
-                throw new RuntimeException("부모 카테고리로 자기 자신을 참조할 수 없습니다.");
+                throw new RuntimeException("부모 카테고리를 해당 카테고리로 설정할 수 없습니다.");
             }
 
             parentCategory.checkDepth();
