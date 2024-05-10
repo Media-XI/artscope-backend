@@ -504,7 +504,7 @@ class MagazineCategoryControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 // then
-                .andExpect(result -> assertEquals("부모 카테고리로 자기 자신을 참조할 수 없습니다.", result.getResolvedException().getMessage()));
+                .andExpect(result -> assertEquals("부모 카테고리를 해당 카테고리로 설정할 수 없습니다.", result.getResolvedException().getMessage()));
 
     }
 
