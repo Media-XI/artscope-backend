@@ -102,11 +102,11 @@ public class MagazineCategoryService {
 
     private void validateParentCategory(MagazineCategory category, MagazineCategory parentCategory) {
         if (parentCategory != null) {
-            parentCategory.checkDepth();
-
             if (parentCategory.equals(category)) {
                 throw new RuntimeException("부모 카테고리로 자기 자신을 참조할 수 없습니다.");
             }
+
+            parentCategory.checkDepth();
         }
     }
 
