@@ -90,11 +90,9 @@ public class MagazineCategoryService {
 
         MagazineCategory parentCategory = findParentCategory(request.getParentId());
 
-        if (parentCategory != null) {
-            parentCategory.checkDepth();
-        }
+        validateParentCategory(category, parentCategory);
 
-        checkCategoryExists(request, parentCategory);
+        checkCategoryExists(request, category, parentCategory);
         category.changeParentCategory(parentCategory);
 
         category.update(request);
@@ -102,14 +100,25 @@ public class MagazineCategoryService {
         return MagazineCategoryResponse.Get.from(category);
     }
 
-    private void checkCategoryExists(MagazineCategoryRequest.Update request, MagazineCategory parentCategory) {
-        boolean exists = magazineCategoryRepository.existsByNameAndParent(request.getName(), parentCategory);
-        if (exists) {
-            throw new RuntimeException("해당 부모 카테고리 산하 이름이 같은 카테고리가 존재합니다.");
+    private void validateParentCategory(MagazineCategory category, MagazineCategory parentCategory) {
+        if (parentCategory != null) {
+            parentCategory.checkDepth();
+
+            if (parentCategory.equals(category)) {
+                throw new RuntimeException("부모 카테고리로 자기 자신을 참조할 수 없습니다.");
+            }
         }
-        boolean existsSlug = magazineCategoryRepository.existsBySlug(request.getSlug());
+    }
+
+    private void checkCategoryExists(MagazineCategoryRequest.Update request, MagazineCategory category, MagazineCategory parentCategory) {
+        boolean exists = magazineCategoryRepository.existsByNameAndParentAndIdNot(request.getName(), parentCategory, category.getId());
+        if (exists) {
+            throw new RuntimeException("해당 부모 카테고리 산하에 같은 이름을 가진 다른 카테고리가 존재합니다.");
+        }
+        boolean existsSlug = magazineCategoryRepository.existsBySlugAndIdNot(request.getSlug(), category.getId());
         if (existsSlug) {
-            throw new RuntimeException("슬러그가 중복되는 카테고리가 존재합니다.");
+            throw new RuntimeException("슬러그가 중복되는 다른 카테고리가 존재합니다.");
         }
     }
 }
+
