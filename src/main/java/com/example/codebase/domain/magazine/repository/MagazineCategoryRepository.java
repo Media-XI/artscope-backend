@@ -27,4 +27,8 @@ public interface MagazineCategoryRepository extends JpaRepository<MagazineCatego
     boolean existsBySlug(String slug);
 
     Optional<MagazineCategory> findBySlug(String slug);
+
+    boolean existsByNameAndParentAndIdNot(String name, MagazineCategory parentCategory, Long id);
+
+    boolean existsBySlugAndIdNot(String slug, Long id);
 }
