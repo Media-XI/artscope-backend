@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +63,7 @@ public class MagazineCategory {
                 .parent(parent)
                 .build();
 
-        if(parent != null)
+        if (parent != null)
             parent.getChildren().add(magazineCategory);
 
         return magazineCategory;
@@ -90,17 +91,19 @@ public class MagazineCategory {
         }
     }
 
-    public void update(MagazineCategoryRequest.Update request) {
+    public void update(MagazineCategoryRequest.Update request, MagazineCategory newParent) {
         Optional.ofNullable(request.getName())
                 .ifPresent(name -> this.name = name);
 
         Optional.ofNullable(request.getSlug())
                 .ifPresent(slug -> this.slug = slug);
 
+        this.changeParentCategory(newParent);
+
         this.updatedTime = LocalDateTime.now();
     }
 
-    public void changeParentCategory(MagazineCategory newParent) {
+    private void changeParentCategory(MagazineCategory newParent) {
         if (this.parent != null) {
             this.parent.getChildren().remove(this);
         }
