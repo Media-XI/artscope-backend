@@ -36,6 +36,7 @@ public class MagazineCategoryService {
         return MagazineCategoryResponse.Create.from(category);
     }
 
+    @Nullable
     private MagazineCategory findParentCategory(Long parentId) throws NotFoundException {
         if (parentId == null) {
             return null;
