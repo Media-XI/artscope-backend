@@ -36,6 +36,7 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -259,7 +260,7 @@ class MagazineCategoryControllerTest {
 
         // when
         String response = mockMvc.perform(
-                        put("/api/magazine-category/" + childCategory.getId())
+                        patch("/api/magazine-category/" + childCategory.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(updateRequest))
                 )
@@ -329,7 +330,7 @@ class MagazineCategoryControllerTest {
 
         // when
         mockMvc.perform(
-                        put("/api/magazine-category/" + updateCategoryBefore.getId())
+                        patch("/api/magazine-category/" + updateCategoryBefore.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(updateRequest))
                 )
@@ -365,7 +366,7 @@ class MagazineCategoryControllerTest {
     @Test
     public void 슬러그가_같은_카테고리_수정시_중복() throws Exception {
         // given
-        MagazineCategoryResponse.Create existingCategory = magazineCategoryService.createCategory(
+        magazineCategoryService.createCategory(
                 new MagazineCategoryRequest.Create("비교카테고리", "category", null)
         );
 
@@ -377,13 +378,13 @@ class MagazineCategoryControllerTest {
 
         // when
         mockMvc.perform(
-                        put("/api/magazine-category/" + updateCategoryBefore.getId())
+                        patch("/api/magazine-category/" + updateCategoryBefore.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(updateRequest))
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(result -> assertEquals("슬러그가 중복되는 카테고리가 존재합니다.", result.getResolvedException().getMessage()));
+                .andExpect(result -> assertEquals("슬러그가 중복되는 다른 카테고리가 존재합니다.", result.getResolvedException().getMessage()));
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
@@ -451,13 +452,13 @@ class MagazineCategoryControllerTest {
 
         // when
         mockMvc.perform(
-                        put("/api/magazine-category/" + changeCategory.getId())
+                        patch("/api/magazine-category/" + changeCategory.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(updateRequest))
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(result -> assertEquals("해당 부모 카테고리 산하 이름이 같은 카테고리가 존재합니다.", result.getResolvedException().getMessage()));
+                .andExpect(result -> assertEquals("해당 부모 카테고리 산하에 같은 이름을 가진 다른 카테고리가 존재합니다.", result.getResolvedException().getMessage()));
     }
 
     @WithMockCustomUser(username = "admin", role = "ADMIN")
@@ -480,6 +481,85 @@ class MagazineCategoryControllerTest {
                 .andExpect(result -> assertEquals("해당 카테고리에 속한 매거진이 존재합니다.", result.getResolvedException().getMessage()));
     }
 
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("매거진 카테고리를 수정시 자기 자신을 부모 카테고리로 둘수 없다.")
+    @Test
+    public void updateCategoryParentIsNotMe() throws Exception {
+        // given
+        MagazineCategory parentCategoryBefore = createCategoryAndLoad();
 
+        // 부모 카테고리를 자기 자신을 참조하도록 변경
+        MagazineCategoryResponse.Create childCategory = magazineCategoryService.createCategory(
+                new MagazineCategoryRequest.Create("수정된카테고리", "changeCategory", parentCategoryBefore.getId())
+        );
+
+        MagazineCategoryRequest.Update updateRequest = new MagazineCategoryRequest.Update("수정된 글", "updated-word", childCategory.getId());
+
+        // when
+        mockMvc.perform(
+                        patch("/api/magazine-category/" + childCategory.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updateRequest))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                // then
+                .andExpect(result -> assertEquals("부모 카테고리를 해당 카테고리로 설정할 수 없습니다.", result.getResolvedException().getMessage()));
+
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("매거진 카테고리를 수정시 자기 자신의 슬러그 중복은 제외한다")
+    @Test
+    public void updateCategorySameSlug() throws Exception {
+        // given
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(
+                new MagazineCategoryRequest.Create("카테고리", "category", null));
+
+        MagazineCategoryRequest.Update updateRequest = new MagazineCategoryRequest.Update("수정된 글", "category", null);
+
+        // when
+        String response = mockMvc.perform(
+                        patch("/api/magazine-category/" + category.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updateRequest))
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        // then
+        MagazineCategoryResponse.Get updatedCategory = objectMapper.readValue(response, MagazineCategoryResponse.Get.class);
+        assertEquals(updateRequest.getName(), updatedCategory.getName());
+        assertEquals(updateRequest.getSlug(), updatedCategory.getSlug());
+        assertEquals(updateRequest.getParentId(), updatedCategory.getParentCategory());
+    }
+
+    @WithMockCustomUser(username = "admin", role = "ADMIN")
+    @DisplayName("매거진 카테고리를 수정시 자기 자신의 이름 중복은 제외한다")
+    @Test
+    public void updateCategorySameName() throws Exception {
+        // given
+        MagazineCategoryResponse.Create category = magazineCategoryService.createCategory(
+                new MagazineCategoryRequest.Create("카테고리", "category", null));
+
+        MagazineCategoryRequest.Update updateRequest = new MagazineCategoryRequest.Update("카테고리", "change-category", null);
+
+        // when
+        String response = mockMvc.perform(
+                        patch("/api/magazine-category/" + category.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updateRequest))
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        // then
+        MagazineCategoryResponse.Get updatedCategory = objectMapper.readValue(response, MagazineCategoryResponse.Get.class);
+        assertEquals(updateRequest.getName(), updatedCategory.getName());
+        assertEquals(updateRequest.getSlug(), updatedCategory.getSlug());
+        assertEquals(updateRequest.getParentId(), updatedCategory.getParentCategory());
+    }
 }
 

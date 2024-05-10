@@ -48,7 +48,7 @@ public class MagazineCategoryController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("/{categoryId}")
+    @PatchMapping("/{categoryId}")
     @AdminOnly
     public ResponseEntity updateCategory(@PathVariable Long categoryId, @RequestBody @Valid MagazineCategoryRequest.Update request) {
         MagazineCategoryResponse.Get category = magazineCategoryService.updateCategory(categoryId, request);
