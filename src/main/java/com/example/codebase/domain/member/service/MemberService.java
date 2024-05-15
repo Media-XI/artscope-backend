@@ -35,27 +35,16 @@ public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
-    private final MemberAuthorityRepository memberAuthorityRepository;
-
-    private final NotificationSettingRepository notificationSettingRepository;
-
-    private final S3Service s3Service;
-
     private final RedisUtil redisUtil;
 
     @Autowired
     public MemberService(
             PasswordEncoder passwordEncoder,
             MemberRepository memberRepository,
-            MemberAuthorityRepository memberAuthorityRepository,
-            S3Service s3Service, RedisUtil redisUtil,
-            NotificationSettingRepository notificationSettingRepository) {
+            RedisUtil redisUtil) {
         this.passwordEncoder = passwordEncoder;
         this.memberRepository = memberRepository;
-        this.memberAuthorityRepository = memberAuthorityRepository;
-        this.s3Service = s3Service;
         this.redisUtil = redisUtil;
-        this.notificationSettingRepository = notificationSettingRepository;
     }
 
     @Transactional
@@ -191,30 +180,7 @@ public class MemberService {
         Member member =
                 memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
-        // S3 오브젝트 삭제
-        if (Optional.ofNullable(member.getPicture()).isPresent()
-                && member.getPicture().startsWith(s3Service.getDir())) {
-            s3Service.deleteObject(member.getPicture());
-        }
-
-        // 미디어 파일 삭제
-        if (Optional.ofNullable(member.getArtworks()).isPresent()) {
-            deleteMemberAllArtworkMedias(member.getArtworks());
-        }
-
         memberRepository.delete(member);
-    }
-
-    public void deleteMemberAllArtworkMedias(List<Artwork> artworks) {
-        for (Artwork artwork : artworks) {
-            List<ArtworkMedia> artworkMedias = artwork.getArtworkMedia();
-            List<String> urls =
-                    artworkMedias.stream().map(ArtworkMedia::getMediaUrl).collect(Collectors.toList());
-
-            if (urls.size() > 0) {
-                s3Service.deleteObjects(urls);
-            }
-        }
     }
 
     public boolean isExistEmail(String email) {
