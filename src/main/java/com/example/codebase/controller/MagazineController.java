@@ -163,8 +163,7 @@ public class MagazineController {
         String loginUsername = SecurityUtil.getCurrentUsername()
                 .orElseThrow(LoginRequiredException::new);
 
-        MagazineCategory category = magazineCategoryService.getEntity(magazineRequest.getCategorySlug());
-        MagazineResponse.Get magazine = magazineService.update(id, loginUsername, magazineRequest, category);
+        MagazineResponse.Get magazine = magazineService.update(id, loginUsername, magazineRequest);
 
         return new ResponseEntity(magazine, HttpStatus.OK);
     }
