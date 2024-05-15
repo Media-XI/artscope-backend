@@ -1,10 +1,9 @@
 package com.example.codebase.controller;
 
+import com.example.codebase.domain.member.dto.ProfileUrlDTO;
 import com.example.codebase.domain.member.dto.*;
 import com.example.codebase.domain.member.entity.RoleStatus;
 import com.example.codebase.domain.member.service.MemberService;
-import com.example.codebase.exception.NotAcceptTypeException;
-import com.example.codebase.util.FileUtil;
 import com.example.codebase.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -87,27 +85,19 @@ public class MemberController {
         return new ResponseEntity(member, HttpStatus.OK);
     }
 
-    @Operation(summary = "프로필 사진 수정", description = "[USER] 프로필 사진을 수정합니다.")
+    @Operation(summary = "프로필 사진 수정", description = "[USER] 프로필 사진을 해당 URL로 수정합니다.")
     @PreAuthorize("isAuthenticated() and hasAnyRole('ROLE_USER')")
     @PutMapping("/{username}/picture")
     public ResponseEntity updateProfile(
             @PathVariable String username,
-            @RequestPart MultipartFile profile) throws Exception {
+            @RequestBody @Valid ProfileUrlDTO urlDTO) {
         String currentUsername = SecurityUtil.getCurrentUsername()
                 .orElseThrow(() -> new RuntimeException("로그인이 필요합니다."));
         if (!currentUsername.equals(username)) {
             throw new RuntimeException("본인의 프로필 사진만 수정할 수 있습니다.");
         }
 
-        String originalFilename = profile.getOriginalFilename();
-        int index = originalFilename.lastIndexOf(".");
-        String ext = originalFilename.substring(index + 1).toLowerCase();
-
-        if (!FileUtil.checkImageExtension(ext)) {
-            throw new NotAcceptTypeException("지원하지 않는 파일 확장자 입니다.");
-        }
-
-        MemberResponseDTO member = memberService.updateProfile(username, profile);
+        MemberResponseDTO member = memberService.updateProfile(username, urlDTO.profile());
         return new ResponseEntity(member, HttpStatus.OK);
     }
 
