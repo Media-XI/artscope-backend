@@ -33,12 +33,15 @@ public class MagazineService {
 
     private final MagazineMediaRepository magazineMediaRepository;
 
+    private final MagazineCategoryRepository magazineCategoryRepository;
+
 
     @Autowired
-    public MagazineService(MagazineRepository magazineRepository, MagazineCommentRepository magazineCommentRepository, MagazineMediaRepository magazineMediaRepository) {
+    public MagazineService(MagazineRepository magazineRepository, MagazineCommentRepository magazineCommentRepository, MagazineMediaRepository magazineMediaRepository, MagazineCategoryRepository magazineCategoryRepository) {
         this.magazineRepository = magazineRepository;
         this.magazineCommentRepository = magazineCommentRepository;
         this.magazineMediaRepository = magazineMediaRepository;
+        this.magazineCategoryRepository = magazineCategoryRepository;
     }
 
     @Transactional
@@ -81,15 +84,25 @@ public class MagazineService {
     }
 
     @Transactional
-    public MagazineResponse.Get update(Long id, String loginUsername, MagazineRequest.Update magazineRequest, MagazineCategory magazineCategory) {
+    public MagazineResponse.Get update(Long id, String loginUsername, MagazineRequest.Update magazineRequest) {
         Magazine magazine = magazineRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("해당 매거진이 존재하지 않습니다."));
+
+        MagazineCategory magazineCategory = getCategory(magazineRequest.getCategorySlug(), magazine.getCategory());
 
         validateOwner(loginUsername, magazine);
 
         magazine.update(magazineRequest, magazineCategory);
 
         return MagazineResponse.Get.from(magazine);
+    }
+
+    private MagazineCategory getCategory(String categorySlug, MagazineCategory defaultCategory) {
+        if (categorySlug != null) {
+            return magazineCategoryRepository.findBySlug(categorySlug)
+                    .orElseThrow(() -> new NotFoundException("해당 카테고리가 존재하지 않습니다."));
+        }
+        return defaultCategory;
     }
 
     private void validateOwner(String loginUsername, Magazine magazine) {
