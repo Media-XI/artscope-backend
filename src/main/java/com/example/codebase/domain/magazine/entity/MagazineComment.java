@@ -121,7 +121,7 @@ public class MagazineComment {
     }
 
     public Boolean isCommentAuthor(Member member) {
-        return this.member == member;
+        return this.member.equals(member);
     }
 
     public void update(MagazineCommentRequest.Update updateComment) {
