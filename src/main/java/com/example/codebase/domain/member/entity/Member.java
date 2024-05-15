@@ -336,4 +336,17 @@ public class Member {
     public void addTeamUser(TeamUser teamUser) {
         this.teamUser.add(teamUser);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Member member = (Member) o;
+        return Objects.equals(id, member.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

@@ -1025,4 +1025,37 @@ class MagazineControllerTest {
         //then
         assertTrue(response.contains("잠시 후 다시 시도해주세요."));
     }
+
+    @WithMockCustomUser(username = "testid", role = "USER")
+    @DisplayName("매거진 수정시 slug가 없는 경우")
+    @Test
+    void 매거진_수정시_slug가_없는경우() throws Exception {
+        // given
+        Member author = createMember("testid");
+        MagazineResponse.Get magazine = createMagaizne(author);
+        String originalCategorySlug = magazine.getCategorySlug();
+
+        MagazineRequest.Update magazineRequest = new MagazineRequest.Update();
+        magazineRequest.setTitle("수정된 제목");
+        magazineRequest.setContent("수정된 내용");
+        magazineRequest.setCategorySlug(null);
+
+        // when
+        String response = mockMvc.perform(
+                        put("/api/magazines/" + magazine.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(magazineRequest))
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        // then
+        MagazineResponse.Get magazineResponse = objectMapper.readValue(response, MagazineResponse.Get.class);
+        assertEquals(magazine.getId(), magazineResponse.getId());
+        assertEquals(magazineRequest.getTitle(), magazineResponse.getTitle());
+        assertEquals(magazineRequest.getContent(), magazineResponse.getContent());
+        assertEquals(originalCategorySlug, magazineResponse.getCategorySlug());
+    }
+
 }
