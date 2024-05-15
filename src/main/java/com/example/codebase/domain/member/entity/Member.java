@@ -247,10 +247,9 @@ public class Member {
         return this;
     }
 
-    public Member update(String picture) {
+    public void update(String picture) {
         this.picture = picture;
         this.updatedTime = LocalDateTime.now();
-        return this;
     }
 
     public void setArtist(CreateArtistMemberDTO dto) {

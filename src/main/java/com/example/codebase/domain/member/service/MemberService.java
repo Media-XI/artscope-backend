@@ -13,22 +13,18 @@ import com.example.codebase.domain.member.exception.ExistsEmailException;
 import com.example.codebase.domain.member.exception.NotFoundMemberException;
 import com.example.codebase.domain.member.repository.MemberAuthorityRepository;
 import com.example.codebase.domain.member.repository.MemberRepository;
-import com.example.codebase.domain.notification.entity.Notification;
 import com.example.codebase.domain.notification.entity.NotificationSetting;
-import com.example.codebase.domain.notification.repository.NotificationRepository;
 import com.example.codebase.domain.notification.repository.NotificationSettingRepository;
 import com.example.codebase.s3.S3Service;
 import com.example.codebase.util.RedisUtil;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -39,27 +35,16 @@ public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
-    private final MemberAuthorityRepository memberAuthorityRepository;
-
-    private final NotificationSettingRepository notificationSettingRepository;
-
-    private final S3Service s3Service;
-
     private final RedisUtil redisUtil;
 
     @Autowired
     public MemberService(
             PasswordEncoder passwordEncoder,
             MemberRepository memberRepository,
-            MemberAuthorityRepository memberAuthorityRepository,
-            S3Service s3Service, RedisUtil redisUtil,
-            NotificationSettingRepository notificationSettingRepository) {
+            RedisUtil redisUtil) {
         this.passwordEncoder = passwordEncoder;
         this.memberRepository = memberRepository;
-        this.memberAuthorityRepository = memberAuthorityRepository;
-        this.s3Service = s3Service;
         this.redisUtil = redisUtil;
-        this.notificationSettingRepository = notificationSettingRepository;
     }
 
     @Transactional
@@ -182,16 +167,11 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponseDTO updateProfile(String username, MultipartFile multipartFile) {
+    public MemberResponseDTO updateProfile(String username, String profileUrl) {
         Member member =
                 memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
-        try {
-            String fileUrl = s3Service.saveUploadFile(multipartFile);
-            member.update(fileUrl);
-        } catch (IOException e) {
-            throw new RuntimeException("S3 Upload Error");
-        }
+        member.update(profileUrl);
 
         return MemberResponseDTO.from(member);
     }
@@ -200,30 +180,7 @@ public class MemberService {
         Member member =
                 memberRepository.findByUsername(username).orElseThrow(NotFoundMemberException::new);
 
-        // S3 오브젝트 삭제
-        if (Optional.ofNullable(member.getPicture()).isPresent()
-                && member.getPicture().startsWith(s3Service.getDir())) {
-            s3Service.deleteObject(member.getPicture());
-        }
-
-        // 미디어 파일 삭제
-        if (Optional.ofNullable(member.getArtworks()).isPresent()) {
-            deleteMemberAllArtworkMedias(member.getArtworks());
-        }
-
         memberRepository.delete(member);
-    }
-
-    public void deleteMemberAllArtworkMedias(List<Artwork> artworks) {
-        for (Artwork artwork : artworks) {
-            List<ArtworkMedia> artworkMedias = artwork.getArtworkMedia();
-            List<String> urls =
-                    artworkMedias.stream().map(ArtworkMedia::getMediaUrl).collect(Collectors.toList());
-
-            if (urls.size() > 0) {
-                s3Service.deleteObjects(urls);
-            }
-        }
     }
 
     public boolean isExistEmail(String email) {
@@ -321,8 +278,7 @@ public class MemberService {
         if (roleStatus.equals("PENDING")) {
             roleStatusEnums[0] = RoleStatus.ARTIST_PENDING;
             roleStatusEnums[1] = RoleStatus.CURATOR_PENDING;
-        }
-        else {
+        } else {
             roleStatusEnums[0] = RoleStatus.ARTIST_REJECTED;
             roleStatusEnums[1] = RoleStatus.CURATOR_REJECTED;
         }
@@ -365,7 +321,7 @@ public class MemberService {
         member.updateEmailReceive(emailReceive);
 
         String allow = emailReceive ? "동의" : "거부";
-        return "이메일 수신 여부가 " + member.getAllowEmailReceiveDatetime() + " 기준 " +  allow + "로 변경되었습니다.";
+        return "이메일 수신 여부가 " + member.getAllowEmailReceiveDatetime() + " 기준 " + allow + "로 변경되었습니다.";
     }
 
     public List<String> getAllUsername() {
