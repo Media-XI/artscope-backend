@@ -247,10 +247,9 @@ public class Member {
         return this;
     }
 
-    public Member update(String picture) {
+    public void update(String picture) {
         this.picture = picture;
         this.updatedTime = LocalDateTime.now();
-        return this;
     }
 
     public void setArtist(CreateArtistMemberDTO dto) {
@@ -335,5 +334,18 @@ public class Member {
 
     public void addTeamUser(TeamUser teamUser) {
         this.teamUser.add(teamUser);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Member member = (Member) o;
+        return Objects.equals(id, member.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

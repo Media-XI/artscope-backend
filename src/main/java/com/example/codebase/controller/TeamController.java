@@ -6,6 +6,7 @@ import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.domain.team.dto.TeamRequest;
 import com.example.codebase.domain.team.dto.TeamResponse;
 import com.example.codebase.domain.team.dto.TeamUserResponse;
+import com.example.codebase.domain.team.entity.Team;
 import com.example.codebase.domain.team.entity.TeamUser;
 import com.example.codebase.domain.team.service.TeamService;
 import com.example.codebase.domain.team.service.TeamUserService;
@@ -17,8 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @Tag(name = "팀 API", description = "팀과 관련된 API")
@@ -45,7 +44,9 @@ public class TeamController {
         String loginUsername = SecurityUtil.getCurrentUsernameValue();
         Member member = memberService.getEntity(loginUsername);
 
-        TeamResponse.Get response = teamService.createTeam(request, member);
+        Team team = teamService.createTeam(request, member);
+        TeamUser teamUser = teamUserService.findTeamOwnerByTeam(team);
+        TeamResponse.Get response = TeamResponse.Get.of(team,teamUser);
 
         return new ResponseEntity(response, HttpStatus.CREATED);
     }
@@ -53,7 +54,9 @@ public class TeamController {
     @GetMapping("/{teamId}")
     @Operation(summary = "팀 정보 조회", description = "팀을 조회합니다.")
     public ResponseEntity getTeam(@PathVariable Long teamId) {
-        TeamResponse.Get response = teamService.getTeam(teamId);
+        Team team = teamService.getTeam(teamId);
+        TeamUser teamUser = teamUserService.findTeamOwnerByTeam(team);
+        TeamResponse.Get response = TeamResponse.Get.of(team,teamUser);
 
         return new ResponseEntity(response, HttpStatus.OK);
     }
@@ -66,7 +69,9 @@ public class TeamController {
         TeamUser member = teamUserService.findByTeamIdAndUsername(teamId, loginUsername);
         member.validOwner();
 
-        TeamResponse.Get response = teamService.updateTeam(request, member);
+        Team team = teamService.updateTeam(request, member);
+        TeamUser teamUser = teamUserService.findTeamOwnerByTeam(team);
+        TeamResponse.Get response = TeamResponse.Get.of(team,teamUser);
 
         return new ResponseEntity(response, HttpStatus.OK);
     }
