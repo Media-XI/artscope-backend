@@ -75,8 +75,8 @@ public class TeamUserService {
             throw new RuntimeException("본인 또는 팀장만 정보를 수정할 수 있습니다.");
         }
 
-        member.update(request);
-        teamUserRepository.save(member);
+        changeMember.update(request);
+        teamUserRepository.save(changeMember);
     }
 
     @Transactional(readOnly = true)
