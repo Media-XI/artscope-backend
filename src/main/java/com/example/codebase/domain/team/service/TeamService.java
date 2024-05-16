@@ -42,12 +42,6 @@ public class TeamService {
                 .orElseThrow(() -> new NotFoundException("팀이 존재하지 않습니다."));
     }
 
-    @Transactional(readOnly = true)
-    public Team getEntity(String teamName) {
-        return teamRepository.findByName(teamName)
-                .orElseThrow(() -> new NotFoundException("팀이 존재하지 않습니다."));
-    }
-
     public Team updateTeam(TeamRequest.Update request, TeamUser teamUser) {
         Team team = teamUser.getTeam();
 
