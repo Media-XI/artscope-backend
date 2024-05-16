@@ -5,9 +5,9 @@ import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.domain.team.dto.TeamRequest;
-import com.example.codebase.domain.team.dto.TeamResponse;
 import com.example.codebase.domain.team.dto.TeamUserRequest;
 import com.example.codebase.domain.team.dto.TeamUserResponse;
+import com.example.codebase.domain.team.entity.Team;
 import com.example.codebase.domain.team.entity.TeamUser;
 import com.example.codebase.domain.team.service.TeamService;
 import com.example.codebase.domain.team.service.TeamUserService;
@@ -92,7 +92,7 @@ class TeamUserControllerTest {
         );
     }
 
-    public TeamResponse.Get createTeam(Member member, String name) {
+    public Team createTeam(Member member, String name) {
         return teamService.createTeam(createTeamRequest(name), member);
     }
 
@@ -109,7 +109,7 @@ class TeamUserControllerTest {
     void 팀_소속_유저_추가() throws Exception {
         // given
         Member member = createMember("testid");
-        TeamResponse.Get team = createTeam(member, "팀이름");
+        Team team = createTeam(member, "팀이름");
         Member inviteMember = createMember("inviteMember");
 
         TeamUserRequest.Create request = new TeamUserRequest.Create(
@@ -139,7 +139,7 @@ class TeamUserControllerTest {
     void 팀_소속_유저_삭제() throws Exception {
         // given
         Member member = createMember("testid");
-        TeamResponse.Get team = createTeam(member, "팀이름");
+        Team team = createTeam(member, "팀이름");
         TeamUser teamOwner = teamUserService.findByTeamIdAndUsername(team.getId(), member.getUsername());
 
         Member inviteMember = createMember("removedUser");
@@ -164,7 +164,7 @@ class TeamUserControllerTest {
     void 팀장인_경우_자신을_팀에서_추방_실패() throws Exception {
         // given
         Member member = createMember("testid");
-        TeamResponse.Get team = createTeam(member, "팀이름");
+        Team team = createTeam(member, "팀이름");
 
         // when
         String response = mockMvc.perform(
@@ -184,7 +184,7 @@ class TeamUserControllerTest {
     void 팀장_권한_양도() throws Exception {
         // given
         Member member = createMember("testid");
-        TeamResponse.Get team = createTeam(member, "팀이름");
+        Team team = createTeam(member, "팀이름");
         TeamUser teamOwner = teamUserService.findByTeamIdAndUsername(team.getId(), member.getUsername());
 
         Member inviteMember = createMember("transferUser");
@@ -213,7 +213,7 @@ class TeamUserControllerTest {
     void 팀_탈퇴_성공() throws Exception {
         // given
         Member member = createMember("testid");
-        TeamResponse.Get team = createTeam(member, "팀이름");
+        Team team = createTeam(member, "팀이름");
         TeamUser teamOwner = teamUserService.findByTeamIdAndUsername(team.getId(), member.getUsername());
 
         Member inviteMember = createMember("leaveUser");
@@ -238,7 +238,7 @@ class TeamUserControllerTest {
     void 팀장이_팀_유저_직책_변경() throws Exception {
         // given
         Member member = createMember("testid");
-        TeamResponse.Get team = createTeam(member, "팀이름");
+        Team team = createTeam(member, "팀이름");
         TeamUser teamOwner = teamUserService.findByTeamIdAndUsername(team.getId(), member.getUsername());
 
         Member inviteMember = createMember("changePositionUser");
@@ -259,6 +259,7 @@ class TeamUserControllerTest {
 
         // then
         assertTrue(response.contains("직책이 변경되었습니다."));
+
     }
 
     @WithMockCustomUser(username = "changePositionUser", role = "USER")
@@ -267,7 +268,7 @@ class TeamUserControllerTest {
     void 팀원이_본인_직책_변경() throws Exception {
         // given
         Member member = createMember("testid");
-        TeamResponse.Get team = createTeam(member, "팀이름");
+        Team team = createTeam(member, "팀이름");
         TeamUser teamOwner = teamUserService.findByTeamIdAndUsername(team.getId(), member.getUsername());
 
         Member inviteMember = createMember("changePositionUser");
@@ -296,7 +297,7 @@ class TeamUserControllerTest {
     void 다른_유저가_팀원_직책_변경시도시_실패() throws Exception {
         // given
         Member member = createMember("testid");
-        TeamResponse.Get team = createTeam(member, "팀이름");
+        Team team = createTeam(member, "팀이름");
         TeamUser teamOwner = teamUserService.findByTeamIdAndUsername(team.getId(), member.getUsername());
 
         Member teamMember1 = createMember("user1");
@@ -328,7 +329,7 @@ class TeamUserControllerTest {
     void 팀_소속_유저_추가시_이미_팀에_속했을경우_실패() throws Exception {
         // given
         Member member = createMember("testid");
-        TeamResponse.Get team = createTeam(member, "팀이름");
+        Team team = createTeam(member, "팀이름");
         TeamUser teamOwner = teamUserService.findByTeamIdAndUsername(team.getId(), member.getUsername());
 
         Member inviteMember = createMember("addMember");
@@ -357,7 +358,7 @@ class TeamUserControllerTest {
     void 팀장이_자기_자신을_추방_할_경우_실패() throws Exception {
         // given
         Member member = createMember("testid");
-        TeamResponse.Get team = createTeam(member, "팀이름");
+        Team team = createTeam(member, "팀이름");
 
         String response = mockMvc.perform(
                         delete("/api/team-users/" + member.getUsername() + "?teamId=" + team.getId())

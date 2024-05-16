@@ -1,7 +1,6 @@
 package com.example.codebase.domain.team.service;
 
 import com.example.codebase.domain.member.entity.Member;
-import com.example.codebase.domain.team.dto.TeamResponse;
 import com.example.codebase.domain.team.dto.TeamUserRequest;
 import com.example.codebase.domain.team.dto.TeamUserResponse;
 import com.example.codebase.domain.team.entity.Team;
@@ -14,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -80,5 +77,11 @@ public class TeamUserService {
 
         changeMember.update(request);
         teamUserRepository.save(changeMember);
+    }
+
+    @Transactional(readOnly = true)
+    public TeamUser findTeamOwnerByTeam(Team team) {
+        return teamUserRepository.findByTeamIdAndRole(team.getId(), TeamUserRole.OWNER)
+                .orElseThrow(() -> new NotFoundException("팀장을 찾을 수 없습니다."));
     }
 }
