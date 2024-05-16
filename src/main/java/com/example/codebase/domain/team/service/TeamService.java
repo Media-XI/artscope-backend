@@ -2,7 +2,6 @@ package com.example.codebase.domain.team.service;
 
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.team.dto.TeamRequest;
-import com.example.codebase.domain.team.dto.TeamResponse;
 import com.example.codebase.domain.team.entity.Team;
 import com.example.codebase.domain.team.entity.TeamUser;
 import com.example.codebase.domain.team.entity.TeamUserRole;
@@ -23,8 +22,8 @@ public class TeamService {
         this.teamRepository = teamRepository;
     }
 
-    public TeamResponse.Get createTeam(TeamRequest.Create request, Member member) {
-        if(teamRepository.existsByName(request.getName())) {
+    public Team createTeam(TeamRequest.Create request, Member member) {
+        if (teamRepository.existsByName(request.getName())) {
             throw new RuntimeException("이미 존재하는 팀 이름입니다.");
         }
 
@@ -34,21 +33,22 @@ public class TeamService {
         team.addTeamUser(teamUser);
 
         teamRepository.save(team);
-        return TeamResponse.Get.from(team);
+        return team;
     }
 
     @Transactional(readOnly = true)
-    public TeamResponse.Get getTeam(Long teamId) {
-        Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("팀이 존재하지 않습니다."));
-        return TeamResponse.Get.from(team);
+    public Team getTeam(Long teamId) {
+        return teamRepository.findById(teamId)
+                .orElseThrow(() -> new NotFoundException("팀이 존재하지 않습니다."));
     }
 
     @Transactional(readOnly = true)
     public Team getEntity(String teamName) {
-        return teamRepository.findByName(teamName).orElseThrow(() -> new NotFoundException("팀이 존재하지 않습니다."));
+        return teamRepository.findByName(teamName)
+                .orElseThrow(() -> new NotFoundException("팀이 존재하지 않습니다."));
     }
 
-    public TeamResponse.Get updateTeam(TeamRequest.Update request, TeamUser teamUser) {
+    public Team updateTeam(TeamRequest.Update request, TeamUser teamUser) {
         Team team = teamUser.getTeam();
 
         if (teamRepository.existsByNameAndIdNot(request.getName(), team.getId())) {
@@ -57,7 +57,7 @@ public class TeamService {
 
         team.update(request);
         teamRepository.save(team);
-        return TeamResponse.Get.from(team);
+        return team;
     }
 
     public void deleteTeam(TeamUser teamUser) {
