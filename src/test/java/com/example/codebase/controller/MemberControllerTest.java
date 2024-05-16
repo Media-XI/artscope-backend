@@ -15,6 +15,7 @@ import com.example.codebase.domain.team.dto.TeamResponse;
 
 import com.example.codebase.domain.team.dto.TeamUserRequest;
 import com.example.codebase.domain.team.dto.TeamUserResponse;
+import com.example.codebase.domain.team.entity.Team;
 import com.example.codebase.domain.team.entity.TeamUser;
 import com.example.codebase.domain.team.repository.TeamUserRepository;
 import com.example.codebase.domain.team.service.TeamService;
@@ -155,7 +156,7 @@ class MemberControllerTest {
         return Files.readAllBytes(file.toPath());
     }
 
-    public TeamResponse.Get createTeam(Member member, String name) {
+    public Team createTeam(Member member, String name) {
         return teamService.createTeam(createTeamRequest(name), member);
     }
 
@@ -610,8 +611,8 @@ class MemberControllerTest {
     void 회원_프로필_팀_조회시_팀_반환_확인() throws Exception {
         // given
         Member member = createOrLoadMember();
-        TeamResponse.Get team1 = createTeam(member, "팀이름1");
-        TeamResponse.Get team2 = createTeam(member, "팀이름2");
+        Team team1 = createTeam(member, "팀이름1");
+        Team team2 = createTeam(member, "팀이름2");
 
         // when
         String response = mockMvc.perform(
@@ -633,8 +634,8 @@ class MemberControllerTest {
     void 사용자_프로필_조회시_팀_반환_확인() throws Exception {
         // given
         Member member = createOrLoadMember();
-        TeamResponse.Get team1 = createTeam(member, "팀이름1");
-        TeamResponse.Get team2 = createTeam(member, "팀이름2");
+        Team team1 = createTeam(member, "팀이름1");
+        Team team2 = createTeam(member, "팀이름2");
 
         // when
         String response = mockMvc.perform(
@@ -657,9 +658,9 @@ class MemberControllerTest {
         //given
         Member member = createOrLoadMember();
         Member member2 = createOrLoadMember(2, RoleStatus.ARTIST);
-        TeamResponse.Get createTeam1 = createTeam(member, "ownerTeam1");
-        TeamResponse.Get createTeam2 = createTeam(member, "ownerTeam2");
-        TeamResponse.Get inviteTeam = createTeam(member2, "memberTeam1");
+        Team createTeam1 = createTeam(member, "ownerTeam1");
+        Team createTeam2 = createTeam(member, "ownerTeam2");
+        Team inviteTeam = createTeam(member2, "memberTeam1");
         TeamUser teamOwner = teamUserService.findByTeamIdAndUsername(inviteTeam.getId(),member2.getUsername());
         createAndInviteMember(teamOwner, member);
 

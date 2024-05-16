@@ -10,8 +10,8 @@ import com.example.codebase.domain.member.dto.CreateMemberDTO;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.member.service.MemberService;
 import com.example.codebase.domain.team.dto.TeamRequest;
-import com.example.codebase.domain.team.dto.TeamResponse;
 import com.example.codebase.domain.team.dto.TeamUserRequest;
+import com.example.codebase.domain.team.entity.Team;
 import com.example.codebase.domain.team.entity.TeamUser;
 import com.example.codebase.domain.team.service.TeamService;
 import com.example.codebase.domain.team.service.TeamUserService;
@@ -175,7 +175,7 @@ class MagazineControllerTest {
         );
     }
 
-    public TeamResponse.Get createTeam(Member member, String name) {
+    public Team createTeam(Member member, String name) {
         return teamService.createTeam(createTeamRequest(name), member);
     }
 
@@ -840,7 +840,7 @@ class MagazineControllerTest {
     void 팀_매거진_생성() throws Exception {
         // given
         Member member = createMember("testid");
-        TeamResponse.Get team = createTeam(member, "팀이름");
+        Team team = createTeam(member, "팀이름");
         TeamUser teamUser = teamUserService.findByTeamIdAndUsername(team.getId(), member.getUsername());
 
         MagazineCategoryRequest.Create request = new MagazineCategoryRequest.Create("글", "slug", null);
@@ -880,7 +880,7 @@ class MagazineControllerTest {
     void 팀_매거진_생성시_해당_팀_유저가_아닌경우_실패() throws Exception {
         // given
         Member member = createMember("admin");
-        TeamResponse.Get team = createTeam(member, "팀이름");
+        Team team = createTeam(member, "팀이름");
         TeamUser teamUser = teamUserService.findByTeamIdAndUsername(team.getId(), member.getUsername());
 
         createMember("testid");
@@ -914,7 +914,7 @@ class MagazineControllerTest {
     void 팀_매거진_생성시_urn에_string을_기입_할_경우_실패() throws Exception {
         // given
         Member member = createMember("admin");
-        TeamResponse.Get team = createTeam(member, "팀이름");
+        Team team = createTeam(member, "팀이름");
         TeamUser teamUser = teamUserService.findByTeamIdAndUsername(team.getId(), member.getUsername());
 
         createMember("testid");
