@@ -10,6 +10,8 @@ spring:
           name: artscope-backend-${spring.profiles.active}
           service-url:
           - ${ADMIN_CLIENT_URL}
+          service-base-url:
+          - ${ADMIN_CLIENT_URL}
 
 management:
   endpoints:
