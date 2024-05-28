@@ -71,41 +71,6 @@ jobs:
       - name: Push to ${{ env.REGISTRY }}
         run: docker push ${{ env.DOCKER_IMAGE_NAME }}
 
-      # Docker 이미지 이름을 image.txt 파일에 쓰기
-      - name: Write Docker image name to file
-        run: echo "${{ env.DOCKER_IMAGE_NAME }}" > image.txt
-
-      - name: Create zip file for AWS CodeDeploy
-        run: mkdir ${{ env.AWS_CODE_DEPLOY_NAME }} && cp -r appspec.yml image.txt scripts ${{ env.AWS_CODE_DEPLOY_NAME }}
-
-      # AWS 설정
-      - name: AWS Configure
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: ap-northeast-2
-
-      # AWS S3로 배포 파일 업로드
-      - name: Upload to AWS S3
-        run: |
-          aws deploy push \
-            --application-name ${{ env.AWS_CODE_DEPLOY_NAME }} \
-            --s3-location s3://${{ env.AWS_S3_BUCKET_NAME }}/codedeploy/$GITHUB_SHA.zip \
-            --ignore-hidden-files \
-            --source ${{ env.AWS_CODE_DEPLOY_NAME }}
-
-      # AWS EC2 CodeDeploy 배포 요청
-      - name: Delpoy to AWS EC2
-        run: |
-          aws deploy create-deployment \
-            --application-name ${{ env.AWS_CODE_DEPLOY_NAME }} \
-            --deployment-config-name CodeDeployDefault.OneAtATime \
-            --deployment-group-name ${{ env.AWS_CODE_DEPLOY_GROUP }} \
-            --description "Deploy artscope" \
-            --s3-location bucket=$AWS_S3_BUCKET_NAME,key=codedeploy/$GITHUB_SHA.zip,bundleType=zip
-          
-
       # 다음 버전으로 업데이트
       - name: Autoincrement a new minor version
         run: |
