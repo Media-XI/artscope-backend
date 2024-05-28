@@ -8,6 +8,7 @@ import com.example.codebase.domain.team.dto.TeamRequest;
 import com.example.codebase.domain.team.dto.TeamResponse;
 import com.example.codebase.domain.team.dto.TeamUserRequest;
 import com.example.codebase.domain.team.dto.TeamUserResponse;
+import com.example.codebase.domain.team.entity.Team;
 import com.example.codebase.domain.team.entity.TeamUser;
 import com.example.codebase.domain.team.service.TeamService;
 import com.example.codebase.domain.team.service.TeamUserService;
@@ -97,7 +98,7 @@ class TeamControllerTest {
         return request;
     }
 
-    public TeamResponse.Get createTeam(Member member, String name) {
+    public Team createTeam(Member member, String name) {
         return teamService.createTeam(createTeamRequest(name), member);
     }
 
@@ -125,6 +126,7 @@ class TeamControllerTest {
         assertEquals(request.getAddress(), teamResponse.getAddress());
         assertEquals(request.getProfileImage(), teamResponse.getProfileImage());
         assertEquals(request.getBackgroundImage(), teamResponse.getBackgroundImage());
+        assertEquals(member.getUsername(), teamResponse.getOwnerUsername());
     }
 
     @WithMockCustomUser(username = "testid", role = "USER")
@@ -152,7 +154,7 @@ class TeamControllerTest {
     void 팀_정보_상세_조회() throws Exception {
         // given
         Member member = createMember("testid");
-        TeamResponse.Get team = createTeam(member, "팀생성");
+        Team team = createTeam(member, "팀생성");
 
         String response = mockMvc.perform(
                         get("/api/teams/" + team.getId())
@@ -167,6 +169,7 @@ class TeamControllerTest {
         assertEquals(team.getAddress(), teamResponse.getAddress());
         assertEquals(team.getProfileImage(), teamResponse.getProfileImage());
         assertEquals(team.getBackgroundImage(), teamResponse.getBackgroundImage());
+        assertEquals(member.getUsername(), teamResponse.getOwnerUsername());
     }
 
     @DisplayName("팀 정보 수정")
@@ -175,7 +178,7 @@ class TeamControllerTest {
     void 팀_정보_수정() throws Exception {
         // given
         Member member = createMember("testid");
-        TeamResponse.Get team = createTeam(member, "팀수정");
+        Team team = createTeam(member, "팀수정");
 
         TeamRequest.Update request = new TeamRequest.Update(
                 "수정된팀이름",
@@ -201,6 +204,7 @@ class TeamControllerTest {
         assertEquals(request.getProfileImage(), teamResponse.getProfileImage());
         assertEquals(request.getBackgroundImage(), teamResponse.getBackgroundImage());
         assertEquals(request.getDescription(), teamResponse.getDescription());
+        assertEquals(member.getUsername(), teamResponse.getOwnerUsername());
     }
 
     @DisplayName("이미 존재하는 팀 이름이 있을 때 팀 정보 수정 실패")
@@ -210,7 +214,7 @@ class TeamControllerTest {
         // given
         Member member = createMember("testid");
         createTeam(member, "중복된팀이름");
-        TeamResponse.Get team = createTeam(member, "테스트이름");
+        Team team = createTeam(member, "테스트이름");
         TeamRequest.Update request = new TeamRequest.Update(
                 "중복된팀이름",
                 "팀 주소",
@@ -235,7 +239,7 @@ class TeamControllerTest {
     void 기존의_팀과_동일한_이름으로_팀_정보_수정시() throws Exception {
         // given
         Member member = createMember("testid");
-        TeamResponse.Get team = createTeam(member, "팀이름");
+        Team team = createTeam(member, "팀이름");
         TeamRequest.Update request = new TeamRequest.Update(
                 "팀이름",
                 "팀 주소",
@@ -259,7 +263,7 @@ class TeamControllerTest {
     void 팀_삭제() throws Exception {
         // given
         Member member = createMember("testid");
-        TeamResponse.Get team = createTeam(member, "팀이름");
+        Team team = createTeam(member, "팀이름");
 
         // when
         mockMvc.perform(
@@ -275,7 +279,7 @@ class TeamControllerTest {
     void 팀_소속_유저_조회() throws Exception {
         // given
         Member member = createMember("testid");
-        TeamResponse.Get team = createTeam(member, "팀이름");
+        Team team = createTeam(member, "팀이름");
 
         // when
         String response = mockMvc.perform(get("/api/teams/" + team.getId() + "/people")

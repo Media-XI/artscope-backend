@@ -3,6 +3,7 @@ package com.example.codebase.domain.team.repository;
 import com.example.codebase.domain.member.entity.Member;
 import com.example.codebase.domain.team.entity.Team;
 import com.example.codebase.domain.team.entity.TeamUser;
+import com.example.codebase.domain.team.entity.TeamUserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -19,4 +20,5 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
 
     boolean existsByTeamAndMember(Team team, Member member);
 
+    Optional<TeamUser> findByTeamIdAndRole(Long id, TeamUserRole teamUserRole);
 }

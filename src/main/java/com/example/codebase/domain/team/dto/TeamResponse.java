@@ -1,6 +1,7 @@
 package com.example.codebase.domain.team.dto;
 
 import com.example.codebase.domain.team.entity.Team;
+import com.example.codebase.domain.team.entity.TeamUser;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -27,13 +28,15 @@ public class TeamResponse {
 
         private String name;
 
+        private String ownerUsername;
+
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime createdTime;
 
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime updatedTime;
 
-        public static TeamResponse.Get from(Team team) {
+        public static Get of(Team team, TeamUser teamUser) {
             Get get = new Get();
             get.setId(team.getId());
             get.setDescription(team.getDescription());
@@ -43,6 +46,7 @@ public class TeamResponse {
             get.setName(team.getName());
             get.setCreatedTime(team.getCreatedTime());
             get.setUpdatedTime(team.getUpdatedTime());
+            get.setOwnerUsername(teamUser.getMember().getUsername());
             return get;
         }
     }
