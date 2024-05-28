@@ -1,0 +1,24 @@
+spring:
+  boot:
+    admin:
+      client:
+        url:
+          - ENC(OPBnD61N+eMc4g7DOlX8RPCH7HPVog3OhqbitXLaGMtSTBgQ8BeJI6B32kletTsZ)
+        username: ${ADMIN_SERVER_USERNAME}
+        password: ${ADMIN_SERVER_PASSWORD}
+        instance:
+          name: artscope-backend-${spring.profiles.active}
+          service-url:
+          - ${ADMIN_CLIENT_URL}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  info:
+    env:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always

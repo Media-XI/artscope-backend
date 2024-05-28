@@ -2,6 +2,7 @@ package com.example.codebase.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.BeanSerializer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,6 +45,10 @@ public class ClientUtil {
 
         if (body == null) {
             return stringBuilder.append("null");
+        }
+
+        if (!(body instanceof BeanSerializer)) {
+            return stringBuilder.append("not serializable object");
         }
 
         try {
