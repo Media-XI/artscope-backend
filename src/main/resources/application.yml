@@ -10,6 +10,7 @@ spring:
       - s3
       - mail
       - es
+      - admin
 
   mvc:
     pathmatch:
