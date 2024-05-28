@@ -12,7 +12,7 @@ spring:
           - ${ADMIN_CLIENT_URL}
           service-base-url:
           - ${ADMIN_CLIENT_URL}
-
+          prefer-ip: true
 management:
   endpoints:
     web:
