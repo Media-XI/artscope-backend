@@ -9,7 +9,7 @@ spring:
         instance:
           name: artscope-backend-${spring.profiles.active}
           service-url:
-          - http://localhost:8080
+          - ${ADMIN_CLIENT_URL}
 
 management:
   endpoints:
