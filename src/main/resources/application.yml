@@ -61,3 +61,7 @@ webhook:
 
 build:
   info: ${BUILD_INFO:native}
+
+sentry:
+  dsn: ${SENTRY_DSN}
+  exception-resolver-order: -2147483647

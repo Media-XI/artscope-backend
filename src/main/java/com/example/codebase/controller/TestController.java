@@ -1,5 +1,6 @@
 package com.example.codebase.controller;
 
+import io.sentry.Sentry;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,5 +24,16 @@ public class TestController {
     @GetMapping("/user")
     public String user() {
         return "user!";
+    }
+
+    @Operation(summary = "Sentry 테스트", description = "Sentry 테스트")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/sentry")
+    public void sentry() {
+        try {
+            throw new Exception("Sentry Test Error!");
+        } catch (Exception e) {
+            Sentry.captureException(e);
+        }
     }
 }
