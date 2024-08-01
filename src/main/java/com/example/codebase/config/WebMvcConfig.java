@@ -1,6 +1,7 @@
 package com.example.codebase.config;
 
 import com.example.codebase.filter.MDCLoggingFilter;
+import com.example.codebase.filter.SentryInterceptor;
 import com.example.codebase.filter.ServletLoggingFilter;
 import com.example.codebase.filter.security.RefererCheckIntercepter;
 import com.example.codebase.util.HTMLCharacterEscapes;
@@ -46,6 +47,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new RefererCheckIntercepter(environment))
             .addPathPatterns("/api/**");
+        registry.addInterceptor(new SentryInterceptor());
     }
 
     @Bean
